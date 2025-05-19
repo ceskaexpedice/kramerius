@@ -57,12 +57,14 @@ public class LicensesResource {
         }
     }
 
-    private static List<License> acceptOrDiscardRuntimeLicense(List<License> allLicenses, Boolean acceptRuntimeB) {
+    private static List<License> acceptOrDiscardRuntimeLicense(List<License> allLicenses, Boolean acceptRuntime) {
         Set<License> retval = new LinkedHashSet<>();
         allLicenses.forEach(l-> {
             boolean runtimeLicense = l.isRuntimeLicense();
-            if (runtimeLicense && acceptRuntimeB) {
-                retval.add(l);
+            if (runtimeLicense) {
+                if (acceptRuntime) {
+                    retval.add(l);
+                }
             } else {
                 retval.add(l);
             }
