@@ -227,9 +227,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_FULL";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, true, true);
+            return buildForwardApacheResponseHEAD(url, null, this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, null, this.pid, true, true, event, null);
+            return buildForwardApacheResponseGET(url, null, this.pid, false, true, event, null);
         }
     }
 
@@ -239,9 +239,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_PREVIEW";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, true, true);
+            return buildForwardApacheResponseHEAD(url, null, this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, null, this.pid, true, true, event, null);
+            return buildForwardApacheResponseGET(url, null, this.pid, false, true, event, null);
         }
     }
 
@@ -309,9 +309,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 + "/streams/TEXT_OCR";
 
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, true, true);
+            return buildForwardApacheResponseHEAD(url, null, this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, null, this.pid, true, true, event, null);
+            return buildForwardApacheResponseGET(url, null, this.pid, false, true, event, null);
         }
     }
 
@@ -321,11 +321,42 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/ALTO";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, "application/xml;charset=utf-8", this.pid, true, true);
+            return buildForwardApacheResponseHEAD(url, "application/xml;charset=utf-8", this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, "application/xml;charset=utf-8", this.pid, true, true, event, null);
+            return buildForwardApacheResponseGET(url, "application/xml;charset=utf-8", this.pid, false, true, event, null);
         }
     }
 
 
+    @Override
+    public boolean isStreamDCAvaiable(ApiCallEvent event) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
+                + "/streams/DC";
+        return exists(url);
+    }
+
+    @Override
+    public boolean isStreamBiblioModsAvaiable(ApiCallEvent event) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
+                + "/streams/DC";
+        return exists(url);
+    }
+
+    @Override
+    public InputStream directStreamDC(ApiCallEvent event) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
+                + "/streams/DC";
+        return inputStream(url);
+    }
+
+    @Override
+    public InputStream directStreamBiblioMods(ApiCallEvent event) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
+                + "/streams/BIBLIO_MODS";
+        return inputStream(url);
+    }
 }

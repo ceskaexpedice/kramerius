@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DateTimeException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +29,7 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -53,7 +55,8 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public enum OAIVerb {
-    // metadata formats 
+
+    // metadata formats
     ListMetadataFormats {
 
 		@Override
@@ -66,21 +69,24 @@ public enum OAIVerb {
             doc.getDocumentElement().appendChild(listMetadataPrefix);
             MetadataExport[] values = MetadataExport.values();
             for (MetadataExport metadataExport : values) {
-                Element metadataFormat= doc.createElement("metadataFormat");
+                if (metadataExport.isAvailableOnLocal()) {
+                    Element metadataFormat= doc.createElement("metadataFormat");
 
-                Element metadataPrefix = doc.createElement(METADATA_PREFIX_PARAMETER);
-                metadataPrefix.setTextContent(metadataExport.getMetadataPrefix());
-                metadataFormat.appendChild(metadataPrefix);
-                
-                Element schema = doc.createElement("schema");
-                schema.setTextContent(metadataExport.getSchema());
-                metadataFormat.appendChild(schema);
+                    Element metadataPrefix = doc.createElement(METADATA_PREFIX_PARAMETER);
+                    metadataPrefix.setTextContent(metadataExport.getMetadataPrefix());
+                    metadataFormat.appendChild(metadataPrefix);
 
-                Element metadataNamespace = doc.createElement("metadataNamespace");
-                metadataNamespace.setTextContent(metadataExport.getMetadataNamespace());
-                metadataFormat.appendChild(metadataNamespace);
-                
-                listMetadataPrefix.appendChild(metadataFormat);
+                    Element schema = doc.createElement("schema");
+                    schema.setTextContent(metadataExport.getSchema());
+                    metadataFormat.appendChild(schema);
+
+                    Element metadataNamespace = doc.createElement("metadataNamespace");
+                    metadataNamespace.setTextContent(metadataExport.getMetadataNamespace());
+                    metadataFormat.appendChild(metadataNamespace);
+
+                    listMetadataPrefix.appendChild(metadataFormat);
+
+                }
             }
             
             doc.getDocumentElement().appendChild(listMetadataPrefix);
@@ -88,7 +94,7 @@ public enum OAIVerb {
         }
 		
 		 @Override
-        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport cacheSupport) throws OAIException{
 
             Element requestElement = OAITools.requestElement(doc, OAIVerb.ListMetadataFormats,null,ApplicationURL.applicationURL(request),null);
             doc.getDocumentElement().appendChild(requestElement);
@@ -97,21 +103,23 @@ public enum OAIVerb {
             doc.getDocumentElement().appendChild(listMetadataPrefix);
             MetadataExport[] values = MetadataExport.values();
             for (MetadataExport metadataExport : values) {
-                Element metadataFormat= doc.createElement("metadataFormat");
+                if (metadataExport.isAvailableOnCDKSide()) {
+                    Element metadataFormat= doc.createElement("metadataFormat");
 
-                Element metadataPrefix = doc.createElement("metadataPrefix");
-                metadataPrefix.setTextContent(metadataExport.getMetadataPrefix());
-                metadataFormat.appendChild(metadataPrefix);
-                
-                Element schema = doc.createElement("schema");
-                schema.setTextContent(metadataExport.getSchema());
-                metadataFormat.appendChild(schema);
+                    Element metadataPrefix = doc.createElement("metadataPrefix");
+                    metadataPrefix.setTextContent(metadataExport.getMetadataPrefix());
+                    metadataFormat.appendChild(metadataPrefix);
 
-                Element metadataNamespace = doc.createElement("metadataNamespace");
-                metadataNamespace.setTextContent(metadataExport.getMetadataNamespace());
-                metadataFormat.appendChild(metadataNamespace);
-                
-                listMetadataPrefix.appendChild(metadataFormat);
+                    Element schema = doc.createElement("schema");
+                    schema.setTextContent(metadataExport.getSchema());
+                    metadataFormat.appendChild(schema);
+
+                    Element metadataNamespace = doc.createElement("metadataNamespace");
+                    metadataNamespace.setTextContent(metadataExport.getMetadataNamespace());
+                    metadataFormat.appendChild(metadataNamespace);
+
+                    listMetadataPrefix.appendChild(metadataFormat);
+                }
             }
             
             doc.getDocumentElement().appendChild(listMetadataPrefix);
@@ -123,6 +131,16 @@ public enum OAIVerb {
     ListSets {
 		@Override
         public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+            listSets(configManager, request, doc);
+        }
+
+
+        @Override
+        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport support) throws OAIException{
+            listSets(configManager, request, doc);
+        }
+
+        private void listSets(ConfigManager configManager, HttpServletRequest request, Document doc) {
             try {
                 Element requestElement = OAITools.requestElement(doc, OAIVerb.ListSets, null,ApplicationURL.applicationURL(request), null);
                 doc.getDocumentElement().appendChild(requestElement);
@@ -135,7 +153,7 @@ public enum OAIVerb {
                 Element listSets = doc.createElement("ListSets");
                 doc.getDocumentElement().appendChild(listSets);
                 List<OAISet> oaiSets = sets.getAOISets();
-                
+
                 for (OAISet oaiIterationSet : oaiSets) {
                     if (!oaiIterationSet.getSetSpec().equals(OAISet.DEFAULT_SET_KEYWORD)) {
                         Element setDefinition= doc.createElement(SET_PARAMETER);
@@ -147,17 +165,12 @@ public enum OAIVerb {
                         Element setName = doc.createElement("setName");
                         setName.setTextContent(oaiIterationSet.getSetName());
                         setDefinition.appendChild(setName);
-                        
-                        Element setDescription = doc.createElement("setDescription");
-                        if (oaiIterationSet.getSetDescription() != null) {
-                            setDescription.setTextContent(oaiIterationSet.getSetDescription());
-                        }
-                        setDefinition.appendChild(setDescription);
-                        
+
+
                         listSets.appendChild(setDefinition);
                     }
                 }
-                
+
                 doc.getDocumentElement().appendChild(listSets);
             } catch (MalformedURLException | DOMException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -165,49 +178,6 @@ public enum OAIVerb {
             }
         }
 
-		@Override
-        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
-            try {
-                Element requestElement = OAITools.requestElement(doc, OAIVerb.ListSets, null,ApplicationURL.applicationURL(request), null);
-                doc.getDocumentElement().appendChild(requestElement);
-
-                String baseUrl = ApplicationURL.applicationURL(request);
-                URL urlObject = new URL(baseUrl);
-
-                OAISets sets = new OAISets(configManager, urlObject.getHost());
-
-                Element listSets = doc.createElement("ListSets");
-                doc.getDocumentElement().appendChild(listSets);
-                List<OAISet> oaiSets = sets.getAOISets();
-                
-                for (OAISet oaiIterationSet : oaiSets) {
-                    if (!oaiIterationSet.getSetSpec().equals(OAISet.DEFAULT_SET_KEYWORD)) {
-                        Element setDefinition= doc.createElement("set");
-
-                        Element setSpec = doc.createElement("setSpec");
-                        setSpec.setTextContent(oaiIterationSet.getSetSpec());
-                        setDefinition.appendChild(setSpec);
-
-                        Element setName = doc.createElement("setName");
-                        setName.setTextContent(oaiIterationSet.getSetName());
-                        setDefinition.appendChild(setName);
-                        
-                        Element setDescription = doc.createElement("setDescription");
-                        if (oaiIterationSet.getSetDescription() != null) {
-                            setDescription.setTextContent(oaiIterationSet.getSetDescription());
-                        }
-                        setDefinition.appendChild(setDescription);
-                        
-                        listSets.appendChild(setDefinition);
-                    }
-                }
-                
-                doc.getDocumentElement().appendChild(listSets);
-            } catch (MalformedURLException | DOMException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                throw new OAIException(ErrorCode.badArgument, OAIVerb.ListIdentifiers,null, ApplicationURL.applicationURL(request),null);
-            }
-        }
 
     },
 
@@ -215,120 +185,47 @@ public enum OAIVerb {
 
 		@Override
         public void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
-
-            try {
-                String url = ApplicationURL.applicationURL(request);
-
-                Element requestElement = OAITools.requestElement(doc, OAIVerb.Identify, null,ApplicationURL.applicationURL(request), null);
-                doc.getDocumentElement().appendChild(requestElement);
-                
-                
-                String oaiName = KConfiguration.getInstance().getConfiguration().getString(REPOSITORY_NAME,"kramerius");
-                String baseUrl = KConfiguration.getInstance().getConfiguration().getString(REPOSITORY_BASE_URL,url);
-                String adminEmail = KConfiguration.getInstance().getConfiguration().getString(REPOSITORY_ADMIN_EMAIL,"-none-");
-                String earliestDateTimestamp = KConfiguration.getInstance().getConfiguration().getString("oai.earliestDatestamp","2012-06-30T22:26:40Z");
-                
-                URL urlObject = new URL(baseUrl);
-                
-                
-                String protocolVersion = KConfiguration.getInstance().getConfiguration().getString("oai.protocolVersion","2.0");
-                String deletedRecord = KConfiguration.getInstance().getConfiguration().getString("oai.deletedRecord","transient");
-                String granularity = KConfiguration.getInstance().getConfiguration().getString("oai.granularity","YYYY-MM-DDThh:mm:ssZ");
-                
-                Element identify = doc.createElement("Identify");
-                    
-                Element repositoryNameElm = doc.createElement("repositoryName");
-                repositoryNameElm.setTextContent(oaiName);
-                identify.appendChild(repositoryNameElm);
-                
-                Element baseURLElm = doc.createElement("baseURL");
-                baseURLElm.setTextContent(baseUrl);
-                identify.appendChild(baseURLElm);
-                
-                Element protocolVersionElm = doc.createElement("protocolVersion");
-                protocolVersionElm.setTextContent(protocolVersion);
-                identify.appendChild(protocolVersionElm);
-                
-                Element adminEmailElm = doc.createElement("adminEmail");
-                adminEmailElm.setTextContent(adminEmail);
-                identify.appendChild(adminEmailElm);
-
-                Element earliestDatestampElm = doc.createElement("earliestDatestamp");
-                earliestDatestampElm.setTextContent(earliestDateTimestamp);
-                identify.appendChild(earliestDatestampElm);
-
-                Element deleteRecordsElm = doc.createElement("deletedRecord");
-                deleteRecordsElm.setTextContent(deletedRecord);
-                identify.appendChild(deleteRecordsElm);
-
-                Element granularityElm = doc.createElement("granularity");
-                granularityElm.setTextContent(granularity);
-                identify.appendChild(granularityElm);
-                
-                Element descriptionElm = doc.createElement("description");
-                identify.appendChild(descriptionElm);
-                
-                Element oaiIdentifierElm = doc.createElementNS("http://www.openarchives.org/OAI/2.0/oai-identifier", "oai-identifier");
-                descriptionElm.appendChild(oaiIdentifierElm);
-                
-                Element schemeElm = doc.createElement("scheme");
-                schemeElm.setTextContent("oai");
-                descriptionElm.appendChild(schemeElm);
-
-                Element repositoryIdentifierElm = doc.createElement("repositoryIdentifier");
-                repositoryIdentifierElm.setTextContent(urlObject.getHost());
-                descriptionElm.appendChild(schemeElm);
-
-                Element delimiterElm = doc.createElement("delimiter");
-                delimiterElm.setTextContent(":");
-                descriptionElm.appendChild(delimiterElm);
-                
-                Element sampleIdentifierElm = doc.createElement("sampleIdentifier");
-                sampleIdentifierElm.setTextContent("oai:"+urlObject.getHost()+":uuid:530719f5-ee95-4449-8ce7-12b0f4cadb22");
-                descriptionElm.appendChild(sampleIdentifierElm);
-
-                doc.getDocumentElement().appendChild(identify);
-            } catch (MalformedURLException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                throw new OAIException(ErrorCode.badArgument, OAIVerb.ListIdentifiers,null, ApplicationURL.applicationURL(request),null);
-            }
+            identify(request, doc);
         }
 		
 		@Override
-        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException {
+        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport support) throws OAIException {
+            identify(request, doc);
+        }
 
+        private void identify(HttpServletRequest request, Document doc) {
             try {
                 String url = ApplicationURL.applicationURL(request);
                 Element requestElement = OAITools.requestElement(doc, OAIVerb.Identify, null,ApplicationURL.applicationURL(request), null);
                 doc.getDocumentElement().appendChild(requestElement);
-                
-                
+
+
                 String oaiName = KConfiguration.getInstance().getConfiguration().getString(REPOSITORY_NAME,"kramerius");
                 String baseUrl = KConfiguration.getInstance().getConfiguration().getString(REPOSITORY_BASE_URL,url);
                 String adminEmail = KConfiguration.getInstance().getConfiguration().getString(REPOSITORY_ADMIN_EMAIL,"-none-");
                 String earliestDateTimestamp = KConfiguration.getInstance().getConfiguration().getString("oai.earliestDatestamp","2012-06-30T22:26:40Z");
-                
+
                 URL urlObject = new URL(baseUrl);
-                
-                
+
+
                 String protocolVersion = KConfiguration.getInstance().getConfiguration().getString("oai.protocolVersion","2.0");
                 String deletedRecord = KConfiguration.getInstance().getConfiguration().getString("oai.deletedRecord","transient");
                 String granularity = KConfiguration.getInstance().getConfiguration().getString("oai.granularity","YYYY-MM-DDThh:mm:ssZ");
-                
+
                 Element identify = doc.createElement("Identify");
-                    
+
                 Element repositoryNameElm = doc.createElement("repositoryName");
                 repositoryNameElm.setTextContent(oaiName);
                 identify.appendChild(repositoryNameElm);
-                
+
                 Element baseURLElm = doc.createElement("baseURL");
                 baseURLElm.setTextContent(baseUrl);
                 identify.appendChild(baseURLElm);
-                
+
                 Element protocolVersionElm = doc.createElement("protocolVersion");
                 protocolVersionElm.setTextContent(protocolVersion);
                 identify.appendChild(protocolVersionElm);
-                
+
                 Element adminEmailElm = doc.createElement("adminEmail");
                 adminEmailElm.setTextContent(adminEmail);
                 identify.appendChild(adminEmailElm);
@@ -344,28 +241,28 @@ public enum OAIVerb {
                 Element granularityElm = doc.createElement("granularity");
                 granularityElm.setTextContent(granularity);
                 identify.appendChild(granularityElm);
-                
+
                 Element descriptionElm = doc.createElement("description");
                 identify.appendChild(descriptionElm);
-                
+
                 Element oaiIdentifierElm = doc.createElementNS("http://www.openarchives.org/OAI/2.0/oai-identifier", "oai-identifier");
                 descriptionElm.appendChild(oaiIdentifierElm);
-                
+
                 Element schemeElm = doc.createElement("scheme");
                 schemeElm.setTextContent("oai");
-                descriptionElm.appendChild(schemeElm);
+                oaiIdentifierElm.appendChild(schemeElm);
 
                 Element repositoryIdentifierElm = doc.createElement("repositoryIdentifier");
                 repositoryIdentifierElm.setTextContent(urlObject.getHost());
-                descriptionElm.appendChild(schemeElm);
+                oaiIdentifierElm.appendChild(repositoryIdentifierElm);
 
                 Element delimiterElm = doc.createElement("delimiter");
                 delimiterElm.setTextContent(":");
-                descriptionElm.appendChild(delimiterElm);
-                
+                oaiIdentifierElm.appendChild(delimiterElm);
+
                 Element sampleIdentifierElm = doc.createElement("sampleIdentifier");
                 sampleIdentifierElm.setTextContent("oai:"+urlObject.getHost()+":uuid:530719f5-ee95-4449-8ce7-12b0f4cadb22");
-                descriptionElm.appendChild(sampleIdentifierElm);
+                oaiIdentifierElm.appendChild(sampleIdentifierElm);
 
                 doc.getDocumentElement().appendChild(identify);
             } catch (MalformedURLException e) {
@@ -374,8 +271,7 @@ public enum OAIVerb {
             }
         }
 
-        
-        
+
     },
     
     ListRecords {
@@ -462,7 +358,8 @@ public enum OAIVerb {
                                 String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
                                 if (fa.isObjectAvailable(pid)) {
                                     Element metadata = doc.createElement("metadata");
-                                    metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,selectedSet));
+                                    List<Element> elms = oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata, selectedSet);
+                                    elms.stream().forEach(metadata::appendChild);
                                     record.appendChild(metadata);
                                 }
                                 
@@ -483,7 +380,8 @@ public enum OAIVerb {
                                     String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
                                     if (fa.isObjectAvailable(pid)) {
                                         Element metadata = doc.createElement("metadata");
-                                        metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,selectedSet));
+                                        List<Element> elms = oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata, selectedSet);
+                                        elms.stream().forEach(metadata::appendChild);
                                         record.appendChild(metadata);
                                     }
                                     
@@ -517,7 +415,7 @@ public enum OAIVerb {
         }
 		
 		@Override
-        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport support) throws OAIException{
 
             OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
@@ -587,12 +485,13 @@ public enum OAIVerb {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
 
                                     Element record= doc.createElement("record");
-                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null,support);
                                     
                                     Element metadata = doc.createElement("metadata");
-                                    Element metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
-                                    if (metadataElm != null) {
-                                        metadata.appendChild(metadataElm);
+                                    List<Element> metadataOnCDKSide = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request, doc, oaiRec.getIdentifier(), selectedMetadata, selectedSet, support);
+                                    //Element metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet,support);
+                                    if (metadataOnCDKSide != null && !metadataOnCDKSide.isEmpty()) {
+                                        metadataOnCDKSide.stream().forEach(metadata::appendChild);
                                     } else {
                                         header.setAttribute("status","deleted");
                                     }
@@ -614,13 +513,13 @@ public enum OAIVerb {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
 
                                     Element record= doc.createElement("record");
-                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null, support);
                                     //Element header = oaiRec.toHeader(doc, selectedSet);
                                     
                                     Element metadata = doc.createElement("metadata");
-                                    Element metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet);
-                                    if (metadataElm != null) {
-                                        metadata.appendChild(metadataElm);
+                                    List<Element> metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet, support);
+                                    if (metadataElm != null && !metadataElm.isEmpty()) {
+                                        metadataElm.stream().forEach(metadata::appendChild);
                                     } else {
                                         header.setAttribute("status","deleted");
                                     }
@@ -758,7 +657,7 @@ public enum OAIVerb {
             }
 		}
 
-        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport cacheSupport) throws OAIException{
 			OAISet selectedSet =  null;
             MetadataExport selectedMetadata = null;
             try {
@@ -820,7 +719,7 @@ public enum OAIVerb {
                             results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
-                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null,cacheSupport);
                                     identify.appendChild(header);}
                             } else {
                                 throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
@@ -830,7 +729,7 @@ public enum OAIVerb {
                             results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
-                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
+                                    Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null, cacheSupport);
                                     identify.appendChild(header);
                                     
                                 }
@@ -861,161 +760,6 @@ public enum OAIVerb {
             }
 
 		}
-		
-		
-
-/*		
-        @Override
-<<<<<<< HEAD
-        public void perform(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
-=======
-        public void perform(Provider<User> userProvider,Provider<Client> clientProvider, Instances instances, ConfigManager configManager,ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
->>>>>>> cdk_akubra
-
-            OAISet selectedSet =  null;
-            MetadataExport selectedMetadata = null;
-            try {
-                String baseUrl = ApplicationURL.applicationURL(request);
-
-
-                URL urlObject = new URL(baseUrl);
-                OAISets sets = new OAISets(configManager, urlObject.getHost());
-<<<<<<< HEAD
-=======
-                
->>>>>>> cdk_akubra
-                String set = request.getParameter(SET_PARAMETER);
-                String resumptionToken = request.getParameter(RESUMPTION_TOKEN_PARAMETER);
-                String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
-                String from = request.getParameter(FROM_PARAMETER);
-                String until = request.getParameter(UNTIL_PARAMETER);
-<<<<<<< HEAD
-                
-                
-                if (metadataPrefix != null || resumptionToken != null) {
-                    int configuredRows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
-=======
-
-                
-                if (metadataPrefix != null || resumptionToken != null) {
-                    int rows = KConfiguration.getInstance().getConfiguration().getInt(REPOSITORY_ROWS_IN_RESULTS,600);
->>>>>>> cdk_akubra
-                    
-                    if (set != null) {
-                        selectedSet = sets.findBySet(set);
-                    } else if (resumptionToken != null){
-<<<<<<< HEAD
-                        // everything from resumption token
-                        selectedSet = sets.findByToken(resumptionToken);
-                        metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
-                        if (OAITools.fromFromResumptionToken(resumptionToken) != null) {
-                            from = OAITools.fromFromResumptionToken(resumptionToken);
-                        }
-                        if (OAITools.untilFromResumptionToken(resumptionToken) != null) {
-                            until = OAITools.untilFromResumptionToken(resumptionToken);
-                        }
-                        
-=======
-                        selectedSet = sets.findByToken(resumptionToken);
-                        metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
->>>>>>> cdk_akubra
-                        if ( metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
-                            throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-                        }
-                    }
-<<<<<<< HEAD
-=======
-
->>>>>>> cdk_akubra
-                    if (StringUtils.isAnyString(from)) {
-                        try {
-                            OAITools.parseISO8601Date(from);
-                        } catch (DateTimeException e) {
-                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata, "illegal value of from");
-                        }
-                    }
-                    if (StringUtils.isAnyString(until)) {
-                        try {
-                            OAITools.parseISO8601Date(until);
-                        } catch (DateTimeException e) {
-                            throw new OAIException(ErrorCode.badArgument, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata,"illegal value of until");
-                        }
-                    }
-
-                    selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
-                    
-                    if (selectedMetadata != null) {
-                        if (selectedSet == null) {
-                            selectedSet =  sets.getDefaultSet();
-                        }
-
-                        Element requestElement = OAITools.requestElement(doc, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-                        doc.getDocumentElement().appendChild(requestElement);
-
-                        Element identify = doc.createElement("ListIdentifiers");
-                        OAIResults results = null;
-                        if (resumptionToken != null) {
-                            String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-<<<<<<< HEAD
-                            results = selectedSet.findRecords(solrAccess, solrCursor,metadataPrefix,configuredRows, from, until);
-                            for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, fa, selectedSet));}
-                        } else {
-                            results = selectedSet.findRecords(solrAccess,"*", metadataPrefix,configuredRows, from, until);
-                            if (results.getCompleteListSize() > 0) {
-                                for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeader(doc, fa, selectedSet));}
-=======
-                            results = selectedSet.findRecords(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
-                            if (results.getCompleteListSize() > 0) {
-                                for (OAIRecord oaiRec : results.getRecords()) { 
-                                    Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
-                                    identify.appendChild(header);}
-                            } else {
-                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-                            }
-                            
-                        } else {
-                            results = selectedSet.findRecords(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
-                            if (results.getCompleteListSize() > 0) {
-                                for (OAIRecord oaiRec : results.getRecords()) { 
-                                    Element header = oaiRec.toHeader(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null);
-                                    identify.appendChild(header);
-                                    
-                                }
->>>>>>> cdk_akubra
-                            } else {
-                                throw new OAIException(ErrorCode.noRecordsMatch, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-                            }
-                        }
-
-                        if (results.getResumptionToken()!= null) {
-<<<<<<< HEAD
-                            Element resToken = doc.createElement(RESUMPTION_TOKEN_PARAMETER);
-=======
-                            Element resToken = doc.createElement("resumptionToken");
->>>>>>> cdk_akubra
-                            resToken.setAttribute("completeListSize", ""+results.getCompleteListSize());
-                            resToken.setTextContent(results.getResumptionToken());
-                            identify.appendChild(resToken);
-                        }
-<<<<<<< HEAD
-=======
-
->>>>>>> cdk_akubra
-                        doc.getDocumentElement().appendChild(identify);
-                    } else {
-                        throw new OAIException(ErrorCode.noMetadataFormats, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-                    }
-                    
-                } else {
-                    throw new OAIException(ErrorCode.noMetadataFormats, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-                }
-
-            } catch ( IOException | SAXException | ParserConfigurationException e) {
-                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                throw new OAIException(ErrorCode.badArgument, OAIVerb.ListIdentifiers,selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
-            }
-        }
-		*/
     },
 	
     GetRecord {
@@ -1025,7 +769,7 @@ public enum OAIVerb {
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
 
-                String identifier = request.getParameter("Identifier");
+                String identifier = getIdentifier(request);
                 String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
                 if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                     throw new OAIException(ErrorCode.cannotDisseminateFormat, OAIVerb.GetRecord, null, ApplicationURL.applicationURL(request),selectedMetadata);
@@ -1039,7 +783,7 @@ public enum OAIVerb {
                     doc.getDocumentElement().appendChild(requestElement);
 
                     Element identify = doc.createElement("GetRecord");
-                    OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier);
+                    OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier, null);
                     if (oaiRec != null) {
 
                         
@@ -1052,7 +796,11 @@ public enum OAIVerb {
                         String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
                         if (fa.isObjectAvailable(pid)) {
                             Element metadata = doc.createElement("metadata");
-                            metadata.appendChild(oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata,null));
+
+                            List<Element> metadataOnLocal = oaiRec.toMetadataOnLocal(request, fa, doc, selectedMetadata, null);
+                            if (metadataOnLocal != null && !metadataOnLocal.isEmpty()) {
+                                metadataOnLocal.stream().forEach(metadata::appendChild);
+                            }
                             record.appendChild(metadata);
                         }
                         identify.appendChild(record);
@@ -1070,13 +818,26 @@ public enum OAIVerb {
                 throw new OAIException(ErrorCode.badArgument, OAIVerb.GetRecord,null, ApplicationURL.applicationURL(request),selectedMetadata);
             }
 		}
-		
-        public void performOnCDKSide(Provider<User> userProvider,Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
+
+        private static String getIdentifier(HttpServletRequest request) {
+            String identifier = request.getParameter("Identifier");
+            Map<String, String[]> paramMap = request.getParameterMap();
+            for (String param : paramMap.keySet()) {
+                if (param.equalsIgnoreCase("Identifier")) {
+                    identifier = request.getParameter(param);
+                    break;
+                }
+            }
+            return identifier;
+        }
+
+        public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport cacheSupport) throws OAIException{
 			MetadataExport selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
 
-                String identifier = request.getParameter("Identifier");
+                String identifier = getIdentifier(request);
+
                 String metadataPrefix = request.getParameter("metadataPrefix");
                 if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
                     throw new OAIException(ErrorCode.cannotDisseminateFormat, OAIVerb.GetRecord, null, ApplicationURL.applicationURL(request),selectedMetadata);
@@ -1090,17 +851,17 @@ public enum OAIVerb {
                     doc.getDocumentElement().appendChild(requestElement);
 
                     Element identify = doc.createElement("GetRecord");
-                    OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier);
+                    OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier,cacheSupport);
                     if (oaiRec != null) {
 
                         Element record= doc.createElement("record");
 
-                        Element header = oaiRec.toHeaderOnCDKSide(doc, null, solrAccess, userProvider, clientProvider, instances, request, null);
+                        Element header = oaiRec.toHeaderOnCDKSide(doc, null, solrAccess, userProvider, clientProvider, instances, request, null, cacheSupport);
                         
                         Element metadata = doc.createElement("metadata");
-                        Element metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,null);
-                        if (metadataElm != null) {
-                            metadata.appendChild(metadataElm);
+                        List<Element> metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,null, cacheSupport);
+                        if (metadataElm != null && !metadataElm.isEmpty()) {
+                            metadataElm.stream().forEach(metadata::appendChild);
                         } else {
                             record.setAttribute("deleted", "true");
                         }
@@ -1137,11 +898,11 @@ public enum OAIVerb {
     private static final String REPOSITORY_NAME = "oai.repositoryName";
     private static final String REPOSITORY_ROWS_IN_RESULTS = "oai.rowsInResults";
 
+
     public abstract void performOnLocal(ConfigManager configManager, FedoraAccess fa, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
     
     
-    // Perform on CDK side 
-    public abstract void performOnCDKSide( Provider<User> userPRovider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws Exception;
+    public abstract void performOnCDKSide( Provider<User> userPRovider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter,  SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport support) throws Exception;
 
     public static Logger LOGGER = Logger.getLogger(OAIVerb.class.getName());
 }

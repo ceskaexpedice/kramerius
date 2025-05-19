@@ -18,15 +18,20 @@ package cz.incad.kramerius.security.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.RightCriteriumParamsImpl;
 import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
 
+
 public class RightsDBUtils {
+
+    private RightsDBUtils() {}
 
     // vytvori pravo z resultsetu s
     public static Right createRight(ResultSet rs, Role auser, RightCriteriumWrapperFactory factory) throws SQLException {
@@ -62,9 +67,19 @@ public class RightsDBUtils {
                 int refreshinterval = rs.getInt("LOCK_REFRESHINTERVAL");
                 int maxinterval = rs.getInt("LOCK_MAXINTERVAL");
                 String lockTypeStr = rs.getString("LOCK_TYPE");
-                
+
+                boolean runtime = rs.getBoolean("RUNTIME");
+                String runtimeType = rs.getString("RUNTIME_TYPE");
+
                 if (lock) {
                     licenseImpl.initExclusiveLock(refreshinterval, maxinterval, maxreaders,ExclusiveLockType.findByType(lockTypeStr));
+                }
+
+                if (runtime) {
+                    Optional<RuntimeLicenseType> opt = RuntimeLicenseType.fromString(runtimeType);
+                    opt.ifPresent(rtype -> {
+                        licenseImpl.initRuntime(rtype);
+                    });
                 }
                 
                 rightCriteriumWrapper.setLicense(licenseImpl);

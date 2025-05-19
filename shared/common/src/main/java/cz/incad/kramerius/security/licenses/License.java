@@ -20,52 +20,67 @@ import java.util.regex.Pattern;
 
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import org.w3c.dom.Document;
 
 /**
- * Represents a license object
+ * Represents a license object.
+ * A license can define access permissions for documents either through indexed metadata
+ * or dynamically (runtime). Licenses may have priorities and exclusive locks for special access rules.
+ *
  * @author happy
  */
 public interface License {
 
     /**
-     * License name must match following pattern 
+     * Pattern that defines the allowed format of a license name.
+     * The name must start with a letter and can include letters, digits, underscores, dashes, slashes, or colons.
      */
     public static final Pattern ACCEPTABLE_LABEL_NAME_REGEXP= Pattern.compile("[a-zA-Z][a-zA-Z_0-9-/:]+");
 
+
     /**
-     * Default license priority
+     * Default priority value assigned to newly created licenses.
+     * Higher values may be used to determine which license takes precedence.
      */
     public static int DEFAULT_PRIORITY = 1;
-    
+
     /**
-     * Returns a unique license identifier
-     * @return
+     * Returns a unique identifier for the license.
+     *
+     * @return license ID
      */
     public int getId();
 
     /**
-     * Returns the name of the license
-     * @return
+     * Returns the name of the license.
+     * If the license is local, the name usually has a library-specific prefix
+     * (e.g., knav_vip, nkp_local, etc.).
+     *
+     * @return license name
      */
     public String getName();
 
     /**
-     * Basic the description of the license
-     * @return
+     * Returns a textual description of the license.
+     *
+     * @return license description
      */
     public String getDescription();
 
     /**
-     * Returns the group of license
-     * @see LicensesManager#GLOBAL_GROUP_NAME
-     * @see LicensesManager#LOCAL_GROUP_NAME
-     * @return
+     * Returns the license group.
+     * This is deprecated and will be removed in future versions.
+     *
+     * @return license group
      */
     public String getGroup();
 
     /**
-     * Returns the priority of license
-     * @return
+     * Returns the priority of the license.
+     * Priority is important when a document could be evaluated under multiple licenses.
+     * The license with the higher priority takes precedence.
+     *
+     * @return license priority
      */
     public int getPriority();
     
@@ -79,19 +94,74 @@ public interface License {
      * @return
      */
     public License getUpdatedPriorityLabel(int priprity);
-    
+
+    /**
+     * Indicates whether the license has an exclusive lock configured.
+     *
+     * @return true if an exclusive lock is present; false otherwise
+     */
     public boolean exclusiveLockPresent();
 
+    /**
+     * Returns the exclusive lock associated with the license.
+     *
+     * @return exclusive lock
+     */
     public ExclusiveLock getExclusiveLock();
-    
-    public void initExclusiveLock(int refresh, int max, int readers, ExclusiveLockType type);
-        
-    public void deleteExclusiveLock();
-    
-//    public boolean exclusiveLockPresent();
-//    
-//    public int getExclusiveLockRefreshInterval();
-//    
-//    public int getExclusiveLockMaxInterval();
 
+    /**
+     * Initializes an exclusive lock on the license with the specified parameters.
+     *
+     * @param refresh  refresh interval
+     * @param max      maximum number of readers
+     * @param readers  number of allowed readers
+     * @param type     type of the exclusive lock
+     */
+    public void initExclusiveLock(int refresh, int max, int readers, ExclusiveLockType type);
+
+    /**
+     * Deletes the exclusive lock from the license.
+     */
+    public void deleteExclusiveLock();
+
+
+    /**
+     * Initializes the license as a runtime license with the specified type.
+     *
+     * @param type the runtime license type
+     */
+    public void initRuntime(RuntimeLicenseType type);
+
+    /**
+     * Disables or enables the runtime mode of the license.
+     *
+     * @param flag true to disable runtime, false to enable
+     */
+    public void disableRuntime(boolean flag);
+
+
+    /**
+     * Returns the type of the runtime license.
+     * The type defines the filter used to determine which documents match the license.
+     *
+     * @return runtime license type
+     */
+    public RuntimeLicenseType getRuntimeLicenseType();
+
+    /**
+     * Returns whether the license is a runtime license.
+     *
+     * @return true if the license is runtime; false otherwise
+     */
+    public boolean isRuntimeLicense();
+
+
+    /**
+     * Evaluates whether a given document matches this license.
+     * This is used to determine access eligibility based on the document metadata.
+     *
+     * @param doc the document to evaluate
+     * @return true if the document is accepted by this license; false otherwise
+     */
+    public boolean acceptByLicense(Document doc);
 }

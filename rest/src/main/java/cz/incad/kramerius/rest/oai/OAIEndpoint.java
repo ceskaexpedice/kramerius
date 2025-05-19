@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -97,6 +98,9 @@ public class OAIEndpoint extends ClientApiResource {
 
     @Inject
     ProxyFilter proxyFilter;
+
+    @Inject
+    CDKRequestCacheSupport cacheSupport;
 
     
     public OAIEndpoint() {
@@ -169,7 +173,7 @@ public class OAIEndpoint extends ClientApiResource {
 				 boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
 				 if (cdkServerMode) {
 					// cdk
-					oaiVerb.performOnCDKSide(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot);
+					oaiVerb.performOnCDKSide(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot, this.cacheSupport);
 				 } else {
 					// local	
 					oaiVerb.performOnLocal(configManager, this.fedoraAccess, solrAccess, this.requestProvider.get(), oai, oaiRoot);

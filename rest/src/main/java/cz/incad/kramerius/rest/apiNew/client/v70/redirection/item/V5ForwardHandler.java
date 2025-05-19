@@ -69,9 +69,9 @@ public class V5ForwardHandler extends V5RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/cdk/forward/item/" + this.pid
                 + "/streams/IMG_FULL";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, true, true);
+            return buildForwardApacheResponseHEAD(url, null, this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, null, this.pid, true, true, event, null);
+            return buildForwardApacheResponseGET(url, null, this.pid, false, true, event, null);
         }
     }
 

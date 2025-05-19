@@ -16,9 +16,14 @@
  */
 package cz.incad.kramerius.rest.oai;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +35,12 @@ import java.util.logging.Logger;
 
 import javax.inject.Provider;
 
+import cz.incad.kramerius.utils.ApplicationURL;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.cdk.cache.CDKRequestItem;
+import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
+import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -47,27 +58,24 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.pid.LexerException;
 
 public class OAIRecord {
+
     public static final Logger LOGGER = Logger.getLogger(OAIRecord.class.getName());
-    /*
-    private String identifier;
-    private String solrIdentifier;
-    */
-    
+
     private String identifier;
     private String solrIdentifier;
     
-    // CDK extension
-    
+
     private List<String> cdkCollections = new ArrayList<>();
     
     private String dateTimeStamp;
+    private CDKRequestCacheSupport cacheSupport;
     
-    
-    public OAIRecord(String solrIdentifier, String identifier, String dateTimeStamp) {
+    public OAIRecord(String solrIdentifier, String identifier, String dateTimeStamp, CDKRequestCacheSupport support) {
         super();
         this.solrIdentifier = solrIdentifier;
         this.identifier = identifier;
         this.dateTimeStamp = dateTimeStamp;
+        this.cacheSupport = support;
     }
     
     public String getIdentifier() {
@@ -89,7 +97,7 @@ public class OAIRecord {
     }
 
     /** find oai record */
-    public static OAIRecord findRecord(SolrAccess solrAccess,String oaiIdentifier) throws IOException, ParserConfigurationException, SAXException  {
+    public static OAIRecord findRecord(SolrAccess solrAccess,String oaiIdentifier, CDKRequestCacheSupport support) throws IOException, ParserConfigurationException, SAXException  {
         String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
 
         String encodedQuery = URLEncoder.encode(String.format("pid:\"%s\"", pid),"UTF-8");
@@ -143,7 +151,7 @@ public class OAIRecord {
                     }
                 });
 
-                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm != null ? dateElm.getTextContent() : "");
+                OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier, dateElm != null ? dateElm.getTextContent() : "", support);
                 oaiRecord.setCdkCollections(collections.stream().map(Element::getTextContent).collect(Collectors.toList()));
                 return oaiRecord;
                 
@@ -155,14 +163,14 @@ public class OAIRecord {
     }
 
     /** render metadata */
-    public Element toMetadataOnLocal(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
+    public List<Element> toMetadataOnLocal(HttpServletRequest request, FedoraAccess fa, Document doc, MetadataExport export, OAISet set) {
         return export.perform(request, fa, doc, identifier, set);
     }
-    public Element toMetadataOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider , Instances instances, HttpServletRequest request, Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set) {
-        return export.performOnCDKSide(solrAccess,userProvider,  apacheClientProvider, instances, request,   owningDocument, this,  set);
+    public List<Element> toMetadataOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider , Instances instances, HttpServletRequest request, Document owningDocument, String oaiIdentifier, MetadataExport export, OAISet set, CDKRequestCacheSupport cacheSupport) {
+        return export.performOnCDKSide(solrAccess,userProvider,  apacheClientProvider, instances, request,   owningDocument, this,  set, cacheSupport);
 	}
     
-    public Element toHeaderOnCDKSide(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvieder, Instances instances, HttpServletRequest request, String source) throws IOException {
+    public Element toHeaderOnCDKSide(Document doc, OAISet set, SolrAccess solrAccess,Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvieder, Instances instances, HttpServletRequest request, String source, CDKRequestCacheSupport cacheSupport) throws IOException {
         Element header = doc.createElement("header");
 
         Element identifier = doc.createElement("identifier");
@@ -181,17 +189,30 @@ public class OAIRecord {
             header.appendChild(setSpecElm);
         }
 		
-//		// local 
-//		String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-//		if (!fa.isObjectAvailable(pid) && (!pid.contains("_"))) {
-//			header.setAttribute("status", "deleted");
-//		}
 
 		try {
 			String pid = OAITools.pidFromOAIIdentifier(this.identifier);
-			ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrAccess, userProvider, apacheClientProvieder, instances, request, pid, null);
+            org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
+            ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrDataByPid, solrAccess, userProvider, apacheClientProvieder, instances, request, pid, null);
 			if (!pid.contains("_")) {
-				if (redirectHandler != null && !redirectHandler.isStreamBiblioModsAvaiable(null)) {
+
+                String baseUrl = ApplicationURL.applicationURL(request);
+                InputStream directStreamDC = null;
+                String cacheURl = baseUrl+"/dc";
+
+                if (redirectHandler != null) {
+                    CDKRequestItem hit = cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+                    if (hit != null) {
+                        directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+                    } else {
+                        InputStream  dc = redirectHandler.directStreamDC(null);
+                        String remoteData = IOUtils.toString(dc, "UTF-8");
+                        saveToCache(remoteData, cacheURl, pid, cacheSupport);
+                        directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+                    }
+                }
+
+				if (redirectHandler != null &&  directStreamDC == null) {
 					header.setAttribute("status", "deleted");
 				// co s tim ??
 				} else if (redirectHandler == null){
@@ -280,4 +301,37 @@ public class OAIRecord {
 		}
         return header;
     }*/
+
+
+    protected void saveToCache(String data, String url, String pid, CDKRequestCacheSupport cacheSupport) {
+        try {
+            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
+                    data,
+                    "text/xml",
+                    url,
+                    pid,
+                    null,
+                    LocalDateTime.now(),
+                    null
+            );
+
+            LOGGER.info( String.format("Storing cache item %s", cacheItem.toString()));
+            cacheSupport.save(cacheItem);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+
+    protected CDKRequestItem cacheSearchHitByPid(String url, String pid,  CDKRequestCacheSupport cacheSupport) {
+        int days = KConfiguration.getInstance().getConfiguration().getInt("cdk.cache.item",30);
+        LOGGER.log(Level.INFO, String.format("this.cacheSupport.find(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
+        List<CDKRequestItem> cdkRequestItems = cacheSupport.find(null, url, pid, null);
+        if (!cdkRequestItems.isEmpty() && !cdkRequestItems.get(0).isExpired(days)) {
+            LOGGER.log(Level.INFO, String.format("this.cacheSupport.found(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
+            return cdkRequestItems.get(0);
+        }
+        return null;
+    }
+
 }
