@@ -1878,6 +1878,15 @@ paths:
       summary: Vrací všechny licence
       operationId: getAllLicenses
       description: Vrací všechny licence
+      parameters:
+        - name: runtime
+          in: query
+          required: true
+          schema:
+            type: boolean
+            default: true
+          description: Zda je nutné zahrnout do výpisu i runtime licence
+
       responses:
         '200':
           description: JSON reprezentace licencí
@@ -1907,6 +1916,15 @@ paths:
       summary: Vrací všechny globální licence
       operationId: getGlobalLicenses
       description: Vrací globální licence
+      parameters:
+        - name: runtime
+          in: query
+          required: true
+          schema:
+            type: boolean
+            default: true
+          description: Zda je nutné zahrnout do výpisu i runtime licence
+
       responses:
         '200':
           description: JSON reprezentace licencí
@@ -1936,6 +1954,14 @@ paths:
       summary: Vrací všechny lokální licence
       operationId: getLocalLicenses
       description: Vrací lokální licence
+      parameters:
+        - name: runtime
+          in: query
+          required: true
+          schema:
+            type: boolean
+            default: true
+          description: Zda je nutné zahrnout do výpisu i runtime licence
       responses:
         '200':
           description: JSON reprezentace licencí
