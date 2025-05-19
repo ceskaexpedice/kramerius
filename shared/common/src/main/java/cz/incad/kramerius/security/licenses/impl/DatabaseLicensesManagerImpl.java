@@ -126,6 +126,8 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                         prepareStatement.setBoolean(9, license.isRuntimeLicense());
                         if (license.isRuntimeLicense()) {
                             prepareStatement.setString(10, license.getRuntimeLicenseType() != null ? license.getRuntimeLicenseType().name() : null);
+                        } else {
+                            prepareStatement.setNull(10, java.sql.Types.VARCHAR);
                         }
 
                         return prepareStatement.executeUpdate();
@@ -143,6 +145,8 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                         prepareStatement.setBoolean(5, license.isRuntimeLicense());
                         if (license.isRuntimeLicense()) {
                             prepareStatement.setString(6, license.getRuntimeLicenseType() != null ? license.getRuntimeLicenseType().name() : null);
+                        } else {
+                            prepareStatement.setNull(6, java.sql.Types.VARCHAR);
                         }
                         return prepareStatement.executeUpdate();
                     }
@@ -365,7 +369,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                         if (license.isRuntimeLicense()) {
                             prepareStatement.setString(4, license.getRuntimeLicenseType() != null ? license.getRuntimeLicenseType().name() : null);
                         } else {
-                            prepareStatement.setString(4, null);
+                            prepareStatement.setNull(4, java.sql.Types.VARCHAR);
                         }
 
                         prepareStatement.setInt(5, license.getId());
@@ -401,7 +405,7 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
                         if (license.isRuntimeLicense()) {
                             prepareStatement.setString(8, license.getRuntimeLicenseType() != null ? license.getRuntimeLicenseType().name() : null);
                         } else {
-                            prepareStatement.setString(8, null);
+                            prepareStatement.setNull(8, java.sql.Types.VARCHAR);
                         }
 
                         prepareStatement.setInt(9, license.getId());
