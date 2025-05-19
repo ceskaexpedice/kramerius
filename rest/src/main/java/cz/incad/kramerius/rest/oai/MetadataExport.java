@@ -56,7 +56,11 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
 
 public enum MetadataExport {
 
@@ -82,13 +86,27 @@ public enum MetadataExport {
             try {
                 String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
                 ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
+                org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
+                ProxyItemHandler redirectHandler = findRedirectHandler(solrDataByPid, solrAccess, userProvider,  apacheClientProvider, instances, request, pid, null);
                 if (redirectHandler != null) {
-                    InputStream directStreamDC = redirectHandler.directStreamDC(null);
+                    String baseUrl = ApplicationURL.applicationURL(request);
+                    InputStream directStreamDC = null;
+                    String cacheURl = baseUrl+"/dc";
+                    CDKRequestItem hit = cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+                    if (hit != null) {
+                        directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+                    } else {
+                        InputStream  dc = redirectHandler.directStreamDC(null);
+                        String remoteData = IOUtils.toString(dc, "UTF-8");
+                        saveToCache(remoteData, cacheURl, pid, cacheSupport);
+                        directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+                    }
+
                     if (directStreamDC != null) {
                         Document dc = DomUtils.streamToDocument(directStreamDC, true);
                         Element rootElement = dc.getDocumentElement();
                         owningDocument.adoptNode(rootElement);
-                        return rootElement;
+                        return Arrays.asList(rootElement);
                     } else {
                         return null;
                     }
@@ -100,215 +118,245 @@ public enum MetadataExport {
                 throw new RuntimeException(e.getMessage());
             }
         }
-    },
 
-
-    edm("edm", "http://www.europeana.eu/schemas/ese/", "") {
         @Override
-        public Element perform(HttpServletRequest request, AkubraRepository akubraRepository, Document owningDocument,
-                               String oaiIdentifier, OAISet set) {
-
-            String baseUrl = ApplicationURL.applicationURL(request);
-            //rdf:about="uuid:6b182ad3-b9e9-11e1-1726-001143e3f55c"
-            String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
-            Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
-            Element dcElement = dc.getDocumentElement();
-
-            Element metadata = owningDocument.createElement("metadata");
-            metadata.setAttribute("xmlns:europeana", "http://www.europeana.eu/schemas/ese/");
-            metadata.setAttribute("xmlns:ore", "http://www.openarchives.org/ore/terms/");
-            metadata.setAttribute("xmlns:edm", "http://www.europeana.eu/schemas/edm/");
-            metadata.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-            metadata.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-            metadata.setAttribute("xmlns:rdaGr2", "http://rdvocab.info/ElementsGr2/");
-            metadata.setAttribute("xmlns:skos", "http://www.w3.org/2004/02/skos/core#");
-            metadata.setAttribute("xmlns:oai_dc", "http://www.openarchives.org/OAI/2.0/oai_dc/");
-            metadata.setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
-            metadata.setAttribute("xmlns:dcterms", "http://purl.org/dc/terms/");
-
-            Element rdf = owningDocument.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:RDF");
-            rdf.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", oaiIdentifier);
-            metadata.appendChild(rdf);
-
-            Element providedCHO = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:ProvidedCHO");
-            rdf.appendChild(providedCHO);
-
-            List<Element> elements = DomUtils.getElements(dcElement);
-            elements.stream().forEach(dcElm -> {
-                owningDocument.adoptNode(dcElm);
-                providedCHO.appendChild(dcElm);
-            });
-
-            //rdf.appendChild(providedCHO);
-
-            Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:type");
-            providedCHO.appendChild(type);
-            type.setTextContent("TEXT");
-
-            Element webresource = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:WebResource");
-            webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
-            metadata.appendChild(webresource);
-
-            Element edmAggregation = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:Aggregation");
-            String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
-            if (clientUrl != null) {
-                edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
-            } else {
-                edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
-            }
-            Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:dataProvider");
-
-            // Data provider
-            String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym", "");
-            String edmDataProvider = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.dataProvider", acronym);
-            if (edmDataProvider != null) {
-                edmDataPrvovider.setTextContent(edmDataProvider);
-            }
-            edmAggregation.appendChild(edmDataPrvovider);
-
-            // dodat dle setu
-            Element shownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:isShownAt");
-            if (clientUrl != null) {
-                shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
-            } else {
-                shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
-            }
-            edmAggregation.appendChild(shownAt);
-
-            // mapovani na licence
-            Element edmRights = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:rights");
-
-            if (clientUrl != null) {
-                edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
-            } else {
-                edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
-            }
-
-
-            edmAggregation.appendChild(edmRights);
-
-
-            Element edmObject = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:object");
-            edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
-            edmAggregation.appendChild(edmObject);
-
-
-            // ceska digitalni kniovna
-            Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:provider");
-            String edmProviderText = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.provider", acronym);
-            edmProvider.setTextContent(edmProviderText); //"Czech digital library/Česká digitální knihovna");
-            edmAggregation.appendChild(edmProvider);
-
-            metadata.appendChild(edmAggregation);
-
-            return metadata;
+        public boolean isAvailableOnLocal() {
+            return true;
         }
 
         @Override
-        public Element performOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request, Document owningDocument, OAIRecord oaiRec, OAISet set) {
-            try {
+        public boolean isAvailableOnCDKSide() {
+            return true;
+        }
+    },
 
+    
+    edm("edm","http://www.europeana.eu/schemas/ese/","") {
+
+
+		@Override
+        public List<Element> perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument,
+                String oaiIdentifier,OAISet set) {
+
+            try {
                 String baseUrl = ApplicationURL.applicationURL(request);
-                //rdf:about="uuid:6b182ad3-b9e9-11e1-1726-001143e3f55c"
+                String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
+                Document dc = fa.getDC(pid);
+                Element dcElement = dc.getDocumentElement();
+
+
+                Element rdf = owningDocument.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:RDF");
+                rdf.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",oaiIdentifier);
+
+                Element providedCHO = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:ProvidedCHO");
+                rdf.appendChild(providedCHO);
+                
+                List<Element> elements = XMLUtils.getElements(dcElement);
+                elements.stream().forEach(dcElm -> {
+                   owningDocument.adoptNode(dcElm);
+                   providedCHO.appendChild(dcElm);
+                });
+                
+
+                Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:type");
+                providedCHO.appendChild(type);
+                type.setTextContent("TEXT");
+
+                Element webresource = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:WebResource");
+                webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
+                rdf.appendChild(webresource);
+
+
+                Element edmAggregation = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:Aggregation");
+                String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
+                if (clientUrl != null) {
+                    edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
+                } else {
+                    edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
+                }
+                Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:dataProvider");
+
+                // Data provider
+                String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym","");
+                String edmDataProvider = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.dataProvider",acronym);
+                if (edmDataProvider != null) {
+                    edmDataPrvovider.setTextContent(edmDataProvider);
+                }
+                edmAggregation.appendChild(edmDataPrvovider);
+
+                // dodat dle setu
+                Element shownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:isShownAt");
+                if (clientUrl != null) {
+                    shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource",clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
+                } else {
+                    shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource",baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
+                }
+                edmAggregation.appendChild(shownAt);
+
+                // mapovani na licence
+                Element edmRights = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:rights");
+                /*
+                if (clientUrl != null) {
+                    edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
+                } else {
+                    edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
+                }*/
+
+                edmAggregation.appendChild(edmRights);
+                
+                
+                Element edmObject = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:object");
+                // find first page
+                edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
+                edmAggregation.appendChild(edmObject);
+
+
+                // ceska digitalni kniovna
+                Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:provider");
+                String edmProviderText = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.provider",acronym);
+                edmProvider.setTextContent(  edmProviderText); //"Czech digital library/Česká digitální knihovna");
+                edmAggregation.appendChild(edmProvider);
+                rdf.appendChild(edmAggregation);
+
+                return Arrays.asList(rdf);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
+		@Override
+        public List<Element> performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider,  Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set, CDKRequestCacheSupport cacheSupport) {
+            try {
+                
+                String baseUrl = ApplicationURL.applicationURL(request);
+                // base api url - it is different from standard base url
                 String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
 
-                ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
+                org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
+                ProxyItemHandler redirectHandler = findRedirectHandler(solrDataByPid, solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
                 if (redirectHandler != null) {
-                    InputStream directStreamDC = redirectHandler.directStreamDC(null);
+
+                    InputStream directStreamDC = null;
+                    String cacheURl = baseUrl+"/dc";
+
+                    CDKRequestItem hit = cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+                    if (hit != null) {
+                        directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+                    } else {
+                        InputStream  dc = redirectHandler.directStreamDC(null);
+                        String remoteData = IOUtils.toString(dc, "UTF-8");
+                        saveToCache(remoteData, cacheURl, pid, cacheSupport);
+                        directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+                    }
+
                     if (directStreamDC != null) {
-                        Document dc = DomUtils.streamToDocument(directStreamDC, true);
+                        Document dc = XMLUtils.parseDocument(directStreamDC, true);
                         Element dcElement = dc.getDocumentElement();
 
-                        Element metadata = owningDocument.createElement("metadata");
-                        metadata.setAttribute("xmlns:europeana", "http://www.europeana.eu/schemas/ese/");
-                        metadata.setAttribute("xmlns:ore", "http://www.openarchives.org/ore/terms/");
-                        metadata.setAttribute("xmlns:edm", "http://www.europeana.eu/schemas/edm/");
-                        metadata.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                        metadata.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-                        metadata.setAttribute("xmlns:rdaGr2", "http://rdvocab.info/ElementsGr2/");
-                        metadata.setAttribute("xmlns:skos", "http://www.w3.org/2004/02/skos/core#");
-                        metadata.setAttribute("xmlns:oai_dc", "http://www.openarchives.org/OAI/2.0/oai_dc/");
-                        metadata.setAttribute("xmlns:dc", "http://purl.org/dc/elements/1.1/");
-                        metadata.setAttribute("xmlns:dcterms", "http://purl.org/dc/terms/");
+                        Element rdf = owningDocument.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:RDF");
+                        rdf.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",oaiRec.getIdentifier());
+                        //metadata.appendChild(rdf);
 
-                        Element rdf = owningDocument.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:RDF");
-                        rdf.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", oaiRec.getIdentifier());
-                        metadata.appendChild(rdf);
-
-                        Element providedCHO = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:ProvidedCHO");
+                        Element providedCHO = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:ProvidedCHO");
                         rdf.appendChild(providedCHO);
-
-                        List<Element> elements = DomUtils.getElements(dcElement);
+                        
+                        List<Element> elements = XMLUtils.getElements(dcElement);
                         elements.stream().forEach(dcElm -> {
-                            owningDocument.adoptNode(dcElm);
-                            providedCHO.appendChild(dcElm);
+                           owningDocument.adoptNode(dcElm);
+                           providedCHO.appendChild(dcElm);
                         });
+                        
 
-                        //rdf.appendChild(providedCHO);
-
-                        Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:type");
+                        Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:type");
                         providedCHO.appendChild(type);
                         type.setTextContent("TEXT");
 
-                        Element webresource = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:WebResource");
-                        webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
-                        metadata.appendChild(webresource);
+                        // image - source library
+                        Element webresource = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:WebResource");
+                        rdf.appendChild(webresource);
+                        String dataProvider = MetadataExport.findMetadataProvider(solrDataByPid);
+                        String dataProviderBaseUrl = KConfiguration.getInstance().getConfiguration().getString(String.format("cdk.collections.sources.%s.baseurl", dataProvider));
+                        OneInstance oneInstance = instances.find(dataProvider);
+                        OneInstance.InstanceType instType = oneInstance.getInstanceType();
+                        switch (instType) {
+                            case V7:
+                                webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",String.format("%s/api/client/v7.0/items/%s/image/preview", dataProviderBaseUrl, pid));
+                            break;
+                            case V5:
+                                webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",String.format("%s/api/v5.0/items/%s/preview", dataProviderBaseUrl, pid));
+                            break;
+                        }
 
-                        Element edmAggregation = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:Aggregation");
+
+                        Element edmAggregation = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:Aggregation");
                         String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
                         if (clientUrl != null) {
-                            edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
+                            edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
                         } else {
-                            edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
+                            edmAggregation.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
                         }
-                        Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:dataProvider");
-
+                        Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:dataProvider");
+                        edmDataPrvovider.setTextContent(dataProvider);
                         // Data provider
                         // find data provider by acronym
-                        String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym", "");
-                        String defaultEDMDataProvider = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.dataProvider", acronym);
-//                        if (edmDataProvider != null) {
-//                            edmDataPrvovider.setTextContent(edmDataProvider);
-//                        }
-                        metadataProvider(instances, oaiRec, edmDataPrvovider, defaultEDMDataProvider);
-                        edmAggregation.appendChild(edmDataPrvovider);
+                        String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym","");
 
-                        // dodat dle setu
-                        Element shownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:isShownAt");
+                        edmAggregation.appendChild(edmDataPrvovider);
+                        
+                        // klient api + obrazek z klient api + redirect - na prvni stranku z headu ??
+                        Element shownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:isShownAt");
                         if (clientUrl != null) {
-                            shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
+                            shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource",clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
                         } else {
-                            shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
+                            shownAt.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource",baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
                         }
                         edmAggregation.appendChild(shownAt);
-
+                        
                         // mapovani na licence
-                        Element edmRights = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:rights");
+                        Element edmRights = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:rights");
+                        Element licensesElm = XMLUtils.findElement(solrDataByPid.getDocumentElement(), new XMLUtils.ElementsFilter() {
+                            @Override
+                            public boolean acceptElement(Element element) {
+                                if (element.hasAttribute("name")) {
+                                    String name = element.getAttribute("name");
+                                    if (name.equals("licenses")) return true;
+                                }
+                                return false;
+                            }
+                        });
 
-                        if (clientUrl != null) {
-                            edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
-                        } else {
-                            edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
+                        if (licensesElm != null) {
+                            List<Element> elms = XMLUtils.getElements(licensesElm);
+                            List<String> licenses = elms.stream().map(Element::getTextContent).collect(Collectors.toList());
+                            if (licenses.contains(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName())) {
+                                edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", "http://creativecommons.org/publicdomain/mark/1.0/");
+                            } else {
+                                edmRights.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", "http://rightsstatements.org/vocab/InC/1.0/");
+                            }
                         }
-
-
                         edmAggregation.appendChild(edmRights);
-
-
-                        Element edmObject = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:object");
-                        edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image", baseUrl, pid));
+                        Element edmObject = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:object");
+                        switch (instType) {
+                            case V7:
+                                edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",String.format("%s/api/client/v7.0/items/%s/image/thumb", dataProviderBaseUrl, pid));
+                                break;
+                            case V5:
+                                edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about",String.format("%s/api/v5.0/items/%s/thumb", dataProviderBaseUrl, pid));
+                                break;
+                        }
                         edmAggregation.appendChild(edmObject);
-
-
-                        // ceska digitalni kniovna
-                        Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:provider");
-                        String edmProviderText = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.provider", acronym);
-                        edmProvider.setTextContent(edmProviderText); //"Czech digital library/Česká digitální knihovna");
+                        
+                        
+                        // ceska digitalni kniovna 
+                        Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/","edm:provider");
+                        String edmProviderText = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.provider",acronym);
+                        edmProvider.setTextContent(  edmProviderText); //"Czech digital library/Česká digitální knihovna");
                         edmAggregation.appendChild(edmProvider);
+                        rdf.appendChild(edmAggregation);
 
-                        metadata.appendChild(edmAggregation);
-
-                        return metadata;
+                        //return Arrays.asList(rdf ,webresource, edmAggregation);
+                        return Arrays.asList(rdf );
                     } else {
                         return null;
                     }
@@ -321,200 +369,256 @@ public enum MetadataExport {
             }
         }
 
+        @Override
+        public boolean isAvailableOnLocal() {
+            return false;
+        }
 
+        @Override
+        public boolean isAvailableOnCDKSide() {
+            return true;
+        }
     },
-
-
+    
+    
+    
     ese("ese",
             "http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd",
             "http://www.europeana.eu/schemas/ese/") {
-        @Override
-        public Element perform(HttpServletRequest request, AkubraRepository akubraRepository, Document owningDocument, String oaiIdentifier, OAISet set) {
-            String baseUrl = ApplicationURL.applicationURL(request);
-            String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
-
-
-            Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
-
-            Element dcElement = dc.getDocumentElement();
-
-            Element record = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "record");
-            record.setAttribute("xmlns:dc", RepositoryNamespaces.DC_NAMESPACE_URI);
-
-            record.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd http://purl.org/dc/elements/1.1/ http://www.dublincore.org/schemas/xmls/qdc/dc.xsd http://purl.org/dc/terms/ http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
-            List<Element> dcElems = DomUtils.getElements(dcElement);
-            dcElems.stream().forEach(dcElm -> {
-                owningDocument.adoptNode(dcElm);
-                record.appendChild(dcElm);
-            });
-
-            Element object = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "object");
-            String thumb = String.format(baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/%s/image/thumb", pid);
-            object.setTextContent(thumb);
-            record.appendChild(object);
-
-            Element provider = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "provider");
-            provider.setTextContent("Academy of Sciences Library"); //TODO: To configuration
-            record.appendChild(provider);
-
-            Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "type");
-            type.setTextContent("TEXT");
-            record.appendChild(type);
-
-            Element isShownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "isShownAt");
-            String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
-            if (clientUrl != null) {
-                isShownAt.setTextContent(clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
-            } else {
-                isShownAt.setTextContent(baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
-            }
-            record.appendChild(isShownAt);
-
-
-            return record;
-
-        }
-
-
-        @Override
-        public Element performOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request, Document owningDocument, OAIRecord oaiRec, OAISet set) {
-            try {
-                String baseUrl = ApplicationURL.applicationURL(request);
-                String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
-                ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
-                if (redirectHandler != null) {
-                    InputStream directStreamDC = redirectHandler.directStreamDC(null);
-                    if (directStreamDC != null) {
-                        Document dc = DomUtils.streamToDocument(directStreamDC, true);
+			
+			@Override
+            public List<Element> perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument, String oaiIdentifier,OAISet set) {
+                    try {
+                        String baseUrl = ApplicationURL.applicationURL(request);
+                        String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
+                        
+                            
+                        Document dc = fa.getDC(pid);
+                        
                         Element dcElement = dc.getDocumentElement();
 
                         Element record = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "record");
-                        record.setAttribute("xmlns:dc", RepositoryNamespaces.DC_NAMESPACE_URI);
-
-                        record.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd http://purl.org/dc/elements/1.1/ http://www.dublincore.org/schemas/xmls/qdc/dc.xsd http://purl.org/dc/terms/ http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
-                        List<Element> dcElems = DomUtils.getElements(dcElement);
-                        dcElems.stream().forEach(dcElm -> {
+                        record.setAttribute("xmlns:dc", FedoraNamespaces.DC_NAMESPACE_URI);
+                        
+                        record.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance","xsi:schemaLocation","http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd http://purl.org/dc/elements/1.1/ http://www.dublincore.org/schemas/xmls/qdc/dc.xsd http://purl.org/dc/terms/ http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
+                        List<Element> dcElems = XMLUtils.getElements(dcElement);
+                        dcElems.stream().forEach(dcElm-> { 
                             owningDocument.adoptNode(dcElm);
                             record.appendChild(dcElm);
                         });
-
+                        
                         Element object = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "object");
-                        String thumb = String.format(baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/%s/image/thumb", pid);
+                        String thumb = String.format(baseUrl+(baseUrl.endsWith("/")? "" : "/")+"api/client/v7.0/items/%s/image/thumb", pid);
                         object.setTextContent(thumb);
                         record.appendChild(object);
-
+                        
                         Element provider = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "provider");
-                        String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym", "");
-                        String defaultDataProvider = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.dataProvider", acronym);
-
-                        metadataProvider(instances, oaiRec, provider, defaultDataProvider);
-
+                        provider.setTextContent("Academy of Sciences Library"); //TODO: To configuration
                         record.appendChild(provider);
-
+                        
                         Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "type");
                         type.setTextContent("TEXT");
                         record.appendChild(type);
-
+                        
                         Element isShownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "isShownAt");
                         String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
                         if (clientUrl != null) {
-                            isShownAt.setTextContent(clientUrl + (clientUrl.endsWith("/") ? "" : "/") + "uuid/" + pid);
+                            isShownAt.setTextContent(clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
                         } else {
-                            isShownAt.setTextContent(baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "/uuid/" + pid);
+                            isShownAt.setTextContent(baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
                         }
                         record.appendChild(isShownAt);
+                        //store
+                        return Arrays.asList(record);
 
-
-                        return record;
-                    } else return null;
-
-                } else {
-                    return null;
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        throw new RuntimeException(e.getMessage());
+                    }
                 }
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                throw new RuntimeException(e.getMessage());
-            }
+
+			
+			@Override
+			public List<Element> performOnCDKSide(SolrAccess solrAccess,Provider<User> userProvider,  Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,  Document owningDocument, OAIRecord oaiRec,OAISet set, CDKRequestCacheSupport cacheSupport) {
+                    try {
+                        String baseUrl = ApplicationURL.applicationURL(request);
+                        String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
+                        org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
+                        ProxyItemHandler redirectHandler = findRedirectHandler(solrDataByPid, solrAccess, userProvider,  apacheClientProvider, instances, request, pid, null);
+                        if (redirectHandler != null) {
+                            String cacheURl = baseUrl+"/dc";
+
+                            CDKRequestItem hit = cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+                            InputStream directStreamDC = null;
+                            if (hit != null) {
+                                directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+                            } else {
+                                InputStream  dc = redirectHandler.directStreamDC(null);
+                                String remoteData = IOUtils.toString(dc, "UTF-8");
+                                saveToCache(remoteData, cacheURl, pid, cacheSupport);
+                                directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+                            }
+                            if (directStreamDC != null) {
+                                Document dc = XMLUtils.parseDocument(directStreamDC, true);
+                                Element dcElement = dc.getDocumentElement();
+
+                                Element record = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "record");
+                                record.setAttribute("xmlns:dc", FedoraNamespaces.DC_NAMESPACE_URI);
+
+                                record.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance","xsi:schemaLocation","http://www.europeana.eu/schemas/ese/ http://www.europeana.eu/schemas/ese/ESE-V3.2.xsd http://purl.org/dc/elements/1.1/ http://www.dublincore.org/schemas/xmls/qdc/dc.xsd http://purl.org/dc/terms/ http://www.dublincore.org/schemas/xmls/qdc/dcterms.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd");
+                                List<Element> dcElems = XMLUtils.getElements(dcElement);
+                                dcElems.stream().forEach(dcElm-> {
+                                    owningDocument.adoptNode(dcElm);
+                                    record.appendChild(dcElm);
+                                });
+
+                                Element object = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "object");
+                                String thumb = String.format(baseUrl+(baseUrl.endsWith("/")? "" : "/")+"api/client/v7.0/items/%s/image/thumb", pid);
+                                object.setTextContent(thumb);
+                                record.appendChild(object);
+
+                                Element provider = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "provider");
+                                String acronym = KConfiguration.getInstance().getConfiguration().getString("acronym","");
+                                String defaultDataProvider = KConfiguration.getInstance().getConfiguration().getString("oai.set.edm.dataProvider",acronym);
+
+
+                                metadataProvider(instances, solrDataByPid, oaiRec, provider, defaultDataProvider);
+
+                                record.appendChild(provider);
+
+                                Element type = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "type");
+                                type.setTextContent("TEXT");
+                                record.appendChild(type);
+
+                                Element isShownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/ese/", "isShownAt");
+                                String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client");
+                                if (clientUrl != null) {
+                                    isShownAt.setTextContent(clientUrl+(clientUrl.endsWith("/") ? "" : "/")+"uuid/"+pid);
+                                } else {
+                                    isShownAt.setTextContent(baseUrl+(baseUrl.endsWith("/") ? "" : "/")+"/uuid/"+pid);
+                                }
+                                record.appendChild(isShownAt);
+
+                                return  Arrays.asList(record);
+                            } else return null;
+
+                        } else {
+                            return null;
+                        }
+                    } catch (IOException | LexerException | ProxyHandlerException | ParserConfigurationException | SAXException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        throw new RuntimeException(e.getMessage());
+                    }
+                }
+
+        @Override
+        public boolean isAvailableOnLocal() {
+            return true;
+        }
+
+        @Override
+        public boolean isAvailableOnCDKSide() {
+            return false;
         }
     },
 
     drkramerius4("drkramerius4",
             "http://registrdigitalizace.cz/schemas/drkramerius/v4/drkram.xsd",
             "http://registrdigitalizace.cz/schemas/drkramerius/v4/") {
+
+    			
+    			
+        
+                @Override
+				public List<Element> performOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider,
+						Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,
+						Document owningDocument, OAIRecord oaiRec, OAISet set, CDKRequestCacheSupport cacheSupport) {
+                    return new ArrayList<>();
+				}
+
+				@Override
+                public List<Element> perform(HttpServletRequest request, FedoraAccess fa, Document owningDocument,
+                        String oaiIdentifier, OAISet set) {
+                    try {
+                        
+                        //hasIntCompPart
+                        
+                        List<String> excludeModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("oai.metadata.drkramerius4.excluderelations",
+                                Arrays.asList(KnownRelations.HAS_INT_COMP_PART.toString(), 
+                                        KnownRelations.HAS_PAGE.toString())
+                        ), Functions.toStringFunction());
+
+                        
+                        String baseUrl = ApplicationURL.applicationURL(request);
+                        String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
+                        //Document dc = fa.getDC(pid);
+                        //Element dcElement = dc.getDocumentElement();
+                        
+                        List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
+                        Document relsExt = fa.getRelsExt(pid);
+                        String model = RelsExtHelper.getModel(relsExt.getDocumentElement());
+                        
+                        Element record = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:record");
+                        if(topLevelModels.contains(model)) {
+                            record.setAttribute("root", "true");
+                        }
+                        
+                        Element uuid = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:uuid");
+                        uuid.setTextContent(pid.substring("uuid:".length()));
+                        record.appendChild(uuid);
+                        
+                        Element type = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:type");
+                        type.setTextContent(model.toUpperCase());
+                        record.appendChild(type);
+
+                        Element drDescriptor = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:descriptor");
+
+                        Document biblio = fa.getBiblioMods(pid);
+                        Element biblioRoots = (Element) owningDocument.adoptNode(biblio.getDocumentElement());
+                        drDescriptor.appendChild(biblioRoots);
+
+                        List<Pair<String,String>> relations = RelsExtHelper.getRelations(relsExt.getDocumentElement());
+                        for (Pair<String, String> relation : relations) {
+                            if (!excludeModels.contains(relation.getLeft())) {
+                                Element drRelation = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:relation");
+                                String relationPid = relation.getRight();
+                                PIDParser pidParser = new PIDParser(relationPid);
+                                pidParser.objectPid();
+                                drRelation.setTextContent(pidParser.getObjectId());
+                                record.appendChild(drRelation);
+                            }
+                        }
+                        record.appendChild(drDescriptor);
+                        return Arrays.asList(record);
+
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        throw new RuntimeException(e.getMessage());
+                    } catch (XPathExpressionException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        throw new RuntimeException(e.getMessage());
+                    } catch (LexerException e) {
+                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        throw new RuntimeException(e.getMessage());
+                    }
+                    
+                }
+
         @Override
-        public Element performOnCDKSide(SolrAccess solrAccess, Provider<User> userProvider,
-                                        Provider<CloseableHttpClient> apacheClientProvider, Instances instances, HttpServletRequest request,
-                                        Document owningDocument, OAIRecord oaiRec, OAISet set) {
-            // TODO Auto-generated method stub
-            return null;
+        public boolean isAvailableOnLocal() {
+            return true;
         }
 
         @Override
-        public Element perform(HttpServletRequest request, AkubraRepository akubraRepository, Document owningDocument,
-                               String oaiIdentifier, OAISet set) {
-            try {
-
-                //hasIntCompPart
-
-                List<String> excludeModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("oai.metadata.drkramerius4.excluderelations",
-                        Arrays.asList(KnownRelations.HAS_INT_COMP_PART.toString(),
-                                KnownRelations.HAS_PAGE.toString())
-                ), Functions.toStringFunction());
-
-
-                String baseUrl = ApplicationURL.applicationURL(request);
-                String pid = OAITools.pidFromOAIIdentifier(oaiIdentifier);
-                //Document dc = fa.getDC(pid);
-                //Element dcElement = dc.getDocumentElement();
-
-                List<String> topLevelModels = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.topLevelModels"), Functions.toStringFunction());
-                String model = akubraRepository.re().getModel(pid);
-
-                Element record = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:record");
-                if (topLevelModels.contains(model)) {
-                    record.setAttribute("root", "true");
-                }
-
-                Element uuid = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:uuid");
-                uuid.setTextContent(pid.substring("uuid:".length()));
-                record.appendChild(uuid);
-
-                Element type = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:type");
-                type.setTextContent(model.toUpperCase());
-                record.appendChild(type);
-
-                Element drDescriptor = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:descriptor");
-
-                Document biblio = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
-                Element biblioRoots = (Element) owningDocument.adoptNode(biblio.getDocumentElement());
-                drDescriptor.appendChild(biblioRoots);
-
-                List<RelsExtRelation> relations = akubraRepository.re().getRelations(pid, null);
-                for (RelsExtRelation relation : relations) {
-                    if (!excludeModels.contains(relation.getLocalName())) {
-                        Element drRelation = owningDocument.createElementNS(DrKrameriusUtils.DR_NS_URI, "dr:relation");
-                        String relationPid = relation.getResource();
-                        PIDParser pidParser = new PIDParser(relationPid);
-                        pidParser.objectPid();
-                        drRelation.setTextContent(pidParser.getObjectId());
-                        record.appendChild(drRelation);
-                    }
-                }
-                record.appendChild(drDescriptor);
-                return record;
-
-            } catch (LexerException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                throw new RuntimeException(e.getMessage());
-            }
-
+        public boolean isAvailableOnCDKSide() {
+            return false;
         }
     };
-
-
+    
+    
     public static final Logger LOGGER = Logger.getLogger(MetadataExport.class.getName());
 
-
+    
     private MetadataExport(String metadataPrefix, String schema, String metadataNamespace) {
         this.metadataPrefix = metadataPrefix;
         this.schema = schema;
@@ -528,11 +632,11 @@ public enum MetadataExport {
     public String getSchema() {
         return schema;
     }
-
+    
     public String getMetadataPrefix() {
         return metadataPrefix;
     }
-
+    
 
     public static MetadataExport findByPrefix(String prefix) {
         MetadataExport[] values = MetadataExport.values();
@@ -542,20 +646,11 @@ public enum MetadataExport {
         return null;
     }
 
-    //TODO: Remove
-//    private static InputStream dcStream(SolrAccess solrAccess, Provider<User> userProvider,
-//            Provider<Client> clientProvider, Instances instances, HttpServletRequest request, String pid)
-//            throws LexerException, IOException, ProxyHandlerException {
-//        ProxyItemHandler redirectHandler = findRedirectHandler(solrAccess, userProvider, clientProvider, instances, request, pid, null);
-//        InputStream directStreamDC = redirectHandler.directStreamDC();
-//        return directStreamDC;
-//    }
-
-
     private String metadataPrefix;
     private String schema;
     private String metadataNamespace;
-
+    
+    
 
     public static ProxyItemHandler findRedirectHandler(SolrAccess solrAccess, Provider<User> userProvider, Provider<CloseableHttpClient> apacheClient, Instances instances, HttpServletRequest request, String pid, String source) throws LexerException, IOException {
         if (source == null) {
@@ -572,8 +667,7 @@ public enum MetadataExport {
         }
     }
 
-    private static String defaultDocumentSource(SolrAccess solrAccess, String pid) throws IOException {
-        org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
+    private static String defaultDocumentSource(org.w3c.dom.Document solrDataByPid) throws IOException {
         String leader = CDKUtils.findCDKLeader(solrDataByPid.getDocumentElement());
         List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
         return leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
@@ -609,11 +703,38 @@ public enum MetadataExport {
     /** Local kramerius */
     public abstract Element perform(HttpServletRequest request, AkubraRepository akubraRepository, Document owningDocument, String oaiIdentifier, OAISet set);
 
-    //public abstract Element perform(HttpServletRequest request, ProxyItemHandler handler, Document owningDocument, String oaiIdentifier, OAISet set);
+    public abstract boolean isAvailableOnCDKSide();
 
-    /*
-     * ProxyItemHandler handler,
-     */
-//    public static final Logger LOGGER = Logger.getLogger(MetadataExport.class.getName());
+
+    protected void saveToCache(String data, String url, String pid, CDKRequestCacheSupport cacheSupport) {
+        try {
+            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
+                    data,
+                    "text/xml",
+                    url,
+                    pid,
+                    null,
+                    LocalDateTime.now(),
+                    null
+            );
+
+            LOGGER.info( String.format("Storing cache item %s", cacheItem.toString()));
+            cacheSupport.save(cacheItem);
+        } catch (SQLException  e) {
+            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        }
+    }
+
+
+    protected CDKRequestItem cacheSearchHitByPid(String url, String pid,  CDKRequestCacheSupport cacheSupport) {
+        int days = KConfiguration.getInstance().getConfiguration().getInt("cdk.cache.item",30);
+        LOGGER.log(Level.INFO, String.format("this.cacheSupport.find(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
+        List<CDKRequestItem> cdkRequestItems = cacheSupport.find(null, url, pid, null);
+        if (!cdkRequestItems.isEmpty() && !cdkRequestItems.get(0).isExpired(days)) {
+            LOGGER.log(Level.INFO, String.format("this.cacheSupport.found(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
+            return cdkRequestItems.get(0);
+        }
+        return null;
+    }
 
 }

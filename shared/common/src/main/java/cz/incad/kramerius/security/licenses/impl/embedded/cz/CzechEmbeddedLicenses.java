@@ -21,6 +21,7 @@ import java.util.List;
 
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 
 import static cz.incad.kramerius.security.licenses.LicensesManager.*;
@@ -53,8 +54,21 @@ public class CzechEmbeddedLicenses {
     
     /** Public licenses - sheetmusic **/
     public static License SHHETMUSIC_ONSITE_LICENSE = new LicenseImpl("onsite-sheetmusic", "On site sheet music", GLOBAL_GROUP_NAME_EMBEDDED, 6);
-    
-    
+
+
+    /** Special needs license */
+    public static License SPECIAL_NEEDS_LICENSE = new LicenseImpl("special-needs", "Special needs license", GLOBAL_GROUP_NAME_EMBEDDED, 7);
+    static {
+        SPECIAL_NEEDS_LICENSE.initRuntime(RuntimeLicenseType.ALL_DOCUMENTS);
+    }
+
+    /** Cover and content license */
+    public static License COVER_AND_CONTENT_LICENSE = new LicenseImpl("cover-and-content", "Cover and content for monographs", GLOBAL_GROUP_NAME_EMBEDDED, 8);
+    static {
+        COVER_AND_CONTENT_LICENSE.initRuntime(RuntimeLicenseType.COVER_AND_CONTENT_MONOGRAPH_PAGE);
+    }
+
+
     public static List<License> LICENSES = Arrays.asList(
             DNNTT_LICENSE, 
             DNNTO_LICENSE, 
@@ -62,7 +76,9 @@ public class CzechEmbeddedLicenses {
             ORPHAN_LICENSE,
             PUBLIC_LICENSE,
             //PUBLIC_MUO_LICENSE,
-            SHHETMUSIC_ONSITE_LICENSE
+            SHHETMUSIC_ONSITE_LICENSE,
+            SPECIAL_NEEDS_LICENSE,
+            COVER_AND_CONTENT_LICENSE
     );
     
     public static List<License> DEPRECATED_LICENSES = Arrays.asList(PUBLIC_MUO_LICENSE);

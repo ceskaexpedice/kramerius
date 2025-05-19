@@ -88,6 +88,7 @@ public class SecurityDbInitializer {
 
                 // labels table
                 makeSureThatLabelsTable(connection);
+
                 makeSureThatRoleColumnExists(connection);
 
                 createNewActions(connection);
@@ -238,10 +239,12 @@ public class SecurityDbInitializer {
             makeSureThatLicensesTableContainsExclusiveLockColumns(connection);
             
             updateExistingActions(connection);
-            checkLabelExists(connection);
 
+            // runtime license columns
+            makeSureThatRuntimeColumnsExists(connection);
             dropDeprecatedLabels(connection);
-            
+
+            checkLabelExists(connection);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
@@ -301,10 +304,9 @@ public class SecurityDbInitializer {
                     JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
                     template.setUseReturningKeys(false);
                     template.executeUpdate(
-                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority) \n" +
-                                    "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, ?, (select coalesce(max(label_priority),0)+1 from labels_entity))",
-                            lic.getName(), lic.getDescription());
-
+                            "insert into labels_entity(label_id,label_group,label_name, label_description, label_priority, runtime, runtime_type) \n" +
+                                    "values(nextval('LABEL_ID_SEQUENCE'), 'embedded', ?, ?, (select coalesce(max(label_priority),0)+1 from labels_entity), ?, ?)",
+                            lic.getName(), lic.getDescription(), lic.isRuntimeLicense(), lic.getRuntimeLicenseType() != null ? lic.getRuntimeLicenseType().name() : new JDBCUpdateTemplate.NullObject(String.class));
                 } catch (SQLException e) {
                     LOGGER.log(Level.SEVERE, String.format("Cannot create embedded label %s", lic.getName()));
                 }
@@ -628,11 +630,6 @@ public class SecurityDbInitializer {
         }
     }
     
-    public static void alterTableAddExclusiveLock(Connection con) throws SQLException {
-        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK BOOLEAN");
-        prepareStatement.executeUpdate();
-        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
-    }
 
     public static void alterTableAddExclusiveLockMaxReaders(Connection con) throws SQLException {
         PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK_MAXREADERS INTEGER");
@@ -830,6 +827,46 @@ public class SecurityDbInitializer {
             );
         }
     }
+
+
+    private static void makeSureThatRuntimeColumnsExists(Connection connection) throws SQLException {
+        List<JDBCCommand> commands = new ArrayList<>();
+
+        if (!DatabaseUtils.columnExists(connection, "labels_entity", "RUNTIME")) {
+            commands.add(new JDBCCommand() {
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+                    PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN RUNTIME BOOLEAN");
+                    prepareStatement.executeUpdate();
+                    LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+
+                    return null;
+                }
+            });
+        }
+        if (!DatabaseUtils.columnExists(connection, "labels_entity", "RUNTIME_TYPE")) {
+            commands.add(new JDBCCommand() {
+                @Override
+                public Object executeJDBCCommand(Connection con) throws SQLException {
+
+                    PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN RUNTIME_TYPE TEXT");
+                    prepareStatement.executeUpdate();
+                    LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+
+                    return null;
+                }
+            });
+        }
+
+        new JDBCTransactionTemplate(connection, false).updateWithTransaction(commands);
+    }
+
+    public static void alterTableAddExclusiveLock(Connection con) throws SQLException {
+        PreparedStatement prepareStatement = con.prepareStatement("ALTER TABLE LABELS_ENTITY ADD COLUMN LOCK BOOLEAN");
+        prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "ALTER TABLE: updated rows");
+    }
+
 
     public static void makeSureRolesInTable(Connection connection) throws SQLException {
         new JDBCTransactionTemplate(connection, false).updateWithTransaction(

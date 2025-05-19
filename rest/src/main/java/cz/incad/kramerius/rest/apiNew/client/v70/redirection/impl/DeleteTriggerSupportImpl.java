@@ -234,6 +234,8 @@ public class DeleteTriggerSupportImpl implements DeleteTriggerSupport {
                                     pivotItem.getFirtsPidPath()
                             );
                             reharvest.setRootPid(pivotItem.rootPid());
+                            // chybel stav - musim pridat
+                            reharvest.setState("waiting_for_approve");
                             reharvest.setLibraries(new ArrayList<>(liveResponse.getKeys("_cdk_")));
                             reharvest.setTypeOfReharvest(pivotItem.isTopLevelModel() ? ReharvestItem.TypeOfReharvset.root : ReharvestItem.TypeOfReharvset.children);
                             reharvestManager.register(reharvest);

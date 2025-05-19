@@ -2,12 +2,20 @@ package cz.incad.kramerius.security.licenses.utils;
 
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
 
 import org.json.JSONObject;
 
+/**
+ * Utility class for converting {@link License} objects to and from JSON representation.
+ * <p>
+ * This class supports serialization of license attributes including exclusive lock settings and runtime license type.
+ * It is primarily used to facilitate data exchange (e.g., over REST APIs or in configuration storage).
+ *
+ */
 public class LicenseTOJSONSupport {
 
     private static final String ID_KEY = "id";
@@ -23,8 +31,17 @@ public class LicenseTOJSONSupport {
     private static final String MAXINTERVAL_KEY = "maxinterval";
     private static final String EXCLUSIVE_KEY = "exclusive";
 
+    private static final String RUNTIME = "runtime";
+    private static final String RUNTIME_TYPE="runtime_type";
+
     private LicenseTOJSONSupport() {}
 
+    /**
+     * Serializes a {@link License} object into its JSON representation.
+     *
+     * @param l the license to serialize
+     * @return a JSON object containing all relevant license fields
+     */
     public static JSONObject licenseToJSON(License l) {
         JSONObject labelObject = new JSONObject();
         labelObject.put(ID_KEY, l.getId());
@@ -42,14 +59,34 @@ public class LicenseTOJSONSupport {
             
             labelObject.put(EXCLUSIVE_LOCK_TYPE, lock.getType().name());
         }
+
+        if (l.isRuntimeLicense()) {
+            labelObject.put(RUNTIME, true);
+            labelObject.put(RUNTIME_TYPE, l.getRuntimeLicenseType().name());
+        }
         return labelObject;
     }
 
+    /**
+     * Deserializes a {@link License} object from a JSON object.
+     * This variant expects the license ID to be part of the JSON.
+     *
+     * @param jsonObject the JSON object containing license data
+     * @return a reconstructed {@link License} instance
+     */
     public static License licenseFromJSON(JSONObject jsonObject) {
         int id = jsonObject.optInt(ID_KEY);
         return licenseFromJSON(id, jsonObject);
     }
 
+    /**
+     * Deserializes a {@link License} object from a JSON object with an explicit ID.
+     * This is useful when the license ID is managed externally or not stored in the JSON.
+     *
+     * @param id the unique ID of the license
+     * @param jsonObject the JSON object containing license data
+     * @return a reconstructed {@link License} instance
+     */
     public static License licenseFromJSON(int id, JSONObject jsonObject) {
         String name = jsonObject.getString(NAME_KEY);
         String description = jsonObject.optString(DESCRIPTION_KEY);
@@ -68,6 +105,13 @@ public class LicenseTOJSONSupport {
             
             lic.initExclusiveLock(refreshTime, maxTime, maxReaders, ExclusiveLockType.findByType(type));
         }
+
+        boolean runtimeLicense = jsonObject.optBoolean(RUNTIME);
+        String runtimeLicenseType = jsonObject.optString(RUNTIME_TYPE);
+        if (runtimeLicense) {
+            lic.initRuntime(RuntimeLicenseType.valueOf(runtimeLicenseType));
+        }
+
         return lic;
     }
 

@@ -24,15 +24,10 @@ import javax.ws.rs.core.Response;
 
 import static cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("/admin/v7.0/licenses")
 public class LicensesResource {
@@ -52,22 +47,38 @@ public class LicensesResource {
     /** All licenses */
     @GET
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response allLicenses() {
+    public Response allLicenses(@QueryParam("runtime") String acceptRuntime) {
         try {
-            List<License> localLicenses = this.licensesManager.getAllLicenses();
-            return labelsAsResponse(localLicenses);
+            List<License> allLicenses = this.licensesManager.getAllLicenses();
+            List<License> filtered =  acceptOrDiscardRuntimeLicense(allLicenses,  Boolean.valueOf(acceptRuntime));
+            return labelsAsResponse(filtered);
         } catch (JSONException | LicensesManagerException e) {
             throw new GenericApplicationException(e.getMessage(), e);
         }
+    }
+
+    private static List<License> acceptOrDiscardRuntimeLicense(List<License> allLicenses, Boolean acceptRuntime) {
+        Set<License> retval = new LinkedHashSet<>();
+        allLicenses.forEach(l-> {
+            boolean runtimeLicense = l.isRuntimeLicense();
+            if (runtimeLicense) {
+                if (acceptRuntime) {
+                    retval.add(l);
+                }
+            } else {
+                retval.add(l);
+            }
+        });
+        return new ArrayList<>(retval);
     }
 
     /** Global licenses */
     @GET
     @Path("global")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response globalLicenses() {
+    public Response globalLicenses(@QueryParam("runtime") String acceptRuntime) {
         try {
-            List<License> localLicenses = this.licensesManager.getGlobalLicenses();
+            List<License> localLicenses =  acceptOrDiscardRuntimeLicense(this.licensesManager.getGlobalLicenses(), Boolean.valueOf(acceptRuntime));
             return labelsAsResponse(localLicenses);
         } catch (JSONException | LicensesManagerException e) {
             throw new GenericApplicationException(e.getMessage(), e);
@@ -78,9 +89,9 @@ public class LicensesResource {
     @GET
     @Path("local")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response LocalLicenses() {
+    public Response getLocalLicenses(@QueryParam("runtime") String acceptRuntime) {
         try {
-            List<License> localLicenses = this.licensesManager.getLocalLicenses();
+            List<License> localLicenses =  acceptOrDiscardRuntimeLicense(this.licensesManager.getLocalLicenses(), Boolean.valueOf(acceptRuntime));
             return labelsAsResponse(localLicenses);
         } catch (JSONException | LicensesManagerException e) {
             throw new GenericApplicationException(e.getMessage(), e);
@@ -264,15 +275,12 @@ public class LicensesResource {
 
 
     private Response labelsAsResponse(List<License> licenses) throws LicensesManagerException {
-        //List<License> licenses = this.licensesManager.getLicenses();
         licenses.sort(new Comparator<License>() {
             @Override
             public int compare(License o1, License o2) {
                 return Integer.valueOf(o1.getPriority()).compareTo(Integer.valueOf(o2.getPriority()));
             }
-        });
-
-        JSONArray jsonArray = new JSONArray();
+        });JSONArray jsonArray = new JSONArray();
         licenses.stream().map(LicenseTOJSONSupport::licenseToJSON)
                 .forEach(jsonArray::put);
         return Response.ok().entity(jsonArray.toString()).build();

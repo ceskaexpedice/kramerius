@@ -89,7 +89,7 @@ public class SolrAPICallMonitor implements APICallMonitor  {
     @Override
     public void commit() {
         try {
-            String apiMonitor = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/api");
+            String apiMonitor = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/monitor");
             String updateUrl = apiMonitor+(apiMonitor.endsWith("/") ?  "" : "/")+"update";
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder document = factory.newDocumentBuilder();

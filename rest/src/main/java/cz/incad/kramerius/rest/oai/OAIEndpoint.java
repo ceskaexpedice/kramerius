@@ -85,7 +85,10 @@ public class OAIEndpoint extends ClientApiResource {
     @Inject
     ProxyFilter proxyFilter;
 
-    
+    @Inject
+    CDKRequestCacheSupport cacheSupport;
+
+
     public OAIEndpoint() {
     }
 
