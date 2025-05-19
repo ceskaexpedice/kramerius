@@ -104,47 +104,51 @@ public class SetLicenseProcess {
         //ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
 
         List<String> brokenPids = new ArrayList<>();
-        switch (action) {
-            case ADD:
-                ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
-                for (String pid : extractPids(target)) {
-                    try {
-                        addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
-                    } catch (DistributedLocksException ex) {
-                        if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+        try {
+            switch (action) {
+                case ADD:
+                    ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
+                    for (String pid : extractPids(target)) {
+                        try {
+                            addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
+                        } catch (DistributedLocksException ex) {
+                            if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                                brokenPids.add(pid);
+                                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                                LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                            }else{
+                                throw ex;
+                            }
+                        } catch (Exception ex) {
                             brokenPids.add(pid);
                             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                             LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
-                        }else{
-                            throw ex;
                         }
-                    } catch (Exception ex) {
-                        brokenPids.add(pid);
-                        LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-                        LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
                     }
-                }
-                break;
-            case REMOVE:
-                ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
-                for (String pid : extractPids(target)) {
-                    try {
-                        removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess, authToken);
-                    } catch (DistributedLocksException ex) {
-                        if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                    break;
+                case REMOVE:
+                    ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
+                    for (String pid : extractPids(target)) {
+                        try {
+                            removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess, authToken);
+                        } catch (DistributedLocksException ex) {
+                            if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+                                brokenPids.add(pid);
+                                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                                LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
+                            }else{
+                                throw ex;
+                            }
+                        } catch (Exception ex) {
                             brokenPids.add(pid);
                             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
                             LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
-                        }else{
-                            throw ex;
                         }
-                    } catch (Exception ex) {
-                        brokenPids.add(pid);
-                        LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-                        LOGGER.log(Level.SEVERE, String.format("Skipping object %s", pid));
                     }
-                }
-                break;
+                    break;
+            }
+        }finally {
+            akubraRepository.shutdown();
         }
 
         if (!brokenPids.isEmpty()) {
