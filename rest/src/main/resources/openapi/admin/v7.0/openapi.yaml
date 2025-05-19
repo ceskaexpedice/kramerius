@@ -1953,7 +1953,6 @@ paths:
         - Licence
       summary: Vrací všechny lokální licence
       operationId: getLocalLicenses
-      description: Vrací lokální licence
       parameters:
         - name: runtime
           in: query
