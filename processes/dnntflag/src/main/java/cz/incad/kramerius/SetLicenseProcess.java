@@ -368,12 +368,12 @@ public class SetLicenseProcess {
 
     private static boolean hasAncestorThatOwnsLicense(String pid, String license, AkubraRepository akubraRepository) throws RepositoryException, IOException {
         String currentPid = pid;
-        String parentPid;
-        while ((parentPid = akubraRepository.pi().getOwnedAndFosteredParents(currentPid).own().source()) != null) {
-            if (LicenseHelper.ownsLicenseByRelsExt(parentPid, license, akubraRepository)) {
+        ProcessingIndexItem ownParent = null;
+        while ((ownParent = akubraRepository.pi().getOwnedAndFosteredParents(currentPid).own()) != null) {
+            if (LicenseHelper.ownsLicenseByRelsExt(ownParent.source(), license, akubraRepository)) {
                 return true;
             }
-            currentPid = parentPid;
+            currentPid = ownParent.source();
         }
         return false;
     }
@@ -400,14 +400,14 @@ public class SetLicenseProcess {
      */
     private static List<String> getPidsOfOwnAncestorsWithoutAnotherSourceOfLicense(String pid, AkubraRepository akubraRepository, String license) throws IOException, RepositoryException {
         List<String> result = new ArrayList<>();
-        String pidOfChild = pid;
-        String pidOfParent;
-        while ((pidOfParent = akubraRepository.pi().getOwnedAndFosteredParents(pidOfChild).own().source()) != null) {
+        String pidOfChild= pid;
+        ProcessingIndexItem processingParent = null; // akubraRepository.pi().getOwnedAndFosteredParents(pidOfChild).own();
+        while (   (processingParent = akubraRepository.pi().getOwnedAndFosteredParents(pidOfChild).own()) != null && (pidOfChild = processingParent.source()) != null) {
             String pidToBeIgnored = pidOfChild.equals(pid) ? null : pidOfChild; //only grandparent of original pid can be ignored, because it has been already analyzed in this loop, but not the original pid
-            boolean hasAnotherSourceOfLicense = LicenseHelper.hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, akubraRepository);
-            boolean ownsLicense = LicenseHelper.ownsLicenseByRelsExt(pidOfParent, license, akubraRepository);
+            boolean hasAnotherSourceOfLicense = LicenseHelper.hasAnotherSourceOfLicense(processingParent.source(), pid, pidToBeIgnored, license, akubraRepository);
+            boolean ownsLicense = LicenseHelper.ownsLicenseByRelsExt(processingParent.source(), license, akubraRepository);
             if (!hasAnotherSourceOfLicense) { //add this to the list
-                result.add(pidOfParent);
+                result.add(processingParent.source());
             }
             if (hasAnotherSourceOfLicense) { //this has source for itself and thus for it's ancestors
                 break;
@@ -415,7 +415,7 @@ public class SetLicenseProcess {
             if (ownsLicense) { //is itself source for it's ancestors (but not necessarily for itself, meaning it doesn't necessarily have rels-ext:containsLicense)
                 break;
             }
-            pidOfChild = pidOfParent;
+            pidOfChild = processingParent.source();
         }
         return result;
     }
