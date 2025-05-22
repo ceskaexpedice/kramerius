@@ -2,6 +2,7 @@ package cz.kramerius.searchIndex.indexer.execution;
 
 
 import cz.incad.kramerius.utils.IterationUtils;
+import cz.incad.kramerius.utils.java.Pair;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
@@ -16,6 +17,7 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+//import cz.incad.kramerius.repository.KrameriusRepositoryApi;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
@@ -29,7 +31,7 @@ import java.util.logging.Logger;
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
 
-    public static final int INDEXER_VERSION = 19; //this should be updated after every change in logic, that affects full indexation
+    public static final int INDEXER_VERSION = 20; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
     //only state variable
@@ -122,7 +124,7 @@ public class Indexer {
         } else {
             long start = System.currentTimeMillis();
             Counters counters = new Counters();
-            LOGGER.info("Processing " + pid + " (indexation type: " + type + ")");
+            LOGGER.log(Level.INFO, "Processing {0} (indexation type: {1})", new Object[]{pid, type});
             RepositoryNode node = nodeManager.getKrameriusNode(pid);
             boolean setFullIndexationInProgress = type == IndexationType.TREE_AND_FOSTER_TREES;
             if (node != null && setFullIndexationInProgress) {
@@ -169,7 +171,7 @@ public class Indexer {
             SolrDocument objectByPid = solrIndexer.getObjectByPid(pid);
             alreadyInIndex = objectByPid != null;
         } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
+            reportError(e.getMessage(), e);
         }
 
         if (alreadyInIndex) { // keep data from previous indexation in case this indexation fails during
@@ -184,7 +186,7 @@ public class Indexer {
                 ensureCompositeId(solrInput, repositoryNode, pid);
                 String solrInputStr = solrInput.getDocument().asXML();
                 solrIndexer.indexFromXmlString(solrInputStr, false);
-            } catch (Exception e) {
+            } catch (IOException | SolrServerException | DocumentException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -196,35 +198,56 @@ public class Indexer {
         //see https://github.com/ceskaexpedice/kramerius/issues/782
         solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", null, false, false);
     }
-
+/// <summary>
+/// <para>Returns offset to the last word in the text and the last word, if it ends with a hyphen. Otherwise returns null.</para>
+/// <para>Offset example: "This is a test text-" returns 0, "This is a test text-\n-32-" returns 5</para>
+/// </summary>
+    private Pair<String,Integer> GetLastWordAndOffsetIfHyphen(String text) {
+        String[] words = text.split("\\s");
+        int lenghtFromEnd = 0;
+        for(int i = words.length - 1; i >= 0; i--) {
+            String word = words[i].trim();
+            //Is not empty, is at least 2 characters long, and all but the last character are letters. If the last one is hyphen, return the word, otherwise return null.
+            if (!word.isEmpty() && word.length()>1 && word.substring(0,word.length()-1).chars().allMatch(Character::isLetter)) {
+                if(word.endsWith("-")){
+                    return new Pair<>(word,lenghtFromEnd);
+                }
+                else return null;
+            }
+            lenghtFromEnd+=word.length()+1;
+        }
+        return null;
+    }
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {
         try {
             counters.incrementProcessed();
-            boolean objectAvailable = repositoryNode != null;
-            if (!objectAvailable) {
-                //TODO: hodit ignoreObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
-                //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
-                //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
-                //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
-
-                if (this.ignoreInconsistentObjects) { //ignore missing objects
-                    reportError("object not found in repository (or found in inconsistent state), ignoring: " + pid);
-                    counters.incrementIgnored();
-                } else { //remove missing objects from index
-                    reportError("object not found in repository (or found in inconsistent state), removing from index: " + pid);
-                    solrIndexer.deleteById(pid);
-                    counters.incrementRemoved();
-                }
-                report("");
-            } else {
-                LOGGER.info("Indexing " + pid);
+            if (repositoryNode != null) {
                 Document foxmlDoc = krameriusRepositoryFascade.getObjectFoxml(pid, true);
-                report("model: " + repositoryNode.getModel());
-                report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                String ocrText = normalizeWhitespacesForOcrText(krameriusRepositoryFascade.getOcrText(pid));
+                String ocrText = krameriusRepositoryFascade.getOcrText(pid);
+
                 //System.out.println("ocr: " + ocrText);
+                
+                //Check if the last character of the last valid word in OCR text is a hyphen, and if so, check the next page for the first word
+                if (ocrText != null) {
+                    Pair<String,Integer> tuple = GetLastWordAndOffsetIfHyphen(ocrText);
+                    if(tuple != null) {
+                        int pos = repositoryNode.getPositionInOwnParent();
+                        List<String> syblings = nodeManager.getKrameriusNode(repositoryNode.getOwnParentPid()).getPidsOfOwnChildren();
+                        if (syblings.size() > pos+1) {
+                            String nextOcrText = krameriusRepositoryFascade.getOcrText(syblings.get(pos + 1));
+                            if (nextOcrText != null) {
+                                String lastWord = tuple.getFirst();
+                                int offset = tuple.getSecond();
+                                //Uncomment the following 2 lines if we normalise differently (Awaiting confirmation from the team)
+                                ocrText= /*normalizeWhitespacesForOcrText( */ ocrText.substring(0, ocrText.length()-1-offset)+nextOcrText.split("\\s+")[0]+" "/*)*/+lastWord+/*normalizeWhitespacesForOcrText(*/ocrText.substring( ocrText.length()-offset)/*)*/;
+                            }
+                        }
+                        //else ocrText = normalizeWhitespacesForOcrText(ocrText);
+                    }
+            }
+                ocrText = normalizeWhitespacesForOcrText(ocrText);//
                 //IMG_FULL mimetype
                 String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
 
@@ -244,6 +267,21 @@ public class Indexer {
                 if ("application/pdf".equals(imgFullMime)) {
                     indexPagesFromPdf(pid, repositoryNode, counters);
                 }
+            } else {
+                //TODO: hodit ignoreObjectsMissingFromRepository do konfigurace, nebo nastavit na false pri pouziti takove implementace KrameriusRepositoryAccessAdapter, ktera falesne neoznacuje existujici objekty v repozitari za chybejici
+                //protoze vysledkem tehle zmeny (neexistujici/falesne neexistujici objekty budou v indexu ponechany v dosavadnim stavu, namisto smazani) muze byt skryta zastaralost v indexu, napr.:
+                //monografie se muze jevit jako zaindexovana indexerem ve verzi třeba 15, ale obsahuje stranku, ktera preindexovana nebyla, nebyla ale ani zahozena a jeji zaznam v indexu je nenapadne zastaraly
+                //podobne pro periodikum, pokud by nebyl dostupny zaznam cisla, nebude preindexovano a ani jeji stranky
+
+                if (this.ignoreInconsistentObjects) { //ignore missing objects
+                    reportError("object not found in repository (or found in inconsistent state), ignoring: " + pid);
+                    counters.incrementIgnored();
+                } else { //remove missing objects from index
+                    reportError("object not found in repository (or found in inconsistent state), removing from index: " + pid);
+                    solrIndexer.deleteById(pid);
+                    counters.incrementRemoved();
+                }
+                report("");
             }
         } catch (DocumentException e) {
             counters.incrementErrors();
@@ -307,7 +345,7 @@ public class Indexer {
 
     private void processChildren(String parentPid, RepositoryNode parentNode, Counters counters, IndexationType type, boolean isIndexationRoot, ProgressListener progressListener) {
         if (parentNode == null) {
-            LOGGER.log(Level.SEVERE, "object not found in repository (or found in inconsistent state), ignoring it's children: " + parentPid);
+            LOGGER.log(Level.SEVERE, "object not found in repository (or found in inconsistent state), ignoring it''s children: {0}", parentPid);
             return;
         }
         switch (type) {
@@ -339,7 +377,8 @@ public class Indexer {
             case TREE_INDEX_ONLY_NEWER: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    boolean isNewer = true; //TODO: detect
+                    boolean isNewer = true; //TODO: detect - probably compare date modified on this and the previous indexation
+                    //krameriusRepositoryApi.getLowLevelApi().getPropertyLastModified(childPid);
                     if (isNewer) {
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     }
@@ -361,7 +400,7 @@ public class Indexer {
             case TREE_INDEX_ONLY_PAGES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    boolean isPage = true; //TODO: detect
+                    boolean isPage = childNode.getModel().equals("page");
                     if (isPage) {
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     } else {
@@ -373,7 +412,7 @@ public class Indexer {
             case TREE_INDEX_ONLY_NONPAGES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
-                    boolean isPage = false; //TODO: detect
+                    boolean isPage = childNode.getModel().equals("page");
                     if (!isPage) {
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                         processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
