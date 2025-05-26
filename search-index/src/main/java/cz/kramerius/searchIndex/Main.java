@@ -443,7 +443,6 @@ public class Main {
             }*/
             //String ocrText = repositoryAdapter.isOcrTextAvailable(pid) ? repositoryAdapter.getOcrText(pid) : null;
             String ocrText = repositoryAdapter.getOcrText(pid);
-            //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
             if (repositoryNode == null) {
                 System.err.println("object not found or in inconsistent state: " + pid + ", ignoring");

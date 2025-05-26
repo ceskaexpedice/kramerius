@@ -5,17 +5,30 @@ import cz.kramerius.adapters.RepositoryAccess;
 import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.shared.IoUtils;
 import cz.kramerius.shared.Pair;
+import cz.kramerius.utils.EncodingAwareReader;
+import org.apache.commons.io.IOUtils;
+import org.apache.tika.detect.EncodingDetector;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.txt.UniversalEncodingDetector;
 import org.dom4j.Document;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.tika.detect.EncodingDetector.*;
 
 /**
  * This class is an adapter for Kramerius-specific operations over general repository (formally Fedora, newly Akubra) and Resource Index.
  */
 public class KrameriusRepositoryFascade {
+
+    public static final Logger LOGGER = Logger.getLogger(KrameriusRepositoryFascade.class.getName());
 
     private final RepositoryAccess repository;
     private final ProcessingIndex processingIndex;
@@ -105,8 +118,10 @@ public class KrameriusRepositoryFascade {
 
     public String getOcrText(String pid) throws IOException {
         InputStream is = repository.getDataStream(pid, KnownDatastreams.OCR_TEXT);
-        String result = IoUtils.inputstreamToString(is);
-        return result == null ? null : result.trim();
+        if (is != null) {
+            String result = EncodingAwareReader.readWithDetectedEncoding(is);
+            return result == null ? null : result.trim();
+        } else return null;
     }
 
     //IMAGE
