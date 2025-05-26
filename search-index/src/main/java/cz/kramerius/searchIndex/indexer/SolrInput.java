@@ -9,6 +9,7 @@ import org.dom4j.io.XMLWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 public class SolrInput {
@@ -34,6 +35,14 @@ public class SolrInput {
             }
             outDoc = null;//reset outDoc after every chanage
         }
+    }
+
+    public void printTo(Writer inputWriter, boolean prettyPrint) throws IOException {
+        Document document = getDocument();
+        OutputFormat format = prettyPrint ? OutputFormat.createPrettyPrint() : OutputFormat.createCompactFormat();
+        XMLWriter writer = new XMLWriter(inputWriter, format);
+        writer.write(document);
+        writer.close();
     }
 
     public void printTo(File outFile, boolean prettyPrint) throws IOException {
@@ -80,6 +89,4 @@ public class SolrInput {
         }
         return fieldsCopy;
     }
-
-
 }
