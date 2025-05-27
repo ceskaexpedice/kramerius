@@ -111,7 +111,8 @@ public class Import {
         if (classicRootModels == null) {
             classicRootModels = new ArrayList<>();
         }
-        if (useImageServer()) {
+        if (useImageServer() && KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerDirectorySubfolders", false)) {
+
             setImgTree(); //set imgTreePath and imgTreeUrl for export to imageserver
         }
 

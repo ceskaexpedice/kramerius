@@ -14,6 +14,7 @@ import org.dom4j.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -21,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 
@@ -147,6 +150,8 @@ public class SolrInputBuilder {
         if (pageOcrText != null && !pageOcrText.isEmpty()) {
             addSolrField(solrInput, "text_ocr", pageOcrText);
         }
+
+
         return solrInput;
     }
 
@@ -650,7 +655,6 @@ public class SolrInputBuilder {
         if (ocrText != null && !ocrText.isEmpty()) {
             addSolrField(solrInput, "text_ocr", ocrText);
         }
-
         return solrInput;
     }
 
