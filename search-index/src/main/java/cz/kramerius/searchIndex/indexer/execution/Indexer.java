@@ -224,8 +224,10 @@ public class Indexer {
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                String ocr = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT) == null ? null :
-                        akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
+
+
+                boolean ocrExists = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_TEXT);
+                String ocr = ocrExists ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString() : null;
                 String ocrText = normalizeWhitespacesForOcrText(ocr);
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype

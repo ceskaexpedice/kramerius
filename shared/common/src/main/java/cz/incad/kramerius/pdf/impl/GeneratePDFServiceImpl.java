@@ -121,10 +121,12 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                         "res/" + fontName);
                 java.awt.Font font = java.awt.Font.createFont(
                         java.awt.Font.TRUETYPE_FONT, is);
+
                 GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(
                         font);
+
             } catch (FontFormatException e) {
-                throw new IOException(e);
+                LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
         }
     }

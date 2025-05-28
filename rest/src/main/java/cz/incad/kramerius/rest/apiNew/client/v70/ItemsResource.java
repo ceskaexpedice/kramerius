@@ -665,10 +665,12 @@ public class ItemsResource extends ClientApiResource {
                     String streamName = "COLLECTION_CLIPS";
                     String collectionClipsContent = null;
                     // clipping_items
-                    try(InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName).asInputStream()) {
-                        if (cutters != null) {
-                            byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
-                            collectionClipsContent = new String(content, "UTF-8");
+                    if (akubraRepository.datastreamExists(pid, streamName)) {
+                        try(InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName).asInputStream()) {
+                            if (cutters != null) {
+                                byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
+                                collectionClipsContent = new String(content, "UTF-8");
+                            }
                         }
                     }
                     // thumbs from cutters
@@ -696,10 +698,12 @@ public class ItemsResource extends ClientApiResource {
                         }
                     }
                     // thumb
-                    try(InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream()) {
-                        if (imgThumb != null) {
-                            String streamThumbName = "IMG_THUMB";
-                            replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
+                    if (this.akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB)) {
+                        try(InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream()) {
+                            if (imgThumb != null) {
+                                String streamThumbName = "IMG_THUMB";
+                                replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
+                            }
                         }
                     }
                 }
