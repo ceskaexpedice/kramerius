@@ -14,14 +14,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.http.nio.client.HttpAsyncClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.IIPImagesSupport;
@@ -32,7 +31,6 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.RelsExtHelper;
 
 public class CDKZoomifyResource extends AbstractTileResource {
 
@@ -51,11 +49,9 @@ public class CDKZoomifyResource extends AbstractTileResource {
     
     @Inject
     Provider<HttpServletResponse> responseProvider;
-    
 
     @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
 
 
     @Inject
@@ -126,7 +122,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
     
     public Response renderZoomifyTile(String pid, String slevel, String x,String y, String ext) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
     	if (permited(actionAllowed, solrAccess, pid)) {
-        	String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        	String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
             if (relsExtUrl != null) {
                 ResponseBuilder builder = Response.ok();
                 String formatted = String.format("%s/TileGroup0/%s-%s-%s.%s", relsExtUrl,slevel,x,y,ext);
@@ -147,7 +143,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
     private Response renderZoomifyXMLDescriptor(String pid) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
     	long start = System.currentTimeMillis();
     	try {
-        	String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        	String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
             if (relsExtUrl != null) {
                 if (relsExtUrl.endsWith("/")) relsExtUrl = relsExtUrl.substring(0, relsExtUrl.length()-1);
                 ResponseBuilder builder = Response.ok();

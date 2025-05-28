@@ -27,8 +27,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,12 +39,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -57,8 +55,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -109,7 +105,7 @@ public class Backup {
                         
 
                         List<String> pids = recursiveElements.stream().map(elm-> {
-                            String attributeNS = elm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+                            String attributeNS = elm.getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
                             if (attributeNS.contains("info:fedora/")) {
                                 String containsPid = attributeNS.substring("info:fedora/".length());
                                 return containsPid;

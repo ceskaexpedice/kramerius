@@ -39,7 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.name.Named;
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
@@ -59,10 +59,8 @@ import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
@@ -122,7 +120,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
             String pid = tokenizer.nextToken();
             String rest = tokenizer.hasMoreTokens() ?  tokenizer.nextToken() : "";
 
-            if (this.fedoraAccess.isObjectAvailable(pid)) {
+            if (akubraRepository.exists(pid)) {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 boolean permitted = false;
                 for (ObjectPidsPath pth : paths) {
@@ -169,9 +167,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
         mostDesirable.saveAccess(pid, new java.util.Date());
 
-        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPrenderXMLDescriptor(pid, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -189,7 +187,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     
     private void renderEmbededDZIDescriptor(String uuid, HttpServletResponse resp) throws IOException, FileNotFoundException, XPathExpressionException {
         if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
-            Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+            Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
             cacheService.writeDeepZoomDescriptor(uuid, rawDim, tileSupport.getTileSize());
             cacheService.writeResolution(uuid, rawDim);
         }
@@ -252,7 +250,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderIIPrenderXMLDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
             urlForStream = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
         if (urlForStream != null) {
@@ -271,9 +269,9 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderTile(String pid, String slevel, String x, String y, String ext, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        String relsExtUrl = this.akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPTile(pid, slevel, x,y, ext, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -296,7 +294,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
         try {
             
             if (!cacheService.isResolutionFilePresent(pid)) {
-                Dimension rawDim = KrameriusImageSupport.readDimension(pid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+                Dimension rawDim = KrameriusImageSupport.readDimension(pid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
                 cacheService.writeResolution(pid, rawDim);
             }
 
@@ -350,7 +348,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
     private void renderIIPTile(String uuid, String slevel, String x,String y, String ext, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
             dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
         if (dataStreamUrl != null) {

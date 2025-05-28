@@ -31,9 +31,7 @@ import com.google.inject.name.Named;
 import com.lowagie.text.DocumentException;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.PreparedDocument;
@@ -46,6 +44,7 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
+import org.ceskaexpedice.akubra.RepositoryException;
 
 @Deprecated
 public class GeneratePDFServlet extends GuiceServlet {
@@ -75,10 +74,6 @@ public class GeneratePDFServlet extends GuiceServlet {
     @Inject
     @Named("IMAGE")
     FirstPagePDFService imageFirstPage;
-
-    @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
 
     KConfiguration configuration = KConfiguration.getInstance();
 
@@ -137,11 +132,6 @@ public class GeneratePDFServlet extends GuiceServlet {
                 "{" + "errorType:'maxpage',\n"
                         + "redirect:'pdfmaxpageserror.jsp',\n" + "returnUrl:'"
                         + req.getParameter("redirectURL") + "'" + "}");
-    }
-
-    public void renderPDF(HttpServletRequest req, HttpServletResponse resp)
-            throws MalformedURLException, IOException, ProcessSubtreeException {
-
     }
 
     public enum FirstPage {
@@ -238,7 +228,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     } catch (IOException e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     }
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     try {
                         renderGenericError(request, response);
@@ -381,7 +371,7 @@ public class GeneratePDFServlet extends GuiceServlet {
                     } catch (IOException e1) {
                         LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                     }
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     try {
                         renderGenericError(request, response);

@@ -13,7 +13,7 @@ dependencies {
     api project(':shared:common')
 
     api project(':processes:import')
-    api project(':processes:import-jaxb')
+//    api project(':processes:import-jaxb')
     api project(':processes:import-jaxb-periodical')
     api project(':processes:import-jaxb-monograph')
     api project(':processes:import-jaxb-srwdc')

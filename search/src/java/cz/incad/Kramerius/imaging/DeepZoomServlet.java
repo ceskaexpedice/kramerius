@@ -18,10 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.name.Named;
+import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
@@ -36,9 +38,7 @@ import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
@@ -80,7 +80,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
             String zoomUrl = disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
             String pid = tokenizer.nextToken();
-            if (this.fedoraAccess.isObjectAvailable(pid)) {
+            if (akubraRepository.exists(pid)) {
                 ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 RightsReturnObject rightsReturnObject = null;
                 for (ObjectPidsPath pth : paths) {
@@ -89,7 +89,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 }
                 
                 if (rightsReturnObject.flag()) {
-                    String stringMimeType = this.fedoraAccess.getImageFULLMimeType(pid);
+                    String stringMimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                     ImageMimeType mimeType = ImageMimeType.loadFromMimeType(stringMimeType);
                     if ((mimeType != null) && (!hasNoSupportForMimeType(mimeType))) {
                         resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
@@ -100,7 +100,8 @@ public class DeepZoomServlet extends AbstractImageServlet {
                             String tile = tokenizer.nextToken();
                             renderTile(pid, level, tile, req, resp);
                         } else {
-                            if (this.fedoraAccess.isContentAccessible(pid)) {
+                            boolean contentAccessible = akubraRepository.isContentAccessible(pid);
+                            if (contentAccessible) {
                                 renderDZI(pid, req, resp);
                             } else {
                                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -128,9 +129,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
         reportAccess(pid);
         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPDZIDescriptor(pid, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -148,7 +149,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderIIPDZIDescriptor(String uuid, HttpServletResponse resp, String url) throws MalformedURLException, IOException, SQLException, XPathExpressionException {
         String urlForStream = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
             urlForStream = ZoomChangeFromReplicated.deepZoomAddress(relsEXT, uuid);
         }
         if (urlForStream != null) {
@@ -161,7 +162,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void renderEmbededDZIDescriptor(String uuid, HttpServletResponse resp) throws IOException, FileNotFoundException, XPathExpressionException {
         if (!cacheService.isDeepZoomDescriptionPresent(uuid)) {
-            Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, fedoraAccess, 0);
+            Dimension rawDim = KrameriusImageSupport.readDimension(uuid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
             int levelsOverTile = KConfiguration.getInstance().getConfiguration().getInt("deepZoom.numberStepsOverTile", 1);
             int tileLevel = tileSupport.getClosestLevel(new Dimension(rawDim.width, rawDim.height), tileSupport.getTileSize(), 1);
             Dimension scaledDimension = tileSupport.getScaledDimension(rawDim, tileLevel+levelsOverTile);
@@ -181,9 +182,9 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderTile(String pid, String slevel, String stile, HttpServletRequest req, HttpServletResponse resp) throws IOException, XPathExpressionException {
         setDateHaders(pid, FedoraUtils.IMG_FULL_STREAM, resp);
         setResponseCode(pid,FedoraUtils.IMG_FULL_STREAM, req, resp);
-        String relsExtUrl = RelsExtHelper.getRelsExtTilesUrl(pid, this.fedoraAccess);
+        String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
         if (relsExtUrl != null) {
-            if (!relsExtUrl.equals(RelsExtHelper.CACHE_RELS_EXT_LITERAL)) {
+            if (!relsExtUrl.equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL)) {
                 try {
                     renderIIPTile(pid, slevel, stile, resp, relsExtUrl);
                 } catch (SQLException e) {
@@ -201,7 +202,7 @@ public class DeepZoomServlet extends AbstractImageServlet {
     private void renderIIPTile(String uuid, String slevel, String stile, HttpServletResponse resp, String url) throws SQLException, UnsupportedEncodingException, IOException, XPathExpressionException {
         String dataStreamUrl = getURLForStream(uuid, url);
         if (useFromReplicated()) {
-            Document relsEXT = this.fedoraAccess.getRelsExt(uuid);
+            Document relsEXT = akubraRepository.re().get(uuid).asDom(false);
             dataStreamUrl = ZoomChangeFromReplicated.zoomifyAddress(relsEXT, uuid);
         }
         if (dataStreamUrl != null) {
@@ -230,16 +231,15 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 if ((scaledResolution.width <= tileSupport.getTileSize()) && (scaledResolution.height <= tileSupport.getTileSize())) {
                     // obrazek se vejde na jednu dlazdici, vracime velky nahled
 
-                    if (fedoraAccess.isFullthumbnailAvailable(pid)) {
-                        String mimeType = this.fedoraAccess.getFullThumbnailMimeType(pid);
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
                         resp.setContentType(mimeType);
                         setDateHaders(pid,FedoraUtils.IMG_FULL_STREAM, resp);
                         setResponseCode(pid, FedoraUtils.IMG_FULL_STREAM, req, resp);
-                        IOUtils.copy(fedoraAccess.getFullThumbnail(pid), resp.getOutputStream());
+                        IOUtils.copy(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream(), resp.getOutputStream());
                     } else {
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     }
-
 
                 } else {
                     // bereme z cache nebo pocitame, vykresulejeme, ukladame a vracime
@@ -272,8 +272,6 @@ public class DeepZoomServlet extends AbstractImageServlet {
                 }
             }
         } catch (NumberFormatException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }

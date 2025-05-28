@@ -19,23 +19,19 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Scopes;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.IIFUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
@@ -43,7 +39,6 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Provides support for IIIF endpoints
@@ -71,8 +66,7 @@ public class CDKIIIFResource extends AbstractTileResource {
     Provider<HttpServletResponse> responseProvider;
 
     @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+    AkubraRepository akubraRepository;
 
 
     @Inject
@@ -98,7 +92,7 @@ public class CDKIIIFResource extends AbstractTileResource {
             if (permited) {
                 try {
                     reportAccess(aggregatedAccessLogs, pid);
-                    String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                    String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                     if (u != null) {
                         if (!u.endsWith("/")) { u = u+"/"; }
                         u = u +"info.json";
@@ -157,7 +151,7 @@ public class CDKIIIFResource extends AbstractTileResource {
     }
 
     public void iiifTile(String pid, String region, String size, String rotation,String qf) throws IOException {
-        String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+        String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
         if(u != null) {
 
             String defaultMime = ItemsResource.IIIF_SUPPORTED_MIMETYPES.get("jpg");

@@ -4,16 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import com.qbizm.kramerius.imp.jaxb.DatastreamType;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraObject;
-import cz.incad.kramerius.fedora.om.impl.AkubraUtils;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
-import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilder;
-import cz.incad.kramerius.fedora.om.impl.RELSEXTSPARQLBuilderImpl;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -21,6 +12,11 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
+import org.ceskaexpedice.fedoramodel.DatastreamType;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -59,21 +55,17 @@ public class ProcessingIndexRebuild {
     private volatile static long counter = 0;
 
 
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         if (args.length>=1 && "REBUILDPROCESSING".equalsIgnoreCase(args[0])){
             LOGGER.info("Přebudování Processing indexu");
-            if (args.length >= 2 &&  "RUNHAZELCAST".equalsIgnoreCase(args[1])) {
-                HazelcastServerNode.ensureHazelcastNode();
-            }
         } else {
             ProcessStarter.updateName("Přebudování Processing indexu");
         }
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        final FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-        final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
+        final AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
         long start = System.currentTimeMillis();
-        feeder.deleteProcessingIndex();
+        akubraRepository.pi().deleteProcessingIndex();
         Path objectStoreRoot = null;
         if (KConfiguration.getInstance().getConfiguration().getBoolean("legacyfs")) {
             objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("object_store_base"));
@@ -111,7 +103,7 @@ public class ProcessingIndexRebuild {
                         String filename = file.toString();
                         try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                             DigitalObject digitalObject = createDigitalObject(inputStream);
-                            rebuildProcessingIndex(feeder, digitalObject, exclusiveCommit);
+                            rebuildProcessingIndex(akubraRepository, digitalObject, exclusiveCommit);
                         } catch (Exception ex) {
                             LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                         }
@@ -120,7 +112,7 @@ public class ProcessingIndexRebuild {
                     String filename = file.toString();
                     try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(feeder, digitalObject, exclusiveCommit);
+                        rebuildProcessingIndex(akubraRepository, digitalObject, exclusiveCommit);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                     }
@@ -175,8 +167,8 @@ public class ProcessingIndexRebuild {
 
         LOGGER.info("Finished tree walk in " + (System.currentTimeMillis() - start) + " ms");
 
-        feeder.commit();
-        fa.shutdown();
+        akubraRepository.pi().commit();
+        akubraRepository.shutdown();
     }
 
     private static DigitalObject createDigitalObject(InputStream inputStream) {
@@ -192,48 +184,8 @@ public class ProcessingIndexRebuild {
     }
 
 
-    public static void rebuildProcessingIndex(ProcessingIndexFeeder feeder, DigitalObject digitalObject, boolean commitAfteringest ) throws RepositoryException {
-        try {
-            List<DatastreamType> datastreamList = digitalObject.getDatastream();
-            for (DatastreamType datastreamType : datastreamList) {
-                if (FedoraUtils.RELS_EXT_STREAM.equals(datastreamType.getID())) {
-                    InputStream streamContent = AkubraUtils.getStreamContent(AkubraUtils.getLastStreamVersion(datastreamType), null);
-                    AkubraObject akubraObject = new AkubraObject(null, digitalObject.getPID(), digitalObject, feeder);
-                    rebuildProcessingIndexImpl(akubraObject, streamContent);
-                }
-            }
-        } catch (Exception e) {
-            throw new RepositoryException(e);
-        } finally {
-            if (feeder != null && commitAfteringest) {
-                try {
-                    feeder.commit();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (SolrServerException e) {
-                    throw new RuntimeException(e);
-                }
-                LOGGER.info("Feeder commited.");
-            }
-        }
-    }
-
-    private static void rebuildProcessingIndexImpl(AkubraObject akubraObject, InputStream content) throws RepositoryException {
-        try {
-            String s = IOUtils.toString(content, "UTF-8");
-            RELSEXTSPARQLBuilder sparqlBuilder = new RELSEXTSPARQLBuilderImpl();
-            sparqlBuilder.sparqlProps(s.trim(), (object, localName) -> {
-                akubraObject.processRELSEXTRelationAndFeedProcessingIndex(object, localName);
-                return object;
-            });
-            LOGGER.info("Processed PID:" + akubraObject.getPid() + ",  count:" + (++counter));
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        } catch (SAXException e) {
-            throw new RepositoryException(e);
-        } catch (ParserConfigurationException e) {
-            throw new RepositoryException(e);
-        }
+    public static void rebuildProcessingIndex(AkubraRepository akubraRepository, DigitalObject digitalObject, boolean commitAfteringest ) {
+        akubraRepository.pi().rebuildProcessingIndex(digitalObject.getPID());
     }
 
     private static Unmarshaller initUnmarshaller() {

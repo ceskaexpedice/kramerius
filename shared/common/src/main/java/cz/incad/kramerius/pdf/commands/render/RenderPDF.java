@@ -17,14 +17,13 @@
 package cz.incad.kramerius.pdf.commands.render;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Chunk;
@@ -42,7 +41,6 @@ import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.pdf.commands.AbstractITextCommand.Hyphenation;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
 import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
@@ -51,7 +49,6 @@ import cz.incad.kramerius.pdf.commands.Image;
 import cz.incad.kramerius.pdf.commands.Line;
 import cz.incad.kramerius.pdf.commands.List;
 import cz.incad.kramerius.pdf.commands.ListItem;
-import cz.incad.kramerius.pdf.commands.LogoImage;
 import cz.incad.kramerius.pdf.commands.PageBreak;
 import cz.incad.kramerius.pdf.commands.Paragraph;
 import cz.incad.kramerius.pdf.commands.Text;
@@ -60,22 +57,21 @@ import cz.incad.kramerius.pdf.commands.lists.GreekList;
 import cz.incad.kramerius.pdf.commands.lists.RomanList;
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.knav.pdf.PdfTextUnderImage;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 
 public class RenderPDF {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(RenderPDF.class.getName());
 
     private FontMap fontMap;
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
 
-    public RenderPDF(FontMap fontMap, FedoraAccess fedoraAccess) {
+    public RenderPDF(FontMap fontMap, AkubraRepository akubraRepository) {
         super();
         this.fontMap = fontMap;
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
     }
 
     public Font getFont(String formalName) {
@@ -84,7 +80,7 @@ public class RenderPDF {
 
     public void render(final com.lowagie.text.Document pdfDoc, PdfWriter pdfWriter, ITextCommands commands) {
         commands.process(
-                new Processor(pdfDoc, pdfWriter, this.fedoraAccess, commands.getFooter(), commands.getHeader()));
+                new Processor(pdfDoc, pdfWriter, akubraRepository, commands.getFooter(), commands.getHeader()));
     }
 
     public boolean notEmptyString(String fName) {
@@ -212,19 +208,19 @@ public class RenderPDF {
 
         private Document pdfDoc;
         private PdfWriter pdfWriter;
-        private FedoraAccess fedoraAccess;
+        private AkubraRepository akubraRepository;
 
         private Stack<Element> createdElm = new Stack<>();
 
         private final String footer;
         private final String header;
 
-        public Processor(Document pdfDoc, PdfWriter pdfWriter, FedoraAccess fedoraAccess, String footer,
+        public Processor(Document pdfDoc, PdfWriter pdfWriter, AkubraRepository akubraRepository, String footer,
                 String header) {
             super();
             this.pdfDoc = pdfDoc;
             this.pdfWriter = pdfWriter;
-            this.fedoraAccess = fedoraAccess;
+            this.akubraRepository = akubraRepository;
             this.createdElm.push(new DocumentWrapper(this.pdfDoc));
             this.footer = footer;
             this.header = header;
@@ -370,22 +366,13 @@ public class RenderPDF {
                 Image cmdImage = (Image) cmd;
                 String pid = cmdImage.getPid();
                 
-                boolean altoStream = false;
-                try {
-                    altoStream = this.fedoraAccess.isStreamAvailable(pid, FedoraUtils.ALTO_STREAM);
-                } catch (MalformedURLException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-                
+                boolean altoStream  = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO);
+
                 // disable at all ??  It has never worked well 
                 boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
                 if (useAlto && altoStream) {
                     try {
-
-                        org.w3c.dom.Document alto = XMLUtils
-                                .parseDocument(this.fedoraAccess.getDataStream(pid, FedoraUtils.ALTO_STREAM));
+                        org.w3c.dom.Document alto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
 
                         String file = cmdImage.getFile();
                         com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
@@ -426,10 +413,6 @@ public class RenderPDF {
                     } catch (MalformedURLException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (ParserConfigurationException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (SAXException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                     return new NullElement();

@@ -3,20 +3,17 @@ package cz.incad.kramerius.rest.apiNew.cdk.v70.resources;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,22 +21,14 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.k5.client.item.exceptions.PIDNotFound;
 import cz.incad.kramerius.rest.api.k5.client.utils.PIDSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.RuntimeInformation;
 import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.RightsReturnObject;
-import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 
@@ -62,8 +51,7 @@ public class CDKItemResource {
     Provider<HttpServletRequest> requestProvider;
 
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    SecuredAkubraRepository akubraRepository;
 
     public Response providedBy(String pid) {
         try {
@@ -88,9 +76,9 @@ public class CDKItemResource {
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
                     // audio streas is not suported
-                    if (!FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
-                        final InputStream is = this.fedoraAccess.getDataStream(pid, dsid);
-                        String mimeTypeForStream = this.fedoraAccess.getMimeTypeForStream(pid, dsid);
+                    if (!FedoraUtils.AUDIO_STREAMS.contains(dsid) && akubraRepository.datastreamExists(pid, dsid)) {
+                        final InputStream is = akubraRepository.getDatastreamContent(pid, dsid).asInputStream();
+                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
 
                         StreamingOutput stream = new StreamingOutput() {
                             public void write(OutputStream output) throws IOException, WebApplicationException {
@@ -110,8 +98,6 @@ public class CDKItemResource {
             } else {
                 throw new PIDNotFound("cannot disseminate stream  " + dsid);
             }
-        } catch (IOException e) {
-            throw new PIDNotFound(e.getMessage());
         } catch (SecurityException e) {
             throw new ActionNotAllowed(e.getMessage());
         }
@@ -121,16 +107,14 @@ public class CDKItemResource {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
-                if (!this.fedoraAccess.isObjectAvailable(p)) {
+                if (!akubraRepository.exists(p)) {
                     throw new PIDNotFound("pid not found");
                 }
             } else {
-                if (!this.fedoraAccess.isObjectAvailable(pid)) {
+                if (!akubraRepository.exists(pid)) {
                     throw new PIDNotFound("pid not found");
                 }
             }
-        } catch (IOException e) {
-            throw new PIDNotFound("pid not found");
         } catch (Exception e) {
             throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }

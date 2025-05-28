@@ -19,15 +19,14 @@ package cz.incad.kramerius.security.impl;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFactory {
     
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
     private SolrAccess solrAccessNewIndex;
     private UserManager userManager;
     
@@ -38,18 +37,14 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
         super();
     }
 
-    public FedoraAccess getFedoraAccess() {
-        return fedoraAccess;
+    public AkubraRepository getAkubraRepository() {
+        return akubraRepository;
     }
 
     @Inject
-    public void setFedoraAccess(@Named("securedFedoraAccess")FedoraAccess fedoraAccess) {
-        this.fedoraAccess = fedoraAccess;
+    public void setAkubraRepository(AkubraRepository akubraRepository) {
+        this.akubraRepository = akubraRepository;
     }
-    
-    
-
-
 
     @Inject
     public void setSolrAccessNewIndex(@Named("new-index")SolrAccess newIndex) {
@@ -87,7 +82,7 @@ public class RightCriteriumContextFactoryImpl implements RightCriteriumContextFa
                                         .setRequestedPid(requestedPID)
                                         .setRequestedStream(requestedStream)
                                         .setUser(user)
-                                        .setFedoraAccess(this.fedoraAccess)
+                                        .setAkubraRepository(this.akubraRepository)
                                         //.setSolrAccess(this.solrAccess)
                                         .setSolrAccessNewIndex(this.solrAccessNewIndex)
                                         .setUserManager(this.userManager)

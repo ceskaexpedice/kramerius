@@ -1,13 +1,15 @@
 package cz.incad.Kramerius;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +47,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         OutputFormats outputFormat = null;
         String pid = req.getParameter(UUID_PARAMETER);
         // TODO: Change it !!
-        pid = fedoraAccess.findFirstViewablePid(pid);
+        pid = akubraRepository.re().getFirstViewablePidInTree(pid);
 
         String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
         if (outputFormatParam != null) {
@@ -62,7 +64,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
                     writeImage(req, resp, scale, OutputFormats.JPEG);
                 } else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             } else {
-                InputStream is = this.fedoraAccess.getSmallThumbnail(pid);
+                InputStream is = akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream() : null;
                 if (outputFormat.equals(OutputFormats.RAW)) {
                     rawContent(req, resp, pid, is);
                 } else {
@@ -83,7 +85,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
 
     // TODO: Extract to standalone servlet
     public void rawContent(HttpServletRequest req, HttpServletResponse resp, String uuid, InputStream is) throws IOException, XPathExpressionException, SQLException {
-        String mimeType = this.fedoraAccess.getSmallThumbnailMimeType(uuid);
+        String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_THUMB).getMimetype();
         if (mimeType == null) mimeType = DEFAULT_MIMETYPE;
         resp.setContentType(mimeType);
         setDateHaders(uuid, mimeType, resp);
@@ -91,12 +93,12 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         IOUtils.copy(is, resp.getOutputStream());
     }
 
-    public FedoraAccess getFedoraAccess() {
-        return fedoraAccess;
+    public SecuredAkubraRepository getAkubraRepository() {
+        return akubraRepository;
     }
 
-    public void setFedoraAccess(FedoraAccess fedoraAccess) {
-        this.fedoraAccess = fedoraAccess;
+    public void setAkubraRepository(SecuredAkubraRepository akubraRepository) {
+        this.akubraRepository = akubraRepository;
     }
 
 

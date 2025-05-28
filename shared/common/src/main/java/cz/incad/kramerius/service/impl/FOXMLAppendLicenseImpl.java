@@ -17,11 +17,9 @@
 package cz.incad.kramerius.service.impl;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -33,10 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -46,21 +42,18 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.tuple.Triple;
+import org.ceskaexpedice.akubra.pid.LexerException;
+import org.ceskaexpedice.akubra.relsext.RelsExtUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
-
-import static cz.incad.kramerius.utils.RelsExtHelper.*;
 
 public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
 
@@ -104,8 +97,8 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                                 Document parsedDocument = XMLUtils.parseDocument(new FileInputStream(file.toFile()),
                                         true);
                                 String pid = parsedDocument.getDocumentElement().getAttribute("PID");
-                                Element relsExt = getRELSEXTFromGivenFOXML(parsedDocument.getDocumentElement());
-                                String model = getModel(relsExt);
+                                Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parsedDocument.getDocumentElement());
+                                String model = RelsExtUtils.getModel(relsExt);
 
                                 Triple<String, String, File> triple = Triple.of(pid, model, file.toFile());
                                 if (!modelsMapping.containsKey(model)) {
@@ -113,8 +106,7 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                                 }
                                 modelsMapping.get(model).add(triple);
                             }
-                        } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException
-                                | LexerException e) {
+                        } catch (ParserConfigurationException | SAXException | IOException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage());
                         }
 
@@ -153,13 +145,13 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                     for (Triple<String, String, File> containsLicenseTripple : containsLicense) {
                         File right = containsLicenseTripple.getRight();
                         Document parentDoc = XMLUtils.parseDocument(new FileInputStream(right), true);
-                        Element relsExt = getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
+                        Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
                         if (relsExt != null) {
-                            List<String> containsLicenses = getContainsLicenses(relsExt);
+                            List<String> containsLicenses = RelsExtUtils.getContainsLicenses(relsExt);
                             if (!containsLicenses.contains(license)) {
                                 LOGGER.info(String.format("Applying 'containsLicense' to %s",
                                         containsLicenseTripple.getLeft()));
-                                addRDFLiteral(relsExt, license, "containsLicense");
+                                RelsExtUtils.addRDFLiteral(relsExt, license, "containsLicense");
                                 changeDoc(right, parentDoc);
                             }
                         }
@@ -169,12 +161,12 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                     for (Triple<String, String, File> licenseTripple : licenses) {
                         File right = licenseTripple.getRight();
                         Document parentDoc = XMLUtils.parseDocument(new FileInputStream(right), true);
-                        Element relsExt = getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
+                        Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
                         if (relsExt != null) {
-                            List<String> realContainsLicenses = getLicenses(relsExt);
+                            List<String> realContainsLicenses = RelsExtUtils.getLicenses(relsExt);
                             if (!realContainsLicenses.contains(license)) {
                                 LOGGER.info(String.format("Applying 'license' to %s", licenseTripple.getLeft()));
-                                addRDFLiteral(relsExt, license, "license");
+                                RelsExtUtils.addRDFLiteral(relsExt, license, "license");
                                 changeDoc(right, parentDoc);
                             }
                         }
@@ -196,12 +188,12 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                     for (Triple<String, String, File> licenseTripple : licenses) {
                         File right = licenseTripple.getRight();
                         Document parentDoc = XMLUtils.parseDocument(new FileInputStream(right), true);
-                        Element relsExt = getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
+                        Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
                         if (relsExt != null) {
-                            List<String> realLicenses = getLicenses(relsExt);
+                            List<String> realLicenses = RelsExtUtils.getLicenses(relsExt);
                             if (!realLicenses.contains(license)) {
                                 LOGGER.info(String.format("Applying 'license' to %s", licenseTripple.getLeft()));
-                                addRDFLiteral(relsExt, license, "license");
+                                RelsExtUtils.addRDFLiteral(relsExt, license, "license");
                                 changeDoc(right, parentDoc);
                             }
                         }

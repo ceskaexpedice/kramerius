@@ -1,7 +1,6 @@
 package com.qbizm.kramerius.imptool.poc.convertor;
 
 import com.lizardtech.djvu.DjVuOptions;
-import com.qbizm.kramerius.imp.jaxb.*;
 import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.utils.UUIDManager;
 import com.qbizm.kramerius.imptool.poc.utils.XSLTransformer;
@@ -19,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
+import org.ceskaexpedice.fedoramodel.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1206,7 +1206,7 @@ public abstract class BaseConvertor {
         return stream;
     }
 
-    private XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
+    public static XMLGregorianCalendar getCurrentXMLGregorianCalendar() {
         Calendar now = Calendar.getInstance();
         XMLGregorianCalendar calendar = null;
         try {

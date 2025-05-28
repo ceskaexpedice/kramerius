@@ -20,7 +20,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
@@ -34,6 +33,7 @@ import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

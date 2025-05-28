@@ -266,7 +266,7 @@ public class XMLUtils {
             stack.push(topElm);
             while (!stack.isEmpty()) {
                 Element curElm = stack.pop();
-                if ((curElm.getLocalName().equals(localName)) && (namespacesAreSame(curElm.getNamespaceURI(), namespace))) {
+                if ((curElm.getLocalName() != null && curElm.getLocalName().equals(localName)) && (namespacesAreSame(curElm.getNamespaceURI(), namespace))) {
                     return curElm;
                 }
                 List<Node> nodesToProcess = new ArrayList<Node>();

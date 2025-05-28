@@ -17,12 +17,11 @@
 package cz.incad.Kramerius.imaging.utils;
 
 import java.util.List;
-import java.util.StringTokenizer;
 
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class ZoomChangeFromReplicated {
@@ -40,12 +39,12 @@ public class ZoomChangeFromReplicated {
     private static String replicatedFrom(Document relsExt) {
         Element descElement = XMLUtils.findElement(
                 relsExt.getDocumentElement(), "Description",
-                FedoraNamespaces.RDF_NAMESPACE_URI);
+                RepositoryNamespaces.RDF_NAMESPACE_URI);
         List<Element> delems = XMLUtils.getElements(descElement);
         for (Element del : delems) {
             if (del.getNamespaceURI() != null) {
                 if (del.getNamespaceURI()
-                        .equals(FedoraNamespaces.KRAMERIUS_URI)
+                        .equals(RepositoryNamespaces.KRAMERIUS_URI)
                         && del.getLocalName().equals("replicatedFrom")) {
                     return del.getTextContent();
                 }

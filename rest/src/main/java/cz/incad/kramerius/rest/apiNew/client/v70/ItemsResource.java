@@ -2,16 +2,11 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
+import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.audio.AudioStreamId;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.ExtractStructureHelper;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownDatastreams;
-import cz.incad.kramerius.repository.RepositoryApi;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.CutItem;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
@@ -25,7 +20,6 @@ import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.StringUtils;
@@ -34,21 +28,18 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.java.Pair;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.DatastreamContentWrapper;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.core.repository.RepositoryDatastream;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.codehaus.jettison.json.JSONArray;
-import org.dom4j.Attribute;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.Namespace;
-import org.dom4j.Node;
-import org.dom4j.QName;
+import org.dom4j.*;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.inject.Named;
@@ -56,21 +47,10 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.PathSegment;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import javax.xml.parsers.ParserConfigurationException;
-
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -78,11 +58,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -91,7 +67,7 @@ import java.util.zip.ZipInputStream;
 
 
 /**
- * @see cz.incad.kramerius.rest.api.k5.client.item.ItemResource
+ * ItemsResource
  */
 @Path("/client/v7.0/items")
 public class ItemsResource extends ClientApiResource {
@@ -322,7 +298,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            return Response.ok(ExtractStructureHelper.extractStructureInfo(this.krameriusRepositoryApi, pid)).build();
+            return Response.ok(akubraRepository.pi().extractStructureInfo(pid)).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -360,51 +336,48 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private JSONObject extractAvailableDataInfo(String pid) throws IOException, RepositoryException {
+    private JSONObject extractAvailableDataInfo(String pid) {
         JSONObject dataAvailable = new JSONObject();
         //metadata
         JSONObject metadata = new JSONObject();
-        metadata.put("mods", krameriusRepositoryApi.isModsAvailable(pid));
-        metadata.put("dc", krameriusRepositoryApi.isDublinCoreAvailable(pid));
+        metadata.put("mods", akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_MODS));
+        metadata.put("dc", akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC));
         dataAvailable.put("metadata", metadata);
         JSONObject ocr = new JSONObject();
         //ocr
-        ocr.put("text", krameriusRepositoryApi.isOcrTextAvailable(pid));
-        ocr.put("alto", krameriusRepositoryApi.isOcrAltoAvailable(pid));
+        ocr.put("text", akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_TEXT));
+        ocr.put("alto", akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO));
         dataAvailable.put("ocr", ocr);
         //images
         JSONObject image = new JSONObject();
-        image.put("full", krameriusRepositoryApi.isImgFullAvailable(pid));
-        image.put("thumb", krameriusRepositoryApi.isImgThumbAvailable(pid));
-        image.put("preview", krameriusRepositoryApi.isImgPreviewAvailable(pid));
+        image.put("full", akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL));
+        image.put("thumb", akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB));
+        image.put("preview", akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW));
         dataAvailable.put("image", image);
         //audio
         JSONObject audio = new JSONObject();
-        audio.put("mp3", krameriusRepositoryApi.isAudioMp3Available(pid));
-        audio.put("ogg", krameriusRepositoryApi.isAudioOggAvailable(pid));
-        audio.put("wav", krameriusRepositoryApi.isAudioWavAvailable(pid));
+        audio.put("mp3", akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_MP3));
+        audio.put("ogg", akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_OGG));
+        audio.put("wav", akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_WAV));
         dataAvailable.put("audio", audio);
         return dataAvailable;
     }
-
-    
 
     static boolean isChacheDirDisabledAndFromCache(boolean chacheDirDisable, String tilesUrl) {
         return chacheDirDisable && "kramerius4://deepZoomCache".equals(tilesUrl);
     }
 
 
-    private Object extractImageSourceInfo(String pid) throws IOException, RepositoryException {
+    private Object extractImageSourceInfo(String pid) {
         JSONObject json = new JSONObject();
-        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
-        String tilesUrl = Dom4jUtils.stringOrNullFromFirstElementByXpath(relsExt.getRootElement(), "//tiles-url");
+        String tilesUrl = akubraRepository.re().getTilesUrl(pid);
         boolean chacheDirDisable = KConfiguration.getInstance().getConfiguration().getBoolean("deepZoom.cachedir.disable", false);
         if (tilesUrl != null && (!isChacheDirDisabledAndFromCache(chacheDirDisable, tilesUrl))) {
             json.put("type", "tiles");
-        } else if (!krameriusRepositoryApi.isImgFullAvailable(pid)) {
+        } else if (!akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             json.put("type", "none");
         } else {
-            String imgFullMimetype = krameriusRepositoryApi.getImgFullMimetype(pid);
+            String imgFullMimetype = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
             if (imgFullMimetype == null) {
                 json.put("type", "none");
             } else {
@@ -429,7 +402,7 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_MODS.toString());
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -450,11 +423,9 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS);
-            Document mods = krameriusRepositoryApi.getMods(pid, true);
-            return Response.ok()
-                    .entity(mods.asXML())
-                    .build();
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_MODS.toString());
+            InputStream  mods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asInputStream();
+            return Response.ok(mods).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -473,7 +444,7 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_DC.toString());
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
@@ -494,9 +465,8 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC);
-            Document dc = krameriusRepositoryApi.getDublinCore(pid, true);
-            return Response.ok().entity(dc.asXML()).build();
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_DC.toString());
+            return Response.ok(akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asInputStream()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -515,8 +485,8 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/text", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.OCR_TEXT;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             return Response.ok().build();
         } catch (WebApplicationException e) {
@@ -538,10 +508,10 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/text", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.OCR_TEXT;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            String ocrText = krameriusRepositoryApi.getOcrText(pid);
+            String ocrText = akubraRepository.getDatastreamContent(pid, dsId.toString()).asString();
             return Response.ok().entity(ocrText).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -561,8 +531,8 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/alto", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.OCR_ALTO;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             return Response.ok().build();
         } catch (WebApplicationException e) {
@@ -585,11 +555,10 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/ocr/alto", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.OCR_ALTO;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            Document ocrAlto = krameriusRepositoryApi.getOcrAlto(pid, true);
-            return Response.ok().entity(ocrAlto.asXML()).build();
+            return Response.ok(akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asInputStream()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -611,8 +580,8 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             return Response.ok().build();
         } catch (WebApplicationException e) {
@@ -638,48 +607,35 @@ public class ItemsResource extends ClientApiResource {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
-            
+            String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
             if (ImageMimeType.JPEG2000.getValue().equals(mimeType)) {
-                
-                InputStream istream = krameriusRepositoryApi.getImgFull(pid);
+                InputStream istream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
                 ImageIO.setUseCache(true);
                 BufferedImage jpeg2000 = ImageIO.read(istream);
-                
-                
                 StreamingOutput stream = output -> {
                   ImageIO.write(jpeg2000, "jpg", output);
-//                    IOUtils.copy(fstream, output);
-//                    IOUtils.closeQuietly(fstream);
                 };
                 return Response.ok().entity(stream).type(mimeType).build();
-                
-
             } else  if (ImageMimeType.DJVU.getValue().equals(mimeType) || ImageMimeType.VNDDJVU.getValue().equals(mimeType) || ImageMimeType.XDJVU.getValue().equals(mimeType) ) {
-
                 File tmpFile = File.createTempFile("djvu", "djvu");
-                InputStream istream = krameriusRepositoryApi.getImgFull(pid);
+                InputStream istream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
                 Files.copy(istream, tmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                
                 BufferedImage djvu = KrameriusImageSupport.readImage(tmpFile.toURI().toURL(), ImageMimeType.DJVU, 0);
                 StreamingOutput stream = output -> {
                     ImageIO.write(djvu, "jpeg", output);
                 };
                 return Response.ok().entity(stream).type(mimeType).build();
-                
             } else {
-                
-                InputStream is = krameriusRepositoryApi.getImgFull(pid);
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
                 StreamingOutput stream = output -> {
                     IOUtils.copy(is, output);
                     IOUtils.closeQuietly(is);
                 };
                 return Response.ok().entity(stream).type(mimeType).build();
             }
-            
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -700,24 +656,21 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             //checkUserIsAllowedToReadObject(pid); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             checkObjectExists(pid);
-            Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
-            
-            // remove streams 
+            Document foxml = akubraRepository.get(pid).asDom4j(true);
+            // remove streams
             Document modifiedFoxml = removeSecuredDatastreams(foxml);
-
-            
             if (modifiedFoxml != null) {
                 String model = model(modifiedFoxml);
                 if (StringUtils.isAnyString(model) && model.equals("info:fedora/model:collection")) {
-
-                    
                     String streamName = "COLLECTION_CLIPS";
                     String collectionClipsContent = null;
-                    // clipping_items 
-                    try(InputStream cutters = this.krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid,streamName)) {
-                        if (cutters != null) {
-                            byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
-                            collectionClipsContent = new String(content, "UTF-8");
+                    // clipping_items
+                    if (akubraRepository.datastreamExists(pid, streamName)) {
+                        try(InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName).asInputStream()) {
+                            if (cutters != null) {
+                                byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
+                                collectionClipsContent = new String(content, "UTF-8");
+                            }
                         }
                     }
                     // thumbs from cutters
@@ -727,15 +680,15 @@ public class ItemsResource extends ClientApiResource {
                         List<CutItem> cutItems = CutItem.fromJSONArray(jsonArray);
                         for (CutItem cutItem : cutItems) {
                             try {
-                                cutItem.initGeneratedThumbnail(krameriusRepositoryApi.getLowLevelApi(), pid);
-                            } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                                cutItem.initGeneratedThumbnail(akubraRepository, pid);
+                            } catch (NoSuchAlgorithmException | IOException e) {
                                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                             }
                             
                             if (cutItem.containsGeneratedThumbnail()) {
                                 String clipThumbName = cutItem.getThumbnailmd5();
-                                // clipThumbName 
-                                try(InputStream cutters = this.krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid,clipThumbName)) {
+                                // clipThumbName
+                                try(InputStream cutters = akubraRepository.getDatastreamContent(pid, clipThumbName).asInputStream()) {
                                     if (cutters != null) {
                                        replaceLocationByBinaryContent(modifiedFoxml, cutters, clipThumbName);
                                     }
@@ -744,13 +697,13 @@ public class ItemsResource extends ClientApiResource {
                             }
                         }
                     }
-                    
-                    
-                    // thumb 
-                    try(InputStream imgThumb = this.krameriusRepositoryApi.getImgThumb(pid)) {
-                        if (imgThumb != null) {
-                            String streamThumbName = "IMG_THUMB";
-                            replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
+                    // thumb
+                    if (this.akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB)) {
+                        try(InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream()) {
+                            if (imgThumb != null) {
+                                String streamThumbName = "IMG_THUMB";
+                                replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
+                            }
                         }
                     }
                 }
@@ -796,31 +749,23 @@ public class ItemsResource extends ClientApiResource {
         return null;
     }
 
-    
-
-    
     private static Document removeSecuredDatastreams(Document foxmlDoc) {
         synchronized(foxmlDoc) {
             List<String> allSecuredStreams = FedoraUtils.getSecuredStreams();
             List<Node> toRemove = new ArrayList<>();
-            
             for (String dsId : allSecuredStreams) {
                 String xpath = String.format("//foxml:datastream[@ID='%s']", dsId);
                 //String xpath = String.format("//foxml:datastream");
                 List<Node> streamsEls = Dom4jUtils.buildXpath(xpath).selectNodes(foxmlDoc);
                 toRemove.addAll(streamsEls);
             }
-
             toRemove.stream().forEach(it-> {
                 Node detach = it.detach();
                 
             });
-            
             return foxmlDoc;
         }
     }
-
-    
 
     /***
      * Vrací zoomify ImageProperties.xml tohoto objektu
@@ -832,14 +777,11 @@ public class ItemsResource extends ClientApiResource {
     public void getZoomifyImageProperties(@PathParam("pid") String pid /*@Context HttpServletResponse resp*/) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-
-
             RequestDispatcher requestDispatcher = this.requestProvider.get().getRequestDispatcher(String.format("/zoomify/%s/ImageProperties.xml", pid));
             requestDispatcher.forward(this.requestProvider.get(), this.responseProvider.get());
-
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -944,8 +886,8 @@ public class ItemsResource extends ClientApiResource {
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.AUDIO_MP3;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.MP3)) {
                 HttpServletRequest request = this.requestProvider.get();
@@ -970,13 +912,22 @@ public class ItemsResource extends ClientApiResource {
 
     private boolean shouldUseAudioServer(String pid, AudioFormat audioFormat) {
         try {
-            String type = krameriusRepositoryApi.getLowLevelApi().getTypeOfDatastream(pid, audioFormat.name());
+            String controlGroup = akubraRepository.getDatastreamMetadata(pid, audioFormat.name()).getControlGroup();
+            String type = controlGroup2Type(controlGroup);
             return type != null && type.equals("INDIRECT");
-        } catch (RepositoryException | IOException e) {
+        } catch (RepositoryException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return false;
         }
-    }   
+    }
+
+    private static String controlGroup2Type(String controlGroup) {
+        if ("E".equals(controlGroup) || "R".equals(controlGroup)) {
+            return "INDIRECT";
+        } else {
+            return "DIRECT";
+        }
+    }
 
     /***
      * Vrací obsah datastreamu MP3 tohoto objektu
@@ -987,8 +938,8 @@ public class ItemsResource extends ClientApiResource {
     public Response getAudioMp3(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.AUDIO_MP3;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.MP3)) {
                 HttpServletRequest request = this.requestProvider.get();
@@ -997,8 +948,8 @@ public class ItemsResource extends ClientApiResource {
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioMp3Mimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioMp3(pid);
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_MP3).getMimetype();
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_MP3).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -1058,8 +1009,8 @@ public class ItemsResource extends ClientApiResource {
     public Response isAudioOggAvailable(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.AUDIO_OGG;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.OGG)) {
                 HttpServletRequest request = this.requestProvider.get();
@@ -1091,8 +1042,8 @@ public class ItemsResource extends ClientApiResource {
     public Response getAudioOgg(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.AUDIO_OGG;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.OGG)) {
                 HttpServletRequest request = this.requestProvider.get();
@@ -1101,8 +1052,8 @@ public class ItemsResource extends ClientApiResource {
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioOggMimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioOgg(pid);
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_OGG).getMimetype();
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_OGG).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -1118,8 +1069,8 @@ public class ItemsResource extends ClientApiResource {
     public Response isAudioWavAvailable(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.AUDIO_WAV;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.WAV)) {
                 HttpServletRequest request = this.requestProvider.get();
@@ -1151,8 +1102,8 @@ public class ItemsResource extends ClientApiResource {
     public Response getAudioWav(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.AUDIO_WAV;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.WAV)) {
                 HttpServletRequest request = this.requestProvider.get();
@@ -1161,8 +1112,8 @@ public class ItemsResource extends ClientApiResource {
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                String mimeType = krameriusRepositoryApi.getAudioWavMimetype(pid);
-                InputStream is = krameriusRepositoryApi.getAudioWav(pid);
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_WAV).getMimetype();
+                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
             }
         } catch (WebApplicationException e) {
@@ -1185,9 +1136,7 @@ public class ItemsResource extends ClientApiResource {
             pid = URLDecoder.decode(pid, "UTF-8");
             checkUserIsAllowedToReadObject(pid); 
             reportAccess( pid, null);
-            InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
-            org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
-            String u = IIIFUtils.iiifImageEndpoint(relsExt);
+            String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
             if (u != null) {
                 if (!u.endsWith("/")) { u = u+"/"; }
                 u = u +"info.json";
@@ -1205,8 +1154,7 @@ public class ItemsResource extends ClientApiResource {
             } else {
                 throw new BadRequestException("bad request");
             }
-        } catch (JSONException | RepositoryException | IOException | ParserConfigurationException
-                | SAXException e) {
+        } catch (JSONException | RepositoryException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
@@ -1234,10 +1182,7 @@ public class ItemsResource extends ClientApiResource {
                     checkIIIFSize(pid, size);
                 }
             }
-            
-            InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
-            org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
-            String u = IIIFUtils.iiifImageEndpoint(relsExt);
+            String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
             if(u != null) {
                 // size can contain ^ or ! 
                 if (size.contains("^") || size.contains("!")) {
@@ -1271,67 +1216,7 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
-//    @GET
-//    @Produces("image/jpeg")
-//    @Path("{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
-//    public Response tile(
-//            @PathParam("pid") String pid, 
-//            @PathParam("region") String region, 
-//            @PathParam("size") String size,
-//            @PathParam("rotation") String rotation,
-//            @PathParam("qualityformat") String qf
-//            ) {
-//        try {
-//            if (region.toLowerCase().trim().equals("full") || region.toLowerCase().trim().equals("square") || region.toLowerCase().trim().contains("pct:")) {
-//                checkUserIsAllowedToReadObject(pid);
-//            } else {
-//                if (size.toLowerCase().trim().contains("max") || size.toLowerCase().trim().contains("pct:")) {
-//                    checkUserIsAllowedToReadObject(pid);
-//                } else {
-//                    // check if size is greater then 512 pixels
-//                    checkIIIFSize(pid, size);
-//                }
-//            }
-//            InputStream stream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "RELS-EXT");
-//            org.w3c.dom.Document relsExt = XMLUtils.parseDocument(stream, true);
-//            String u = IIIFUtils.iiifImageEndpoint(relsExt);
-//            if(u != null) {
-//                // size can contain ^ or ! 
-//                if (size.contains("^") || size.contains("!")) {
-//                    size = URLEncoder.encode(size,"UTF-8");
-//                }
-//                String defaultMime = IIIF_SUPPORTED_MIMETYPES.get("jpg");
-//
-//                StringBuilder url = new StringBuilder(u);
-//                if (!u.endsWith("/")) { url.append("/"); }
-//                
-//                url.append(String.format("%s/%s/%s/%s", region, size, rotation,qf));
-//     
-//                String mime = defaultMime;
-//                String[] splited = qf.split("\\.");
-//                if (splited.length > 1) {
-//                    mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
-//                }
-//                LOGGER.fine(String.format("Copy tile from IIIF server %s", url.toString()));
-//                ResponseBuilder builder = Response.ok();
-//              
-//                IIIFUtils.blockingCopyFromImageServer(this.c, url.toString(),new ByteArrayOutputStream(), builder, mime);
-//                
-//                return builder.build();
-//           } else {
-//               throw new BadRequestException("bad request");
-//           }
-//
-//        } catch (WebApplicationException e) {
-//            throw e;
-//        } catch (Throwable e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//            throw new InternalErrorException(e.getMessage());
-//        }
-//    }
-    
-    
+
     private void checkIIIFSize(String pid, String size) {
      
         org.apache.commons.lang3.tuple.Pair<String, String> iiifValues = iiifValues(size);
@@ -1386,72 +1271,52 @@ public class ItemsResource extends ClientApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response introspect(@PathParam("pid") String pid) {
         try {
-            List<String> knownDataStreams = Arrays.stream(KrameriusRepositoryApi.KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
-            
-            RepositoryApi lowLevelApi = krameriusRepositoryApi.getLowLevelApi();
+            List<String> knownDataStreams = Arrays.stream(KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
             JSONArray result = new JSONArray();
-            
-            List<String> datastreamNames = lowLevelApi.getDatastreamNames(pid);
+            List<String> datastreamNames = akubraRepository.getDatastreamNames(pid);
             for (String dataStreamName : datastreamNames) {
-
-                String mimeType = lowLevelApi.getDatastreamMimetype(pid, dataStreamName);
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, dataStreamName).getMimetype();
                 boolean knownDatastream = knownDataStreams.contains(dataStreamName);
                 JSONObject val = new JSONObject();
                 val.put("name", dataStreamName);
                 val.put("mimetype", mimeType);
                 val.put("knowndatastream", knownDatastream);
-                
                 result.put(val);
             }
             return Response.ok().entity(result.toString()).build(); 
-        } catch (RepositoryException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        } catch (SolrServerException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
-    
+
     @GET
     @Path("{pid}/introspect/{data}")
     public Response introspect(@PathParam("pid") String pid,@PathParam("data") String data) {
         try {
-            List<String> knownDataStreams = Arrays.stream(KrameriusRepositoryApi.KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
-            
-            RepositoryApi lowLevelApi = krameriusRepositoryApi.getLowLevelApi();
+            List<String> knownDataStreams = Arrays.stream(KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
             boolean knownDatastream = knownDataStreams.contains(data);
-
-            
             if (knownDatastream) {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             } else {
-                String mimeType = lowLevelApi.getDatastreamMimetype(pid, data);
-                InputStream dataStream = lowLevelApi.getLatestVersionOfDatastream(pid, data);
-                StreamingOutput stream = output -> {
-                    IOUtils.copy(dataStream, output);
-                    IOUtils.closeQuietly(dataStream);
-                };
-                return Response.ok().entity(stream).type(mimeType).build();
+                String mimeType = akubraRepository.getDatastreamMetadata(pid,data).getMimetype();
+                if (akubraRepository.datastreamExists(pid,data)) {
+                    InputStream dataStream = akubraRepository.getDatastreamContent(pid, data).asInputStream();
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(dataStream, output);
+                        IOUtils.closeQuietly(dataStream);
+                    };
+                    return Response.ok().entity(stream).type(mimeType).build();
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).build();
+                }
             }
-            
-        } catch (RepositoryException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
 
-
-    
-    
     private void reportAccess(String pid, String streamName) {
         try {
             if (this.accessLog != null) {
@@ -1473,19 +1338,19 @@ public class ItemsResource extends ClientApiResource {
             try {
                 checkSupportedObjectPid(pid);
                 checkObjectExists(pid);
-                if(!krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, "COLLECTION_CLIPS")) {
+                if(!akubraRepository.datastreamExists(pid, "COLLECTION_CLIPS")) {
                     throw new NotFoundException();
                 } else {
-                    String mimetype = krameriusRepositoryApi.getLowLevelApi().getDatastreamMimetype(pid, "COLLECTION_CLIPS");
+                    String mimetype = akubraRepository.getDatastreamMetadata(pid, "COLLECTION_CLIPS").getMimetype();
                     org.json.JSONArray outputValue = new org.json.JSONArray();
-                    try(InputStream istream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, "COLLECTION_CLIPS")) {
+                    try(InputStream istream = akubraRepository.getDatastreamContent(pid, "COLLECTION_CLIPS").asInputStream()) {
                         org.json.JSONArray inputValue = new org.json.JSONArray(IOUtils.toString(istream, "UTF-8"));
 
                         List<CutItem> cutItems = CutItem.fromJSONArray(inputValue);
                         cutItems.forEach(cl-> {
                             try {
-                                cl.initGeneratedThumbnail(krameriusRepositoryApi.getLowLevelApi(), pid);
-                            } catch (NoSuchAlgorithmException | RepositoryException | IOException e) {
+                                cl.initGeneratedThumbnail(akubraRepository, pid);
+                            } catch (NoSuchAlgorithmException | IOException e) {
                                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                             }
                             outputValue.put(cl.toJSON());
@@ -1507,17 +1372,20 @@ public class ItemsResource extends ClientApiResource {
             try {
                 checkSupportedObjectPid(pid);
                 checkObjectExists(pid);
-                if(!krameriusRepositoryApi.getLowLevelApi().datastreamExists(pid, thumbId)) {
+                if(!akubraRepository.datastreamExists(pid, thumbId)) {
                     throw new NotFoundException("no image/thumb %s  available for object %s ", thumbId, pid);
                 } else {
-                    String mimetype = krameriusRepositoryApi.getLowLevelApi().getDatastreamMimetype(pid, thumbId);
-                    
-                    InputStream istream = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, thumbId);
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(istream, output);
-                        IOUtils.closeQuietly(istream);
-                    };
-                    return Response.ok().entity(stream).type(mimetype).build();
+                    if (akubraRepository.datastreamExists(pid,thumbId)) {
+                        String mimetype = akubraRepository.getDatastreamMetadata(pid, thumbId).getMimetype();
+                        InputStream istream = akubraRepository.getDatastreamContent(pid, thumbId).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(istream, output);
+                            IOUtils.closeQuietly(istream);
+                        };
+                        return Response.ok().entity(stream).type(mimetype).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
         } catch (WebApplicationException e) {
             throw e;
@@ -1527,18 +1395,16 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    
-    
     // =========== EPub specific endpoints
     @HEAD
     @Path("{pid}/epub")
     public Response isEpubAvailable(@PathParam("pid") String pid) {
         try {
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); 
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.IMG_FULL.toString());
 
             boolean epub = isEpubMimeType(pid, dsId);
             if (epub) {
@@ -1555,17 +1421,12 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-
-    private boolean isEpubMimeType(String pid, KrameriusRepositoryApi.KnownDatastreams dsId)
-            throws RepositoryException, IOException {
-        String datastreamMimetype = krameriusRepositoryApi.getLowLevelApi().getDatastreamMimetype(pid, dsId.name());
+    private boolean isEpubMimeType(String pid, KnownDatastreams dsId){
+        String datastreamMimetype = akubraRepository.getDatastreamMetadata(pid, dsId.name()).getMimetype();
         boolean epub = datastreamMimetype != null  && datastreamMimetype.equals(ImageMimeType.EPUB.getValue());
         return epub;
     }
 
-    
-
-    
     @GET
     @Path("{pid}/epub/{path: .*}")
     public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment,@Context UriInfo info ) {
@@ -1584,41 +1445,42 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    
-    
     private Response getEpubInternalPart(String pid, List<String> paths) {
         try {
             String path = paths.stream().collect(Collectors.joining("/"));
             LOGGER.fine("Reading zip path "+path);
             
             checkSupportedObjectPid(pid);
-            KrameriusRepositoryApi.KnownDatastreams dsId = KrameriusRepositoryApi.KnownDatastreams.IMG_FULL;
-            checkObjectAndDatastreamExist(pid, dsId);
+            KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
+            checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); 
-            checkObjectAndDatastreamExist(pid, KrameriusRepositoryApi.KnownDatastreams.IMG_FULL);
+            checkObjectAndDatastreamExist(pid, KnownDatastreams.IMG_FULL.toString());
 
             boolean epub = isEpubMimeType(pid, dsId);
             if (epub) {
-                InputStream is = krameriusRepositoryApi.getLowLevelApi().getLatestVersionOfDatastream(pid, dsId.name());
-                
-                ZipInputStream zipInputStream = new ZipInputStream(is);
-                ZipEntry entry;
-                while ((entry = zipInputStream.getNextEntry()) != null) {
-                    if (entry.getName().equals(path)) {
-                        break; 
+                if (akubraRepository.datastreamExists(pid,dsId)) {
+                    InputStream is = akubraRepository.getDatastreamContent(pid, dsId.name()).asInputStream();
+                    ZipInputStream zipInputStream = new ZipInputStream(is);
+                    ZipEntry entry;
+                    while ((entry = zipInputStream.getNextEntry()) != null) {
+                        if (entry.getName().equals(path)) {
+                            break;
+                        }
                     }
-                }
-                
-                if (entry != null) {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = zipInputStream.read(buffer)) != -1) {
-                        bos.write(buffer,0, bytesRead);
+
+                    if (entry != null) {
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = zipInputStream.read(buffer)) != -1) {
+                            bos.write(buffer,0, bytesRead);
+                        }
+                        byte[] bytes = bos.toByteArray();
+                        return copyStreams(path,  bytes);
+
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
                     }
-                    byte[] bytes = bos.toByteArray();
-                    return copyStreams(path,  bytes);
-                    
                 } else {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 }
@@ -1652,10 +1514,10 @@ public class ItemsResource extends ClientApiResource {
     }
 
 
-    Pair<InputStream, String> getFirstAvailableImgFull(String pid) throws IOException, RepositoryException {
-        InputStream is = krameriusRepositoryApi.getImgFull(pid);
+    Pair<InputStream, String> getFirstAvailableImgFull(String pid) {
+        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
         if (is != null) {
-            String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
+            String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
             return new Pair<>(is, mimeType);
         } else {
             String pidOfFirstChild = getPidOfFirstChild(pid);
@@ -1667,10 +1529,14 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    Pair<InputStream, String> getFirstAvailableImgThumb(String pid) throws IOException, RepositoryException {
-        InputStream is = krameriusRepositoryApi.getImgThumb(pid);
+    Pair<InputStream, String> getFirstAvailableImgThumb(String pid) {
+        InputStream is = null;
+        DatastreamContentWrapper datastreamContent =  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
+        if (datastreamContent != null) {
+            is = datastreamContent.asInputStream();
+        }
         if (is != null) {
-            String mimeType = krameriusRepositoryApi.getImgThumbMimetype(pid);
+            String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
             return new Pair<>(is, mimeType);
         } else {
             String pidOfFirstChild = getPidOfFirstChild(pid);
@@ -1682,10 +1548,10 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    Pair<InputStream, String> getFirstAvailableImgPreview(String pid) throws IOException, RepositoryException {
-        InputStream is = krameriusRepositoryApi.getImgPreview(pid);
+    Pair<InputStream, String> getFirstAvailableImgPreview(String pid) {
+        InputStream is = akubraRepository.datastreamExists(pid,  KnownDatastreams.IMG_PREVIEW) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream() : null;
         if (is != null) {
-            String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
+            String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
             return new Pair<>(is, mimeType);
         } else {
             String pidOfFirstChild = getPidOfFirstChild(pid);
@@ -1697,18 +1563,8 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private String getPidOfFirstChild(String pid) throws IOException, RepositoryException {
-        Document relsExt = krameriusRepositoryApi.getRelsExt(pid, false);
-        String xpathExpr = "//hasPage|//hasUnit|//hasVolume|//hasItem|//hasSoundUnit|//hasTrack|//containsTrack|//hasIntCompPart|//isOnPage|//contains";
-        Element element = Dom4jUtils.firstElementByXpath(relsExt.getRootElement(), xpathExpr);
-        if (element != null) {
-            String resource = Dom4jUtils.stringOrNullFromAttributeByName(element, "resource");
-            if (resource != null) {
-                return resource.substring("info:fedora/".length());
-            }
-        }
-        return null;
+    private String getPidOfFirstChild(String pid) {
+        return akubraRepository.re().getPidOfFirstChild(pid);
     }
-
 
 }

@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.security.*;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 /**
  * @author pavels
@@ -55,19 +55,19 @@ public class BenevolentModelFilter  extends AbstractCriterium implements RightCr
      */
     static EvaluatingResultState evaluateInternal(Object[] params, RightCriteriumContext ctx) {
         try {
-            FedoraAccess fa = ctx.getFedoraAccess();
+            AkubraRepository akubraRepository = ctx.getAkubraRepository();
             ObjectPidsPath[] pathsToRoot = ctx
                     .getPathsToRoot();
             for (ObjectPidsPath pth : pathsToRoot) {
                 String[] pids = pth.getPathFromLeafToRoot();
                 for (String pid : pids) {
                     if (pid.equals(SpecialObjects.REPOSITORY.getPid())) continue;
-                    String modelName = fa.getKrameriusModelName(pid);
+                    String modelName = akubraRepository.re().getModel(pid);
                     if (containsModelName(params,modelName)) return EvaluatingResultState.TRUE;
                 }
             }
             return EvaluatingResultState.NOT_APPLICABLE;
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return EvaluatingResultState.NOT_APPLICABLE;
         }

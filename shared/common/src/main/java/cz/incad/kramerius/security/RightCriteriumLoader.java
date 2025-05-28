@@ -16,15 +16,7 @@
  */
 package cz.incad.kramerius.security;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import cz.incad.kramerius.security.impl.criteria.Abonents;
-import cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter;
-import cz.incad.kramerius.security.impl.criteria.MovingWall;
-import cz.incad.kramerius.security.impl.criteria.PolicyFlag;
-import cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter;
 
 // ma za ukol nahrat skutecna kriteria... jsou ruzne implementace
 public interface RightCriteriumLoader {

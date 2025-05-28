@@ -17,13 +17,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
 
 public class PrivateContentsServlet extends GuiceServlet {
-
-    @Inject
-    @Named("securedFedoraAccess")
-    transient FedoraAccess fedoraAccess;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -33,7 +28,7 @@ public class PrivateContentsServlet extends GuiceServlet {
             Set<String> uuidsSet = new HashSet<String>(Arrays.asList(uuids));
             Map<String, Boolean> data = new HashMap<String, Boolean>();
             for (String uuid : uuidsSet) {
-                data.put(uuid, !fedoraAccess.isContentAccessible(uuid));
+                data.put(uuid, false);
             }
             StringTemplate template = new StringTemplate("({ $data.keys:{uuid | '$uuid$':$data.(uuid)$ };separator=\",\"$ })");
             template.setAttribute("data", data);

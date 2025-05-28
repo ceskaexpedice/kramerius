@@ -17,6 +17,7 @@
 package cz.incad.kramerius.document.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,11 @@ import java.util.logging.Level;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,12 +41,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.ImagePage;
@@ -67,20 +69,20 @@ public class DocumentServiceImpl implements DocumentService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(DocumentServiceImpl.class.getName());
 
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
     private Provider<Locale> localeProvider;
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
 
     @Inject
     public DocumentServiceImpl(
-            @Named("securedFedoraAccess") FedoraAccess fedoraAccess,
+            SecuredAkubraRepository akubraRepository,
             @Named("new-index") SolrAccess solrAccess,
             Provider<Locale> localeProvider,
             ResourceBundleService resourceBundleService
             ) {
         super();
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
         this.localeProvider = localeProvider;
         this.resourceBundleService = resourceBundleService;
         this.solrAccess = solrAccess;
@@ -97,8 +99,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     protected void buildRenderingDocumentAsFlat(
             final PreparedDocument renderedDocument, final String pidFrom,
-            final int howMany) throws IOException, ProcessSubtreeException {
-        if (pidFrom != null && fedoraAccess.isImageFULLAvailable(pidFrom)) {
+            final int howMany) throws IOException {
+        if (pidFrom != null && akubraRepository.datastreamExists(pidFrom, KnownDatastreams.IMG_FULL)) {
 
             ObjectPidsPath[] path = solrAccess.getPidPaths(pidFrom);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
@@ -110,15 +112,14 @@ public class DocumentServiceImpl implements DocumentService {
                 parent = pidFrom;
             }
 
-            fedoraAccess.processSubtree(parent, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(parent, new TreeNodeProcessor() {
                 private int index = 0;
                 private boolean acceptingState = false;
 
                 @Override
-                public void process(String pid, int level)
-                        throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     try {
-                        if (fedoraAccess.isImageFULLAvailable(pid)) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             if (pid.equals(pidFrom) || (pidFrom == null)) {
                                 acceptingState = true;
                             }
@@ -153,7 +154,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         } else {
             // find first parent
-            String pagePid = this.fedoraAccess.findFirstViewablePid(pidFrom);
+            String pagePid = akubraRepository.re().getFirstViewablePidInTree(pidFrom);
             String parentPid = pidFrom;
             ObjectPidsPath[] path = solrAccess.getPidPaths(pagePid);
             String[] pathFromLeafToRoot = path[0].getPathFromLeafToRoot();
@@ -161,15 +162,14 @@ public class DocumentServiceImpl implements DocumentService {
                 parentPid = pathFromLeafToRoot[1];
             }
 
-            fedoraAccess.processSubtree(parentPid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(parentPid, new TreeNodeProcessor() {
 
                 private int index = 0;
 
                 @Override
-                public void process(String pid, int level)
-                        throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     try {
-                        if (fedoraAccess.isImageFULLAvailable(pid)) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             if (index < howMany) {
                                 renderedDocument.addPage(createPage(
                                         renderedDocument, pid));
@@ -198,18 +198,17 @@ public class DocumentServiceImpl implements DocumentService {
 
     protected void buildRenderingDocumentAsTree(
             /* org.w3c.dom.Document relsExt, */final PreparedDocument renderedDocument,
-            final String pid) throws IOException, ProcessSubtreeException {
+            final String pid) throws IOException {
 
-        fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+        akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
             private OutlineItem currOutline = null;
 
             @Override
-            public void process(String pid, int level)
-                    throws ProcessSubtreeException {
+            public void process(String pid, int level) {
                 try {
                 	AbstractPage page = null;
 
-                	if (fedoraAccess.isImageFULLAvailable(pid)) {
+                	if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                     	page = createPage(renderedDocument, pid);
                         renderedDocument.addPage(page);
                         this.currOutline = createOutlineItem(
@@ -269,15 +268,15 @@ public class DocumentServiceImpl implements DocumentService {
             String pid) throws LexerException, IOException {
 
         try {
-            org.w3c.dom.Document biblioMods = fedoraAccess.getBiblioMods(pid);
-            org.w3c.dom.Document dc = fedoraAccess.getDC(pid);
-            String modelName = fedoraAccess.getKrameriusModelName(pid);
+            Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
+            Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
+            String modelName = akubraRepository.re().getModel(pid);
             ResourceBundle resourceBundle = resourceBundleService
                     .getResourceBundle("base", localeProvider.get());
 
             AbstractPage page = null;
 
-            if (fedoraAccess.isImageFULLAvailable(pid)) {
+            if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
 
                 page = new ImagePage(modelName, pid);
                 page.setOutlineDestination(pid);
@@ -299,7 +298,7 @@ public class DocumentServiceImpl implements DocumentService {
                 // renderedDocument.addPage(page);
                 Element part = XMLUtils.findElement(
                         biblioMods.getDocumentElement(), "part",
-                        FedoraNamespaces.BIBILO_MODS_URI);
+                        RepositoryNamespaces.BIBILO_MODS_URI);
                 String attribute = part != null ? part.getAttribute("type")
                         : null;
                 if (attribute != null) {
@@ -333,8 +332,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             } else {
 
-            		page = new TextPage(modelName,
-                            this.fedoraAccess.findFirstViewablePid(pid));
+            		page = new TextPage(modelName,akubraRepository.re().getFirstViewablePidInTree(pid));
                     page.setOutlineDestination(pid);
 
                     page.setBiblioMods(biblioMods);
@@ -354,7 +352,7 @@ public class DocumentServiceImpl implements DocumentService {
                     // renderedDocument.addPage(page);
                     Element part = XMLUtils.findElement(
                             biblioMods.getDocumentElement(), "part",
-                            FedoraNamespaces.BIBILO_MODS_URI);
+                            RepositoryNamespaces.BIBILO_MODS_URI);
                     String attribute = part != null ? part.getAttribute("type")
                             : null;
                     if (attribute != null) {
@@ -394,7 +392,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public PreparedDocument buildDocumentFromSelection(String[] selection,
-            int[] rect) throws IOException, ProcessSubtreeException {
+            int[] rect) throws IOException {
 
         try {
             final PreparedDocument renderedDocument = new PreparedDocument(
@@ -405,17 +403,9 @@ public class DocumentServiceImpl implements DocumentService {
             }
             for (String pid : selection) {
                 renderedDocument.addPage(createPage(renderedDocument, pid));
-                renderedDocument.mapDCConent(pid,
-                        DCUtils.contentFromDC(fedoraAccess.getDC(pid)));
+                Document doc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asDom(false);
+                renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(doc));
             }
-
-            /*
-             * renderedDocument.setDocumentTitle(TitlesUtils.title(leaf,
-             * this.solrAccess, this.fedoraAccess));
-             * renderedDocument.setUuidTitlePage(path.getLeaf());
-             * renderedDocument.setUuidMainTitle(path.getRoot());
-             */
-
             return renderedDocument;
         } catch (LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -425,30 +415,27 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public PreparedDocument buildDocumentAsFlat(ObjectPidsPath path,
-            String pidFrom, int howMany, int[] rect) throws IOException,
-            ProcessSubtreeException, OutOfRangeException {
+            String pidFrom, int howMany, int[] rect) throws IOException, OutOfRangeException {
 
         String leaf = path.getLeaf();
         ResourceBundle resourceBundle = resourceBundleService
                 .getResourceBundle("base", localeProvider.get());
 
-        final PreparedDocument renderedDocument = new PreparedDocument(
-                fedoraAccess.getKrameriusModelName(leaf), pidFrom);
+        final PreparedDocument renderedDocument = new PreparedDocument(akubraRepository.re().getModel(leaf), pidFrom);
         if ((rect != null) && (rect.length == 2)) {
             renderedDocument.setWidth(rect[0]);
             renderedDocument.setHeight(rect[1]);
         }
         renderedDocument.setObjectPidsPath(path);
         // title ??
-        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, this.fedoraAccess, resourceBundle));
+        renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, akubraRepository, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
 
         String[] pids = path.getPathFromLeafToRoot();
         for (String pid : pids) {
-            Document dcDocument = fedoraAccess.getDC(pid);
-            renderedDocument
-                    .mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
+            Document dcDocument = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
+            renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
         }
 
         buildRenderingDocumentAsFlat(renderedDocument, pidFrom, ConfigurationUtils.checkNumber(howMany, KConfiguration.getInstance().getConfiguration()));
@@ -457,13 +444,11 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public PreparedDocument buildDocumentAsTree(ObjectPidsPath path,
-            String pidFrom, int[] rect) throws IOException,
-            ProcessSubtreeException {
-        ResourceBundle resourceBundle = resourceBundleService
-                .getResourceBundle("base", localeProvider.get());
+            String pidFrom, int[] rect) throws IOException {
+        ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
 
         String leaf = path.getLeaf();
-        String modelName = fedoraAccess.getKrameriusModelName(leaf);
+        String modelName = akubraRepository.re().getModel(leaf);
 
         final PreparedDocument renderedDocument = new PreparedDocument(
                 modelName, pidFrom);
@@ -473,7 +458,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         renderedDocument.setDocumentTitle(TitlesUtils.title(leaf,
-                this.solrAccess, this.fedoraAccess, resourceBundle));
+                this.solrAccess, akubraRepository, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
 

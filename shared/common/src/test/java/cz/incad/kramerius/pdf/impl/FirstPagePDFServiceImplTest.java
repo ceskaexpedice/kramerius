@@ -17,65 +17,8 @@
 package cz.incad.kramerius.pdf.impl;
 
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.replay;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.Set;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-
-import junit.framework.Assert;
-
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.easymock.EasyMock;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheManagerBuilder;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.name.Names;
-import com.lowagie.text.DocumentException;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.document.DocumentService;
-import cz.incad.kramerius.document.impl.DocumentServiceImpl;
-import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.fedora.impl.DataPrepare;
-import cz.incad.kramerius.pdf.FirstPagePDFService;
-import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.pdf.impl.FirstPagePDFServiceImpl.DetailItem;
-import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.service.impl.TextsServiceImpl;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 @Ignore
 // TODO: Rewrite; new index
@@ -189,362 +132,366 @@ public class FirstPagePDFServiceImplTest {
 
 ;
 
-
-    @Test
-    public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
-        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
-        //hyph-country="CZ" hyph-lang="cs"
-        Locale locale = new Locale("cs","CZ");
-        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
-        cacheManager.init();
-
-        HazelcastServerNode.ensureHazelcastNode();
-        // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor( feeder, acLog, cacheManager)
-                .addMockedMethod("getRelsExt")
-                .addMockedMethod("isImageFULLAvailable")
-                .addMockedMethod("isStreamAvailable")
-                .addMockedMethod("getDC")
-                .addMockedMethod("getBiblioMods")
-                .createMock();
-
-
-        DataPrepare.drobnustkyRelsExt(fa4);
-        DataPrepare.drobnustkyWithIMGFULL(fa4);
-        DataPrepare.drobnustkyDCS(fa4);
-        DataPrepare.drobnustkyMODS(fa4);
-
-
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-
-
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
-        }
-
-        replay(fa4, solrAccess, bundleService,acLog);
-
-        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
-
-        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-
-        DocumentService docService = injector.getInstance(DocumentService.class);
-
-        // vytvoreny dokument
-        PreparedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), DataPrepare.DROBNUSTKY_PIDS[0], 20, null);
-        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
-
-        // vygenerovana xml pro itext
-        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get( DataPrepare.DROBNUSTKY_PIDS[0]));
-        
-        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-
-        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_parent_first_page.xml");
-        String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
-        Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
-
-
-        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
-        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
-
-        // vlastni generovani z xml do pdf uz testovat nelze
-        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.toString(),diff.similar());
-    }
-
-    @Test
-    public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
-        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
-
-        Locale locale = new Locale("cs","CZ");
-        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
-        cacheManager.init();
-
-        HazelcastServerNode.ensureHazelcastNode();
-
-        // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor( feeder, acLog, cacheManager)
-                .addMockedMethod("getRelsExt")
-                .addMockedMethod("isImageFULLAvailable")
-                .addMockedMethod("isStreamAvailable")
-                .addMockedMethod("getDC")
-                .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
-                .createMock();
-
-
-
-        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
-            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
-            String model = DataPrepare.MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-
-            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
-        }
-
-        DataPrepare.drobnustkyRelsExt(fa4);
-        DataPrepare.drobnustkyWithIMGFULL(fa4);
-        DataPrepare.drobnustkyDCS(fa4);
-        DataPrepare.drobnustkyMODS(fa4);
-
-
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-
-
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
-        }
-
-        replay(fa4,feeder, solrAccess, bundleService,acLog);
-
-        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
-
-        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-
-        DocumentService docService = injector.getInstance(DocumentService.class);
-
-        // vytvoreny dokument
-        PreparedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[2]), DataPrepare.DROBNUSTKY_PIDS[2], 20, null);
-        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
-
-        // vygenerovana xml pro itext
-        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[2]));
-
-        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-
-        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_pages_selection.xml");
-        String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
-        Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
-
-
-        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
-        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
-
-        // vlastni generovani z xml do pdf uz testovat nelze
-        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.toString(),diff.similar());
-    }
-
-
-    @Test
-    public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
-        Locale locale = new Locale("cs","CZ");
-        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
-        cacheManager.init();
-
-        HazelcastServerNode.ensureHazelcastNode();
-        // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor( feeder, acLog, cacheManager)
-                .addMockedMethod("getRelsExt")
-                .addMockedMethod("isImageFULLAvailable")
-                .addMockedMethod("isStreamAvailable")
-                .addMockedMethod("getDC")
-                .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
-                .createMock();
-
-
-
-        for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
-            String pid = DataPrepare.NARODNI_LISTY[i];
-            String model = DataPrepare.MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-
-            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
-        }
-
-        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
-            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
-            String model = DataPrepare.MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-
-            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
-        }
-
-        DataPrepare.narodniListyRelsExt(fa4);
-        DataPrepare.narodniListyIMGFULL(fa4);
-        DataPrepare.narodniListyDCs(fa4);
-        DataPrepare.narodniListyMods(fa4);
-
-        DataPrepare.drobnustkyRelsExt(fa4);
-        DataPrepare.drobnustkyWithIMGFULL(fa4);
-        DataPrepare.drobnustkyDCS(fa4);
-        DataPrepare.drobnustkyMODS(fa4);
-
-
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-
-
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
-        }
-
-
-
-        replay(fa4,feeder, solrAccess, bundleService,acLog);
-
-        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
-
-        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-
-        DocumentService docService = injector.getInstance(DocumentService.class);
-
-
-
-        String[] pids = {
-
-                "uuid:b38eba10-91f6-11dc-9eec-000d606f5dc6",
-                "uuid:94a3ed60-92d6-11dc-beb4-000d606f5dc6",
-                "uuid:b3987e10-91f6-11dc-96f6-000d606f5dc6",
-                "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
-                "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
-                "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
-        };
-
-        // vytvoreny dokument
-        PreparedDocument renderedDocument =
-            docService.buildDocumentFromSelection(pids, null);
-            //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
-        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
-
-        // vygenerovana xml pro itext
-        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
-        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-
-
-        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_selection_pages.xml");
-        String docString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
-        Document expectedDoc = XMLUtils.parseDocument(new StringReader(docString));
-
-
-        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
-        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
-
-        // vlastni generovani z xml do pdf uz testovat nelze
-        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.toString(),diff.similar());
-    }
-
-    @Test
-    public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
-        Locale locale = new Locale("cs","CZ");
-        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
-        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
-        cacheManager.init();
-
-        HazelcastServerNode.ensureHazelcastNode();
-        // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor( feeder, acLog, cacheManager)
-                .addMockedMethod("getRelsExt")
-                .addMockedMethod("isImageFULLAvailable")
-                .addMockedMethod("isStreamAvailable")
-                .addMockedMethod("getDC")
-                .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
-                .createMock();
-
-
-        for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
-            String pid = DataPrepare.NARODNI_LISTY[i];
-            String model = DataPrepare.MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-
-            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
-        }
-
-        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
-            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
-            String model = DataPrepare.MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-
-            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
-        }
-
-        DataPrepare.narodniListyRelsExt(fa4);
-        DataPrepare.narodniListyIMGFULL(fa4);
-        DataPrepare.narodniListyDCs(fa4);
-        DataPrepare.narodniListyMods(fa4);
-
-        DataPrepare.drobnustkyRelsExt(fa4);
-        DataPrepare.drobnustkyWithIMGFULL(fa4);
-        DataPrepare.drobnustkyDCS(fa4);
-        DataPrepare.drobnustkyMODS(fa4);
-
-
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-
-
-
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
-        }
-
-
-
-        replay(fa4,feeder, solrAccess, bundleService,acLog);
-        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
-        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-        DocumentService docService = injector.getInstance(DocumentService.class);
-
-
-        String pid = "uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6";
-
-        // vytvoreny dokument
-        PreparedDocument renderedDocument =
-            docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
-        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
-
-        // vygenerovana xml pro itext
-        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument,DataPrepare.PATHS_MAPPING.get(pid));
-        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-
-
-        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_parent.xml");
-        Document expectedDoc = XMLUtils.parseDocument(new InputStreamReader(expected, "UTF-8" ));
-
-
-        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
-        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
-
-        // vlastni generovani z xml do pdf uz testovat nelze
-        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.toString(),diff.similar());
-    }
+    // TODO
+
+//    @Test
+//    public void testGenerateParent_DROBNUSTKY() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
+//        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
+//        //hyph-country="CZ" hyph-lang="cs"
+//        Locale locale = new Locale("cs","CZ");
+//        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+//        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+//        cacheManager.init();
+//
+//        HazelcastServerNode.ensureHazelcastNode();
+//        // test correct data - IMG_FULL in pages
+//        /* TODO
+//        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+//                .withConstructor( feeder, acLog, cacheManager)
+//                .addMockedMethod("getRelsExt")
+//                .addMockedMethod("isImageFULLAvailable")
+//                .addMockedMethod("isStreamAvailable")
+//                .addMockedMethod("getDC")
+//                .addMockedMethod("getBiblioMods")
+//                .createMock();
+//
+//
+//        DataPrepare.drobnustkyRelsExt(fa4);
+//        DataPrepare.drobnustkyWithIMGFULL(fa4);
+//        DataPrepare.drobnustkyDCS(fa4);
+//        DataPrepare.drobnustkyMODS(fa4);
+//
+//         */
+//
+//
+//        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+//        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//
+//
+//        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+//        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+//        for (String key : keys) {
+//            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+//        }
+//
+//        replay(fa4, solrAccess, bundleService,acLog);
+//
+//        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
+//
+//        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
+//
+//        DocumentService docService = injector.getInstance(DocumentService.class);
+//
+//        // vytvoreny dokument
+//        PreparedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[0]), DataPrepare.DROBNUSTKY_PIDS[0], 20, null);
+//        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
+//
+//        // vygenerovana xml pro itext
+//        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get( DataPrepare.DROBNUSTKY_PIDS[0]));
+//
+//        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
+//
+//        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_parent_first_page.xml");
+//        String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
+//        Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
+//
+//
+//        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
+//        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
+//
+//        // vlastni generovani z xml do pdf uz testovat nelze
+//        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
+//        Assert.assertTrue(diff.toString(),diff.similar());
+//    }
+//
+//    @Test
+//    public void testGenerateParent_DROBNUSTKYPage() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, XPathExpressionException, JAXBException, OutOfRangeException {
+//        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+//        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
+//
+//        Locale locale = new Locale("cs","CZ");
+//        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+//        cacheManager.init();
+//
+//        HazelcastServerNode.ensureHazelcastNode();
+//
+//        // test correct data - IMG_FULL in pages
+//        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+//                .withConstructor( feeder, acLog, cacheManager)
+//                .addMockedMethod("getRelsExt")
+//                .addMockedMethod("isImageFULLAvailable")
+//                .addMockedMethod("isStreamAvailable")
+//                .addMockedMethod("getDC")
+//                .addMockedMethod("getBiblioMods")
+//                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+//                .createMock();
+//
+//
+//
+//        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
+//            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
+//            String model = DataPrepare.MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//
+//            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+//        }
+//
+//        DataPrepare.drobnustkyRelsExt(fa4);
+//        DataPrepare.drobnustkyWithIMGFULL(fa4);
+//        DataPrepare.drobnustkyDCS(fa4);
+//        DataPrepare.drobnustkyMODS(fa4);
+//
+//
+//        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+//        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//
+//
+//        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+//        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+//        for (String key : keys) {
+//            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+//        }
+//
+//        replay(fa4,feeder, solrAccess, bundleService,acLog);
+//
+//        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
+//
+//        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
+//
+//        DocumentService docService = injector.getInstance(DocumentService.class);
+//
+//        // vytvoreny dokument
+//        PreparedDocument renderedDocument = docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[2]), DataPrepare.DROBNUSTKY_PIDS[2], 20, null);
+//        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
+//
+//        // vygenerovana xml pro itext
+//        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument, DataPrepare.PATHS_MAPPING.get(DataPrepare.DROBNUSTKY_PIDS[2]));
+//
+//        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
+//
+//        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("drobnustky_pages_selection.xml");
+//        String expectedString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
+//        Document expectedDoc = XMLUtils.parseDocument(new StringReader(expectedString));
+//
+//
+//        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
+//        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
+//
+//        // vlastni generovani z xml do pdf uz testovat nelze
+//        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
+//        Assert.assertTrue(diff.toString(),diff.similar());
+//    }
+//
+//
+//    @Test
+//    public void testGenerateSelection_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
+//        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
+//        Locale locale = new Locale("cs","CZ");
+//        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+//        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+//        cacheManager.init();
+//
+//        HazelcastServerNode.ensureHazelcastNode();
+//        // test correct data - IMG_FULL in pages
+//        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+//                .withConstructor( feeder, acLog, cacheManager)
+//                .addMockedMethod("getRelsExt")
+//                .addMockedMethod("isImageFULLAvailable")
+//                .addMockedMethod("isStreamAvailable")
+//                .addMockedMethod("getDC")
+//                .addMockedMethod("getBiblioMods")
+//                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+//                .createMock();
+//
+//
+//
+//        for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
+//            String pid = DataPrepare.NARODNI_LISTY[i];
+//            String model = DataPrepare.MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//
+//            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+//        }
+//
+//        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
+//            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
+//            String model = DataPrepare.MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//
+//            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+//        }
+//
+//        DataPrepare.narodniListyRelsExt(fa4);
+//        DataPrepare.narodniListyIMGFULL(fa4);
+//        DataPrepare.narodniListyDCs(fa4);
+//        DataPrepare.narodniListyMods(fa4);
+//
+//        DataPrepare.drobnustkyRelsExt(fa4);
+//        DataPrepare.drobnustkyWithIMGFULL(fa4);
+//        DataPrepare.drobnustkyDCS(fa4);
+//        DataPrepare.drobnustkyMODS(fa4);
+//
+//
+//        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+//        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//
+//
+//        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+//        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+//        for (String key : keys) {
+//            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+//        }
+//
+//
+//
+//        replay(fa4,feeder, solrAccess, bundleService,acLog);
+//
+//        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
+//
+//        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
+//
+//        DocumentService docService = injector.getInstance(DocumentService.class);
+//
+//
+//
+//        String[] pids = {
+//
+//                "uuid:b38eba10-91f6-11dc-9eec-000d606f5dc6",
+//                "uuid:94a3ed60-92d6-11dc-beb4-000d606f5dc6",
+//                "uuid:b3987e10-91f6-11dc-96f6-000d606f5dc6",
+//                "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
+//                "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
+//                "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
+//        };
+//
+//        // vytvoreny dokument
+//        PreparedDocument renderedDocument =
+//            docService.buildDocumentFromSelection(pids, null);
+//            //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
+//        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
+//
+//        // vygenerovana xml pro itext
+//        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
+//        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
+//
+//
+//        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_selection_pages.xml");
+//        String docString = IOUtils.readAsString(expected, Charset.forName("UTF-8"), true);
+//        Document expectedDoc = XMLUtils.parseDocument(new StringReader(docString));
+//
+//
+//        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
+//        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
+//
+//        // vlastni generovani z xml do pdf uz testovat nelze
+//        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
+//        Assert.assertTrue(diff.toString(),diff.similar());
+//    }
+//
+//    @Test
+//    public void testGenerateParent_NarodniListy() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
+//        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
+//        Locale locale = new Locale("cs","CZ");
+//        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+//        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+//        cacheManager.init();
+//
+//        HazelcastServerNode.ensureHazelcastNode();
+//        // test correct data - IMG_FULL in pages
+//        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+//                .withConstructor( feeder, acLog, cacheManager)
+//                .addMockedMethod("getRelsExt")
+//                .addMockedMethod("isImageFULLAvailable")
+//                .addMockedMethod("isStreamAvailable")
+//                .addMockedMethod("getDC")
+//                .addMockedMethod("getBiblioMods")
+//                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+//                .createMock();
+//
+//
+//        for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
+//            String pid = DataPrepare.NARODNI_LISTY[i];
+//            String model = DataPrepare.MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//
+//            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+//        }
+//
+//        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
+//            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
+//            String model = DataPrepare.MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//
+//            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+//        }
+//
+//        DataPrepare.narodniListyRelsExt(fa4);
+//        DataPrepare.narodniListyIMGFULL(fa4);
+//        DataPrepare.narodniListyDCs(fa4);
+//        DataPrepare.narodniListyMods(fa4);
+//
+//        DataPrepare.drobnustkyRelsExt(fa4);
+//        DataPrepare.drobnustkyWithIMGFULL(fa4);
+//        DataPrepare.drobnustkyDCS(fa4);
+//        DataPrepare.drobnustkyMODS(fa4);
+//
+//
+//        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+//        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//
+//
+//
+//        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+//        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+//        for (String key : keys) {
+//            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+//        }
+//
+//
+//
+//        replay(fa4,feeder, solrAccess, bundleService,acLog);
+//        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
+//        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
+//        DocumentService docService = injector.getInstance(DocumentService.class);
+//
+//
+//        String pid = "uuid:b32d1210-91f6-11dc-94d0-000d606f5dc6";
+//
+//        // vytvoreny dokument
+//        PreparedDocument renderedDocument =
+//            docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
+//        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
+//
+//        // vygenerovana xml pro itext
+//        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateParent(renderedDocument,DataPrepare.PATHS_MAPPING.get(pid));
+//        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
+//
+//
+//        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_parent.xml");
+//        Document expectedDoc = XMLUtils.parseDocument(new InputStreamReader(expected, "UTF-8" ));
+//
+//
+//        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
+//        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
+//
+//        // vlastni generovani z xml do pdf uz testovat nelze
+//        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
+//        Assert.assertTrue(diff.toString(),diff.similar());
+//    }
 
 
 //    public void toTmpPDF(Document renderedDoc, GeneratePDFService pdfService) throws InstantiationException, IllegalAccessException, IOException, FileNotFoundException, DocumentException {
@@ -567,168 +514,168 @@ public class FirstPagePDFServiceImplTest {
 //    }
 
 
-    @Test
-    public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
-        Locale locale = new Locale("cs","CZ");
-        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+//    @Test
+//    public void testGenerateSelection_NarodniListyDrobnustky() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
+//        AggregatedAccessLogs acLog = EasyMock.createMock(AggregatedAccessLogs.class);
+//        Locale locale = new Locale("cs","CZ");
+//        ProcessingIndexFeeder feeder = createMock(ProcessingIndexFeeder.class);
+//
+//        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
+//        cacheManager.init();
+//
+//        HazelcastServerNode.ensureHazelcastNode();
+//        // test correct data - IMG_FULL in pages
+//        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
+//                .withConstructor( feeder, acLog, cacheManager)
+//                .addMockedMethod("getRelsExt")
+//                .addMockedMethod("isImageFULLAvailable")
+//                .addMockedMethod("isStreamAvailable")
+//                .addMockedMethod("getDC")
+//                .addMockedMethod("getBiblioMods")
+//                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
+//                .createMock();
+//
+//
+//        for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
+//            String pid = DataPrepare.NARODNI_LISTY[i];
+//            String model = DataPrepare.MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//
+//            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+//        }
+//
+//
+//        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
+//            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
+//            String model = DataPrepare.MODELS_MAPPING.get(pid);
+//            PIDParser parser = new PIDParser(model);
+//            parser.disseminationURI();
+//            String objectId = parser.getObjectId();
+//
+//            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
+//        }
+//
+//        DataPrepare.narodniListyRelsExt(fa4);
+//        DataPrepare.narodniListyIMGFULL(fa4);
+//        DataPrepare.narodniListyDCs(fa4);
+//        DataPrepare.narodniListyMods(fa4);
+//
+//        DataPrepare.drobnustkyRelsExt(fa4);
+//        DataPrepare.drobnustkyWithIMGFULL(fa4);
+//        DataPrepare.drobnustkyDCS(fa4);
+//        DataPrepare.drobnustkyMODS(fa4);
+//
+//
+//        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
+//        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
+//
+//
+//        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
+//        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
+//        for (String key : keys) {
+//            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
+//        }
+//
+//
+//
+//        replay(fa4,feeder, solrAccess, bundleService,acLog);
+//
+//        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
+//
+//        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
+//
+//        DocumentService docService = injector.getInstance(DocumentService.class);
+//
+//
+//
+//        String[] pids = {
+//
+//                "uuid:b38eba10-91f6-11dc-9eec-000d606f5dc6",
+//                "uuid:94a3ed60-92d6-11dc-beb4-000d606f5dc6",
+//                "uuid:b3987e10-91f6-11dc-96f6-000d606f5dc6",
+//                "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
+//                "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
+//                "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
+//
+//
+//                "uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6",
+//                "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6"
+//        };
+//
+//        // vytvoreny dokument
+//        PreparedDocument renderedDocument =
+//            docService.buildDocumentFromSelection(pids, null);
+//            //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
+//        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
+//
+//        // vygenerovana xml pro itext
+//        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
+//        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
+//
+//
+//        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_drobnustky_selection_pages.xml");
+//        Document expectedDoc = XMLUtils.parseDocument(new InputStreamReader(expected, "UTF-8"));
+//
+//
+//        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
+//        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
+//
+//        // vlastni generovani z xml do pdf uz testovat nelze
+//        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
+//        Assert.assertTrue(diff.toString(),diff.similar());
+//    }
+//
+//
+//
+//    @Test
+//    public void testEscapingInPrepareViewObject() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
+//        DetailItem item = new FirstPagePDFServiceImpl.DetailItem("Hlavni nazev", "Svět ledu & ohně: oficiální dějiny Západozemí a Hry o trůny");
+//        Assert.assertEquals("Svět ledu &amp; ohně: oficiální dějiny Západozemí a Hry o trůny", item.getValue());
+//        FirstPagePDFServiceImpl.FirstPageViewObject viewObject = new FirstPagePDFServiceImpl.FirstPageViewObject();
+//
+//        viewObject.setConditionUsage("<& >");
+//        Assert.assertEquals("&lt;&amp; &gt;", viewObject.getConditionUsage());
+//
+//        viewObject.setDitigalLibrary("\" <& >");
+//        Assert.assertEquals("&quot; &lt;&amp; &gt;", viewObject.getDitigalLibrary());
+//    }
+//
+//
 
-        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
-        cacheManager.init();
-
-        HazelcastServerNode.ensureHazelcastNode();
-        // test correct data - IMG_FULL in pages
-        FedoraAccessAkubraImpl fa4 = createMockBuilder(FedoraAccessAkubraImpl.class)
-                .withConstructor( feeder, acLog, cacheManager)
-                .addMockedMethod("getRelsExt")
-                .addMockedMethod("isImageFULLAvailable")
-                .addMockedMethod("isStreamAvailable")
-                .addMockedMethod("getDC")
-                .addMockedMethod("getBiblioMods")
-                .addMockedMethod(FedoraAccessAkubraImpl.class.getMethod("getKrameriusModelName", String.class))
-                .createMock();
-
-
-        for (int i = 0; i < DataPrepare.NARODNI_LISTY.length; i++) {
-            String pid = DataPrepare.NARODNI_LISTY[i];
-            String model = DataPrepare.MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-
-            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
-        }
-
-
-        for (int i = 0; i < DataPrepare.DROBNUSTKY_PIDS.length; i++) {
-            String pid = DataPrepare.DROBNUSTKY_PIDS[i];
-            String model = DataPrepare.MODELS_MAPPING.get(pid);
-            PIDParser parser = new PIDParser(model);
-            parser.disseminationURI();
-            String objectId = parser.getObjectId();
-
-            EasyMock.expect(fa4.getKrameriusModelName(pid)).andReturn(objectId).anyTimes();
-        }
-
-        DataPrepare.narodniListyRelsExt(fa4);
-        DataPrepare.narodniListyIMGFULL(fa4);
-        DataPrepare.narodniListyDCs(fa4);
-        DataPrepare.narodniListyMods(fa4);
-
-        DataPrepare.drobnustkyRelsExt(fa4);
-        DataPrepare.drobnustkyWithIMGFULL(fa4);
-        DataPrepare.drobnustkyDCS(fa4);
-        DataPrepare.drobnustkyMODS(fa4);
-
-
-        ResourceBundleService bundleService = EasyMock.createMock(ResourceBundleService.class);
-        EasyMock.expect(bundleService.getResourceBundle("labels", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-        EasyMock.expect(bundleService.getResourceBundle("base", locale)).andReturn(new PropertyResourceBundle(new StringReader(BUNLDE))).anyTimes();
-
-
-        SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        Set<String> keys = DataPrepare.PATHS_MAPPING.keySet();
-        for (String key : keys) {
-            EasyMock.expect(solrAccess.getPidPaths(key)).andReturn(new ObjectPidsPath[] { DataPrepare.PATHS_MAPPING.get(key) }).anyTimes();
-        }
-
-
-
-        replay(fa4,feeder, solrAccess, bundleService,acLog);
-
-        Injector injector = Guice.createInjector(new _Module(locale, fa4, bundleService, solrAccess));
-
-        FirstPagePDFService fpageService = injector.getInstance(FirstPagePDFService.class);
-
-        DocumentService docService = injector.getInstance(DocumentService.class);
-
-
-
-        String[] pids = {
-
-                "uuid:b38eba10-91f6-11dc-9eec-000d606f5dc6",
-                "uuid:94a3ed60-92d6-11dc-beb4-000d606f5dc6",
-                "uuid:b3987e10-91f6-11dc-96f6-000d606f5dc6",
-                "uuid:94a3ed60-92d6-11dc-93df-000d606f5dc6",
-                "uuid:b3a21b00-91f6-11dc-b8b2-000d606f5dc6",
-                "uuid:94a68570-92d6-11dc-be5a-000d606f5dc6",
-
-
-                "uuid:4a7c2e50-af36-11dd-9643-000d606f5dc6",
-                "uuid:4a7ec660-af36-11dd-a782-000d606f5dc6"
-        };
-
-        // vytvoreny dokument
-        PreparedDocument renderedDocument =
-            docService.buildDocumentFromSelection(pids, null);
-            //docService.buildDocumentAsFlat(DataPrepare.PATHS_MAPPING.get(pid), pid, 20, null);
-        Assert.assertNotNull(renderedDocument.getPages().size() > 0);
-
-        // vygenerovana xml pro itext
-        String generatedTemplate = ((FirstPagePDFServiceImpl)fpageService).templateSelection(renderedDocument,pids);
-        Document renderedDoc = XMLUtils.parseDocument(new StringReader(generatedTemplate));
-
-
-        InputStream expected = FirstPagePDFServiceImplTest.class.getResourceAsStream("narodni_listy_drobnustky_selection_pages.xml");
-        Document expectedDoc = XMLUtils.parseDocument(new InputStreamReader(expected, "UTF-8"));
-
-
-        Document expectedWOws = XMLUnit.getWhitespaceStrippedDocument(expectedDoc);
-        Document renderedWOws = XMLUnit.getWhitespaceStrippedDocument(renderedDoc);
-
-        // vlastni generovani z xml do pdf uz testovat nelze
-        Diff diff = XMLUnit.compareXML(expectedWOws, renderedWOws);
-        Assert.assertTrue(diff.toString(),diff.similar());
-    }
-
-    
-    
-    @Test
-    public void testEscapingInPrepareViewObject() throws SecurityException, NoSuchMethodException, IOException, ParserConfigurationException, SAXException, LexerException, ProcessSubtreeException, DocumentException, InstantiationException, IllegalAccessException, XPathExpressionException, JAXBException, OutOfRangeException {
-        DetailItem item = new FirstPagePDFServiceImpl.DetailItem("Hlavni nazev", "Svět ledu & ohně: oficiální dějiny Západozemí a Hry o trůny");
-        Assert.assertEquals("Svět ledu &amp; ohně: oficiální dějiny Západozemí a Hry o trůny", item.getValue());
-        FirstPagePDFServiceImpl.FirstPageViewObject viewObject = new FirstPagePDFServiceImpl.FirstPageViewObject();
-
-        viewObject.setConditionUsage("<& >");
-        Assert.assertEquals("&lt;&amp; &gt;", viewObject.getConditionUsage());
-        
-        viewObject.setDitigalLibrary("\" <& >");
-        Assert.assertEquals("&quot; &lt;&amp; &gt;", viewObject.getDitigalLibrary());
-    }
-
-
-
-    class _Module extends AbstractModule {
-
-        private Locale locale;
-        private FedoraAccess fedoraAccess;
-        private ResourceBundleService resourceBundleService;
-        private SolrAccess solrAccess;
-
-
-        public _Module(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService,SolrAccess solrAccess) {
-            super();
-            this.locale = locale;
-            this.fedoraAccess = fedoraAccess;
-            this.resourceBundleService = resourceBundleService;
-            this.solrAccess = solrAccess;
-        }
-
-        @Override
-        protected void configure() {
-            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(this.fedoraAccess);
-            bind(SolrAccess.class).toInstance(this.solrAccess);
-            bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
-            bind(TextsService.class).to(TextsServiceImpl.class);
-
-
-            bind(DocumentService.class).to(DocumentServiceImpl.class);
-            bind(FirstPagePDFService.class).to(FirstPagePDFServiceImpl.class);
-        }
-
-        @Provides
-        public Locale getLocale() {
-            return this.locale;
-        }
-    }
+//    class _Module extends AbstractModule {
+//
+//        private Locale locale;
+//        private FedoraAccess fedoraAccess;
+//        private ResourceBundleService resourceBundleService;
+//        private SolrAccess solrAccess;
+//
+//
+//        public _Module(Locale locale, FedoraAccess fedoraAccess, ResourceBundleService resourceBundleService,SolrAccess solrAccess) {
+//            super();
+//            this.locale = locale;
+//            this.fedoraAccess = fedoraAccess;
+//            this.resourceBundleService = resourceBundleService;
+//            this.solrAccess = solrAccess;
+//        }
+//
+//        @Override
+//        protected void configure() {
+//            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(this.fedoraAccess);
+//            bind(SolrAccess.class).toInstance(this.solrAccess);
+//            bind(ResourceBundleService.class).toInstance(this.resourceBundleService);
+//            bind(TextsService.class).to(TextsServiceImpl.class);
+//
+//
+//            bind(DocumentService.class).to(DocumentServiceImpl.class);
+//            bind(FirstPagePDFService.class).to(FirstPagePDFServiceImpl.class);
+//        }
+//
+//        @Provides
+//        public Locale getLocale() {
+//            return this.locale;
+//        }
+//    }
 }

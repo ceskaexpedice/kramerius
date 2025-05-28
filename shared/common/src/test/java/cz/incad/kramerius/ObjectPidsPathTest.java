@@ -280,17 +280,17 @@ public class ObjectPidsPathTest {
             .createMock();
         
         CollectionsManager colGet = EasyMock.createMock(CollectionsManager.class);
+// TODO
 
-
-        FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
-        EasyMock.expect(fa.getRelsExt("uuid:periodical")).andReturn(document).anyTimes();
-        EasyMock.expect(fa.getRelsExt("uuid:periodicalvolume")).andReturn(document).anyTimes();
-        EasyMock.expect(fa.getRelsExt("uuid:periodicalitem")).andReturn(document).anyTimes();
+//        FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+//        EasyMock.expect(fa.getRelsExt("uuid:periodical")).andReturn(document).anyTimes();
+//        EasyMock.expect(fa.getRelsExt("uuid:periodicalvolume")).andReturn(document).anyTimes();
+//        EasyMock.expect(fa.getRelsExt("uuid:periodicalitem")).andReturn(document).anyTimes();
 
         List<Collection> colList = collectionList();
         
         EasyMock.expect(colGet.getCollections()).andReturn(colList).anyTimes();
-        replay(path, colGet, fa);
+        // TODO replay(path, colGet, fa);
 
         Assert.assertEquals(path.injectCollections(colGet).getRoot(), "vc:d3f011e3-f1fd-4025-a907-68a860460841");
         Assert.assertEquals(path.injectCollections(colGet).injectRepository().getRoot(), "uuid:1");
@@ -315,9 +315,9 @@ public class ObjectPidsPathTest {
         ObjectPidsPath p = new ObjectPidsPath();
 
         CollectionsManager colGet = EasyMock.createMock(CollectionsManager.class);
-        FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+        // TODO FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
 
-        replay( colGet, fa);
+        //replay( colGet, fa);
         ObjectPidsPath cols = p.injectCollections(colGet);
         Assert.assertTrue(cols.isEmptyPath());
     }

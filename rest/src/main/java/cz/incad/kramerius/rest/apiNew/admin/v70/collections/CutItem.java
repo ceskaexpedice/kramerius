@@ -25,12 +25,11 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.RepositoryApi;
 
 public class CutItem {
     
@@ -169,9 +168,8 @@ public class CutItem {
         }
     }
     
-    
-    public void initGeneratedThumbnail(RepositoryApi repoApi, String pid) throws NoSuchAlgorithmException, RepositoryException, IOException {
-        if (repoApi.datastreamExists(pid, getThumbnailmd5())) {
+    public void initGeneratedThumbnail(AkubraRepository akubraRepository, String pid) throws NoSuchAlgorithmException, IOException {
+        if (akubraRepository.datastreamExists(pid, getThumbnailmd5())) {
             this.setGeneratedThumbnail(true);
         }
     }

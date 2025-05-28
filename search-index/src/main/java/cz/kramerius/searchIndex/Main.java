@@ -1,22 +1,12 @@
 package cz.kramerius.searchIndex;
 
 import com.google.common.collect.ObjectArrays;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
-
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.kramerius.adapters.RepositoryAccess;
-import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
@@ -24,18 +14,18 @@ import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
-import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
-import cz.kramerius.adapters.impl.krameriusNewApi.RepositoryAccessImplByKrameriusNewApis;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -361,24 +351,14 @@ public class Main {
             String solrLogin = args[index++];
             String solrPassword = args[index++];
 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-            KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
             //pids
             String[] pids = subArray(args, 5);
             for (String pid : pids) {
                 SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
-                //TODO: extract to param
-                //String krameriusBackendBaseUrl = "http://localhost:8080/search";
-                //FedoraAccess repository = new RepositoryAccessImplDummy();
-                //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-                RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
-                        new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
-                //IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-
-                ProcessingIndex resourceIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, krameriusBackendBaseUrl);
-                KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, resourceIndex);
-                Indexer process = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, false);
+                Indexer process = new Indexer(akubraRepository, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT_AND_CHILDREN);
@@ -411,29 +391,18 @@ public class Main {
             String pid = args[index++];
             
             //TODO: Injection for all instances 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
 
-            //FedoraAccess repository = new RepositoryAccessImplDummy();
-            //FedoraAccess repository = new RepositoryAccessImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            RepositoryAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl,
-                    new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken));
-
-            KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
-
-            
-            //IResourceIndex processingIndex = new ResourceIndexImplByKrameriusOldApis(krameriusBackendBaseUrl);
-            ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, krameriusBackendBaseUrl);
-            KrameriusRepositoryFascade repositoryAdapter = new KrameriusRepositoryFascade(repository, processingIndex);
-
-            RepositoryNodeManager nodeManager = new RepositoryNodeManager(repositoryAdapter, false);
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+            RepositoryNodeManager nodeManager = new RepositoryNodeManager(akubraRepository, false);
             SolrInputBuilder solrInputBuilder = new SolrInputBuilder();
             SolrIndexAccess solrAccess = new SolrIndexAccess(new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword));
 
-            boolean objectAvailable = repositoryAdapter.isObjectAvailable(pid);
+            boolean objectAvailable = akubraRepository.exists(pid);
             if (!objectAvailable) {
                 throw new IOException("object " + pid + " not available");
             }
-            Document foxmlDoc = repositoryAdapter.getObjectFoxml(pid, true);
+            Document foxmlDoc = akubraRepository.get(pid).asDom4j(true);
             //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
            /* boolean ocrAvailable = repositoryAdapter.isOcrTextAvailable(pid);
             if (!ocrAvailable) {
@@ -442,13 +411,14 @@ public class Main {
                 System.out.println("ocr text available");
             }*/
             //String ocrText = repositoryAdapter.isOcrTextAvailable(pid) ? repositoryAdapter.getOcrText(pid) : null;
-            String ocrText = repositoryAdapter.getOcrText(pid);
+            String ocrText = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
+            //System.out.println("ocr text: " + ocrText);
             RepositoryNode repositoryNode = nodeManager.getKrameriusNode(pid);
             if (repositoryNode == null) {
                 System.err.println("object not found or in inconsistent state: " + pid + ", ignoring");
             } else {
-                String imgFullMime = repositoryAdapter.getImgFullMimetype(pid);
-                Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid(), repositoryAdapter) : null;
+                String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
+                Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid(), akubraRepository) : null;
                 SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, true);
                 String solrInputStr = solrInput.getDocument().asXML();
                 //System.out.println(solrInputStr);
@@ -458,11 +428,12 @@ public class Main {
         }
     }
 
-    private static Integer detectAudioLength(String pid, KrameriusRepositoryFascade repositoryConnector) {
+    private static Integer detectAudioLength(String pid, AkubraRepository akubraRepository) {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
-            if (repositoryConnector.isAudioWavAvailable(pid)) {
-                AudioAnalyzer.Result result = analyzer.analyze(repositoryConnector.getAudioWav(pid), AudioAnalyzer.Format.WAV);
+            if (akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_WAV)) {
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV).asInputStream();
+                AudioAnalyzer.Result result = analyzer.analyze(inputStream, AudioAnalyzer.Format.WAV);
                 return result.duration;
             }
             System.out.println("failed to detect audio length of " + pid);

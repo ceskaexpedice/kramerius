@@ -1,12 +1,11 @@
 package cz.incad.kramerius.imaging.lp.guice;
 
-import java.io.IOException;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
+import cz.incad.kramerius.fedora.AkubraRepositoryProvider;
+import cz.incad.kramerius.fedora.SecuredAkubraRepositoryProvider;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -14,12 +13,7 @@ import cz.incad.kramerius.imaging.impl.DeepZoomFlagServiceImpl;
 import cz.incad.kramerius.imaging.impl.FileSystemCacheServiceImpl;
 import cz.incad.kramerius.imaging.impl.SimpleMemoryCacheServiceWrapper;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
-import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 public class GenerateDeepZoomCacheModule extends AbstractModule {
 
@@ -27,8 +21,7 @@ public class GenerateDeepZoomCacheModule extends AbstractModule {
     protected void configure() {
         // mapped plain fedoraAccess as secured. In this process it is not
         // necessary to have checked access to fedora.
-        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl.class)
-                .in(Scopes.SINGLETON);
+        //bind(AkubraRepository.class).toProvider(SecuredAkubraRepositoryProvider.class).in(Scopes.SINGLETON);
 
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);
 //        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(GenerateDeepZoomCacheModule.NoStatistics.class).in(Scopes.SINGLETON);

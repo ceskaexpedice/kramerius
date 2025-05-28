@@ -4,35 +4,30 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
-import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.Dom4jUtils;
-import cz.incad.kramerius.utils.java.Pair;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -53,7 +48,7 @@ public class RemovePolicyProcess {
      * args[3] - pid of root object, for example "uuid:df693396-9d3f-4b3b-bf27-3be0aaa2aadf"
      * args[4-...] - optional title of the root object
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         LOGGER.info("Process parameters "+Arrays.asList(args));
         //args
         /*LOGGER.info("args: " + Arrays.asList(args));
@@ -89,12 +84,12 @@ public class RemovePolicyProcess {
             );
             
         }
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
-        KrameriusRepositoryApi repository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); //FIXME: hardcoded implementation
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
+        AkubraRepository repository = injector.getInstance(Key.get(AkubraRepository.class));
         List<Boolean> errors = new ArrayList<>();
         for (String pid : pids) {
             //check object exists in repository
-            if (!repository.getLowLevelApi().objectExists(pid)) {
+            if (!repository.exists(pid)) {
                 throw new RuntimeException(String.format("object %s not found in repository", pid));
             }
             //boolean includingDescendants = scope == Scope.TREE;
@@ -153,38 +148,36 @@ public class RemovePolicyProcess {
     /**
      * @return true if all objects where processed without problems, false otherwise
      */
-    private static boolean removePolicy(String pid, boolean includingDescendants, KrameriusRepositoryApi repository) {
+    private static boolean removePolicy(String pid, boolean includingDescendants, AkubraRepository repository) {
         //LOGGER.info(String.format("Setting policy (to %s) for %s", policy, pid));
-        Lock writeLock = AkubraDOManager.getWriteLock(pid);
-        try {
-            removePolicyDC(pid,  repository); //TODO: zatim takto, at nevznikaji zmatky, dokud neni datastream DC uplne odstranen
-            removePolicyRELS_EXT(pid,  repository);
+        return repository.doWithWriteLock(pid, () -> {
+            try {
+                removePolicyDC(pid,  repository); //TODO: zatim takto, at nevznikaji zmatky, dokud neni datastream DC uplne odstranen
+                removePolicyRELS_EXT(pid,  repository);
 
-            boolean noErros = true;
-            if (includingDescendants) {
-                Pair<List<RepositoryApi.Triplet>, List<RepositoryApi.Triplet>> children = repository.getChildren(pid);
-                if (children.getFirst() != null && !children.getFirst().isEmpty()) {
-                    for (RepositoryApi.Triplet triplet : children.getFirst()) {
-                        String childPid = triplet.target;
-                        noErros &= removePolicy(childPid, includingDescendants, repository);
+                boolean noErros = true;
+                if (includingDescendants) {
+                     OwnedAndFosteredChildren children = repository.pi().getOwnedAndFosteredChildren(pid);
+                    if (children.own() != null && !children.own().isEmpty()) {
+                        for (ProcessingIndexItem processingIndexItem : children.own()) {
+                            String childPid = processingIndexItem.targetPid();
+                            noErros &= removePolicy(childPid, includingDescendants, repository);
+                        }
                     }
                 }
+                return noErros;
+            } catch (Exception ex) {
+                LOGGER.warning("Cannot set policy for object " + pid + ", skipping ");
+                return false;
             }
-            return noErros;
-        } catch (Exception ex) {
-            LOGGER.warning("Cannot set policy for object " + pid + ", skipping ");
-            ex.printStackTrace();
-            return false;
-        } finally {
-            writeLock.unlock();
-        }
+        });
     }
 
-    private static void removePolicyRELS_EXT(String pid,  KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isRelsExtAvailable(pid)) {
+    private static void removePolicyRELS_EXT(String pid,  AkubraRepository repository) throws IOException {
+        if (!repository.re().exists(pid)) {
             throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
         }
-        Document relsExt = repository.getRelsExt(pid, true);
+        Document relsExt = repository.re().get(pid).asDom4j(true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt);
         List<Node> policyEls = Dom4jUtils.buildXpath("rel:policy").selectNodes(rootEl);
         for (Node policyEl : policyEls) {
@@ -193,15 +186,16 @@ public class RemovePolicyProcess {
                 policyEl.detach();
             }
         }
-        repository.updateRelsExt(pid, relsExt);
+        ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+        repository.re().update(pid, bis);
     }
 
-    private static void removePolicyDC(String pid,  KrameriusRepositoryApi repository) throws RepositoryException, IOException {
-        if (!repository.isDublinCoreAvailable(pid)) {
+    private static void removePolicyDC(String pid,  AkubraRepository repository) throws IOException {
+        if (!repository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC)) {
             LOGGER.info("Dublin Core record (datastream DC) not found for " + pid);
             return;
         }
-        Document dc = repository.getDublinCore(pid, true);
+        Document dc = repository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom4j(true);
         Element rootEl = (Element) Dom4jUtils.buildXpath("//oai_dc:dc").selectSingleNode(dc);
         List<Node> policyEls = Dom4jUtils.buildXpath("dc:rights").selectNodes(rootEl);
         for (Node policyEl : policyEls) { //da se cekat, ze budou v datech duplikovne informace
@@ -210,7 +204,8 @@ public class RemovePolicyProcess {
                 policyEl.detach();
             }
         }
-        repository.updateDublinCore(pid, dc);
+        ByteArrayInputStream bis = new ByteArrayInputStream(dc.asXML().getBytes(Charset.forName("UTF-8")));
+        repository.re().update(pid, bis);
     }
 
     //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling

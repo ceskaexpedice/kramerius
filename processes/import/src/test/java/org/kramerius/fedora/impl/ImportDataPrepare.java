@@ -32,7 +32,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import cz.incad.kramerius.fedora.impl.FedoraAccessAkubraImpl;
 import cz.incad.kramerius.utils.FedoraUtils;
 import org.easymock.EasyMock;
 import org.w3c.dom.Attr;
@@ -42,7 +41,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -147,6 +145,7 @@ public class ImportDataPrepare {
     };
     
 
+    /* TODO
     public static void narodniListyRelsExt(FedoraAccess fa) throws IOException, ParserConfigurationException, SAXException, LexerException {
         for (int i = 0; i < NARODNI_LISTY.length; i++) {
             String pid = NARODNI_LISTY[i];
@@ -642,4 +641,6 @@ public class ImportDataPrepare {
             }
         }
     }
+
+     */
 }

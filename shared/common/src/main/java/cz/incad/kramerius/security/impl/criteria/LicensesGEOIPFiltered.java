@@ -68,8 +68,8 @@ public class LicensesGEOIPFiltered extends AbstractCriterium implements RightCri
                                 if (lic.exclusiveLockPresent()) {
                                     return CriteriaLicenseUtils.licenseLock(right, ctx, pid, lic);
                                 } else {
-                                    getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LABEL, getLicense().getName());
-                                    getEvaluateContext().getEvaluateInfoMap().put(ReadDNNTLabels.PROVIDED_BY_LICENSE, getLicense().getName());
+                                    getEvaluateContext().getEvaluateInfoMap().put(Licenses.PROVIDED_BY_LABEL, getLicense().getName());
+                                    getEvaluateContext().getEvaluateInfoMap().put(Licenses.PROVIDED_BY_LICENSE, getLicense().getName());
                                     return EvaluatingResultState.TRUE;
                                 }
                             }

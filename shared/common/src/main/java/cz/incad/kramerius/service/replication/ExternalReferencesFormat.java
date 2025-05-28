@@ -20,23 +20,17 @@
 package cz.incad.kramerius.service.replication;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.codec.binary.Base64;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,13 +39,10 @@ import org.xml.sax.SAXException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 /**
  * Explore given FOXML data and replace all <code>file:///</code> external referenced datastreams  into internal type datastream (type M)
@@ -179,7 +170,7 @@ public class ExternalReferencesFormat extends AbstractReplicationFormat {
     
     private void original(Document document, Element element) throws DOMException, MalformedURLException, URISyntaxException {
         Element original = document.createElementNS(
-                FedoraNamespaces.KRAMERIUS_URI, "replicatedFrom");
+                RepositoryNamespaces.KRAMERIUS_URI, "replicatedFrom");
         document.adoptNode(original);
         original.setTextContent(makeHANDLE(document).toURI().toString());
 
@@ -189,7 +180,7 @@ public class ExternalReferencesFormat extends AbstractReplicationFormat {
             public boolean acceptElement(Element el) {
                 String localName = el.getLocalName();
                 String namespace = el.getNamespaceURI();
-                if (namespace.equals(FedoraNamespaces.RDF_NAMESPACE_URI)) {
+                if (namespace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI)) {
                     return localName.equals("Description");
                 }
                 return false;

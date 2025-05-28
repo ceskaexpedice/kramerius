@@ -22,6 +22,7 @@ import java.util.Arrays;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.imaging.DeepZoomFlagService;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
@@ -48,7 +49,7 @@ public class GenerateDeepZoomFlag {
             void doAction(String[] args) throws IOException {
                 if (args.length >= 3) {
                     LOGGER.info("setting flag ...");
-                    Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
+                    Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new RepoModule(), new Fedora3Module(), new NullStatisticsModule());
                     DeepZoomFlagService service = injector.getInstance(DeepZoomFlagService.class);
                     service.setFlagToPID(args[1],args[2]);
                     LOGGER.info("Process finished");
@@ -61,7 +62,7 @@ public class GenerateDeepZoomFlag {
             void doAction(String[] args) throws IOException {
                 if (args.length >= 2) {
                     LOGGER.info("deleting flag ...");
-                    Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module());
+                    Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new RepoModule(), new Fedora3Module());
                     DeepZoomFlagService service = injector.getInstance(DeepZoomFlagService.class);
                     service.deleteFlagToPID(args[1]);
                     LOGGER.info("Process finished");

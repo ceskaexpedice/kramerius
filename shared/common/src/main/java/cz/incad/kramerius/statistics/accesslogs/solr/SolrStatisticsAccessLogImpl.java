@@ -3,7 +3,6 @@ package cz.incad.kramerius.statistics.accesslogs.solr;
 import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -22,20 +21,20 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
+import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 
@@ -44,7 +43,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -53,7 +51,6 @@ import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
@@ -63,7 +60,6 @@ import cz.incad.kramerius.statistics.accesslogs.LogRecord;
 import cz.incad.kramerius.statistics.accesslogs.LogRecordDetail;
 import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
@@ -88,8 +84,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     SolrAccess solrAccess;
 
     @Inject
-    @Named("cachedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    AkubraRepository akubraRepository;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -181,10 +176,10 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     JSONObject evaluateMap =   new JSONObject(evaluateInfoMap);
                     logRecord.setEvaluatedMap(evaluateMap.toString());
                     String providedByLicense = null;
-                    if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_LICENSE)) {
-                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_LICENSE);
-                    } else if (evaluateMap.has(ReadDNNTLabels.PROVIDED_BY_LABEL)) {
-                        providedByLicense = evaluateMap.getString(ReadDNNTLabels.PROVIDED_BY_LABEL);
+                    if (evaluateMap.has(Licenses.PROVIDED_BY_LICENSE)) {
+                        providedByLicense = evaluateMap.getString(Licenses.PROVIDED_BY_LICENSE);
+                    } else if (evaluateMap.has(Licenses.PROVIDED_BY_LABEL)) {
+                        providedByLicense = evaluateMap.getString(Licenses.PROVIDED_BY_LABEL);
                     }
                     if (providedByLicense != null) {
                         logRecord.setProvidedByLicense(providedByLicense);
@@ -233,15 +228,9 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
-                    String detailModel = fedoraAccess.getKrameriusModelName(detailPid);
+                    String detailModel = akubraRepository.re().getModel(detailPid);
                     LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
-
-                    Document dc = null;
-                    try {
-                        dc = fedoraAccess.getDC(detailPid);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.FINE, "datastream DC not found for {0}, ignoring statistics", detailPid);
-                    }
+                    Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);
                         if (dateFromDC != null) {
@@ -259,7 +248,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                             logRecord.addTitle(title.toString());
                             logDetail.setTitle(title.toString());
                         }
-                        Document mods = fedoraAccess.getBiblioMods(detailPid);
+                        Document mods = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS).asDom(false);
                         Map<String, List<String>> identifiers;
                         try {
                             identifiers = ModsUtils.identifiersFromMods(mods);

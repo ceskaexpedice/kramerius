@@ -6,28 +6,19 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
-import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.java.Pair;
-import cz.kramerius.adapters.RepositoryAccess;
-import cz.kramerius.adapters.ProcessingIndex;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
-import cz.kramerius.adapters.impl.krameriusNewApi.ProcessingIndexImplByKrameriusNewApis;
-import cz.kramerius.adapters.impl.krameriusNoApi.RepositoryAccessImplByKrameriusDirect;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -57,7 +48,7 @@ public class NewIndexerProcessIndexModel {
      * args[7] - index objects that indexed with current version of indexer
      * args[8]  - optional - if false, do not update Process name, just log (for running as standalone process)
      */
-    public static void main(String[] args) throws IOException, SolrServerException, RepositoryException {
+    public static void main(String[] args) throws IOException, SolrServerException {
         //args
        /* LOGGER.info("args: " + Arrays.asList(args));
         for (String arg : args) {
@@ -101,31 +92,12 @@ public class NewIndexerProcessIndexModel {
 
         SolrConfig solrConfig = new SolrConfig();
 
-        //access to repository through new public HTTP APIs
-        /*RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
-        FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl, krameriusCredentials);*/
-
         //access to repository through java directly (injected cz.incad.kramerius.FedoraAccess)
-        Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule(), new ResourceIndexModule());
+        Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
 
-        KrameriusRepositoryApi krameriusApiRepository = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class)); 
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+        Indexer indexer = new Indexer(akubraRepository, solrConfig, System.out, ignoreInconsistentObjects);
 
-//        cz.incad.kramerius.FedoraAccess rawRepositoryAccess = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
-//        FedoraAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepositoryAccess);
-
-        
-
-        //Injector injector = Guice.createInjector(new SearchIndexModule(), new NullStatisticsModule(), new SolrModule(), new RepoModule());
-        cz.incad.kramerius.FedoraAccess rawRepository = injector.getInstance(Key.get(cz.incad.kramerius.FedoraAccess.class, Names.named("rawFedoraAccess")));
-        RepositoryAccess repository = new RepositoryAccessImplByKrameriusDirect(rawRepository);
-
-        //access to processing index through new public APIs
-        ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(krameriusApiRepository, ProcessUtils.getCoreBaseUrl());
-
-        KrameriusRepositoryFascade krameriusRepositoryFascade = new KrameriusRepositoryFascade(repository, processingIndex);
-        Indexer indexer = new Indexer(krameriusRepositoryFascade, solrConfig, System.out, ignoreInconsistentObjects);
-
-        KrameriusRepositoryApiImpl krameriusRepositoryApi = injector.getInstance(Key.get(KrameriusRepositoryApiImpl.class));
         SolrAccess solrAccess = filters.indexAll() ? null : injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));
 
         int processed = 0;
@@ -137,14 +109,16 @@ public class NewIndexerProcessIndexModel {
         String cursor = "*";
         int limit = 100;
         while (cursor != null) {
-            RepositoryApi.TitlePidPairs titlePidPairsByModel = krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModelWithCursor(model, true, cursor, limit);
-            cursor = cursor.equals(titlePidPairsByModel.nextCursorMark) ? null : titlePidPairsByModel.nextCursorMark;
-            processed += titlePidPairsByModel.titlePidPairs.size();
-            List<Pair<String, String>> toBeIndexed = filters.indexAll() ? titlePidPairsByModel.titlePidPairs : filter(solrAccess, titlePidPairsByModel.titlePidPairs, filters);
-            nowIgnored += titlePidPairsByModel.titlePidPairs.size() - toBeIndexed.size();
-            for (Pair<String, String> titlePidPair : toBeIndexed) {
-                String title = titlePidPair.getFirst();
-                String pid = titlePidPair.getSecond();
+            CursorItemsPair titlePidPairsByModel = akubraRepository.pi().getByModelWithCursor(model, true, cursor, limit);
+            String nextCursorMark = titlePidPairsByModel.nextCursor();
+            List<ProcessingIndexItem> titleIdPairs = titlePidPairsByModel.items();
+            cursor = cursor.equals(titlePidPairsByModel.nextCursor()) ? null : nextCursorMark;
+            processed += titleIdPairs.size();
+            List<ProcessingIndexItem> toBeIndexed = filters.indexAll() ? titleIdPairs : filter(solrAccess, titleIdPairs, filters);
+            nowIgnored += titleIdPairs.size() - toBeIndexed.size();
+            for (ProcessingIndexItem titlePidPair : toBeIndexed) {
+                String title = titlePidPair.dcTitle();
+                String pid = titlePidPair.source();
                 //report(String.format("indexing %s: %s", pid, title));
                 try {
                     indexer.indexByObjectPid(pid, type, new ProgressListener() {
@@ -191,14 +165,14 @@ public class NewIndexerProcessIndexModel {
         
     }
 
-    private static List<Pair<String, String>> filter(SolrAccess solrAccess, List<Pair<String, String>> titlePidPairs, Filters filters) throws IOException {
-        List<Pair<String, String>> result = new ArrayList<>();
+    private static List<ProcessingIndexItem> filter(SolrAccess solrAccess, List<ProcessingIndexItem> titlePidPairs, Filters filters) throws IOException {
+        List<ProcessingIndexItem> result = new ArrayList<>();
         if (titlePidPairs.isEmpty()) {
             return result;
         }
         String q = "";
         for (int i = 0; i < titlePidPairs.size(); i++) {
-            String pid = titlePidPairs.get(i).getSecond();
+            String pid = titlePidPairs.get(i).source();
             q += "pid:" + pid.replace(":", "\\:");
             if (i != titlePidPairs.size() - 1) {
                 q += " OR ";
@@ -212,9 +186,9 @@ public class NewIndexerProcessIndexModel {
             JSONObject doc = docs.getJSONObject(i);
             docByPid.put(doc.getString("pid"), doc);
         }
-        for (Pair<String, String> titlePidPair : titlePidPairs) {
-            String title = titlePidPair.getFirst();
-            String pid = titlePidPair.getSecond();
+        for (ProcessingIndexItem titlePidPair : titlePidPairs) {
+            String title = titlePidPair.dcTitle();
+            String pid = titlePidPair.source();
             JSONObject jsonDoc = docByPid.get(pid);
             boolean inIndex = jsonDoc != null;
             int indexerVersion = jsonDoc == null ? -1 : (jsonDoc.has("indexer_version") ? jsonDoc.getInt("indexer_version") : 0);

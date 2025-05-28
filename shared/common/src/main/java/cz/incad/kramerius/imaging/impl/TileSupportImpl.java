@@ -11,13 +11,14 @@ import javax.xml.xpath.XPathExpressionException;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.DeepZoomFullImageScaleFactor;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 /**
  * Basic implementation of {@link DeepZoomTileSupport}
@@ -32,9 +33,7 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     private static final int TILE_SIZE = 512;
 
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-    
+    SecuredAkubraRepository akubraRepository;
 
     KConfiguration kConfiguration = KConfiguration.getInstance();
     
@@ -93,7 +92,7 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     public BufferedImage getRawImage(String pid) throws IOException {
     	LOGGER.info("reading raw image");
     	try {
-            BufferedImage rawImg = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+            BufferedImage rawImg = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
             return rawImg;
         } catch (XPathExpressionException e) {
             throw new IOException(e);
@@ -105,7 +104,7 @@ public class TileSupportImpl implements DeepZoomTileSupport {
     public BufferedImage getScaledRawImage(String pid, DeepZoomFullImageScaleFactor factor) throws IOException {
     	LOGGER.info("reading raw image");
     	try {
-            BufferedImage rawImg = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+            BufferedImage rawImg = KrameriusImageSupport.readImage(pid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
             if (factor != DeepZoomFullImageScaleFactor.ORIGINAL) {
                 double scale = factor.getValue();
                 int scaledWidth = (int) (rawImg.getWidth() * scale);

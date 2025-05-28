@@ -17,12 +17,17 @@
 package cz.incad.kramerius.audio.urlMapping;
 
 
-import cz.incad.kramerius.FedoraAccess;
+import com.google.inject.name.Named;
 import cz.incad.kramerius.Initializable;
 import cz.incad.kramerius.audio.AudioStreamId;
 import cz.incad.kramerius.audio.XpathEvaluator;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.fedoramodel.DatastreamType;
+import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -33,7 +38,6 @@ import org.ehcache.expiry.Expirations;
 import org.w3c.dom.Document;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -41,6 +45,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,8 +66,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     private final XPathExpression dsLocation;
 
     @Inject
-    @Named("securedFedoraAccess")
-    private FedoraAccess fedoraAccess;
+    private SecuredAkubraRepository akubraRepository;
 
     private final CacheManager cacheManager;
 
@@ -120,7 +124,7 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
     private URL getUrlFromFedora(AudioStreamId id) throws IOException {
         LOGGER.log(Level.FINE, "getting url for {0}", id);
         try {
-            String urlString = fedoraAccess.getExternalStreamURL(id.getPid(), id.getFormat().name());
+            String urlString = getExternalStreamURL(id.getPid(), id.getFormat().name());
             URL url = new URL(urlString);
             LOGGER.log(Level.FINE, "found url {0} for {1}", new Object[]{url, id});
             return url;
@@ -147,6 +151,39 @@ public class CachingFedoraUrlManager implements RepositoryUrlManager, Initializa
         LOGGER.log(Level.INFO, "destroying {0}", CachingFedoraUrlManager.class.getName());
         if (cache != null) {
             cacheManager.removeCache(CACHE_ALIAS);
+        }
+    }
+
+    private String getExternalStreamURL(String pid, String datastreamName) throws IOException {
+        DigitalObject object = akubraRepository.get(pid).asDigitalObject();
+        if (object != null) {
+            List<DatastreamType> datastream = object.getDatastream();
+            DatastreamType datastreamType = null;
+            for (DatastreamType ds : datastream) {
+                if(ds.getID().equals(datastreamName)) {
+                    datastreamType = ds;
+                    break;
+                }
+            }
+            DatastreamVersionType stream = datastreamType == null ? null : getLastStreamVersion(datastreamType);
+            if (stream != null) {
+                if (stream.getContentLocation() != null && "URL".equals(stream.getContentLocation().getTYPE())) {
+                    return stream.getContentLocation().getREF();
+                } else {
+                    throw new IOException("Expected external datastream: " + pid + " - " + datastreamName);
+                }
+            }
+            throw new IOException("Datastream not found: " + pid + " - " + datastreamName);
+        }
+        throw new IOException("Object not found: " + pid);
+    }
+
+    static DatastreamVersionType getLastStreamVersion(DatastreamType datastreamType) {
+        List<DatastreamVersionType> datastreamVersionList = datastreamType.getDatastreamVersion();
+        if (datastreamVersionList == null || datastreamVersionList.isEmpty()) {
+            return null;
+        } else {
+            return datastreamVersionList.get(datastreamVersionList.size() - 1);
         }
     }
 }

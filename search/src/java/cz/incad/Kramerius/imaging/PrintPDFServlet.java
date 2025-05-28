@@ -16,13 +16,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import com.lowagie.text.BadElementException;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
@@ -31,7 +33,6 @@ import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.imaging.ImageStreams;
@@ -39,7 +40,6 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
@@ -71,10 +71,10 @@ public class PrintPDFServlet extends GuiceServlet {
     public static enum ImageOP {
         CUT {
             @Override
-            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException{
+            protected void imageData(AkubraRepository akubraRepository,String pid, HttpServletRequest req, OutputStream os) throws IOException{
                 try {
-                    pid = fa.findFirstViewablePid(pid);
-                    BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
+                    pid = akubraRepository.re().getFirstViewablePidInTree(pid);
+                    BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), akubraRepository, 0);
                     BufferedImage subImage = ImageCutServlet.partOfImage(bufferedImage, req,  pid);
                     KrameriusImageSupport.writeImageToStream(subImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
                 } catch (XPathExpressionException | JSONException e) {
@@ -85,15 +85,15 @@ public class PrintPDFServlet extends GuiceServlet {
         
         FULL {
             @Override
-            protected void imageData(FedoraAccess fa,String pid, HttpServletRequest req, OutputStream os) throws IOException {
+            protected void imageData(AkubraRepository akubraRepository,String pid, HttpServletRequest req, OutputStream os) throws IOException {
                     try {
-                        pid = fa.findFirstViewablePid(pid);
-                        String mimeTypeForStream = fa.getMimeTypeForStream(pid, ImageStreams.IMG_FULL.getStreamName());
+                        pid = akubraRepository.re().getFirstViewablePidInTree(pid);
+                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                         ImageMimeType mimeType = ImageMimeType.loadFromMimeType(mimeTypeForStream);
                         if ((!mimeType.equals(ImageMimeType.DJVU)) && (!mimeType.equals(ImageMimeType.XDJVU))&& (!mimeType.equals(ImageMimeType.VNDDJVU)) && (!mimeType.equals(ImageMimeType.PDF))) {
-                            IOUtils.copyStreams(fa.getImageFULL(pid), os);
+                            IOUtils.copyStreams(akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream(), os);
                         } else {
-                            BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), fa, 0);
+                            BufferedImage bufferedImage = KrameriusImageSupport.readImage(pid, ImageStreams.IMG_FULL.getStreamName(), akubraRepository, 0);
                             KrameriusImageSupport.writeImageToStream(bufferedImage, ImageMimeType.PNG.getDefaultFileExtension(), os);
                         }
                     } catch (XPathExpressionException e) {
@@ -102,13 +102,12 @@ public class PrintPDFServlet extends GuiceServlet {
             }
         };
 
-        protected abstract void imageData(FedoraAccess fa, String pid,HttpServletRequest req,  OutputStream os) throws IOException ;
+        protected abstract void imageData(AkubraRepository akubraRepository, String pid, HttpServletRequest req, OutputStream os) throws IOException ;
 
     }
 
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    SecuredAkubraRepository akubraRepository;
 
     @Inject
     @Named("new-index")
@@ -146,7 +145,7 @@ public class PrintPDFServlet extends GuiceServlet {
                     File renderedFile = File.createTempFile("local", "print");
                     filesToDelete.add(renderedFile);
                     FileOutputStream fos = new FileOutputStream(renderedFile);
-                    ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pid, req, fos);
+                    ImageOP.valueOf(imgop).imageData(akubraRepository, pid, req, fos);
                     
                     Image image = Image.getInstance(renderedFile.toURI().toURL());
 
@@ -185,7 +184,7 @@ public class PrintPDFServlet extends GuiceServlet {
                         filesToDelete.add(nfile);
                         reportAccess(pds[i]);
                         FileOutputStream fos = new FileOutputStream(nfile);
-                        ImageOP.valueOf(imgop).imageData(this.fedoraAccess, pds[i], req, fos);
+                        ImageOP.valueOf(imgop).imageData(akubraRepository, pds[i], req, fos);
                         Image image = Image.getInstance(nfile.toURI().toURL());
                         image.scaleToFit(
                                 rect.getWidth()//document.getPageSize().getWidth() - document.leftMargin()    - document.rightMargin()

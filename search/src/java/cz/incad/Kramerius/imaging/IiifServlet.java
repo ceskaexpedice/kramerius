@@ -4,19 +4,18 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import cz.incad.Kramerius.AbstractImageServlet;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,8 +47,7 @@ public class IiifServlet extends AbstractImageServlet {
     private Provider<User> userProvider;
 
     @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
 
 
 //    @Inject
@@ -86,7 +84,7 @@ public class IiifServlet extends AbstractImageServlet {
             if (permited) {
                 try {
                     
-                    String u = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                    String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                     if (u != null) {
                         StringBuilder url = new StringBuilder(u);
                         while (tokenizer.hasMoreTokens()) {

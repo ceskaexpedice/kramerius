@@ -3,31 +3,30 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.imaging.ImageStreams;
-import cz.incad.kramerius.repository.RepositoryApi;
-import cz.incad.kramerius.repository.utils.Utils;
-import cz.incad.kramerius.resourceindex.IResourceIndex;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.security.EvaluatingResultState;
 import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.Dom4jUtils;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.ceskaexpedice.akubra.DistributedLocksException;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.LockOperation;
+import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.json.JSONArray;
@@ -45,9 +44,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,17 +70,13 @@ public class ItemsResource extends AdminApiResource {
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
-    
+
 
     @Inject
     RightsResolver rightsResolver;
-    
+
     @Inject
     Provider<HttpServletRequest> requestProvider;
-
-    @Inject
-    IResourceIndex resourceIndex;
-
 
     //TODO: Do it better; divide into two classes
     @Inject
@@ -168,19 +163,26 @@ public class ItemsResource extends AdminApiResource {
                     throw new BadRequestException("limit must be a number, '%s' is not", limit);
                 }
             }
-            RepositoryApi.TitlePidPairs titlePidPairsByModel = cursor != null ?
-                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModelWithCursor(model, ascendingOrder, cursor, limitInt) :
-                    krameriusRepositoryApi.getLowLevelApi().getPidsOfObjectsWithTitlesByModel(model, ascendingOrder, offsetInt, limitInt);
+            String nextCursorMark = null;
+            List<ProcessingIndexItem> titlePidPairs;
+            if (cursor != null) {
+                CursorItemsPair pair = akubraRepository.pi().getByModelWithCursor(model, ascendingOrder, cursor, limitInt);
+                nextCursorMark = pair.nextCursor();
+                titlePidPairs = pair.items();
+            }else{
+                akubraRepository.pi().getByModel(model, ascendingOrder, offsetInt, limitInt);
+                titlePidPairs = akubraRepository.pi().getByModel(model, ascendingOrder, offsetInt, limitInt);
+            }
             JSONObject json = new JSONObject();
             json.put("model", model);
-            if (titlePidPairsByModel.nextCursorMark != null) {
-                json.put("nextCursor", titlePidPairsByModel.nextCursorMark);
+            if (nextCursorMark != null) {
+                json.put("nextCursor", nextCursorMark);
             }
             JSONArray items = new JSONArray();
-            for (Pair<String, String> pidAndTitle : titlePidPairsByModel.titlePidPairs) {
+            for (ProcessingIndexItem pidAndTitle : titlePidPairs) {
                 JSONObject item = new JSONObject();
-                item.put("title", pidAndTitle.getFirst());
-                item.put("pid", pidAndTitle.getSecond());
+                item.put("title", pidAndTitle.dcTitle());
+                item.put("pid", pidAndTitle.source());
                 items.put(item);
             }
             json.put("items", items);
@@ -193,7 +195,7 @@ public class ItemsResource extends AdminApiResource {
         }
     }
 
-    
+
     @SuppressWarnings("deprecation")
     @GET
     @Path("/models")
@@ -206,16 +208,14 @@ public class ItemsResource extends AdminApiResource {
 //            if (!permitPocessingIndexAcceess(this.rightsResolver, user1)) {
 //                throw new ForbiddenException("user '%s' is not allowed to read processing index (missing action '%s')", user1.getLoginname(), SecuredActions.A_INDEX); //403
 //            }
-            
+
             if (!userIsAllowedToRead(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid())) {
                 // request doesnt contain user principal
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
-
-            
-            List<org.apache.commons.lang3.tuple.Pair<String,Long>> allFedoraModelsAsList = this.resourceIndex.getAllFedoraModelsAsList();
+            List<Pair<String, Long>> allFedoraModelsAsList = akubraRepository.pi().getModelsCount();
             JSONObject object = new JSONObject();
-            for (org.apache.commons.lang3.tuple.Pair<String, Long> pair : allFedoraModelsAsList) {
+            for (Pair<String, Long> pair : allFedoraModelsAsList) {
                 object.put(pair.getKey(), pair.getRight());
             }
             return Response.ok(object.toString()).build();
@@ -285,7 +285,6 @@ public class ItemsResource extends AdminApiResource {
     }
 
 
-
     @GET
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML)
@@ -300,8 +299,7 @@ public class ItemsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_ADMIN_READ.name()); //403
             }
             checkObjectExists(pid);
-            Document foxml = krameriusRepositoryApi.getLowLevelApi().getFoxml(pid);
-            return Response.ok().entity(foxml.asXML()).build();
+            return Response.ok(akubraRepository.get(pid).asInputStream()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -327,7 +325,7 @@ public class ItemsResource extends AdminApiResource {
 
             checkObjectExists(pid);
 
-            Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
+            Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
             List<Node> licenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:license").selectNodes(relsExt);
             JSONArray licenseArray = new JSONArray();
             for (Node relationEl : licenseEls) {
@@ -362,6 +360,7 @@ public class ItemsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response setChildrenOrder(@PathParam("pid") String pid, JSONObject newChildrenOrder) {
         try {
+            checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
             User user = this.userProvider.get();
@@ -380,37 +379,47 @@ public class ItemsResource extends AdminApiResource {
             }
             //extract childrens' pids an relations from rels-ext
             Map<String, String> foxmlChildrenPidToRelationName = new HashMap<>();
-            Document relsExt = krameriusRepositoryApi.getRelsExt(pid, true);
-            List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
-            for (Node childrenEl : childrenEls) {
-                String relationName = childrenEl.getName();
-                String childPid = ((Element) childrenEl).attributeValue("resource").substring("info:fedora/".length());
-                foxmlChildrenPidToRelationName.put(childPid, relationName);
-            }
-            //check that all pids from request are in rels-ext
-            for (String childPid : newChildrenOrderPids) {
-                if (!foxmlChildrenPidToRelationName.containsKey(childPid)) {
-                    throw new BadRequestException("child %s from reorder-data not found in RELS-EXT ", childPid);
+            akubraRepository.doWithWriteLock(pid, new LockOperation<Object>() {
+                @Override
+                public Object execute() {
+                    Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
+                    List<Node> childrenEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/*[starts-with(@rdf:resource, 'info:fedora/uuid:')]").selectNodes(relsExt);
+                    for (Node childrenEl : childrenEls) {
+                        String relationName = childrenEl.getName();
+                        String childPid = ((Element) childrenEl).attributeValue("resource").substring("info:fedora/".length());
+                        foxmlChildrenPidToRelationName.put(childPid, relationName);
+                    }
+                    //check that all pids from request are in rels-ext
+                    for (String childPid : newChildrenOrderPids) {
+                        if (!foxmlChildrenPidToRelationName.containsKey(childPid)) {
+                            throw new BadRequestException("child %s from reorder-data not found in RELS-EXT ", childPid);
+                        }
+                    }
+                    //check that all pids from rels-ext are in request
+                    for (String childPid : foxmlChildrenPidToRelationName.keySet()) {
+                        if (!newChildrenOrderPids.contains(childPid)) {
+                            throw new BadRequestException("child %s from RELS-EXT is missing in reorder-data", childPid);
+                        }
+                    }
+                    //update & save rels-ext
+                    for (Node node : childrenEls) {
+                        node.detach();
+                    }
+                    for (String childPid : newChildrenOrderPids) {
+                        foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
+                    }
+                    ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.re().update(pid, bis);
+                    return null;
                 }
-            }
-            //check that all pids from rels-ext are in request
-            for (String childPid : foxmlChildrenPidToRelationName.keySet()) {
-                if (!newChildrenOrderPids.contains(childPid)) {
-                    throw new BadRequestException("child %s from RELS-EXT is missing in reorder-data", childPid);
-                }
-            }
-            //update & save rels-ext
-            for (Node node : childrenEls) {
-                node.detach();
-            }
-            for (String childPid : newChildrenOrderPids) {
-                foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
-            }
-            krameriusRepositoryApi.updateRelsExt(pid, relsExt);
+            });
 
             scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -442,6 +451,7 @@ public class ItemsResource extends AdminApiResource {
     @Path("{pid}")
     public Response deleteObject(@PathParam("pid") String pid) {
         try {
+            checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
             User user = this.userProvider.get();
@@ -453,15 +463,18 @@ public class ItemsResource extends AdminApiResource {
             }
 
             checkObjectExists(pid);
-            String model = krameriusRepositoryApi.getModel(pid);
+            String model = akubraRepository.pi().getModel(pid);
             //other objects can reference images belonging to other objects (pages),
             //some of the reference are managed, so deleting for example collection should not include deleting file with thumbnail
             boolean deleteManagedDatastreamsData = "page".equals(model);
-            krameriusRepositoryApi.getLowLevelApi().deleteObject(pid, deleteManagedDatastreamsData);
+            akubraRepository.delete(pid, deleteManagedDatastreamsData, true);
             //remove object from Search index (directly, without scheduling process)
             deleteFromSearchIndex(pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -517,7 +530,7 @@ public class ItemsResource extends AdminApiResource {
             checkObjectAndDatastreamExist(pid, dsid);
             switch (dsid) {
                 case "IMG_FULL": {
-                    String mime = krameriusRepositoryApi.getImgFullMimetype(pid);
+                    String mime = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
                     if (mime == null) {
                         return Response.status(Response.Status.NOT_FOUND).build();
                     } else {
@@ -528,7 +541,7 @@ public class ItemsResource extends AdminApiResource {
                     }
                 }
                 case "IMG_THUMB": {
-                    String mime = krameriusRepositoryApi.getImgThumbMimetype(pid);
+                    String mime = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
                     if (mime == null) {
                         return Response.status(Response.Status.NOT_FOUND).build();
                     } else {
@@ -539,7 +552,7 @@ public class ItemsResource extends AdminApiResource {
                     }
                 }
                 case "IMG_PREVIEW": {
-                    String mime = krameriusRepositoryApi.getImgPreviewMimetype(pid);
+                    String mime = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
                     if (mime == null) {
                         return Response.status(Response.Status.NOT_FOUND).build();
                     } else {
@@ -595,56 +608,91 @@ public class ItemsResource extends AdminApiResource {
             checkObjectAndDatastreamExist(pid, dsId);
             switch (dsId) {
                 case "BIBLIO_MODS":
-                    return Response.ok()
-                            .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(krameriusRepositoryApi.getMods(pid, true).asXML())
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_MODS)) {
+                        Document document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(true);
+                        return Response.ok()
+                                .type(MediaType.APPLICATION_XML + ";charset=utf-8")
+                                .entity(document.asXML())
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 case "DC":
-                    return Response.ok()
-                            .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(krameriusRepositoryApi.getDublinCore(pid, true).asXML())
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC)) {
+                        Document document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom4j(true);
+                        return Response.ok()
+                                .type(MediaType.APPLICATION_XML + ";charset=utf-8")
+                                .entity(document.asXML())
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+
                 case "RELS-EXT":
+                    Document relsext = akubraRepository.re().get(pid).asDom4j(true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(krameriusRepositoryApi.getRelsExt(pid, true).asXML())
+                            .entity(relsext.asXML())
                             .build();
                 case "TEXT_OCR":
-                    return Response.ok()
-                            .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
-                            .entity(krameriusRepositoryApi.getOcrText(pid))
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_TEXT)) {
+                        String ocr = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
+                        return Response.ok()
+                                .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
+                                .entity(ocr)
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+
                 case "ALTO":
-                    return Response.ok()
-                            .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(krameriusRepositoryApi.getOcrAlto(pid, true).asXML())
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO)) {
+                        Document altoDocument = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom4j(true);
+                        return Response.ok()
+                                .type(MediaType.APPLICATION_XML + ";charset=utf-8")
+                                .entity(altoDocument.asXML())
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 case "IMG_FULL": {
-                    String mimeType = krameriusRepositoryApi.getImgFullMimetype(pid);
-                    InputStream is = krameriusRepositoryApi.getImgFull(pid);
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(is, output);
-                        IOUtils.closeQuietly(is);
-                    };
-                    return Response.ok().entity(stream).type(mimeType).build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
+                        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(is, output);
+                            IOUtils.closeQuietly(is);
+                        };
+                        return Response.ok().entity(stream).type(mimeType).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
                 case "IMG_THUMB": {
-                    String mimeType = krameriusRepositoryApi.getImgThumbMimetype(pid);
-                    InputStream is = krameriusRepositoryApi.getImgThumb(pid);
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(is, output);
-                        IOUtils.closeQuietly(is);
-                    };
-                    return Response.ok().entity(stream).type(mimeType).build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
+                        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(is, output);
+                            IOUtils.closeQuietly(is);
+                        };
+                        return Response.ok().entity(stream).type(mimeType).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
                 case "IMG_PREVIEW": {
-                    String mimeType = krameriusRepositoryApi.getImgPreviewMimetype(pid);
-                    InputStream is = krameriusRepositoryApi.getImgPreview(pid);
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(is, output);
-                        IOUtils.closeQuietly(is);
-                    };
-                    return Response.ok().entity(stream).type(mimeType).build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
+                        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(is, output);
+                            IOUtils.closeQuietly(is);
+                        };
+                        return Response.ok().entity(stream).type(mimeType).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
                 //TODO: MP3, OGG, WAV
                 //TODO: POLICY
@@ -659,21 +707,18 @@ public class ItemsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
 
-    
-    
-    
-    
+
+    // TODO AK_NEW nahradit novym REST API - zeptat se Lukase
     @PUT
     @Path("{pid}/akubra/updateManaged/{dsid}")
-    @Consumes({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+    @Consumes({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     public Response streamHead(@PathParam("pid") String pid,
-                              @PathParam("dsid") String dsid,
-                              @QueryParam("namespace") String xmlnamespace,
-                              InputStream inputStream,
-                              @Context HttpHeaders headers) throws IOException {
-        
+                               @PathParam("dsid") String dsid,
+                               @QueryParam("namespace") String xmlnamespace,
+                               InputStream inputStream,
+                               @Context HttpHeaders headers) throws IOException {
+
         //authentication
         User user = this.userProvider.get();
 
@@ -683,69 +728,55 @@ public class ItemsResource extends AdminApiResource {
         }
 
         try {
+            checkReadOnlyWorkMode();
             List<String> requestHeader = headers.getRequestHeader("Content-Type");
             if (requestHeader.size() > 0) {
                 String mimeType = requestHeader.get(0);
                 if (mimeType.equals(MediaType.APPLICATION_XML)) {
-                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
-                    
-                    Document dom4j = Utils.inputstreamToDocument(inputStream, true);
-                    lowLevelApi.updateInlineXmlDatastream(pid, dsid, dom4j, xmlnamespace);
-                    
+                    Document dom4j = Dom4jUtils.streamToDocument(inputStream, true);
+                    ByteArrayInputStream bis = new ByteArrayInputStream(dom4j.asXML().getBytes(Charset.forName("UTF-8")));
+                    akubraRepository.updateXMLDatastream(pid, dsid, "text/xml", bis);
                     return Response.status(Response.Status.OK).build();
-                    
+
                 } else if (mimeType.equals(MediaType.APPLICATION_OCTET_STREAM)) {
-                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
-
                     byte[] stream = IOUtils.toByteArray(inputStream);
-                    lowLevelApi.updateBinaryDatastream(pid, dsid, mimeType, stream);
-                    
+                    ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                    akubraRepository.updateManagedDatastream(pid, dsid, mimeType, bis);
                     return Response.status(Response.Status.OK).build();
-                    
                 } else if (mimeType.equals(MediaType.APPLICATION_JSON)) {
-                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
-
                     byte[] stream = IOUtils.toByteArray(inputStream);
-                    lowLevelApi.updateBinaryDatastream(pid, dsid, mimeType, stream);
-
+                    ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                    akubraRepository.updateManagedDatastream(pid, dsid, mimeType, bis);
                     return Response.status(Response.Status.OK).build();
                 } else {
-                    RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
-
                     byte[] stream = IOUtils.toByteArray(inputStream);
-                    lowLevelApi.updateBinaryDatastream(pid, dsid, mimeType, stream);
-
+                    ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                    akubraRepository.updateManagedDatastream(pid, dsid, mimeType, bis);
                     return Response.status(Response.Status.OK).build();
                 }
             } else {
-                RepositoryApi lowLevelApi = this.krameriusRepositoryApi.getLowLevelApi();
-
                 byte[] stream = IOUtils.toByteArray(inputStream);
-                lowLevelApi.updateBinaryDatastream(pid, dsid, MediaType.APPLICATION_OCTET_STREAM.toString(), stream);
-
+                ByteArrayInputStream bis = new ByteArrayInputStream(stream);
+                akubraRepository.updateManagedDatastream(pid, dsid, MediaType.APPLICATION_OCTET_STREAM.toString(), bis);
                 return Response.status(Response.Status.OK).build();
-                
             }
-        } catch (JSONException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            throw new BadRequestException(e.getMessage()); 
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            throw new BadRequestException(e.getMessage()); 
-        } catch (RepositoryException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-            throw new BadRequestException(e.getMessage()); 
+        } catch (DistributedLocksException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
+            throw e;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new BadRequestException(e.getMessage());
         }
     }
-    
-    
-    
-    
-    // TODO: Delete
+
+
+    // TODO AK_NEW: Delete a zjistit, zda to nekdo pouziva
     @PUT
     @Path("{pid}/streams/IMG_THUMB")
     public Response setImgThumb(@PathParam("pid") String targetPid, @QueryParam("srcPid") String sourcePid) {
         try {
+            checkReadOnlyWorkMode();
             //authentication
             User user = this.userProvider.get();
             //authorization
@@ -757,7 +788,7 @@ public class ItemsResource extends AdminApiResource {
             //check target object
             checkSupportedObjectPid(targetPid);
             checkObjectExists(targetPid);
-            String targetModel = krameriusRepositoryApi.getModel(targetPid);
+            String targetModel = akubraRepository.pi().getModel(targetPid);
             if ("page".equals(targetModel)) {
                 throw new BadRequestException("target's model cannot be page (target is %s)", targetPid);
             }
@@ -767,7 +798,7 @@ public class ItemsResource extends AdminApiResource {
             }
             checkSupportedObjectPid(sourcePid);
             checkObjectExists(sourcePid);
-            String sourceModel = krameriusRepositoryApi.getModel(sourcePid);
+            String sourceModel = akubraRepository.pi().getModel(sourcePid);
             if (!"page".equals(sourceModel)) {
                 throw new BadRequestException("source's model must be page (source is %s with model:%s)", targetPid, sourceModel);
             }
@@ -775,10 +806,39 @@ public class ItemsResource extends AdminApiResource {
             //exterenal with CONTROL_GROUP="E" and contentLocation TYPE="URL"
             // or
             // internal with CONTROL_GROUP="M" and contentLocation TYPE="INTERNAL_ID"
-            Document srcThumbDs = krameriusRepositoryApi.getLowLevelApi().getDatastreamXml(sourcePid, "IMG_THUMB");
-            krameriusRepositoryApi.getLowLevelApi().setDatastreamXml(targetPid, "IMG_THUMB", srcThumbDs);
+            Document srcThumbDs = akubraRepository.doWithReadLock(sourcePid, () -> {
+                DigitalObject object = akubraRepository.get(sourcePid).asDigitalObject();
+                if (object.getDatastream().stream().anyMatch(dataStreamType -> dataStreamType.getID().equals(KnownDatastreams.IMG_THUMB.toString()))) {
+                    Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshall(object), true);
+                    Element dcEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
+                    Element detached = (Element) dcEl.detach();
+                    Document result = DocumentHelper.createDocument();
+                    result.add(detached);
+                    return result;
+                } else {
+                    return null;
+                }
+            });
+            akubraRepository.doWithWriteLock(targetPid, () -> {
+                Document foxml = akubraRepository.get(targetPid).asDom4j(true);
+                Element originalDsEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
+                if (originalDsEl != null) {
+                    originalDsEl.detach();
+                }
+                foxml.getRootElement().add(srcThumbDs.getRootElement().detach());
+                Dom4jUtils.updateLastModifiedTimestamp(foxml);
+                DigitalObject updatedDigitalObject = akubraRepository.unmarshall(new ByteArrayInputStream(foxml.asXML().getBytes(StandardCharsets.UTF_8)));
+                akubraRepository.delete(targetPid, false, false);
+                akubraRepository.ingest(updatedDigitalObject);
+                akubraRepository.pi().commit();;
+                return null;
+            });
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -791,6 +851,7 @@ public class ItemsResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_XML)
     public Response setMODS(@PathParam("pid") String pid, InputStream xml) {
         try {
+            checkReadOnlyWorkMode();
             //authentication
             User user = this.userProvider.get();
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
@@ -803,10 +864,15 @@ public class ItemsResource extends AdminApiResource {
             //check target object
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
-            Document mods = Utils.inputstreamToDocument(xml, true);
-            krameriusRepositoryApi.updateMods(pid, mods);
+            Document mods = Dom4jUtils.streamToDocument(xml, true);
+            ByteArrayInputStream bis = new ByteArrayInputStream(mods.asXML().getBytes(Charset.forName("UTF-8")));
+            akubraRepository.updateXMLDatastream(pid, KnownDatastreams.BIBLIO_MODS.name(), "text/xml", bis);
             return Response.ok().build();
         } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -828,14 +894,14 @@ public class ItemsResource extends AdminApiResource {
             if (!adminReadResult) {
                 objectEditResult = rightsResolver.isActionAllowed(user, SecuredActions.A_OBJECT_EDIT.getFormalName(), pid, null, path.injectRepository()).flag();
             }
-            
+
             if (adminReadResult || objectEditResult) {
                 return true;
             }
         }
         return false;
     }
-    
+
     private boolean userIsAllowedToRead(RightsResolver rightsResolver, User user, String pid) throws IOException {
         checkSupportedObjectPid(pid);
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);

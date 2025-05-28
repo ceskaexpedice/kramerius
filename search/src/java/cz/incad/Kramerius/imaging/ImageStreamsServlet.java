@@ -31,12 +31,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.w3c.dom.Document;
 
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.Kramerius.imaging.utils.FileNameUtils;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraIOException;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -111,12 +112,12 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         if (pid != null && stream != null) {
             // TODO: Change it !!
             pid = cutHREF(pid);
-            if (!fedoraAccess.isStreamAvailable(pid, stream)) {
-                pid = fedoraAccess.findFirstViewablePid(pid);
+            if (!akubraRepository.datastreamExists(pid, stream)) {
+                pid = akubraRepository.re().getFirstViewablePidInTree(pid);
             }
             if (pid != null) {
-                boolean accessible = fedoraAccess.isContentAccessible(pid);
-                String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
+                boolean accessible = akubraRepository.isContentAccessible(pid);
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, stream).getMimetype();
                 resp.setContentType(mimeType);
                 if (accessible) {
                     resp.setStatus(HttpServletResponse.SC_OK);
@@ -148,8 +149,8 @@ public class ImageStreamsServlet extends AbstractImageServlet {
         if (pid != null && stream != null) {
             // TODO: Change it !!
             pid = cutHREF(pid);
-            if (!fedoraAccess.isStreamAvailable(pid, stream)) {
-                pid = fedoraAccess.findFirstViewablePid(pid);
+            if (!akubraRepository.datastreamExists(pid, stream)) {
+                pid = akubraRepository.re().getFirstViewablePidInTree(pid);
             }
             if (pid != null) {
                 Actions actionToDo = Actions.TRANSCODE;
@@ -158,12 +159,12 @@ public class ImageStreamsServlet extends AbstractImageServlet {
                     actionToDo = Actions.valueOf(actionNameParam);
                 }
                 try {
-                    actionToDo.doPerform(this, this.fedoraAccess, pid, stream, page, req, resp);
-                } catch (FedoraIOException e1) {
+                    actionToDo.doPerform(this, this.akubraRepository, pid, stream, page, req, resp);
+                } catch (RepositoryException e1) {
                     // fedora exception
                     LOGGER.log(Level.WARNING, "Missing " + stream + " datastream for " + pid);
-                    resp.setStatus(e1.getContentResponseCode());
-                    resp.getWriter().write(e1.getContentResponseBody());
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    resp.getWriter().write(e1.getMessage());
                 } catch (FileNotFoundException e1) {
                     LOGGER.log(Level.WARNING, e1.getMessage());
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -221,7 +222,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
          */
         TRANSCODE {
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
+            void doPerform(ImageStreamsServlet imageStreamsServlet, AkubraRepository akubraRepository, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
                     throws IOException, SecurityException, XPathExpressionException {
                 OutputFormats outputFormat = OutputFormats.JPEG;
                 String outputFormatParam = req.getParameter(OUTPUT_FORMAT_PARAMETER);
@@ -242,7 +243,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
          */
         SCALE {
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
+            void doPerform(ImageStreamsServlet imageStreamsServlet, AkubraRepository akubraRepository, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
                     throws IOException, SecurityException, XPathExpressionException {
                 BufferedImage image = imageStreamsServlet.rawImage(pid, stream, req, page);
                 if (image != null) {
@@ -263,17 +264,17 @@ public class ImageStreamsServlet extends AbstractImageServlet {
          */
         GETRAW {
             @Override
-            void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
+            void doPerform(ImageStreamsServlet imageStreamsServlet, AkubraRepository akubraRepository, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse resp)
                     throws IOException, SecurityException, XPathExpressionException {
                 InputStream is = null;
                 if (stream.equals(FedoraUtils.IMG_THUMB_STREAM)) {
                     // small thumb -> no rights
-                    is = fedoraAccess.getSmallThumbnail(pid);
+                    is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
                 } else {
-                    is = fedoraAccess.getDataStream(pid, stream);
+                    is = akubraRepository.getDatastreamContent(pid, stream).asInputStream();
                 }
 
-                String mimeType = fedoraAccess.getMimeTypeForStream(pid, stream);
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, stream).getMimetype();
                 ImageMimeType loadedMimeType = ImageMimeType.loadFromMimeType(mimeType);
 
                 resp.setContentType(mimeType);
@@ -282,7 +283,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
 
                 String asFileParam = req.getParameter("asFile");
                 if ((asFileParam != null) && (asFileParam.equals("true"))) {
-                    Document relsExt = fedoraAccess.getRelsExt(pid);
+                    Document relsExt = akubraRepository.re().get(pid).asDom(false);
                     String fileNameFromRelsExt = FileNameUtils.disectFileNameFromRelsExt(relsExt);
                     if (fileNameFromRelsExt == null) {
                         LOGGER.severe("no <file.. element in RELS-EXT");
@@ -306,7 +307,7 @@ public class ImageStreamsServlet extends AbstractImageServlet {
             }
         };
 
-        abstract void doPerform(ImageStreamsServlet imageStreamsServlet, FedoraAccess fedoraAccess, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse response)
+        abstract void doPerform(ImageStreamsServlet imageStreamsServlet, AkubraRepository akubraRepository, String pid, String stream, int page, HttpServletRequest req, HttpServletResponse response)
                 throws IOException, SecurityException, XPathExpressionException;
     }
 

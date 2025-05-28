@@ -4,9 +4,6 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-
-import cz.incad.kramerius.ProcessSubtreeException;
 
 
 /**
@@ -46,9 +43,8 @@ public interface DeepZoomCacheService {
      * 
      * @param pid Master pid
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException Cannot traverse object's tree 
      */
-    public void prepareCacheForPID(String pid) throws IOException, ProcessSubtreeException;
+    public void prepareCacheForPID(String pid) throws IOException;
 
     
     
@@ -58,9 +54,8 @@ public interface DeepZoomCacheService {
      * @param pid Master pid 
      * @param pid how many levels should be prepared
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException Cannot traverse object's tree 
      */
-    public void prepareCacheForPID(String pid, int levelOverTileSize) throws IOException, ProcessSubtreeException;
+    public void prepareCacheForPID(String pid, int levelOverTileSize) throws IOException;
     
     /**
      * Returns true if deep zoom descriptor is present in cache

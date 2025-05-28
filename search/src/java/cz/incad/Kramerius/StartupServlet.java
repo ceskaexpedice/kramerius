@@ -31,7 +31,6 @@ import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.database.VersionDbInitializer;
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.database.MostDesirableDbInitializer;
 import cz.incad.kramerius.processes.database.ProcessDbInitializer;
@@ -43,6 +42,7 @@ import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.inovatika.cdk.cache.CDKCacheInitializer;
+import cz.incad.kramerius.workmode.WorkModeDbInitializer;
 import cz.inovatika.folders.db.FolderDatabaseInitializer;
 
 /**
@@ -96,6 +96,9 @@ public class StartupServlet extends GuiceServlet {
             // -- Process database initialization --
             // read previous db version
             VersionDbInitializer.initDatabase(k7dbConnection);
+
+            // work mode table
+            WorkModeDbInitializer.initDatabase(k7dbConnection);
 
             // mostdesirable table
             MostDesirableDbInitializer.initDatabase(k7dbConnection, versionService);
@@ -151,7 +154,6 @@ public class StartupServlet extends GuiceServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        HazelcastServerNode.ensureHazelcastNode();
         super.init(config);
     }
 

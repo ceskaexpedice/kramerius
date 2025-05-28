@@ -16,10 +16,8 @@ import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceBadRequestException;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.SecurityException;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
@@ -27,6 +25,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -62,9 +61,7 @@ public class AbstractPDFResource {
     FirstPagePDFService imageFirstPage;
 
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
+    SecuredAkubraRepository akubraRepository;
 
     KConfiguration configuration = KConfiguration.getInstance();
 
@@ -110,7 +107,7 @@ public class AbstractPDFResource {
     @Inject
     AggregatedAccessLogs statisticsAccessLog;
 
-    public File selection(String[] pids, Rectangle rect, FirstPageType fp) throws DocumentException, IOException, ProcessSubtreeException, OutOfRangeException {
+    public File selection(String[] pids, Rectangle rect, FirstPageType fp) throws DocumentException, IOException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
@@ -149,7 +146,7 @@ public class AbstractPDFResource {
         }
     }
 
-    public File parent(String pid, int numberOfPags, Rectangle rect, FirstPageType firstPageType) throws DocumentException, IOException, NumberFormatException, ProcessSubtreeException {
+    public File parent(String pid, int numberOfPags, Rectangle rect, FirstPageType firstPageType) throws DocumentException, IOException, NumberFormatException {
         LOGGER.info("parent(" + pid + ", ...)"); //TODO: remove for production
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
         //Map<String, AbstractObjectPath[]> pathsMap = solrAccess.getModelAndPidPaths(pid);

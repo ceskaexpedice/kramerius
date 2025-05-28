@@ -3,7 +3,6 @@ package cz.incad.kramerius.solr;
 import com.google.inject.*;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;import antlr.StringUtils;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;

@@ -1,7 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.utils.Dom4jUtils;
+import org.ceskaexpedice.akubra.relsext.KnownRelations;
+import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.*;
 
 import java.util.logging.Logger;
@@ -40,7 +40,7 @@ public class FoxmlBuilder {
     /**
      * @return true if new relation has been added, false if it was already present
      */
-    public boolean appendRelationToRelsExt(String ownerPid, Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String newItemPid) {
+    public boolean appendRelationToRelsExt(String ownerPid, Document relsExt, KnownRelations relation, String newItemPid) {
         Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
         Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), newItemPid)).selectSingleNode(description);
         if (relationEl == null) {
@@ -72,7 +72,7 @@ public class FoxmlBuilder {
     /**
      * @return true if relation has been removed, false if it was not there
      */
-    public boolean removeRelationFromRelsExt(String ownerPid, Document relsExt, KrameriusRepositoryApi.KnownRelations relation, String itemPid) {
+    public boolean removeRelationFromRelsExt(String ownerPid, Document relsExt, KnownRelations relation, String itemPid) {
         String relationXpath = String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), itemPid);
         Element relationEl = (Element) Dom4jUtils.buildXpath(relationXpath).selectSingleNode(relsExt.getRootElement());
         if (relationEl != null) {

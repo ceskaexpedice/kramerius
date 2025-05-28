@@ -1,30 +1,24 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.utils;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.tuple.Triple;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.impl.criteria.Licenses;
-import cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered;
-import cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.utils.LicensesCriteriaList;
+import org.apache.commons.lang3.tuple.Triple;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for disecting <code>providedBy</code> information
@@ -42,7 +36,7 @@ public class RightRuntimeInformations {
      * extract information about licenses provided for current user and current pid;
      */
     //TODO: update javadoc
-    public static RuntimeInformation extractInformations(RightsResolver rightsResolver, SolrAccess solrAccess, String pid) throws IOException, RepositoryException {
+    public static RuntimeInformation extractInformations(RightsResolver rightsResolver, SolrAccess solrAccess, String pid) throws IOException {
         
         List<String> licenseList = new ArrayList<>();
         List<Triple<String, String, Right>> locks = new ArrayList<>();
@@ -69,8 +63,8 @@ public class RightRuntimeInformations {
                             LicensesCriteria(qName)
                     ) {
                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
-                        if (evaluateInfoMap.containsKey(ReadDNNTLabels.PROVIDED_BY_LABEL)) {
-                            licenseList.add(evaluateInfoMap.get(ReadDNNTLabels.PROVIDED_BY_LABEL));
+                        if (evaluateInfoMap.containsKey(Licenses.PROVIDED_BY_LABEL)) {
+                            licenseList.add(evaluateInfoMap.get(Licenses.PROVIDED_BY_LABEL));
                         }
                         
                         if (evaluateInfoMap.containsKey(ExclusiveLockMap.LOCK_HASH)) {

@@ -2,21 +2,18 @@ package cz.incad.migration;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
-import org.akubraproject.map.IdMapper;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.io.FileUtils;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.fcrepo.common.Constants;
 import org.fcrepo.common.FaultException;
 import org.fcrepo.common.PID;
 import org.fcrepo.server.errors.MalformedPidException;
-import org.fcrepo.server.storage.lowlevel.akubra.HashPathIdMapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.ls.LSOutput;
 
@@ -53,7 +50,7 @@ public enum LegacyMigrationParts {
         public void doMigrationPart(Connection db, String[] args) throws SQLException {
             String datastreamPaths = KConfiguration.getInstance().getProperty("datastreamStore.path");
             String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
-            dbSelect(db, "datastreampaths", new File(datastreamPaths), datastreamPattern, "select * from datastreampaths where tokendbid >= " + args[1] + " and tokendbid < " +args[2]+ " order by tokendbid", args, (f) -> {
+            dbSelect(db, "datastreampaths", new File(datastreamPaths), datastreamPattern, "select * from datastreampaths where tokendbid >= " + args[1] + " and tokendbid < " + args[2] + " order by tokendbid", args, (f) -> {
             });
         }
     },
@@ -64,19 +61,19 @@ public enum LegacyMigrationParts {
     OBJECTS {
         @Override
         public void doMigrationPart(Connection db, String[] args) throws SQLException {
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule());
-            final ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule());
+            final AkubraRepository akubraRepository = injector.getInstance(AkubraRepository.class);
 
             String objectPaths = KConfiguration.getInstance().getProperty("objectStore.path");
             String objectPattern = KConfiguration.getInstance().getProperty("objectStore.pattern");
             Consumer<File> consumer = null;
             if (args.length >= 6) { // kdyz mame vice jak 6 parametru, prevadime po kouskach z LEGACY do Akubry.
-            	                    // pri prevodu po kouskach nemuzeme poustet create processing index.
-            	args[5] = "false";
+                // pri prevodu po kouskach nemuzeme poustet create processing index.
+                args[5] = "false";
             }
             if ("true".equalsIgnoreCase(args[5])) {
                 try {
-                    feeder.deleteProcessingIndex();
+                    akubraRepository.pi().deleteProcessingIndex();
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "Error in deleteProcessingIndex: ", e);
                 }
@@ -84,7 +81,7 @@ public enum LegacyMigrationParts {
                     try {
                         FileInputStream inputStream = new FileInputStream(f);
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(feeder, digitalObject,false);
+                        rebuildProcessingIndex(akubraRepository, digitalObject, false);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                     }
@@ -93,7 +90,7 @@ public enum LegacyMigrationParts {
                 consumer = f -> {
                 };
             }
-            dbSelect(db, "objectpaths", new File(objectPaths), objectPattern, "select * from objectpaths where tokendbid >= " + args[3] + " and tokendbid < "+args[4]+" order by tokendbid", args, consumer);
+            dbSelect(db, "objectpaths", new File(objectPaths), objectPattern, "select * from objectpaths where tokendbid >= " + args[3] + " and tokendbid < " + args[4] + " order by tokendbid", args, consumer);
         }
 
 
@@ -106,7 +103,7 @@ public enum LegacyMigrationParts {
     }
 
     private static void dbSelect(Connection db, String tablename, File targetDir, String directoryPattern, String sqlCommand, String[] args, Consumer<File> consumer) throws SQLException {
-        IdMapper idMapper = new HashPathIdMapper(directoryPattern);
+        HashPathIdMapper idMapper = new HashPathIdMapper(directoryPattern);
         final long start = System.currentTimeMillis();
         final AtomicInteger currentIteration = new AtomicInteger(0);
         List<Pair<String, String>> ids = new JDBCQueryTemplate<Pair<String, String>>(db, false) {
@@ -134,31 +131,31 @@ public enum LegacyMigrationParts {
                     long start = System.currentTimeMillis();
                     File targetFile = new File(directory, targetFileName);
                     if (args.length == 7) {
-                    	if ("-m".equalsIgnoreCase(args[6])) {
-                    		boolean renamed = objectFile.renameTo(targetFile);
-                    		//long stop2 = System.currentTimeMillis();
-                    		//LOGGER.info("\t--> objectFile.renameTo(targetFile):" + (stop2 - start) + " ms ");
-                    		if (!renamed) {
-                    			throw new RuntimeException("Cannot rename file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
-                    		}
-                    	}
+                        if ("-m".equalsIgnoreCase(args[6])) {
+                            boolean renamed = objectFile.renameTo(targetFile);
+                            //long stop2 = System.currentTimeMillis();
+                            //LOGGER.info("\t--> objectFile.renameTo(targetFile):" + (stop2 - start) + " ms ");
+                            if (!renamed) {
+                                throw new RuntimeException("Cannot rename file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
+                            }
+                        }
 
-                    	if ("-c".equalsIgnoreCase(args[6])) {
-                    		try {
-                    			FileUtils.copyFile(objectFile, targetFile, true); // preserve file date = true
-                    			File targetFileForControl = new File(directory, targetFileName);
-                    			boolean contentEquals = FileUtils.contentEquals(objectFile, targetFileForControl);
-                    			//long stop2 = System.currentTimeMillis();
-                    			//LOGGER.info("\t--> FileUtils.copyFile("+objectFile+", "+targetFile+"):" + (stop2 - start) + " ms ");
-                    			if (!contentEquals) {
-                    				throw new RuntimeException("Bad copy file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
-                    			}
-                    		} catch (IOException ioe) {
-                    			LOGGER.info("IOException " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath() + " - "+ioe);                    			
-                    		}
-                    	}
-                    	
-                    	consumer.accept(new File(directory, Utils.encode("info:fedora/" + token)));
+                        if ("-c".equalsIgnoreCase(args[6])) {
+                            try {
+                                FileUtils.copyFile(objectFile, targetFile, true); // preserve file date = true
+                                File targetFileForControl = new File(directory, targetFileName);
+                                boolean contentEquals = FileUtils.contentEquals(objectFile, targetFileForControl);
+                                //long stop2 = System.currentTimeMillis();
+                                //LOGGER.info("\t--> FileUtils.copyFile("+objectFile+", "+targetFile+"):" + (stop2 - start) + " ms ");
+                                if (!contentEquals) {
+                                    throw new RuntimeException("Bad copy file " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
+                                }
+                            } catch (IOException ioe) {
+                                LOGGER.info("IOException " + objectFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath() + " - " + ioe);
+                            }
+                        }
+
+                        consumer.accept(new File(directory, Utils.encode("info:fedora/" + token)));
                     }
                     return true;
                 } else {

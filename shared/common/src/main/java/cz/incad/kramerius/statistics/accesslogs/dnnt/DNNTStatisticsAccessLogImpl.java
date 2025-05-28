@@ -24,6 +24,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -33,6 +35,7 @@ import org.w3c.dom.Text;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -71,8 +74,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     SolrAccess solrAccess;
 
     @Inject
-    @Named("cachedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    AkubraRepository akubraRepository;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -97,12 +99,12 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         List<String> licenses = SolrUtils.disectLicenses(solrDoc.getDocumentElement());
 
         List<String> sAuthors = solrAuthors(rootPid, solrAccess);
-        List<String> dcPublishers = dcPublishers(paths, fedoraAccess);
+        List<String> dcPublishers = dcPublishers(paths, akubraRepository);
 
         // WRITE TO LOG - kibana processing
         if (reportedAction.get() == null || reportedAction.get().equals(ReportedAction.READ)) {
-            log(pid, rootTitle, dctitle, solrDate, findModsDate(paths, fedoraAccess),
-                    "", policy, dcPublishers, sAuthors, paths, mpaths, identifiers(paths, fedoraAccess), licenses);
+            log(pid, rootTitle, dctitle, solrDate, findModsDate(paths, akubraRepository),
+                    "", policy, dcPublishers, sAuthors, paths, mpaths, identifiers(paths, akubraRepository), licenses);
         }
     }
 
@@ -128,7 +130,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         return sAuthors;
     }
 
-    public static List<String> dcPublishers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
+    public static List<String> dcPublishers(ObjectPidsPath[] paths, AkubraRepository akubraRepository) throws IOException {
         List<String> dcPublishers = new ArrayList<>();
         for (int i = 0, ll = paths.length; i < ll; i++) {
             if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
@@ -138,12 +140,7 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
             for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                 final String detailPid = pathFromLeafToRoot[j];
-                Document dc = null;
-                try {
-                    dc = fedoraAccess.getDC(detailPid);
-                } catch (IOException e) {
-                    LOGGER.fine("datastream DC not found for " + detailPid + ", ignoring statistics");
-                }
+                Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
                 if (dc != null) {
                     List<String> collected = Arrays.stream(DCUtils.publishersFromDC(dc)).map(it -> {
                         return it.replaceAll("\\r?\\n", " ");
@@ -182,11 +179,11 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         return null;
     }
 
-    public static String findModsDate(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) {
+    public static String findModsDate(ObjectPidsPath[] paths, AkubraRepository akubraRepository) {
         for (ObjectPidsPath path : paths) {
             String[] pathFromLeafToRoot = path.getPathFromLeafToRoot();
             for (String detailPid : pathFromLeafToRoot) {
-                String modsDate = findModsDateOfPid(detailPid, fedoraAccess);
+                String modsDate = findModsDateOfPid(detailPid, akubraRepository);
                 if (modsDate != null)
                     return modsDate;
             }
@@ -194,13 +191,14 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         return null;
     }
 
-    public static Map<String, List<String>> identifiers(ObjectPidsPath[] paths, FedoraAccess fedoraAccess) throws IOException {
+    public static Map<String, List<String>> identifiers(ObjectPidsPath[] paths, AkubraRepository akubraRepository) throws IOException {
         try {
             Map<String, List<String>> retmap = new HashMap<>();
             for (ObjectPidsPath path : paths) {
                 String[] pathFromLeafToRoot = path.getPathFromLeafToRoot();
                 for (String detailPid : pathFromLeafToRoot) {
-                    Map<String, List<String>> map = ModsUtils.identifiersFromMods(fedoraAccess.getBiblioMods(detailPid));
+                    Document doc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS).asDom(false);
+                    Map<String, List<String>> map = ModsUtils.identifiersFromMods(doc);
                     Arrays.asList(ISBN_MODS_KEY, ISSN_MODS_KEY, CCNB_MODS_KEY).stream().forEach(key -> {
                         if (map.containsKey(key)) {
                             if (retmap.containsKey(key)) {
@@ -219,14 +217,8 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     }
 
 
-    private static String findModsDateOfPid(String pid, FedoraAccess fedoraAccess) {
-        Document biblioMods;
-        try {
-            biblioMods = fedoraAccess.getBiblioMods(pid);
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Can't get BIBLIO_MODS datastream of " + pid, e);
-            return null;
-        }
+    private static String findModsDateOfPid(String pid, AkubraRepository akubraRepository) {
+        Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
 
         synchronized (MODS_DATE_XPATH_EXPRS) {
             for (XPathExpression expr : MODS_DATE_XPATH_EXPRS) {

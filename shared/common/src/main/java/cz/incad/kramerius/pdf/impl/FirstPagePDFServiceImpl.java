@@ -16,11 +16,7 @@
  */
 package cz.incad.kramerius.pdf.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,8 +32,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.pid.LexerException;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -48,7 +48,6 @@ import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.AbstractPage;
@@ -77,8 +76,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FirstPagePDFServiceImpl.class.getName());
 
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    SecuredAkubraRepository akubraRepository;
 
     @Inject
     TextsService textsService;
@@ -93,7 +91,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     @Inject
     Provider<Locale> localesProvider;
 
-    Map<String, Map<String, List<String>>> processMods(String... pids) throws IOException, JAXBException, XPathExpressionException {
+    Map<String, Map<String, List<String>>> processMods(String... pids) throws IOException, JAXBException, XPathExpressionException, LexerException {
         Map<String, Map<String, List<String>>> maps = new HashMap<String, Map<String, List<String>>>();
         for (String pid : pids) {
             ObjectPidsPath selectedPath = selectOnePath(pid);
@@ -103,15 +101,15 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return maps;
     }
 
-    Map<String, Map<String, List<String>>> processModsFromPath(ObjectPidsPath selectedPath, BuilderFilter filter) throws IOException, XPathExpressionException {
+    Map<String, Map<String, List<String>>> processModsFromPath(ObjectPidsPath selectedPath, BuilderFilter filter) throws IOException, XPathExpressionException, LexerException {
         Map<String, Map<String, List<String>>> maps = new HashMap<String, Map<String, List<String>>>();
         if (selectedPath != null) {
             String[] pathFromLeaf = selectedPath.getPathFromLeafToRoot();
             for (int i = 0; i < pathFromLeaf.length; i++) {
                 String pidFromPath = pathFromLeaf[i];
                 if (!maps.containsKey(pidFromPath)) {
-                    org.w3c.dom.Document modsCol = this.fedoraAccess.getBiblioMods(pidFromPath);
-                    String modelName = this.fedoraAccess.getKrameriusModelName(pidFromPath);
+                    org.w3c.dom.Document modsCol = akubraRepository.getDatastreamContent(pidFromPath, KnownDatastreams.BIBLIO_MODS).asDom(false);
+                    String modelName = akubraRepository.re().getModel(pidFromPath);
                     ModsBuildersDirector director = new ModsBuildersDirector();
                     director.setBuilderFilter(filter);
                     Map<String, List<String>> map = new HashMap<String, List<String>>();
@@ -155,6 +153,8 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (LexerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -163,11 +163,11 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
 
         
-        RenderPDF render = new RenderPDF(fontMap, this.fedoraAccess);
+        RenderPDF render = new RenderPDF(fontMap, akubraRepository);
         render.render(doc, pdfWriter, cmnds);
     }
 
-    String templateSelection(PreparedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+    String templateSelection(PreparedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -285,7 +285,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         vals.addAll(list);
     }
 
-    String templateParent(PreparedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException {
+    String templateParent(PreparedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -420,11 +420,14 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         } else return modsKey;
     }
 
+    /* TODO
     public String localizedModel(ResourceBundle resourceBundle, String pid) throws IOException {
         String modelName = this.fedoraAccess.getKrameriusModelName(pid);
         String localizedModelName = resourceBundle.getString("fedora.model." + modelName);
         return localizedModelName;
     }
+
+     */
 
     @Override
     public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path,   FontMap fontMap) {
@@ -451,7 +454,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SAXException e) {
+        } catch (SAXException | LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (XPathExpressionException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

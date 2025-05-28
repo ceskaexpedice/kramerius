@@ -25,12 +25,13 @@ import cz.incad.Kramerius.statistics.formatters.guice.FormatterModule;
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.database.guice.DatabaseVersionGuiceModule;
 import cz.incad.kramerius.document.guice.DocumentServiceModule;
+import cz.incad.kramerius.fedora.RepoSecureModule;
 import cz.incad.kramerius.imaging.guice.ImageModule;
+import cz.incad.kramerius.workmode.guice.WorkModeModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.rest.api.guice.IiifServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
@@ -70,22 +71,16 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
                 // Repo modules
                 new RepoModule(),
+                new RepoSecureModule(),
+                new WorkModeModule(),
 
                 new SolrModule(),
-
-                new ResourceIndexModule(),
-                //new DatabaseStatisticsModule(),
-
                 new BaseModule(), // base  module
-                
                 new ServicesModule(), // base services
-                
                 new PDFModule(), // pdf services
-                
                 new ImageModule(), // images
                 new I18NModule(), // i18n module
                 new LoggedUsersModule(), new MailModule(), // mail service
-                                                           // module
 
                 new DocumentServiceModule(),
                 new GuiceSecurityModule(), 
@@ -94,10 +89,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
                 new PrintModule(), // printing
                 new DatabaseVersionGuiceModule(), // db versions
-                
-
                 new FormatterModule(), // statistics formatters
-
                 new IiifServletModule(),
 
                 servletModule()

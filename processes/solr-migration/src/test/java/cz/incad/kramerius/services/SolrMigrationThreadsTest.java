@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import cz.incad.kramerius.fedora.om.impl.HazelcastServerNode;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.w3c.dom.Document;
@@ -33,7 +32,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 1);
         Assert.assertTrue(batches.size() == 10);
 
@@ -104,7 +103,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 1);
         Assert.assertTrue(batches.size() == 10);
 
@@ -160,7 +159,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 2);
         Assert.assertTrue(batches.size() == 5);
 
@@ -197,7 +196,7 @@ public class SolrMigrationThreadsTest extends TestCase {
         Document parsed = XMLUtils.parseDocument(resourceAsStream);
         Element result = XMLUtils.findElement(parsed.getDocumentElement(), "result");
 
-        HazelcastServerNode.ensureHazelcastNode();
+        // TODO HazelcastServerNode.ensureHazelcastNode();
         List<Document> batches = BatchUtils.batches(result, 3);
         Assert.assertTrue(batches.size() == 4);
 

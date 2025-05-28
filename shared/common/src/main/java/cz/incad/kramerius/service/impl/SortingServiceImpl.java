@@ -6,36 +6,30 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
-import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import com.ibm.icu.text.Collator;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
-import cz.incad.kramerius.relation.RelationUtils;
-import cz.incad.kramerius.relation.impl.RelationServiceImpl;
+//import cz.incad.kramerius.relation.RelationUtils;
 import cz.incad.kramerius.service.SortingService;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.utils.NaturalOrderCollator;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -45,22 +39,20 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class SortingServiceImpl implements SortingService {
 
     public static final Logger LOGGER = Logger.getLogger(SortingServiceImpl.class.getName());
-
     public static final String CONFIG_KEY = "sort.xpaths";
 
-
-    FedoraAccess fedoraAccess;
-
+    AkubraRepository akubraRepository;
     KConfiguration configuration = KConfiguration.getInstance();
-
 
     RelationService relationService;
     private XPathFactory xpathFactory = XPathFactory.newInstance();
     private Map<String, String> sortingConfigMap = new HashMap<String, String>();
 
     @Inject
-    public SortingServiceImpl(@Named("rawFedoraAccess") FedoraAccess fedoraAccess, RelationService relationService) {
-        this.fedoraAccess = fedoraAccess;
+    public SortingServiceImpl(
+            AkubraRepository akubraRepository,
+            RelationService relationService) {
+        this.akubraRepository = akubraRepository;
         this.relationService = relationService;
         initSortingConfigMap();
     }
@@ -83,7 +75,7 @@ public class SortingServiceImpl implements SortingService {
                 } catch (Exception ex) {
                 }
             }
-            Date lastTime = fedoraAccess.getObjectLastmodifiedFlag(pid);
+            Date lastTime = akubraRepository.getMetadata(pid).getPropertyLastModified();
             RelationModel model = relationService.load(pid);
             for (KrameriusModels kind : model.getRelationKinds()) {
                 if (KrameriusModels.DONATOR.equals(kind))
@@ -104,10 +96,7 @@ public class SortingServiceImpl implements SortingService {
                     relations.add(new Relation(sortedPid, kind));
                 }
             }
-            Date currTime = fedoraAccess.getObjectLastmodifiedFlag(pid);
-
-            //String lastTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
-            //String currTime = fedoraAccess.getAPIA().getObjectProfile(pid, null).getObjLastModDate();
+            Date currTime = akubraRepository.getMetadata(pid).getPropertyLastModified();
 
             if (currTime.equals(lastTime)) {
                 relationService.save(pid, model);
@@ -130,7 +119,7 @@ public class SortingServiceImpl implements SortingService {
         XPathExpression expr = null;
         try {
             XPath xpath = xpathFactory.newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            xpath.setNamespaceContext(new RepositoryNamespaceContext());
             expr = xpath.compile(xpathString);
         } catch (XPathExpressionException e) {
             throw new RuntimeException(e);
@@ -138,7 +127,7 @@ public class SortingServiceImpl implements SortingService {
         for (String pid : pids) {
             String sortingValue = null;
             try {
-                Document mods = RelationUtils.getMods(pid, fedoraAccess);
+                Document mods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(true);
                 sortingValue = expr.evaluate(mods);
             } catch (Exception e) {
                 //ignore, will be logged in next step  (sortingValue test)

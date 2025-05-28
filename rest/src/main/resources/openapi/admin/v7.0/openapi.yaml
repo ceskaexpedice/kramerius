@@ -4,18 +4,18 @@ info:
   description: |
     Popis je platný k verzi 7.0.38 a vyšší. Kramerius obsahuje REST API, které umožňuje všechny operace nad systémem.   Standardně je dostupné na nainstalovaném serveru pod kontextem: `~/search/api/admin/v7.0*`.  
     Primárně určeno pro administraci  
-    
+
   version: "7.0"
 
 servers:
   - url: /search/api/admin/v7.0
 
 tags:
-  
+
   - name: Administrace sbírek
     description: >
       Všechny operace nad sbírkou: editace metadat, přidávání do sbírky, odebírání ze sbírky, editace výstřižků, atd..
-      
+
   - name: Přístup do importních a exportních dat
     description: >
       Získání souborů a adresářů z importních a exportních složek. (Importy FOXML, NDK, Generované logy, atd..)
@@ -23,7 +23,7 @@ tags:
   - name: Statistiky
     description: >
       Všechny operace týkající se statistik
-  
+
   - name: Titul
     description: >
       Operace nad titulem 
@@ -35,7 +35,7 @@ tags:
   - name: Role
     description: >
       Výpis, vytváření, rušení rolí, atd..
-      
+
   - name: Práva
     description: >
       Vytvoření, výpis, atd..
@@ -43,14 +43,14 @@ tags:
   - name: Procesy
     description: >
       Výpis, plánování, stopování, atd..
-      
+
 paths:
 
   /collections:
     get:
       tags:
         - Administrace sbírek
-      summary: Získání všech sbírek případně sbírek, které obsahují daný objekt 
+      summary: Získání všech sbírek případně sbírek, které obsahují daný objekt
       description: |
         Získání všech sbírek případně sbírek, které obsahují daný objekt 
       
@@ -64,7 +64,7 @@ paths:
           required: false
       responses:
         '200':
-          description: Úspěšně získaný resultset 
+          description: Úspěšně získaný resultset
           content:
             application/json:
               schema:
@@ -97,7 +97,7 @@ paths:
       tags:
         - Administrace sbírek
 
-      summary: Vytvoření nové sbírky 
+      summary: Vytvoření nové sbírky
       description: |
         Vytvoření nové sbírky 
 
@@ -143,7 +143,7 @@ paths:
                       "eng": "Description"
                     }
                   }
-                
+
         '400':
           description: Chybný dotaz
 
@@ -349,10 +349,10 @@ paths:
         - Administrace sbírek
       operationId: deleteCollection
 
-      summary: Smazání sbírky 
+      summary: Smazání sbírky
       description: |
         Smazání sbírky
-    
+
       parameters:
         - in: path
           name: pid
@@ -360,7 +360,7 @@ paths:
           schema:
             type: string
           required: true
-  
+
       responses:
         '200':
           description: Úspěšně smazaná sbírka
@@ -379,7 +379,7 @@ paths:
         - Administrace sbírek
       operationId: addToContent
 
-      summary: Přidání objektů do sbírky 
+      summary: Přidání objektů do sbírky
       description: |
         Update obsahu sbírky - přidání objektů do sbírky
 
@@ -409,7 +409,7 @@ paths:
             example: ["uuid:b92c8b10-4a9a-11e3-ad8c-005056827e52","uuid:c11acb60-f28f-11e2-9923-005056827e52"]
       responses:
         '201':
-          description: Úspěšný update obsahu sbírky 
+          description: Úspěšný update obsahu sbírky
 
         '403':
           description: Uživatel nemá oprávnění k požadované akci
@@ -420,7 +420,7 @@ paths:
         - Administrace sbírek
       operationId: prefixSearch
 
-      summary: Vyhledavání sbírek dle prefixu  
+      summary: Vyhledavání sbírek dle prefixu
       description: |
         Vyhledávání sbírek dle prefixu titulku
 
@@ -445,7 +445,7 @@ paths:
           required: false
       responses:
         '200':
-          description: Úspěšně získaný resultset 
+          description: Úspěšně získaný resultset
           content:
             application/json:
               schema:
@@ -478,13 +478,13 @@ paths:
     post:
       tags:
         - Administrace sbírek
-        
+
 
       summary: Upload náhledu pro sbírku
       description: |
         Upload náhledu pro sbírku
 
-        
+
       operationId: uploadThumbnail
       parameters:
         - in: path
@@ -493,7 +493,7 @@ paths:
           schema:
             type: string
           required: true
-            
+
       requestBody:
         required: true
         content:
@@ -568,7 +568,7 @@ paths:
     delete:
       tags:
         - Administrace sbírek
-        
+
 
       summary: Smazání položky ze sbírky
       description: |
@@ -591,7 +591,7 @@ paths:
 
       responses:
         '200':
-          description: Úspěšné odstranění ze sbírky 
+          description: Úspěšné odstranění ze sbírky
 
         '403':
           description: Uživatel nemá oprávnění k požadované akci
@@ -600,7 +600,7 @@ paths:
     put:
       tags:
         - Administrace sbírek
-        
+
 
       summary: Smazání položky ze sbírky
       description: |
@@ -631,7 +631,7 @@ paths:
 
       responses:
         '200':
-          description: Úspěšné odstranění ze sbírky 
+          description: Úspěšné odstranění ze sbírky
 
         '403':
           description: Uživatel nemá oprávnění k požadované akci
@@ -665,7 +665,7 @@ paths:
 
       responses:
         '200':
-          description: Úspěšné přidání výstřižku 
+          description: Úspěšné přidání výstřižku
           content:
             application/json:
               schema:
@@ -713,7 +713,7 @@ paths:
               }
         '403':
           description: Uživatel nemá oprávnění k požadované akci
-          
+
   /collections/{colpid}/delete_clip_item:
     post:
       tags:
@@ -742,7 +742,7 @@ paths:
 
       responses:
         '200':
-          description: Úspěšné přidání výstřižku 
+          description: Úspěšné přidání výstřižku
           content:
             application/json:
               schema:
@@ -820,7 +820,7 @@ paths:
                   ]}
       responses:
         '200':
-          description: Úspěšné přidání výstřižku 
+          description: Úspěšné přidání výstřižku
           content:
             application/json:
               schema:
@@ -886,10 +886,10 @@ paths:
           required: false
           schema:
             type: boolean
-            
+
       responses:
         '200':
-          description: Úspěšné získání seznamu 
+          description: Úspěšné získání seznamu
           content:
             application/json:
               schema:
@@ -1003,7 +1003,7 @@ paths:
 
       responses:
         '200':
-          description: Úspěšné získání seznamu 
+          description: Úspěšné získání seznamu
           content:
             application/json:
               schema:
@@ -1072,7 +1072,7 @@ paths:
       
       responses:
         '200':
-          description: Úspěšné získání seznamu 
+          description: Úspěšné získání seznamu
           content:
             application/json:
               schema:
@@ -1141,7 +1141,7 @@ paths:
       
       responses:
         '200':
-           description: Úspěšné získání seznamu 
+           description: Úspěšné získání seznamu
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 
@@ -1166,7 +1166,7 @@ paths:
       
       responses:
         '200':
-           description: Úspěšné získání souboru 
+           description: Úspěšné získání souboru
         '403':
           description: Uživatel nemá oprávnění k požadované akci
   
@@ -1185,20 +1185,20 @@ paths:
         - name: dateFrom
           in: query
           required: true
-          description: Počáteční datum pro čištění statistických dat 
+          description: Počáteční datum pro čištění statistických dat
           schema:
             type: string
             format: date
         - name: dateTo
           in: query
           required: true
-          description: Konečné datum pro čištění statistických dat 
+          description: Konečné datum pro čištění statistických dat
           schema:
             type: string
-            format: date      
+            format: date
       responses:
         '200':
-          description: Úspěšné smazání dat 
+          description: Úspěšné smazání dat
           content:
             application/json:
               schema:
@@ -1207,7 +1207,7 @@ paths:
                       "deleted":103
                     }
         '400':
-          description: Chybný požadavek 
+          description: Chybný požadavek
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 
@@ -1227,14 +1227,14 @@ paths:
             enum: [provided_by_license, authors, langs, all_models]
           example: '*'
           required: true
-          
+
         - name: q
           in: query
           description: Solr query parameter
           schema:
             type: string
           example: '*'
-          
+
         - name: rows
           in: query
           description: Počet řádků v odpovědi solru
@@ -1263,7 +1263,7 @@ paths:
             type: string
             enum: [provided_by_license, authors, langs, all_models]
 
-            
+
         - name: fq
           in: query
           description: Filtr query, ktere limituje vysledek
@@ -1314,7 +1314,7 @@ paths:
               schema:
                 type: string
                 example: attachment; filename="langs.csv"
-              
+
         '400':
           description: Špatný dotaz
 
@@ -1326,7 +1326,7 @@ paths:
       tags:
         - Statistiky
       summary: Vyhledávní v logu přístupů. Používá admin prostředí pro rendrování statistik
-      description: Endpoint umožňuje vyhledávání dle zadaných kritérií a vrací výsledky buď ve formátu JSON nebo XML podle požadovaného parametru. _Parametry jsou uvedené jenom ty základní. Pro úplný přehled všech parametrů jděte sem_ 
+      description: Endpoint umožňuje vyhledávání dle zadaných kritérií a vrací výsledky buď ve formátu JSON nebo XML podle požadovaného parametru. _Parametry jsou uvedené jenom ty základní. Pro úplný přehled všech parametrů jděte sem_
       parameters:
 
         - in: query
@@ -1393,7 +1393,7 @@ paths:
           schema:
             type: integer
           required: false
-        
+
 
         - in: query
           name: wt
@@ -1403,7 +1403,7 @@ paths:
           required: false
       responses:
         '200':
-          description: Vrací výsledek dotazu 
+          description: Vrací výsledek dotazu
           content:
             application/json:
               schema:
@@ -1479,7 +1479,7 @@ paths:
                     }
                   }
                 }
-                
+
             application/xml:
               schema:
                 type: string
@@ -1487,13 +1487,13 @@ paths:
                     <?xml version="1.0" encoding="UTF-8"?><response><lst name="responseHeader">  <int name="status">0</int>  <int name="QTime">4</int>  <lst name="params">    <str name="q">*</str>    <arr name="facet.field">      <str>provided_by_license</str>      <str>authors</str>      <str>langs</str>      <str>all_models</str>    </arr>    <str name="facet.mincount">1</str>    <str name="fq">date:[2024-09-13T22:00:00.000Z TO 2024-10-14T22:00:00.000Z]</str>    <str name="rows">0</str>    <str name="facet">true</str>    <arr name="wt">      <str>xml</str>      <str>xml</str>    </arr>  </lst></lst><result name="response" numFound="28" start="0" numFoundExact="true"></result><lst name="facet_counts">  <lst name="facet_queries"/>  <lst name="facet_fields">    <lst name="provided_by_license">      <int name="public">17</int>      <int name="onsite">3</int>    </lst>    <lst name="authors">      <int name="Krajský výbor (Pardubice, Česko)">24</int>      <int name="Okresní národní výbor">24</int>      <int name="Jurajda, Štěpán, 1970-">4</int>      <int name="Kovač, Dejan, 1984-">4</int>      <int name="Národohospodářský ústav (Akademie věd ČR)">4</int>      <int name="Univerzita Karlova Centrum pro ekonomický výzkum a doktorské studium">4</int>      <int name="Zápal, Jan">4</int>      <int name="jo2017953195">4</int>      <int name="kn20020321166">4</int>      <int name="mzk2009517323">4</int>      <int name="olak2002113688">4</int>      <int name="xx0003189">4</int>    </lst>    <lst name="langs">      <int name="cze">24</int>      <int name="eng">4</int>    </lst>    <lst name="all_models">      <int name="page">24</int>      <int name="periodical">24</int>      <int name="periodicalitem">24</int>      <int name="periodicalvolume">24</int>      <int name="monograph">4</int>    </lst>  </lst>  <lst name="facet_ranges"/>  <lst name="facet_intervals"/>  <lst name="facet_heatmaps"/></lst></response>
         '403':
           description: Uživatel nemá oprávnění k požadované akci
-                
+
   /statistics/logs:
     get:
       tags:
         - Statistiky
       summary: Přístup do logů jádra dle zadaného rozsahu. Určeno pro statistické moduly
-      description: Vrací logy dle zadaných kritérií. Maximální rozsah je 120 hodin 
+      description: Vrací logy dle zadaných kritérií. Maximální rozsah je 120 hodin
       parameters:
         - name: dateFrom
           in: query
@@ -1628,8 +1628,8 @@ paths:
                       },
                       "status": 0
                     }
-                  } 
-              
+                  }
+
         '400':
           description: Špatně formátovaný parameter dateFrom a/nebo dateTo.
         '403':
@@ -1730,8 +1730,8 @@ paths:
                           "title": "What's in a name in a war"
                       }
                   ]
-              } 
-                          
+              }
+
         '400':
           description: Chybný požadavek - chybí nebo je neplatný parametr.
           content:
@@ -1741,7 +1741,7 @@ paths:
               example: {
                  "message": "missing mandatory query param 'model'"
               }
-                
+
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 
@@ -1791,7 +1791,7 @@ paths:
                 type: string
         '403':
           description: Uživatel nemá oprávnění k požadované akci
-         
+
         '404':
           description: Objekt s daným PID nebyl nalezen.
 
@@ -1824,7 +1824,7 @@ paths:
                 type: string
               example: {"childrenPids":["uuid:b35833b3-7f7f-4cac-a434-484b6e096922","uuid:31121290-d52e-4206-8723-56cd1fa200c7"]}
 
-              
+
         '400':
           description: Chyba při zpracování - některé PID dětí nejsou nalezeny v RELS-EXT nebo chybí v požadovaných datech.
           content:
@@ -1980,7 +1980,7 @@ paths:
                           "maxinterval": 10000,
                           "group": "local"
                       }]
-                
+
     post:
       tags:
         - Licence
@@ -2051,7 +2051,7 @@ paths:
                      "group": "local"}
 
         '403':
-          description: Uživatel nemá oprávnění k požadované akci                
+          description: Uživatel nemá oprávnění k požadované akci
         '404':
           description: Licence nenalezena.
 
@@ -2117,7 +2117,7 @@ paths:
 
         '403':
           description: Uživatel nemá oprávnění k požadované akci
-          
+
 
   /licenses/changeOrdering:
     put:
@@ -2173,7 +2173,7 @@ paths:
           description: Uživatel nemá oprávnění k požadované akci
 
   /licenses/moveup/{id}:
-    put:  
+    put:
       tags:
         - Licence
       summary: Zvětší prioritu licence
@@ -2213,7 +2213,7 @@ paths:
           description: Uživatel nemá oprávnění k požadované akci
 
   /licenses/movedown/{id}:
-    put:  
+    put:
       tags:
         - Licence
       summary: Zmenší prioritu licence
@@ -2342,7 +2342,7 @@ paths:
         - Role
       summary: Změna existující role
       operationId: changeRole
-      description: Upraví existující roli na základě ID a poskytnutých dat v JSON. 
+      description: Upraví existující roli na základě ID a poskytnutých dat v JSON.
       parameters:
         - name: id
           in: path
@@ -2832,7 +2832,7 @@ paths:
     get:
       tags:
         - Práva
-      summary: Výpis všech parametrů 
+      summary: Výpis všech parametrů
       description: Výpis všech parametrů
       responses:
         '200':
@@ -2859,7 +2859,7 @@ paths:
               ]
         '403':
           description: Uživatel nemá oprávnění k požadované akci
-                
+
   /rights/params/{id}:
     get:
       tags:
@@ -2897,7 +2897,7 @@ paths:
       tags:
         - Práva
       summary: Aktualizace parametru dle id
-      description: Aktualizuje existující parametr dle id. 
+      description: Aktualizuje existující parametr dle id.
       parameters:
         - name: id
           in: path
@@ -3252,7 +3252,7 @@ paths:
 
 
   /rights/licenses:
-    get:      
+    get:
       tags:
         - Práva
       summary: Získání seznamu licencí
@@ -3305,7 +3305,7 @@ paths:
                         "group": "embedded"
                     }
                 ]
-              
+
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 
@@ -3336,7 +3336,7 @@ paths:
                   - **collections**: UUID kolekcí, do kterých budou data importována.  
                   - **pathtype**: Typ cesty, možné hodnoty **absolute** nebo **relative**
 
-                value: {"defid":"import","params":{"inputDataDir":"/d28b2a1a-508e-419e-9d3b-12ed4560138e","startIndexer":true,"license":"dnnto","collections":"uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02", "pathtype":"relative"}}     
+                value: {"defid":"import","params":{"inputDataDir":"/d28b2a1a-508e-419e-9d3b-12ed4560138e","startIndexer":true,"license":"dnnto","collections":"uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02", "pathtype":"relative"}}
               importndk:
                 summary: Plánování procesu import/NDK-METS
                 description: |
@@ -3351,7 +3351,7 @@ paths:
                   - **collections**: UUID kolekcí, do kterých budou data importována.
                   - **pathtype**: Typ cesty, možné hodnoty **absolute** nebo **relative**
 
-                value: {"defid":"convert_and_import","params":{"policy":"PRIVATE","inputDataDir":"/1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","startIndexer":true,"useIIPServer":true,"license":"dnnto","collections":"uuid:28b00683-977d-4743-ad4b-ff8135f5e263", "pathtype":"relative"}}         
+                value: {"defid":"convert_and_import","params":{"policy":"PRIVATE","inputDataDir":"/1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","startIndexer":true,"useIIPServer":true,"license":"dnnto","collections":"uuid:28b00683-977d-4743-ad4b-ff8135f5e263", "pathtype":"relative"}}
               index_object:
                 summary: Plánování indexace objektu
                 description: |
@@ -3364,9 +3364,9 @@ paths:
                   - **ignoreInconsistentObjects**: Příznak určuje zda má indexer pokračovat i v případě nalezení nekonzistence .
 
                 
-                value: {"defid":"new_indexer_index_object","params":{"type":"TREE_AND_FOSTER_TREES","pid":"uuid:b35833b3-7f7f-4cac-a434-484b6e096922","ignoreInconsistentObjects":false}}                  
-                                
-                
+                value: {"defid":"new_indexer_index_object","params":{"type":"TREE_AND_FOSTER_TREES","pid":"uuid:b35833b3-7f7f-4cac-a434-484b6e096922","ignoreInconsistentObjects":false}}
+
+
               add_license:
                 summary: Plánování procesu přidání licence
                 description: |
@@ -3391,8 +3391,8 @@ paths:
                   - **pidlist**: V případě, že chceme více objektů, je možno využít pole pidů
 
                 
-                value: {"defid":"remove_license","params":{"license":"dnnto","pid":"uuid:b35833b3-7f7f-4cac-a434-484b6e096922"}}  
-                
+                value: {"defid":"remove_license","params":{"license":"dnnto","pid":"uuid:b35833b3-7f7f-4cac-a434-484b6e096922"}}
+
               
               backup_collection:
                 summary: Vytvoření zálohy sbírky/sbírek
@@ -3405,7 +3405,7 @@ paths:
                   - **backupname**: Jméno zálohy
                 
                 
-                value: {"defid":"backup-collections","params":{"pidlist":["uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02"],"backupname":"Test"}}  
+                value: {"defid":"backup-collections","params":{"pidlist":["uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02"],"backupname":"Test"}}
               
               
               restore_collection:
@@ -3418,22 +3418,22 @@ paths:
 
                 
                 value: {"defid":"restore-collections","params":{"backupname":"Test.zip"}}
-                            
+
               
               flag_to_license:
                 summary: Změna příznaku na licence (public a onsite)
                 description: Příklad změny poříznaku
 
                 value: {"defid":"flag_to_license","params":{}}
-                
-                
+
+
               sdnnt_sync:
                 summary: Plánování procesu synchronizace se SDNNT
                 description: Příklad synchronizace se SDNNT
 
-                  
+
                 value: {"defid":"sdnnt-sync","params":{}}
-                
+
               delete:
                 summary: Plánování procesu mazání
                 description: |
@@ -3446,7 +3446,7 @@ paths:
                   - **ignoreIncosistencies**: Ignorovat nekozistence
 
                 value: {"defid":"delete_tree","params":{"pid":"uuid:1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","ignoreIncosistencies":true}}
-                
+
       responses:
         '200':
           description: Proces byl úspěšně naplánován
@@ -3471,7 +3471,7 @@ paths:
             application/json:
               example:
                 error: "user 'username' is not allowed to manage processes"
-      
+
 
 
   /processes/batches:
@@ -3568,10 +3568,10 @@ paths:
           description: Nevalidní query parametr (offset, limit, from, until)
         '403':
           description: Uživatel nemá oprávnění k požadované akci
-          
+
 
   /processes/owners:
-    get:      
+    get:
       tags:
         - Procesy
       summary: Vrací seznam všech vlastníků procesů
@@ -3589,7 +3589,7 @@ paths:
                       }
                   ]
             }
-              
+
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 
@@ -3606,7 +3606,7 @@ paths:
           description: Databázová id procesu
           schema:
             type: string
-          example: 576  
+          example: 576
       responses:
         '200':
           description: JSON reprezentace procesu/dávky
@@ -3888,40 +3888,12 @@ paths:
 
         '403':
           description: Uživatel nemá oprávnění k požadované akci
-          
+
         '404':
           description: Proces s daným UUID nebyl nalezen.
 
 
   ## Akubra pristup
-#  /repository/getObjectXML:
-#    get:
-#      summary: Získaní objektu z repozitáře
-#      description: Získá foxml reprezentaci objektu  z repozitáře.
-#      operationId: getObjectXML
-#      parameters:
-#        - name: pid
-#          in: query
-#          required: true
-#          description: Identifikátor objektu
-#          schema:
-#            type: string
-#      responses:
-#        '200':
-#          description: Úspěšné získání objektu
-#          content:
-#            application/xml:
-#              schema:
-#                type: string
-#                format: binary
-#                description: FOXML reprezentace objektu
-#        '400':
-#          description: Nevalidní parametry http dotazu
-#        '404':
-#          description: Objekt není nalezen
-#      tags:
-#        - akubra
-
 
   /repository/export:
     get:
@@ -3941,6 +3913,7 @@ paths:
           description: Formát exportu FOXML
           schema:
             type: string
+            enum: [ archive, storage ]
       responses:
         '200':
           description: Úspěšný export objektu
@@ -3957,28 +3930,69 @@ paths:
       tags:
         - akubra
 
-  /repository/getDatastreamContent:
+  /repository/getMetadata:
     get:
-      summary: Získání datastreamu z repozitáře.
-      description: Získá datastream z akubra repozitáře .
-      operationId: getDatastreamContent
+      summary: Získání metadat objecktu z repozitáře.
+      description: Získá metadata objektu z akubra repozitáře .
+      operationId: getMetadata
       parameters:
-
         - name: pid
           in: query
           required: true
           description: Identifikátor objektu.
           schema:
             type: string
+      responses:
+        '200':
+          description: Úspěšné získání metadat objektu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datastream:
+                    type: object
+                    properties:
+                      propertyLabel:
+                        type: string
+                        description: label property
+                      propertyCreated:
+                        type: string
+                        format: date-time
+                        description: Datum vytvoření objektu
+                      propertyLastModified:
+                        type: string
+                        format: date-time
+                        description: Datum oprava objektu
+                      objectStoragePath:
+                        type: string
+                        description: Object storage path
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Datastream nebo objekt není nalezen
+      tags:
+        - akubra
 
-        - name: dsID
+
+  /repository/getDatastreamContent:
+    get:
+      summary: Získání obsahu datastreamu z repozitáře.
+      description: Získá obsah datastream z akubra repozitáře .
+      operationId: getDatastreamContent
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+        - name: dsId
           in: query
           required: true
           description: Identifikátor datastreamu.
           schema:
             type: string
-
-
       responses:
         '200':
           description: Úspěšné získání datastreamu
@@ -3994,9 +4008,9 @@ paths:
 
   /repository/getDatastreamMetadata:
     get:
-      summary: Získání datastreamu z repozitáře.
-      description: Získá datastream z akubra repozitáře .
-      operationId: getDatastreamContent
+      summary: Získání metadat datastreamu z repozitáře.
+      description: Získá metadata datastreamu z akubra repozitáře .
+      operationId: getDatastreamMetadata
       parameters:
         - name: pid
           in: query
@@ -4004,18 +4018,15 @@ paths:
           description: Identifikátor objektu.
           schema:
             type: string
-
-        - name: dsID
+        - name: dsId
           in: query
           required: true
           description: Identifikátor datastreamu.
           schema:
             type: string
-
-
       responses:
         '200':
-          description: Úspěšné získání datastreamu
+          description: Úspěšné získání metadat datastreamu
           content:
             application/json:
               schema:
@@ -4037,9 +4048,6 @@ paths:
                         type: string
                         format: date-time
                         description: Datum vytvoření datastreamu
-                      size:
-                        type: integer
-                        description: Velikost datastreamu v bytech
                       location:
                         type: string
                         description: Reference na datastream.
@@ -4053,8 +4061,8 @@ paths:
 
   /repository/getDatastreamNames:
     get:
-      summary: Získání seznamu datastreamů objektů.
-      description: Získání seznamu datastreamu objektů.
+      summary: Získání seznamu datastreamů objektu.
+      description: Získání seznamu datastreamu objektu.
       operationId: getDatastreams
       parameters:
         - name: pid
@@ -4065,7 +4073,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Úspěšné seznamu datastreamů
+          description: Úspěšny seznamu datastreamů
           content:
             application/json:
               schema:
@@ -4080,11 +4088,11 @@ paths:
         - akubra
 
 
-  /repository/getRelationships:
+  /repository/getRelations:
     get:
       summary: Získání všech relací objektu
       description: Získání všech relací objektu
-      operationId: getRelationships
+      operationId: getRelations
       parameters:
         - name: pid
           in: query
@@ -4102,28 +4110,18 @@ paths:
                 items:
                   type: object
                   properties:
-                    relationshiptuple:
+                    relations:
                       type: object
                       properties:
-                        subject:
+                        localname:
                           type: string
-                          description: Subjekt
-
-                        predicate:
+                          description: Local name
+                        resource:
                           type: string
-                          description: Predikát
-
-                        predicateNS:
+                          description: Resource
+                        namespace:
                           type: string
-                          description: Namespace predikatu
-
-                        object:
-                          type: string
-                          description: Objekt
-
-                        isLiteral:
-                          type: boolean
-                          description: Příznak, který říká, zda relace je pouze literál
+                          description: Namespace
         '400':
           description: Nevalidní parametry http dotazu
         '404':
@@ -4131,6 +4129,46 @@ paths:
       tags:
         - akubra
 
+  /repository/getLiterals:
+    get:
+      summary: Získání všech literalu objektu
+      description: Získání všech literalu objektu
+      operationId: getLiterals
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Seznam všech literalu
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    literals:
+                      type: object
+                      properties:
+                        localname:
+                          type: string
+                          description: Local name
+                        content:
+                          type: string
+                          description: Content
+                        namespace:
+                          type: string
+                          description: Namespace
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
 
   /repository/ingest:
     post:
@@ -4142,19 +4180,6 @@ paths:
         content:
           application/octet-stream:
             description:  Binární obsah streamu .
-      parameters:
-        - name: format
-          in: query
-          required: true
-          description: Formát - mimetype objektu
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška.
-          schema:
-            type: string
       responses:
         '200':
           description: Úspěšný ingest do repozitáře
@@ -4174,66 +4199,16 @@ paths:
         - akubra
 
 
-  /repository/modifyObject:
-    post:
-      summary: Modifikace objektu
-      description: Modifikace metadata objektu v repozitáři.
-      operationId: modifyObject
-      parameters:
-        - name: pid
-          in: query
-          required: true
-          description: Persistentní identifikátor objektu
-          schema:
-            type: string
-        - name: state
-          in: query
-          required: true
-          description: Nový stav objektu
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška specifikující důvod modifikace objektu.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Úspěšná modifikace objektu
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  modifiedDate:
-                    type: string
-                    description: Datum modifikace objektu
-        '400':
-          description: Nevalidní parametry http dotazu
-      tags:
-        - akubra
-
-
-
-
-
-  /repository/purgeObject:
+  /repository/delete:
     delete:
       summary: Smazani objektu z repozitáře
       description: Permanentni smazani objektu z repozitáře
-      operationId: purgeObject
+      operationId: delete
       parameters:
         - name: pid
           in: query
           required: true
           description: Identifikátor objektu
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška reprezentující opearci smazání
           schema:
             type: string
       responses:
@@ -4244,9 +4219,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  purgedDate:
+                  objectPID:
                     type: string
-                    description: Datum kdy byl stream smazán
+                    description: PID identifikátor objektu
         '400':
           description: Nevalidní parametry http dotazu
         '404':
@@ -4255,72 +4230,35 @@ paths:
         - akubra
 
 
-  /repository/addDatastream:
+  /repository/createXMLDatastream:
     post:
-      summary: Přidání datastreamu do fedory
-      description: Plřidání datastreamu do fedory
-      operationId: addDatastream
+      summary: Přidání XML datastreamu
+      description: Plřidání XML datastreamu
+      operationId: createXMLDatastream
       parameters:
         - name: pid
           in: query
           required: true
-          description: PID identifikátor objektu
+          description: Identifikátor objektu.
           schema:
             type: string
-        - name: dsID
+        - name: dsId
           in: query
           required: true
-          description: Identifikátor datastreamu
+          description: Identifikátor datastreamu.
           schema:
             type: string
-        - name: versionable
-          in: query
-          required: true
-          description: Příznak určující zda je datastream verzovatelný
-          schema:
-            type: boolean
-        - name: MIMEType
+        - name: mimeType
           in: query
           required: true
           description: Mimetype datastreamu
           schema:
             type: string
-        - name: dsLocation
-          in: query
-          required: true
-          description: Reference na datastream
-          schema:
-            type: string
-        - name: controlGroup
-          in: query
-          required: true
-          description: Kontrolní skupina pro stream. (M) Managed, (R) Referenced, (X) XML Inline.
-          schema:
-            type: string
-        - name: dsState
-          in: query
-          required: true
-          description: Stav datastreamu = (A)Aktivní vs (I)Neaktivní.
-          schema:
-            type: string
-        - name: checksumType
-          in: query
-          required: true
-          description: Typ kontrolního součtu. (`SHA-1`, `MD5`).
-          schema:
-            type: string
-        - name: checksum
-          in: query
-          required: true
-          description: Hodnota kontrolního součtu.
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška popisující přidání datastreamu.
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            description:  Binární obsah streamu .
       responses:
         '200':
           description: Úspěšné přidání streamu
@@ -4329,7 +4267,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  datastreamID:
+                  dsId:
                     type: string
                     description:  ID přidaný datastream.
         '400':
@@ -4339,147 +4277,11 @@ paths:
       tags:
         - akubra
 
-  /repository/modifyDatastreamByReference:
-    put:
-      summary:  Modifikace datastreamu referencí
-      description: Modifikace existujícího datastreamu refrencí na data. (Soubor nebo http odkaz)
-      operationId: modifyDatastreamByReference
-      parameters:
-        - name: pid
-          in: query
-          required: true
-          description: Persistentní identifikátor objektu
-          schema:
-            type: string
-        - name: dsID
-          in: query
-          required: true
-          description: ID datastreamu
-          schema:
-            type: string
-        - name: MIMEType
-          in: query
-          required: true
-          description: Mimetype datastreamu
-          schema:
-            type: string
-        - name: dsLocation
-          in: query
-          required: true
-          description: Reference na data
-          schema:
-            type: string
-        - name: checksumType
-          in: query
-          required: true
-          description: Typ kontrolního součtu (e.g., `SHA-1`, `MD5`).
-          schema:
-            type: string
-        - name: checksum
-          in: query
-          required: true
-          description: Kontrolní součet
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška popisující modifikaci datastreamu
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Úspěšná modifikace datastreamu
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  modifiedDate:
-                    type: string
-                    description:  Datuim a čas modifikace.
-        '400':
-          description: Nevalidní parametry http dotazu
-        '404':
-          description: Objekt nenalezen
-      tags:
-        - akubra
-
-  /repository/modifyDatastreamByValue:
-    put:
-      summary: Modifikace datastreamu hodnotou
-      description: Modifikace datastreamu uploadováním nového binárního obsahu
-      operationId: modifyDatastreamByValue
-      parameters:
-        - name: pid
-          in: query
-          required: true
-          description: PID identifikátor objektu.
-          schema:
-            type: string
-        - name: dsID
-          in: query
-          required: true
-          description: ID identifikátor datastreamu.
-          schema:
-            type: string
-        - name: MIMEType
-          in: query
-          required: true
-          description: Mimetype objektu.
-          schema:
-            type: string
-        - name: checksumType
-          in: query
-          required: true
-          description: Typ kontrolního součtu (e.g., `SHA-1`, `MD5`).
-          schema:
-            type: string
-        - name: checksum
-          in: query
-          required: true
-          description: Hodnota kontrolního součtu.
-          schema:
-            type: string
-        - name: logMessage
-          in: query
-          required: true
-          description: Logovací hláška popisující modifikaci objektu.
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/octet-stream:
-            description: Nový binární obsah datastreamu.
-            schema:
-              type: string
-              format: binary
-      responses:
-        '200':
-          description: Datastream úspěšně modifikován
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  modifiedDate:
-                    type: string
-                    description: Datum a čas modifikace
-        '400':
-          description: Nevalidní parametry http dotazu
-        '404':
-          description: Datastream nebo objekt nenalezen
-      tags:
-        - akubra
-
-
-  /repository/purgeRelationship:
-    put:
-      summary: Smazání konkrétní relace z objektu
-      description: Smazání konkrétní relace z objektu
-      operationId: prugeRelationship
-
+  /repository/createManagedDatastream:
+    post:
+      summary: Přidání managed datastreamu
+      description: Plřidání managed datastreamu
+      operationId: createManagedDatastream
       parameters:
         - name: pid
           in: query
@@ -4487,62 +4289,136 @@ paths:
           description: Identifikátor objektu.
           schema:
             type: string
-
+        - name: dsId
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+        - name: mimeType
+          in: query
+          required: true
+          description: Mimetype datastreamu
+          schema:
+            type: string
       requestBody:
-        description: JSON reprezentace
+        required: true
         content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  relationshiptuple:
-                    type: object
-                    properties:
-                      subject:
-                        type: string
-                        description: Subjekt
-                      predicate:
-                        type: string
-                        description: Predikát
-                      object:
-                        type: string
-                        description: Objekt
-                      isLiteral:
-                        type: boolean
-                        description: Příznak, který říká, zda relace je pouze literál
-
-
-
+          application/octet-stream:
+            description:  Binární obsah streamu .
       responses:
         '200':
-          description: Seznam všech relací
+          description: Úspěšné přidání streamu
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    relationshiptuple:
-                      type: object
-                      properties:
-                        subject:
-                          type: string
-                          description: Subjekt
-                        predicate:
-                          type: string
-                          description: Predikát
-                        object:
-                          type: string
-                          description: Objekt
-                        isLiteral:
-                          type: boolean
-                          description: Příznak, který říká, zda relace je pouze literál
+                type: object
+                properties:
+                  dsId:
+                    type: string
+                    description:  ID přidaný datastream.
         '400':
           description: Nevalidní parametry http dotazu
         '404':
           description: Objekt nenalezen
       tags:
         - akubra
+
+  /repository/deleteDatastream:
+    delete:
+      summary: Smazani datastreamu z repozitáře
+      description: Permanentni smazani datastreamu z repozitáře
+      operationId: deleteDatastream
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu
+          schema:
+            type: string
+        - name: dsId
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datastream úspěšně smazaný
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dsId:
+                    type: string
+                    description: id smazaneho datastreamu
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
+  /workmode:
+    get:
+      summary: Zda je Kramerius jadro read only
+      description: Zda je Kramerius jadro read only
+      operationId: getWorkModeStatus
+      responses:
+        '200':
+          description: Zda je Kramerius jadro read only
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  readOnly:
+                    type: boolean
+                    description: read only
+                  reason:
+                    type: string
+                    description: Důvod nastavení read only režimu
+                    enum:
+                      - maintenance
+                      - distributedLocksException
+                      - noReason
+        '500':
+          description: Server error
+      tags:
+        - workmode
+    put:
+      summary: Nastaveni read only flag
+      description: Nastaveni read only flag pro jadro Krameria
+      operationId: updateWorkMode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                readOnly:
+                  type: boolean
+                  description: Indicates if the system should be in read-only mode.
+                reason:
+                  type: string
+                  description: Důvod nastavení read only režimu
+                  enum:
+                    - maintenance
+                    - distributedLocksException
+                    - noReason
+              required:
+                - readOnly
+                - reason
+      responses:
+        '200':
+          description: Successfully updated work mode
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
+      tags:
+        - workmode
+
+

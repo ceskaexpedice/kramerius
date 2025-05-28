@@ -21,27 +21,23 @@ import antlr.TokenStreamException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.RelsExtHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
+import org.ceskaexpedice.akubra.relsext.RelsExtUtils;
 import org.kramerius.Import;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
@@ -66,7 +62,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -101,7 +96,7 @@ public class SecondPhase extends AbstractPhase  {
 
             // initalize import
             Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
-            this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            this.injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
             this.processIterate(url, userName, pswd);
             this.executorService.awaitTermination(60, TimeUnit.SECONDS);
             if (!this.exceptions.isEmpty()) {
@@ -112,11 +107,9 @@ public class SecondPhase extends AbstractPhase  {
             throw new PhaseException(this, e);
         } finally {
             try {
-                ProcessingIndexFeeder feeder = this.injector.getInstance(ProcessingIndexFeeder.class);
-                if (feeder != null) feeder.commit();
-            } catch (IOException e) {
-                throw new PhaseException(this, e);
-            } catch (SolrServerException e) {
+                AkubraRepository akubraRepository = this.injector.getInstance(AkubraRepository.class);
+                if (akubraRepository != null) akubraRepository.pi().commit();
+            } catch (Exception e) {
                 throw new PhaseException(this, e);
             }
 
@@ -175,7 +168,7 @@ public class SecondPhase extends AbstractPhase  {
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(foxml);
-            String relsExt = RelsExtHelper.getRelsExtTilesUrl(document); // url of tiles
+            String relsExt = RelsExtUtils.getTilesUrl(document.getDocumentElement()); // url of tiles
 
             if (relsExt != null) {
                 InputStream stream = orignalImgData(pid, url);
@@ -187,7 +180,7 @@ public class SecondPhase extends AbstractPhase  {
 
                 XPathFactory xpfactory = XPathFactory.newInstance();
                 XPath xpath = xpfactory.newXPath();
-                xpath.setNamespaceContext(new FedoraNamespaceContext());
+                xpath.setNamespaceContext(new RepositoryNamespaceContext());
 
                 Node nodeTilesUrl = (Node) xpath.evaluate("//kramerius:tiles-url", document, XPathConstants.NODE);
                 String imageServerTilesUrl = KConfiguration.getInstance().getConfiguration().getString("convert.imageServerTilesURLPrefix");
@@ -224,16 +217,17 @@ public class SecondPhase extends AbstractPhase  {
     public void ingest(File foxmlfile) throws PhaseException{
         LOGGER.info("ingesting '"+foxmlfile.getAbsolutePath()+"'");
         //Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         try {
-
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
-            Import.ingest(fa.getInternalAPI(), foxmlfile, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
-        } catch (RuntimeException e) {
-            if (e.getCause() != null) throw new PhaseException(this, e.getCause());
-            else throw new PhaseException(this,e);
+            Import.ingest(akubraRepository, foxmlfile, null, null, false);  //TODO třetí parametr má být List<String>, inicializovaný na začátku této fáze a předaný třetí fázi, kde se budou třídit vazby
         } catch (RepositoryException e) {
             if (e.getCause() != null) throw new PhaseException(this, e.getCause());
             else throw new PhaseException(this,e);
+        } catch (RuntimeException e) {
+            if (e.getCause() != null) throw new PhaseException(this, e.getCause());
+            else throw new PhaseException(this,e);
+        }finally {
+            akubraRepository.shutdown();
         }
     }
     
@@ -324,7 +318,7 @@ public class SecondPhase extends AbstractPhase  {
             this.executorService = newFixedThreadPool(NUMBER_OF_THREADS);
 
             Import.initialize(KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"));
-            this.injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            this.injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
             this.findPid = true;
 
             this.replicationCollections = replicationCollections;
@@ -334,9 +328,9 @@ public class SecondPhase extends AbstractPhase  {
     }
 
     public boolean findPid(String pid) throws LexerException, IOException {
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         String objectId = pidParseAndGetObjectId(pid);
-        return (fa.isObjectAvailable(objectId) &&  fa.isStreamAvailable(objectId, FedoraUtils.RELS_EXT_STREAM));
+        return (akubraRepository.exists(objectId) && akubraRepository.re().exists(objectId));
     }
 
 

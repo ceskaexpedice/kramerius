@@ -1,50 +1,34 @@
 package cz.inovatika.licenses;
 
+import com.sun.jersey.api.client.Client;
+import cz.incad.kramerius.processes.SetPolicyProcess.Scope;
+import cz.incad.kramerius.processes.new_api.ProcessScheduler;
+import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
+import cz.incad.kramerius.utils.IterationUtils;
+import cz.incad.kramerius.utils.IterationUtils.Endpoint;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-import org.dom4j.Document;
-import org.dom4j.Node;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.processes.SetPolicyProcess;
-import cz.incad.kramerius.processes.SetPolicyProcess.Policy;
-import cz.incad.kramerius.processes.SetPolicyProcess.Scope;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
-import cz.incad.kramerius.utils.Dom4jUtils;
-import cz.incad.kramerius.utils.IterationUtils;
-import cz.incad.kramerius.utils.IterationUtils.Endpoint;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import static cz.incad.kramerius.utils.IterationUtils.getSortField;
 

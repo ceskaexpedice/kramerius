@@ -34,7 +34,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -75,10 +74,6 @@ public abstract class ServletCommand {
 
     @Inject
     protected Provider<Locale> localesProvider;
-
-    @Inject
-    @Named("securedFedoraAccess")
-    protected FedoraAccess fedoraAccess;
 
     @Inject
     protected UserManager userManager;

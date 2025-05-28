@@ -17,32 +17,29 @@
 package cz.incad.kramerius.pdf.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.w3c.dom.Document;
 
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.DCUtils;
 
 public class TitlesMapUtils {
 
     /**
      * Mapuje modely na uuid
-     * @param fa FedoraAccess
      * @param path Cesta ke korenyu (brano z indexu)
      * @return Vraci mapu  uuid->model
      * @throws IOException
      * TODO: Zmenit, pouziva  deprecated api
      */
-    public static Map<String, String> mapModels(FedoraAccess fa, String[] path) throws IOException {
+    public static Map<String, String> mapModels(AkubraRepository akubraRepository, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
-            String modelName = fa.getKrameriusModelName(fa.getRelsExt(u));
+            String modelName = akubraRepository.re().getModel(u);
             map.put(u, modelName);
         }
         return map;
@@ -50,15 +47,14 @@ public class TitlesMapUtils {
 
     /**
      * Mapuje tituly na uuid
-     * @param fa FedoraAccess
      * @param path Cesta ke korenu
      * @return Vraci mapu uuid->model
      * @throws IOException
      */
-    public static Map<String, String> mapTitlesToUUID(FedoraAccess fa, String[] path) throws IOException {
+    public static Map<String, String> mapTitlesToUUID(AkubraRepository akubraRepository, String[] path) throws IOException {
         Map<String, String> map = new HashMap<String, String>();
         for (String u : path) {
-            Document dc = fa.getDC(u);
+            Document dc = akubraRepository.getDatastreamContent(u, KnownDatastreams.BIBLIO_DC).asDom(false);
             String titleFromDC = DCUtils.titleFromDC(dc);
             map.put(u, titleFromDC);
         }

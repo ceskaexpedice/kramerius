@@ -22,18 +22,14 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -43,25 +39,17 @@ import org.xml.sax.SAXException;
 import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.repository.KrameriusRepositoryApiImpl;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
 import cz.incad.kramerius.rest.oai.exceptions.OAIInfoException;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.rest.oai.exceptions.OAIException;
-import cz.incad.kramerius.rest.oai.exceptions.OAIInfoException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.searchIndex.indexer.execution.Indexer;
 
 import static cz.incad.kramerius.rest.oai.OAITools.*;
 
@@ -77,8 +65,7 @@ public class OAIEndpoint extends ClientApiResource {
     
 
     @Inject
-    @Named("cachedFedoraAccess")
-    private transient FedoraAccess fedoraAccess;
+    AkubraRepository akubraRepository;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -102,7 +89,7 @@ public class OAIEndpoint extends ClientApiResource {
     @Inject
     CDKRequestCacheSupport cacheSupport;
 
-    
+
     public OAIEndpoint() {
     }
 
@@ -176,7 +163,7 @@ public class OAIEndpoint extends ClientApiResource {
 					oaiVerb.performOnCDKSide(this.userProvider, clientProvider,  instances, configManager, this.proxyFilter, this.solrAccess, this.requestProvider.get(), oai, oaiRoot, this.cacheSupport);
 				 } else {
 					// local	
-					oaiVerb.performOnLocal(configManager, this.fedoraAccess, solrAccess, this.requestProvider.get(), oai, oaiRoot);
+					oaiVerb.performOnLocal(configManager, akubraRepository, solrAccess, this.requestProvider.get(), oai, oaiRoot);
 				 }
 
                  StringWriter writer = new StringWriter();

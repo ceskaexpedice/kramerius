@@ -21,21 +21,19 @@ import org.easymock.EasyMock;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.SecuredActions;
 
 public class MockRightCriteriumContextGuiceMudule extends AbstractModule {
 
     @Override
     protected void configure() {
+        /* TODO
         FedoraAccess fedoraAccess = EasyMock.createMock(FedoraAccess.class);
         bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fedoraAccess);
 
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
         bind(SolrAccess.class).toInstance(solrAccess);
-        
+        */
         
     }
 }

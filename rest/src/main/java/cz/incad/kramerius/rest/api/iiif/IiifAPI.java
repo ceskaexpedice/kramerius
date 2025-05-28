@@ -1,7 +1,6 @@
 package cz.incad.kramerius.rest.api.iiif;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
@@ -26,20 +25,13 @@ import de.digitalcollections.iiif.presentation.model.impl.v2.ManifestImpl;
 import de.digitalcollections.iiif.presentation.model.impl.v2.PropertyValueSimpleImpl;
 import de.digitalcollections.iiif.presentation.model.impl.v2.SequenceImpl;
 import de.digitalcollections.iiif.presentation.model.impl.v2.ServiceImpl;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.util.Timeout;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -59,15 +51,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import cz.incad.kramerius.rest.api.k5.client.item.utils.ItemResourceUtils;
 
 
 /**
@@ -83,7 +72,7 @@ public class IiifAPI {
     @Inject
     private SolrMemoization solrMemoization;
 
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
 
     private SolrAccess solrAccess;
 
@@ -94,10 +83,11 @@ public class IiifAPI {
     private HttpAsyncClient asyncClient;
 
     @Inject
-    public IiifAPI(SolrMemoization solrMemoization, @Named("cachedFedoraAccess") FedoraAccess fedoraAccess,
+    public IiifAPI(SolrMemoization solrMemoization,
+                   AkubraRepository akubraRepository,
                    @Named("new-index") SolrAccess solrAccess, Provider<HttpServletRequest> requestProvider, HttpAsyncClient asyncClient) {
         this.solrMemoization = solrMemoization;
-        this.fedoraAccess = fedoraAccess;
+        this.akubraRepository = akubraRepository;
         this.solrAccess = solrAccess;
         this.requestProvider = requestProvider;
         this.asyncClient = asyncClient;
@@ -197,7 +187,7 @@ public class IiifAPI {
                 .map(pid -> CompletableFuture.runAsync(() -> {
                     String iiifEndpoint = null;
                     try {
-                        iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, this.fedoraAccess);
+                        iiifEndpoint = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage());
                     }
@@ -255,12 +245,7 @@ public class IiifAPI {
         try {
             if (PIDSupport.isComposedPID(pid)) {
                 String p = PIDSupport.first(pid);
-                this.fedoraAccess.getRelsExt(p);
-            } else {
-                this.fedoraAccess.getRelsExt(pid);
             }
-        } catch (IOException e) {
-            throw new PIDNotFound("pid not found");
         } catch (Exception e) {
             throw new PIDNotFound("error while parsing pid (" + pid + ")");
         }

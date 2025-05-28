@@ -17,14 +17,15 @@
 
 package cz.incad.kramerius.imaging.lp;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import org.apache.commons.io.FileUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 import org.w3c.dom.DOMException;
 
 import com.google.inject.Guice;
@@ -32,15 +33,11 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DiscStrucutreForStore;
 import cz.incad.kramerius.imaging.lp.guice.Fedora3Module;
 import cz.incad.kramerius.imaging.lp.guice.GenerateDeepZoomCacheModule;
 import cz.incad.kramerius.imaging.paths.DirPath;
 import cz.incad.kramerius.imaging.paths.Path;
-import cz.incad.kramerius.impl.AbstractTreeNodeProcessorAdapter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -55,13 +52,16 @@ public class DeleteGeneratedDeepZoomCache {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GenerateThumbnail.class.getName());
 
-    public static void main(String[] args) throws IOException, ProcessSubtreeException {
+    public static void main(String[] args) throws IOException {
         if (args.length == 1) {
-            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new Fedora3Module(), new NullStatisticsModule());
-            FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+            Injector injector = Guice.createInjector(new GenerateDeepZoomCacheModule(), new RepoModule(), new Fedora3Module(), new NullStatisticsModule());
+            AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             DiscStrucutreForStore discStruct = injector.getInstance(DiscStrucutreForStore.class);
-            deleteCacheForPID(args[0], fa, discStruct);
-            
+            try {
+                deleteCacheForPID(args[0], akubraRepository, discStruct);
+            }finally {
+                akubraRepository.shutdown();
+            }
             
             boolean spawnFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
             if (spawnFlag) {
@@ -74,29 +74,23 @@ public class DeleteGeneratedDeepZoomCache {
     /**
      * Recursive delete 
      * @param pid Master PID
-     * @param fedoraAccess FedoraAccess implementation
-     * @param discStruct DiscStructure instance 
+     * @param discStruct DiscStructure instance
      * @throws IOException IO error has been occurred
-     * @throws ProcessSubtreeException Error in tree walking 
      */
-    public static void deleteCacheForPID(String pid, final FedoraAccess fedoraAccess, final DiscStrucutreForStore discStruct) throws IOException, ProcessSubtreeException {
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+    public static void deleteCacheForPID(String pid, final AkubraRepository akubraRepository, final DiscStrucutreForStore discStruct) throws IOException {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             try {
                 deleteFolder(pid, discStruct);
             } catch (XPathExpressionException e) {
                 LOGGER.severe(e.getMessage());
             }
         } else {
-            
-            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
-                
-                
-                
-                
+            akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
+
                 @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     try {
-                        if (fedoraAccess.isImageFULLAvailable(pid)) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             //LOGGER.info("Deleting " + (pageIndex++) +" uuid = "+uuid);
                             deleteFolder(pid, discStruct);
                         }

@@ -20,7 +20,6 @@ package cz.incad.kramerius.relation;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import org.easymock.EasyMock;
 
@@ -32,9 +31,6 @@ public class RelationGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        FedoraAccess fedoraAccess = EasyMock.createMock(FedoraAccess.class);
-        bind(FedoraAccess.class).annotatedWith(Names.named("rawFedoraAccess")).toInstance(fedoraAccess);
-        bind(RelationService.class).to(RelationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

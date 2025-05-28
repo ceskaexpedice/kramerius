@@ -1,11 +1,11 @@
 package com.qbizm.kramerius.imptool.poc.convertor;
 
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.periodical.*;
 import com.qbizm.kramerius.imptool.poc.Main;
 import com.qbizm.kramerius.imptool.poc.valueobj.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 
 import java.util.ArrayList;
 import java.util.List;

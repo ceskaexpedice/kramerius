@@ -2,27 +2,20 @@ package cz.incad.kramerius.imaging.impl;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.logging.Level;
 
-import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStreamImpl;
 
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.io.output.FileWriterWithEncoding;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ProcessSubtreeException;
-import cz.incad.kramerius.TreeNodeProcessor;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomFullImageScaleFactor;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -35,8 +28,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
-import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.pid.LexerException;
+import org.ceskaexpedice.akubra.pid.PIDParser;
+import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
 
 /**
  * Cache deepZoom objects (full images, tiles and dzi descritors) on the HDD
@@ -50,8 +46,8 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FileSystemCacheServiceImpl.class.getName());
 
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    SecuredAkubraRepository akubraRepository;
+
     @Inject
     DeepZoomTileSupport tileSupport;
 
@@ -176,23 +172,19 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     }
 
     @Override
-    public void prepareCacheForPID(String pid, final int levelOverTileSize) throws IOException, ProcessSubtreeException {
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+    public void prepareCacheForPID(String pid, final int levelOverTileSize) throws IOException {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             prepareCacheImage(pid, levelOverTileSize);
         } else {
-            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
                 private int pageIndex = 1;
                 
                 @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
-                    try {
-                        if (fedoraAccess.isImageFULLAvailable(pid)) {
+                public void process(String pid, int level) {
+                        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
                             LOGGER.fine("caching page " + (pageIndex++));
                             prepareCacheImage(pid, levelOverTileSize);
                         }
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    }
                 }
                 
                 @Override
@@ -210,16 +202,15 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
     }
 
     @Override
-    public void prepareCacheForPID(String pid) throws IOException, ProcessSubtreeException {
+    public void prepareCacheForPID(String pid) throws IOException {
 
-        if (fedoraAccess.isImageFULLAvailable(pid)) {
+        if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
             prepareCacheImage(pid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
         } else {
-
-            fedoraAccess.processSubtree(pid, new TreeNodeProcessor() {
+            akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
                 private int pageIndex = 1;
                 @Override
-                public void process(String pid, int level) throws ProcessSubtreeException {
+                public void process(String pid, int level) {
                     LOGGER.fine("caching page " + (pageIndex++));
                     prepareCacheImage(pid, new Dimension(tileSupport.getTileSize(), tileSupport.getTileSize()));
                 }
@@ -228,8 +219,6 @@ public class FileSystemCacheServiceImpl implements DeepZoomCacheService {
                 public boolean skipBranch(String pid, int level) {
                     return false;
                 }
-
-
 
                 @Override
                 public boolean breakProcessing(String pid, int level) {

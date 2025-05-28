@@ -3,7 +3,7 @@ description "Import library"
 
 dependencies {
     api project(':shared:common')
-    api project(':processes:import-jaxb')
+    //api project(':processes:import-jaxb')
     api project(':processes:import-cmdtool')
     api 'commons-codec:commons-codec:1.5'
 }

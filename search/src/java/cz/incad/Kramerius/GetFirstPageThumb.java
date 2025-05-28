@@ -5,25 +5,14 @@
 package cz.incad.Kramerius;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.utils.IKeys;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -31,10 +20,12 @@ import javax.xml.xpath.XPathFactory;
 
 
 import java.util.ArrayList;
+
+import cz.incad.kramerius.security.SecuredAkubraRepository;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -48,9 +39,8 @@ public class GetFirstPageThumb extends GuiceServlet {
     private static final String UUID_PARAMETER = "uuid";
 
     @Inject
-	@Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-    
+    SecuredAkubraRepository akubraRepository;
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param response servlet response
@@ -83,7 +73,6 @@ public class GetFirstPageThumb extends GuiceServlet {
         int num = 0;
         ArrayList<String> pids = new ArrayList<String>();
         try {
-            Document contentDom = fedoraAccess.getRelsExt(pid);
             contentDom = UrlReader.getDocument(command);
             expr = xpath.compile("/RDF/Description/*");
             NodeList nodes = (NodeList) expr.evaluate(contentDom, XPathConstants.NODESET);
@@ -134,12 +123,12 @@ public class GetFirstPageThumb extends GuiceServlet {
     }// </editor-fold>
 
     
-	public FedoraAccess getFedoraAccess() {
-		return fedoraAccess;
+	public AkubraRepository getAkubraRepository() {
+		return akubraRepository;
 	}
 
-	public void setFedoraAccess(FedoraAccess fedoraAccess) {
-		this.fedoraAccess = fedoraAccess;
+	public void setAkubraRepository(SecuredAkubraRepository akubraRepository) {
+		this.akubraRepository = akubraRepository;
 	}
 
     

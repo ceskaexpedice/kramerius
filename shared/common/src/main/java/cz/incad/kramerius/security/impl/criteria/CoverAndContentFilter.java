@@ -1,20 +1,19 @@
 package cz.incad.kramerius.security.impl.criteria;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaceContext;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,29 +39,28 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     @Override
     public EvaluatingResultState evalute(Right right) throws RightCriteriumException {
         try {
-            FedoraAccess fedoraAccess = getEvaluateContext().getFedoraAccess();
+            AkubraRepository akubraRepository = getEvaluateContext().getAkubraRepository();
             //getEvaluateContext().getSolrAccess();
             String pid = getEvaluateContext().getRequestedPid();
             if (!pid.equals(SpecialObjects.REPOSITORY.getPid())) {
-                if ("page".equals(fedoraAccess.getKrameriusModelName(pid))) {
-                    Document mods = XMLUtils.parseDocument(
-                            fedoraAccess.getDataStream(pid, "BIBLIO_MODS"), true);
-                    if (checkTypeElement(mods).equals(EvaluatingResultState.TRUE))
+                if ("page".equals(akubraRepository.re().getModel(pid))) {
+                    String modsPartType = akubraRepository.mi().getModsPartType(pid);
+                    if (checkTypeElement(modsPartType).equals(EvaluatingResultState.TRUE))
                         return isNotPeriodical(pid);
-                    return checkTypeElement(mods);
+                    return checkTypeElement(modsPartType);
                 } else {
                     return EvaluatingResultState.NOT_APPLICABLE;
                 }
             } else {
                 return EvaluatingResultState.NOT_APPLICABLE;
             }
-        } catch (IOException | SAXException | ParserConfigurationException e) {
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return EvaluatingResultState.NOT_APPLICABLE;
         }
     }
 
-    private EvaluatingResultState checkTypeElement(Document mods) throws IOException {
+    private EvaluatingResultState checkTypeElement(String mods) throws IOException {
         try {
             if (modsTypeExpr == null)
                 initModsTypeExpr();
@@ -98,7 +96,7 @@ public class CoverAndContentFilter extends AbstractCriterium implements RightCri
     private void initModsTypeExpr() throws IOException {
         try {
             XPath xpath = XPathFactory.newInstance().newXPath();
-            xpath.setNamespaceContext(new FedoraNamespaceContext());
+            xpath.setNamespaceContext(new RepositoryNamespaceContext());
             modsTypeExpr = xpath.compile("/mods:modsCollection/mods:mods/mods:part/@type");
         } catch (XPathExpressionException e) {
             throw new IOException(e);

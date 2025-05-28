@@ -15,7 +15,6 @@ import com.google.inject.Injector;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.imaging.impl.TileSupportImpl;
 
 @Ignore
@@ -47,23 +46,23 @@ public class DeepZoomTileSupportTest extends AbstractGuiceTestCase {
         return injector;
     }
 
-    
+    // TODO
     class _Module extends AbstractModule {
 
         @Override
         protected void configure() {
-            FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
-            TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
-            .addMockedMethod("getTileSize").createMock();
-            
-            EasyMock.expect(tis.getTileSize()).andReturn(512).anyTimes();
-            
-            EasyMock.replay(fa,tis);
-            
-            
-            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
-            bind(DeepZoomTileSupport.class).toInstance(tis);
-            
+//            FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+//            TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
+//            .addMockedMethod("getTileSize").createMock();
+//
+//            EasyMock.expect(tis.getTileSize()).andReturn(512).anyTimes();
+//
+//            EasyMock.replay(fa,tis);
+//
+//
+//            bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
+//            bind(DeepZoomTileSupport.class).toInstance(tis);
+//
             
         }
     }

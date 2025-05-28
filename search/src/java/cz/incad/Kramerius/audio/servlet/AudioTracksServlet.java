@@ -21,12 +21,15 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.audio.XpathEvaluator;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import net.sf.json.JSONObject;
 
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -38,6 +41,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,8 +61,8 @@ public class AudioTracksServlet extends GuiceServlet {
     @Inject
     Provider<Locale> localeProvider;
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    SecuredAkubraRepository akubraRepository;
+
     private XPathExpression rdfModel;
     private XPathExpression rdfHasTracks;
     private XPathExpression rdfContainsTracks;
@@ -139,7 +143,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
 
     private boolean canContainTracks(String pid) throws IOException {
-        Document relsExt = fedoraAccess.getRelsExt(pid);
+        Document relsExt = akubraRepository.re().get(pid).asDom(false);
         String model = getModel(pid, relsExt);
         return "model:soundrecording".equals(model)
                 || "model:soundunit".equals(model)
@@ -147,7 +151,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
     
     private boolean isTrack(String pid) throws IOException {
-        Document relsExt = fedoraAccess.getRelsExt(pid);
+        Document relsExt = akubraRepository.re().get(pid).asDom(false);
         String model = getModel(pid, relsExt);
         return "model:track".equals(model);
     }
@@ -169,7 +173,7 @@ public class AudioTracksServlet extends GuiceServlet {
     }
 
     private List<String> getTrackPids(String pid) throws IOException {
-        Document relsExt = fedoraAccess.getRelsExt(pid);
+        Document relsExt = akubraRepository.re().get(pid).asDom(false);
         String model = getModel(pid, relsExt);
         if ("model:soundrecording".equals(model)) {
             return getPidsFromRelsExtByXpath(pid, relsExt, rdfHasTracks);
@@ -272,7 +276,7 @@ public class AudioTracksServlet extends GuiceServlet {
 
     private Track buildTrack(String pid) throws IOException {
         try {
-            Document dC = fedoraAccess.getDC(pid);
+            Document dC = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
             NodeList titleNodes = (NodeList) dcTitles.evaluate(dC, XPathConstants.NODESET);
             String title = buildTitle(titleNodes, pid);
             NodeList formatNodes = (NodeList) dcFormats.evaluate(dC, XPathConstants.NODESET);
@@ -319,17 +323,14 @@ public class AudioTracksServlet extends GuiceServlet {
 
     private Boolean[] getAvailableFormats(String pid) {
         try {
-            Document doc = fedoraAccess.getFedoraDataStreamsListAsDocument(pid);
+            Document doc = null; // TODO
             boolean mp3 = ((NodeList) dsMp3.evaluate(doc, XPathConstants.NODESET)).getLength() == 1;
             boolean ogg = ((NodeList) dsOgg.evaluate(doc, XPathConstants.NODESET)).getLength() == 1;
             boolean wav = ((NodeList) dsWav.evaluate(doc, XPathConstants.NODESET)).getLength() == 1;
             return new Boolean[]{mp3, ogg, wav};
-        } catch (XPathExpressionException ex) {
+        } catch (Exception ex) {
             //should never happen unless someone breaks xpath expressions
             LOGGER.log(Level.SEVERE, null, ex);
-            return new Boolean[]{false, false, false};
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "failed to load list of datastreams of object {0}", pid);
             return new Boolean[]{false, false, false};
         }
     }

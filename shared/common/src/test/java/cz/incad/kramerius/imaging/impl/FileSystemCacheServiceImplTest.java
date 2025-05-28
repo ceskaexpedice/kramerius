@@ -20,15 +20,12 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,18 +33,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStreamImpl;
 import javax.imageio.stream.ImageOutputStreamImpl;
-import javax.xml.crypto.Data;
 
 import junit.framework.Assert;
 
-import org.easymock.EasyMock;
-import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -55,12 +48,9 @@ import org.junit.Test;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.AbstractGuiceTestCase;
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.fedora.impl.DataPrepare;
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
@@ -70,7 +60,6 @@ import cz.incad.kramerius.imaging.paths.FilePath;
 import cz.incad.kramerius.imaging.paths.Path;
 import cz.incad.kramerius.imaging.paths.PathFilter;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.utils.pid.PIDParser;
 
 @Ignore
 public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
@@ -82,7 +71,7 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
         return ImageIO.read(is);
     }
 
-    public void cacheImage(Injector inj) throws IOException, ProcessSubtreeException {
+    public void cacheImage(Injector inj) throws IOException {
         DeepZoomCacheService dcache = inj.getInstance(DeepZoomCacheService.class);
         dcache.prepareCacheForPID(DataPrepare.DROBNUSTKY_PIDS[0]);
         
@@ -96,7 +85,7 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
     }
 
     @Test
-    public void testPrepageAndGet() throws IOException, ProcessSubtreeException {
+    public void testPrepageAndGet() throws IOException {
         Injector inj = injector();
         cacheImage(inj);
         DeepZoomCacheService dz = inj.getInstance(DeepZoomCacheService.class);
@@ -122,7 +111,7 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
     
     
     @Test
-    public void testPrepraCacheImage() throws IOException, ProcessSubtreeException, LexerException {
+    public void testPrepraCacheImage() throws IOException, LexerException {
         Injector inj = injector();
         cacheImage(inj);
         
@@ -160,45 +149,45 @@ public class FileSystemCacheServiceImplTest extends AbstractGuiceTestCase {
         return injector;
     }
 
-
+// TODO
     class _Module extends AbstractModule {
 
         
         @Override
         protected void configure() {
-            try {
-                FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
-                TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
-                .addMockedMethod("getTileSize").createMock();
-                
-                FileSystemCacheServiceImpl fcache = EasyMock.createMockBuilder(FileSystemCacheServiceImpl.class).withConstructor()
-                    .addMockedMethod("createDeepZoomOriginalImageFromFedoraRAW")
-                    .addMockedMethod("isResolutionFilePresent")
-                    .addMockedMethod("uuidFolder")
-                    .createMock();
-                
-                EasyMock.expect(fa.isImageFULLAvailable(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(true).anyTimes();
-                EasyMock.expect(fcache.createDeepZoomOriginalImageFromFedoraRAW(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(bufImage());
-                EasyMock.expect(tis.getTileSize()).andReturn(512).anyTimes();
-                EasyMock.expect(fcache.isResolutionFilePresent(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(false).anyTimes();
-                
-                
-                EasyMock.expect(fcache.uuidFolder(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn((DirPath) PATHS.get(Arrays.asList(DataPrepare.DROBNUSTKY_PIDS[0]))).anyTimes();
-
-                
-                DiscStrucutreForStore discStruct = EasyMock.createMock(DiscStrucutreForStore.class);
-                
-                EasyMock.replay(fa,tis,fcache, discStruct);
-                
-                bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
-                bind(DeepZoomTileSupport.class).toInstance(tis);
-                bind(DeepZoomCacheService.class).toInstance(fcache);
-                bind(DiscStrucutreForStore.class).toInstance(discStruct);
-                
-                
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+//            try {
+//                FedoraAccess fa = EasyMock.createMock(FedoraAccess.class);
+//                TileSupportImpl tis = EasyMock.createMockBuilder(TileSupportImpl.class).withConstructor()
+//                .addMockedMethod("getTileSize").createMock();
+//
+//                FileSystemCacheServiceImpl fcache = EasyMock.createMockBuilder(FileSystemCacheServiceImpl.class).withConstructor()
+//                    .addMockedMethod("createDeepZoomOriginalImageFromFedoraRAW")
+//                    .addMockedMethod("isResolutionFilePresent")
+//                    .addMockedMethod("uuidFolder")
+//                    .createMock();
+//
+//                EasyMock.expect(fa.isImageFULLAvailable(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(true).anyTimes();
+//                EasyMock.expect(fcache.createDeepZoomOriginalImageFromFedoraRAW(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(bufImage());
+//                EasyMock.expect(tis.getTileSize()).andReturn(512).anyTimes();
+//                EasyMock.expect(fcache.isResolutionFilePresent(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn(false).anyTimes();
+//
+//
+//                EasyMock.expect(fcache.uuidFolder(DataPrepare.DROBNUSTKY_PIDS[0])).andReturn((DirPath) PATHS.get(Arrays.asList(DataPrepare.DROBNUSTKY_PIDS[0]))).anyTimes();
+//
+//
+//                DiscStrucutreForStore discStruct = EasyMock.createMock(DiscStrucutreForStore.class);
+//
+//                EasyMock.replay(fa,tis,fcache, discStruct);
+//
+//                bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).toInstance(fa);
+//                bind(DeepZoomTileSupport.class).toInstance(tis);
+//                bind(DeepZoomCacheService.class).toInstance(fcache);
+//                bind(DiscStrucutreForStore.class).toInstance(discStruct);
+//
+//
+//            } catch (IOException e) {
+//                throw new IllegalStateException(e);
+//            }
         }
     }
 

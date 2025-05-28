@@ -8,7 +8,6 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 import cz.incad.kramerius.Constants;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
@@ -30,7 +29,6 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.impl.DeleteTriggerS
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.incad.kramerius.rest.apiNew.monitoring.impl.SolrAPICallMonitor;
-import cz.incad.kramerius.security.SecuredFedoraAccessImpl;
 import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
 import cz.incad.kramerius.service.METSService;
@@ -59,8 +57,6 @@ public class BaseModule extends AbstractModule {
 	
 	@Override
     protected void configure() {
-        bind(FedoraAccess.class).annotatedWith(Names.named("securedFedoraAccess")).to(SecuredFedoraAccessImpl.class).in(Scopes.SINGLETON);
-        bind(FedoraAccess.class).annotatedWith(Names.named("cachedFedoraAccess")).to(CachedFedoraAccessImpl.class).in(Scopes.SINGLETON);
 
         // logs statistics
         bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(SolrStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);

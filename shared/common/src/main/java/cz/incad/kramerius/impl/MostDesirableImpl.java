@@ -7,37 +7,37 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.SimpleFormatter;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.MostDesirable;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 public class MostDesirableImpl implements MostDesirable {
 
     
     private Provider<Connection> provider;
-    private FedoraAccess fedoraAccess;
+    private AkubraRepository akubraRepository;
 
     
     @Inject
     public MostDesirableImpl(
             @Named("kramerius4") Provider<Connection> provider,
-            @Named("securedFedoraAccess") FedoraAccess fa) {
+            SecuredAkubraRepository akubraRepository
+    ){
         super();
         this.provider = provider;
-        this.fedoraAccess = fa;
+        this.akubraRepository = akubraRepository;
     }
 
     @Override
@@ -71,13 +71,11 @@ public class MostDesirableImpl implements MostDesirable {
     @Override
     public void saveAccess(String uuid, Date date) {
         try {
-            String modelName = this.fedoraAccess.getKrameriusModelName(uuid);
+            String modelName = akubraRepository.re().getModel(uuid);
             new JDBCUpdateTemplate(provider.get())
                     .executeUpdate(
                             "insert into DESIRABLE(UUID, ACCESS, MODEL) values(?, ?, ?)",
                             uuid, new Timestamp(date.getTime()), modelName);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

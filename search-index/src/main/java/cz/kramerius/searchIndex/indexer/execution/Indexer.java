@@ -7,13 +7,14 @@ import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
@@ -36,7 +37,7 @@ public class Indexer {
     private boolean shutDown = false;
     //helpers
     private final ReportLogger reportLogger;
-    private final KrameriusRepositoryFascade krameriusRepositoryFascade;
+    private final AkubraRepository akubraRepository;
     private final RepositoryNodeManager nodeManager;
 
     private final SolrInputBuilder solrInputBuilder;
@@ -71,9 +72,9 @@ public class Indexer {
         }
     }
 
-    public Indexer(KrameriusRepositoryFascade krameriusRepositoryFascade, SolrConfig solrConfig, OutputStream reportLoggerStream, boolean ignoreInconsistentObjects) {
-        this.krameriusRepositoryFascade = krameriusRepositoryFascade;
-        this.nodeManager = new RepositoryNodeManager(krameriusRepositoryFascade, ignoreInconsistentObjects);
+    public Indexer(AkubraRepository akubraRepository, SolrConfig solrConfig, OutputStream reportLoggerStream, boolean ignoreInconsistentObjects) {
+        this.akubraRepository = akubraRepository;
+        this.nodeManager = new RepositoryNodeManager(akubraRepository, ignoreInconsistentObjects);
         this.solrInputBuilder = new SolrInputBuilder();
         this.solrConfig = solrConfig;
         this.reportLogger = new ReportLogger(reportLoggerStream);
@@ -218,15 +219,19 @@ public class Indexer {
                 report("");
             } else {
                 LOGGER.info("Indexing " + pid);
-                Document foxmlDoc = krameriusRepositoryFascade.getObjectFoxml(pid, true);
+                Document foxmlDoc = akubraRepository.get(pid).asDom4j(true);
                 report("model: " + repositoryNode.getModel());
                 report("title: " + repositoryNode.getTitle());
                 //the isOcrTextAvailable method (and for other datastreams) is inefficient for implementation through http stack (because of HEAD requests)
                 //String ocrText = repositoryConnector.isOcrTextAvailable(pid) ? repositoryConnector.getOcrText(pid) : null;
-                String ocrText = normalizeWhitespacesForOcrText(krameriusRepositoryFascade.getOcrText(pid));
+
+
+                boolean ocrExists = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_TEXT);
+                String ocr = ocrExists ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString() : null;
+                String ocrText = normalizeWhitespacesForOcrText(ocr);
                 //System.out.println("ocr: " + ocrText);
                 //IMG_FULL mimetype
-                String imgFullMime = krameriusRepositoryFascade.getImgFullMimetype(pid);
+                String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
 
                 Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid()) : null;
                 try {
@@ -267,8 +272,9 @@ public class Indexer {
     private Integer detectAudioLength(String pid) {
         try {
             AudioAnalyzer analyzer = new AudioAnalyzer();
-            if (krameriusRepositoryFascade.isAudioWavAvailable(pid)) {
-                AudioAnalyzer.Result result = analyzer.analyze(krameriusRepositoryFascade.getAudioWav(pid), AudioAnalyzer.Format.WAV);
+            if (akubraRepository.datastreamExists(pid, KnownDatastreams.AUDIO_WAV)) {
+                InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV).asInputStream();
+                AudioAnalyzer.Result result = analyzer.analyze(inputStream, AudioAnalyzer.Format.WAV);
                 return result.duration;
             }
             System.out.println("failed to detect audio length of " + pid);
@@ -281,7 +287,7 @@ public class Indexer {
 
     private void indexPagesFromPdf(String pid, RepositoryNode repositoryNode, Counters counters) throws IOException, DocumentException, SolrServerException {
         report("object " + pid + " contains PDF, extracting pages");
-        InputStream imgFull = krameriusRepositoryFascade.getImgFull(pid);
+        InputStream imgFull =akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream() : null;
         PdfExtractor extractor = new PdfExtractor(pid, imgFull);
         int pages = extractor.getPagesCount();
         for (int i = 0; i < pages; i++) {

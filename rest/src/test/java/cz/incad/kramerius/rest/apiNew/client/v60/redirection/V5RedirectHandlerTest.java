@@ -15,7 +15,6 @@ import org.junit.Test;
 
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.utils.pid.LexerException;
 import junit.framework.TestCase;

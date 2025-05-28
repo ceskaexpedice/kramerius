@@ -2,9 +2,8 @@ package cz.incad.kramerius.pdf.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,33 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Stack;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
-import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 
 public class STUtils {
 
@@ -68,8 +53,8 @@ public class STUtils {
 		System.out.println(createBundleURL(Locale.getDefault(), " http://localhost:8080/search/i18n"));
 	}
 	
-	public static String metadata(FedoraAccess fedoraAccess, String parentUUID) throws IOException {
-		org.w3c.dom.Document biblioMods = fedoraAccess.getDC(parentUUID);
+	public static String metadata(AkubraRepository akubraRepository, String parentUUID) throws IOException {
+		Document biblioMods = akubraRepository.getDatastreamContent(parentUUID, KnownDatastreams.BIBLIO_MODS).asDom(false);
 		Element root = biblioMods.getDocumentElement();
 		Map stModel = prepareDCModel(root);
 		StringTemplateGroup group = getGroup();
@@ -86,30 +71,7 @@ public class STUtils {
 		String description = stDescription.toString();
 		return description;
 	}
-	
-	public static String textPage(FedoraAccess fa, String uuid, String modelName, String title) throws IOException {
-		org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
-		Element root = biblioMods.getDocumentElement();
-		Map stModel = prepareBiblioModsModel(root);
-		StringTemplateGroup group = getGroup();
-		StringTemplate intpart = group.getInstanceOf("render");
-		intpart.setAttribute("bibliomods", stModel);
-		intpart.setAttribute("model", modelName);
-		intpart.setAttribute("title", title);
-		return intpart.toString();
-	}
-	
-	public static String internalPart(FedoraAccess fa, String uuid, String title) throws IOException {
-		org.w3c.dom.Document biblioMods = fa.getBiblioMods(uuid);
-		Element root = biblioMods.getDocumentElement();
-		Map stModel = prepareBiblioModsModel(root);
-		StringTemplateGroup group = getGroup();
-		StringTemplate intpart = group.getInstanceOf("internalpart");
-		intpart.setAttribute("bibliomods", stModel);
-		intpart.setAttribute("title", title);
-		return intpart.toString();
-	}
-	
+
 	private static void elementMap(Element m,Map parentMap) {
 		Map map = new HashMap();
 		String mprefix = m.getLocalName();
@@ -158,7 +120,7 @@ public class STUtils {
 		for (int i = 0,ll=nlist.getLength(); i < ll; i++) {
 			Node item = nlist.item(i);
 			if (item.getNodeType() == Node.ELEMENT_NODE) {
-				if (item.getNamespaceURI().equals(FedoraNamespaces.DC_NAMESPACE_URI)) {
+				if (item.getNamespaceURI().equals(RepositoryNamespaces.DC_NAMESPACE_URI)) {
 					String name = item.getLocalName();
 					String value = item.getTextContent();
 					if (stModel.containsKey(name)) {

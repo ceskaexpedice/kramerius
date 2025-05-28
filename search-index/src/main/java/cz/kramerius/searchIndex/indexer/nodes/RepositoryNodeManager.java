@@ -1,12 +1,14 @@
 package cz.kramerius.searchIndex.indexer.nodes;
 
-import cz.incad.kramerius.resourceindex.ResourceIndexException;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
-import cz.kramerius.krameriusRepositoryAccess.KrameriusRepositoryFascade;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
-import cz.kramerius.shared.Pair;
 import cz.kramerius.shared.Title;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.dom4j.Document;
 
 import java.io.IOException;
@@ -18,12 +20,12 @@ import java.util.stream.Collectors;
 
 public class RepositoryNodeManager {
 
-    private final KrameriusRepositoryFascade krameriusRepositoryFascade;
+    private final AkubraRepository akubraRepository;
     private final LRUCache<String, RepositoryNode> nodesByPid = new LRUCache<>(1024);
     private final boolean surviveInconsistentObjects;
 
-    public RepositoryNodeManager(KrameriusRepositoryFascade krameriusRepositoryFascade, boolean surviveInconsistentObjects) {
-        this.krameriusRepositoryFascade = krameriusRepositoryFascade;
+    public RepositoryNodeManager(AkubraRepository akubraRepository, boolean surviveInconsistentObjects) {
+        this.akubraRepository = akubraRepository;
         this.surviveInconsistentObjects = surviveInconsistentObjects;
     }
 
@@ -76,32 +78,34 @@ public class RepositoryNodeManager {
 
     private RepositoryNode buildKrameriusNodeFromRepository(String pid, List<String> path) {
         try {
-            if (!krameriusRepositoryFascade.isObjectAvailable(pid)) {
+            if (!akubraRepository.exists(pid)) {
                 return null;
             }
             //System.out.println("building node for " + pid);
-            Pair<String, Set<String>> parents = krameriusRepositoryFascade.getPidsOfParents(pid);
+            OwnedAndFosteredParents parents = akubraRepository.pi().getOwnedAndFosteredParents(pid);
             //process parents first
-            RepositoryNode ownParent = parents.getFirst() == null ? null : getKrameriusNodeWithCycleDetection(parents.getFirst(), path);
+            RepositoryNode ownParent = parents.own() == null ? null : getKrameriusNodeWithCycleDetection(parents.own().source(), path);
             List<RepositoryNode> fosterParents = new ArrayList<>();
-            for (String fosterParent : parents.getSecond()) {
-                fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent, path));
+            for (ProcessingIndexItem fosterParent : parents.foster()) {
+                fosterParents.add(getKrameriusNodeWithCycleDetection(fosterParent.source(), path));
             }
 
-            Document relsExtDoc = krameriusRepositoryFascade.getRelsExt(pid, false);
+            Document relsExtDoc = akubraRepository.re().get(pid).asDom4j(false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
-            String model = krameriusRepositoryFascade.getModel(pid);
-            List<String> ownChildren = null;
-            List<String> fosterChildren = null;
+            String model = akubraRepository.pi().getModel(pid);
+            List<String> ownChildren = new ArrayList<>();
+            List<String> fosterChildren = new ArrayList<>();
             if (!"page".equals(model) && !"track".equals(model)) { //just optimization, pages and tracks never have children
-                //Pair<List<String>, List<String>> children = KrameriusRepositoryUtils.extractChildren(relsExtDoc);
-                Pair<List<String>, List<String>> children = krameriusRepositoryFascade.getPidsOfChildren(pid);
-                ownChildren = children.getFirst();
-                fosterChildren = children.getSecond();
+                OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
+                for(ProcessingIndexItem processingIndexItem: children.own()){
+                    ownChildren.add(processingIndexItem.targetPid());
+                }
+                for(ProcessingIndexItem processingIndexItem: children.foster()){
+                    fosterChildren.add(processingIndexItem.targetPid());
+                }
             }
             //System.out.println("own children: " + (ownChildren == null? null : ownChildren.size()));
-
-            Document modsDoc = krameriusRepositoryFascade.getMods(pid, false);
+            Document modsDoc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(false);
             if (modsDoc == null) {
                 throw new RuntimeException("missing MODS");
             }
@@ -172,7 +176,7 @@ public class RepositoryNodeManager {
                     languages, primaryAuthors, otherAuthors, dateInfo,
                     myLicences, licencesOfOwnAncestors
             );
-        } catch (IOException | ResourceIndexException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

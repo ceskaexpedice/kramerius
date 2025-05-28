@@ -42,11 +42,10 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.utils.StringUtils;
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
@@ -54,8 +53,6 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfWriter;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
@@ -183,9 +180,9 @@ public class PDFResource extends AbstractPDFResource  {
                 if (pid != null) {
                     File fileToDelete = null;
                     try {
-                        pid = this.fedoraAccess.findFirstViewablePid(pid);
-                        
-                        BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, this.fedoraAccess, 0);
+                        pid = akubraRepository.re().getFirstViewablePidInTree(pid);
+
+                        BufferedImage bufImage = KrameriusImageSupport.readImage(pid,FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
 
                         double xPerctDouble = Double.parseDouble(xpos);
                         double yPerctDouble = Double.parseDouble(ypos);
@@ -294,7 +291,7 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
                 } catch (DocumentException e) {
@@ -377,7 +374,7 @@ public class PDFResource extends AbstractPDFResource  {
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
-                } catch (ProcessSubtreeException e) {
+                } catch (RepositoryException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     throw new GenericApplicationException(e.getMessage());
                 } catch (OutOfRangeException e1) {

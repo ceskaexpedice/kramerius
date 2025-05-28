@@ -35,7 +35,6 @@ import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.Kramerius.users.ProfilePrepareUtils;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.users.UserProfileManager;
@@ -44,11 +43,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class ProfilesServlet extends GuiceServlet {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProfilesServlet.class.getName());
-    
-    @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-
 
     KConfiguration configuration = KConfiguration.getInstance();
     

@@ -1,6 +1,5 @@
 package com.qbizm.kramerius.imptool.poc;
 
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
 import com.qbizm.kramerius.imp.jaxb.monograph.Monograph;
 import com.qbizm.kramerius.imp.jaxb.periodical.Periodical;
 import com.qbizm.kramerius.imptool.poc.convertor.BaseConvertor;
@@ -15,6 +14,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

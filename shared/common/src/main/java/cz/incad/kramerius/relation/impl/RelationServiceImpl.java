@@ -18,19 +18,14 @@
 package cz.incad.kramerius.relation.impl;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import cz.incad.kramerius.*;
-import cz.incad.kramerius.fedora.om.Repository;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.fedora.utils.Fedora4Utils;
+import cz.incad.kramerius.KrameriusModels;
+import cz.incad.kramerius.RDFModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
 import cz.incad.kramerius.relation.RelationService;
-import cz.incad.kramerius.relation.RelationUtils;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.ceskaexpedice.akubra.*;
 import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -42,9 +37,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,17 +51,16 @@ import java.util.logging.Logger;
 public final class RelationServiceImpl implements RelationService {
 
     private static final Logger LOGGER = Logger.getLogger(RelationServiceImpl.class.getName());
-    private static final FedoraNamespaceContext FEDORA_NAMESPACE_CONTEXT = new FedoraNamespaceContext();
+    private static final RepositoryNamespaceContext FEDORA_NAMESPACE_CONTEXT = new RepositoryNamespaceContext();
     private static final String FEDORA_URI_PREFIX = "info:fedora/";
 
     @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedoraAccess;
+    AkubraRepository akubraRepository;
 
     @Override
     public RelationModel load(String pid) throws IOException {
         try {
-            Document relsExt = RelationUtils.getRelsExt(pid, fedoraAccess);
+            Document relsExt = akubraRepository.re().get(pid).asDom(false);
             return Loader.load(pid, relsExt);
         } catch (Exception ex) {
             throw new IOException("Cannot load relations: " + pid, ex);
@@ -76,48 +70,51 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public void save(String pid, RelationModel model) throws IOException {
         try {
-            Document relsExt = RelationUtils.getRelsExt(pid, fedoraAccess);
-            RelationModel orig = Loader.load(pid, relsExt);
+            akubraRepository.doWithWriteLock(pid, new LockOperation<Object>() {
+                @Override
+                public Object execute() {
+                    try {
+                        Document relsExt = akubraRepository.re().get(pid).asDom(false);
+                        RelationModel orig = Loader.load(pid, relsExt);
 
-            if (isModified(orig, model)) {
-                // XXX use also timestamp or checksum to detect concurrent modifications
-                String dsContent = Saver.save(relsExt, model);
+                        if (isModified(orig, model)) {
+                            // XXX use also timestamp or checksum to detect concurrent modifications
+                            String dsContent = Saver.save(relsExt, model);
 
-                Repository repo = fedoraAccess.getInternalAPI();
-                Lock writeLock = AkubraDOManager.getWriteLock(pid);
-                try {
-                    if (repo.getObject(pid).streamExists(FedoraUtils.RELS_EXT_STREAM)) {
-                        repo.getObject(pid).removeRelationsByNamespace(FedoraNamespaces.KRAMERIUS_URI);
-                        repo.getObject(pid).removeRelationsByNameAndNamespace("isMemberOfCollection", FedoraNamespaces.RDF_NAMESPACE_URI);
-                        repo.getObject(pid).deleteStream(FedoraUtils.RELS_EXT_STREAM);
-                    }
-                    byte[] bytes = dsContent.getBytes("UTF-8");
-                    repo.getObject(pid).createStream(FedoraUtils.RELS_EXT_STREAM, "text/xml", new ByteArrayInputStream(bytes));
-                }finally{
-                    writeLock.unlock();
-                }
+                            byte[] bytes = dsContent.getBytes(StandardCharsets.UTF_8);
+                            akubraRepository.re().update(pid, new ByteArrayInputStream(bytes));
 
-                List<String> movedPids = new ArrayList<>();
-                for (KrameriusModels kind : model.getRelationKinds()) {
-                    if (KrameriusModels.DONATOR.equals(kind)) continue;
-                    List<Relation> newRelations = model.getRelations(kind);
-                    List<Relation> origRelations = orig.getRelations(kind);
-                    if (newRelations.size()==origRelations.size()){
-                        for (int i = 0; i< newRelations.size();i++){
-                            if (!newRelations.get(i).equals(origRelations.get(i))) {
-                                movedPids.add(newRelations.get(i).getPID());
+                            List<String> movedPids = new ArrayList<>();
+                            for (KrameriusModels kind : model.getRelationKinds()) {
+                                if (KrameriusModels.DONATOR.equals(kind)) continue;
+                                List<Relation> newRelations = model.getRelations(kind);
+                                List<Relation> origRelations = orig.getRelations(kind);
+                                if (newRelations.size()==origRelations.size()){
+                                    for (int i = 0; i< newRelations.size();i++){
+                                        if (!newRelations.get(i).equals(origRelations.get(i))) {
+                                            movedPids.add(newRelations.get(i).getPID());
+                                        }
+                                    }
+                                }
                             }
+                            for (String movedPid:movedPids){
+                                // changed only because of message
+                                //fedoraAccess.getAPIM().modifyObject(movedPid,null,null,null,"Relation order changed.");
+                            }
+
+                            RelationModelImpl modelImpl = (RelationModelImpl) model;
+                            modelImpl.onSave();
                         }
+                        return null;
+                    } catch (XPathExpressionException e) {
+                        throw new RuntimeException(e);
+                    } catch (LexerException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }
-                for (String movedPid:movedPids){
-                    // changed only because of message
-                    //fedoraAccess.getAPIM().modifyObject(movedPid,null,null,null,"Relation order changed.");
-                }
-
-                RelationModelImpl modelImpl = (RelationModelImpl) model;
-                modelImpl.onSave();
-            }
+            });
         } catch (Exception ex) {
             throw new IOException("Cannot store relations: " + pid, ex);
         }
@@ -145,13 +142,13 @@ public final class RelationServiceImpl implements RelationService {
         private final Document relsExt;
         private final RelationModel model;
         private final String rdfResourceAttrName;
-        private final String krameriusPrefix = FEDORA_NAMESPACE_CONTEXT.getPrefix(FedoraNamespaces.KRAMERIUS_URI);
+        private final String krameriusPrefix = FEDORA_NAMESPACE_CONTEXT.getPrefix(RepositoryNamespaces.KRAMERIUS_URI);
 
         private Saver(Document relsExt, RelationModel model) {
             this.relsExt = relsExt;
             this.model = model;
             rdfResourceAttrName = String.format("%s:resource",
-                    FEDORA_NAMESPACE_CONTEXT.getPrefix(FedoraNamespaces.RDF_NAMESPACE_URI)
+                    FEDORA_NAMESPACE_CONTEXT.getPrefix(RepositoryNamespaces.RDF_NAMESPACE_URI)
                     );
         }
 
@@ -242,9 +239,9 @@ public final class RelationServiceImpl implements RelationService {
 
         private void appendNodes(Node afterNode, String relationElmName, List<Relation> relations) {
             for (Relation relation : relations) {
-                Element elm = relsExt.createElementNS(FedoraNamespaces.KRAMERIUS_URI, relationElmName);
+                Element elm = relsExt.createElementNS(RepositoryNamespaces.KRAMERIUS_URI, relationElmName);
                 String relationURI = FEDORA_URI_PREFIX + relation.getPID();
-                elm.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, rdfResourceAttrName, relationURI);
+                elm.setAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, rdfResourceAttrName, relationURI);
                 appendNode(afterNode, elm);
             }
         }
@@ -301,9 +298,9 @@ public final class RelationServiceImpl implements RelationService {
 
         private void processElement(Element elm) throws LexerException {
             String prefix = elm.getNamespaceURI();
-            if (FedoraNamespaces.FEDORA_MODELS_URI.equals(prefix)) {
+            if (RepositoryNamespaces.FEDORA_MODELS_URI.equals(prefix)) {
                 processFedoraModelElement(elm);
-            } else if (FedoraNamespaces.KRAMERIUS_URI.equals(prefix)) {
+            } else if (RepositoryNamespaces.KRAMERIUS_URI.equals(prefix)) {
                 processKrameriusElement(elm);
             }
         }
@@ -344,7 +341,7 @@ public final class RelationServiceImpl implements RelationService {
         }
 
         private static PIDParser parseRDFResource(Element elm) throws LexerException {
-            String resourceAttr = elm.getAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "resource");
+            String resourceAttr = elm.getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
             PIDParser pidParser = new PIDParser(resourceAttr);
             pidParser.disseminationURI();
             return pidParser;

@@ -1,18 +1,11 @@
 # Embeded criteriums
-cz.incad.kramerius.security.impl.criteria.MovingWall
-cz.incad.kramerius.security.impl.criteria.BenevolentMovingWall
-cz.incad.kramerius.security.impl.criteria.Window
 cz.incad.kramerius.security.impl.criteria.StrictIPAddresFilter
 cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter
-cz.incad.kramerius.security.impl.criteria.PolicyFlag
 cz.incad.kramerius.security.impl.criteria.CoverAndContentFilter
 cz.incad.kramerius.security.impl.criteria.DefaultDomainFilter
 cz.incad.kramerius.security.impl.criteria.StrictDomainFilter
 cz.incad.kramerius.security.impl.criteria.NegativeBenevolentModelFilter
 cz.incad.kramerius.security.impl.criteria.BenevolentModelFilter
-cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels
-cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered
-cz.incad.kramerius.security.impl.criteria.PDFDNNTLabels
 cz.incad.kramerius.security.impl.criteria.PDFProtectedByLicense
 cz.incad.kramerius.security.impl.criteria.Licenses
 cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered

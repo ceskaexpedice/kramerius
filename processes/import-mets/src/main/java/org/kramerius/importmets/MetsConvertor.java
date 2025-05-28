@@ -3,14 +3,8 @@ package org.kramerius.importmets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.qbizm.kramerius.imp.jaxb.DigitalObject;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -18,12 +12,14 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.pid.LexerException;
+import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.kramerius.Import;
 import org.kramerius.ImportModule;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
@@ -45,7 +41,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.logging.Level;
 
 
 /**
@@ -73,7 +68,7 @@ public class MetsConvertor {
      * args[5] - use image server, optional
      * 
      */
-    public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, RepositoryException, SolrServerException {
+    public static void main(String[] args) throws InterruptedException, JAXBException, IOException, SAXException, ServiceException, SolrServerException {
         /*for (int i = 0; i < args.length; i++) {
             System.out.println("arg " + i + ": " + args[i]);
         }*/
@@ -162,10 +157,9 @@ public class MetsConvertor {
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
         }
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         
@@ -174,23 +168,27 @@ public class MetsConvertor {
             try {
                 foxmlService.appendLicense(exportRoot, license);
             } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException
-                    | LexerException e) {
+                     | LexerException e) {
                 log.error(e.getMessage(), e);
             }
         }
-        
-        Import.run(fa, feeder, sortingServiceLocal,
-                KConfiguration.getInstance().getProperty("ingest.url"),
-                KConfiguration.getInstance().getProperty("ingest.user"),
-                KConfiguration.getInstance().getProperty("ingest.password"),
-                exportRoot, startIndexer, authToken,addToCollections);
-        
-        
-        if (deleteContractSubfolder()) {
-            File exportFolder = new File(exportRoot);
-            FileUtils.deleteDirectory(exportFolder);
+
+        try {
+            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
+                    KConfiguration.getInstance().getProperty("ingest.url"),
+                    KConfiguration.getInstance().getProperty("ingest.user"),
+                    KConfiguration.getInstance().getProperty("ingest.password"),
+                    exportRoot, startIndexer, authToken,addToCollections);
+
+
+            if (deleteContractSubfolder()) {
+                File exportFolder = new File(exportRoot);
+                FileUtils.deleteDirectory(exportFolder);
+            }
+        }finally {
+            akubraRepository.shutdown();
         }
-        
+
     }
 
     private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {

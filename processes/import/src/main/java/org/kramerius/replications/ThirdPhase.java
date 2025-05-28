@@ -21,20 +21,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import net.sf.json.JSONObject;
 
+import org.ceskaexpedice.akubra.RepositoryException;
 import org.kramerius.consistency.Consistency;
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
@@ -46,7 +44,6 @@ import antlr.TokenStreamException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import cz.incad.kramerius.ProcessSubtreeException;
 import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
@@ -62,7 +59,7 @@ public class ThirdPhase extends AbstractPhase {
             String rootPid = paths.isEmpty() ?  K4ReplicationProcess.pidFrom(url) : rootFromPaths(paths);
             LOGGER.info(" found root is "+rootPid);
 
-            Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+            Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
             Consistency consistency = new Consistency();
             injector.injectMembers(consistency);
 
@@ -87,15 +84,13 @@ public class ThirdPhase extends AbstractPhase {
             throw new PhaseException(this,e);
         } catch (IOException e) {
             throw new PhaseException(this,e);
-        } catch (ProcessSubtreeException e) {
+        } catch (RepositoryException e) {
             throw new PhaseException(this,e);
         } catch (LexerException e) {
             throw new PhaseException(this,e);
         } catch (RecognitionException e) {
             throw new PhaseException(this,e);
         } catch (TokenStreamException e) {
-            throw new PhaseException(this,e);
-        } catch (RepositoryException e) {
             throw new PhaseException(this,e);
         } catch (InterruptedException e) {
             throw new PhaseException(this,e);

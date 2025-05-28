@@ -20,7 +20,6 @@ package cz.incad.Kramerius.oai;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.KrameriusModels;
 import cz.incad.kramerius.relation.Relation;
 import cz.incad.kramerius.relation.RelationModel;
@@ -28,6 +27,8 @@ import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import cz.incad.utils.IKeys;
+import org.ceskaexpedice.akubra.AkubraRepository;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -83,8 +84,8 @@ public class OaiServlet extends GuiceServlet {
     @Inject
     RelationService relService;
     @Inject
-    @Named("rawFedoraAccess")
-    FedoraAccess fedora;
+    AkubraRepository akubraRepository;
+
     private XMLOutputFactory outFactory;
     private XMLEventFactory eventFactory;
     private XMLInputFactory inFactory;
@@ -157,7 +158,7 @@ public class OaiServlet extends GuiceServlet {
 //                break;
             case drkramerius4:
                 writer = new DrKrameriusV4Writer(pid, outFactory, eventFactory,
-                        inFactory, relService, fedora, TOP_LEVEL_RELATIONS);
+                        inFactory, relService, akubraRepository, TOP_LEVEL_RELATIONS);
                 break;
             default:
                 throw new IllegalStateException("unknown format: " + format);

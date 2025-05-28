@@ -30,20 +30,20 @@ public enum SecuredActions {
     A_PDF_READ("a_pdf_read", false),
     
     /** smazani  zaznamu */
-    A_DELETE("a_delete",false),
+    A_DELETE("a_delete",false, true),
     
     /** spravovat vsechny procesy; smazat, prohlizet logy */
-    A_PROCESS_EDIT("a_process_edit"),
+    A_PROCESS_EDIT("a_process_edit", true, true),
     
     /** Pravo pro cteni procesu */
     A_PROCESS_READ("a_process_read"),
     
     
     /** Spravovat pouze vlastni procesy */
-    A_OWNER_PROCESS_EDIT("a_owner_process_edit"),
+    A_OWNER_PROCESS_EDIT("a_owner_process_edit", true, true),
 
     /** spusteni indexeru; cely repozitar*/
-    A_INDEX("a_index", false),
+    A_INDEX("a_index", false, true),
     
     /** indexace ve stronu */
     //A_INDEX_CHILDREN("a_index_children"),
@@ -52,10 +52,10 @@ public enum SecuredActions {
     A_REBUILD_PROCESSING_INDEX("a_rebuild_processing_index", false),
     
     /** import */
-    A_IMPORT("a_import"),
+    A_IMPORT("a_import", true, true),
 
     /** pravo nastavovat priznak viditlnosti a licence */
-    A_SET_ACCESSIBILITY("a_set_accessibility", false),
+    A_SET_ACCESSIBILITY("a_set_accessibility", false, true),
 
     
     /** export pro cdk */
@@ -74,7 +74,7 @@ public enum SecuredActions {
     A_EXPORT_REPLICATIONS("a_export_replications"),
     
     /** replikace - import */
-    A_IMPORT_REPLICATIONS("a_import_replications"),
+    A_IMPORT_REPLICATIONS("a_import_replications", true, true),
 
     /** editace prav, pro vsechny objekty krome sbirek*/
     A_RIGHTS_EDIT("a_rights_edit",false),
@@ -86,7 +86,7 @@ public enum SecuredActions {
     A_COLLECTIONS_READ("a_collections_read"),
     
     /** editace kolekci, pridavani do kolekci atd..   */
-    A_COLLECTIONS_EDIT("a_collections_edit", false),
+    A_COLLECTIONS_EDIT("a_collections_edit", false, true),
     
     /** pravo byti zaraditelny do kolekce */
     A_ABLE_TOBE_PART_OF_COLLECTION("a_able_tobe_part_of_collections", false),
@@ -108,28 +108,42 @@ public enum SecuredActions {
     /** Pravo pro admin cteni admina */
     A_ADMIN_READ("a_admin_read"),
 
+    A_AKUBRA_READ("a_akubra_read"),
+
+    A_AKUBRA_EDIT("a_akubra_edit", true, true),
+
     /** SDNNT synchronization */
-    A_SDNNT_SYNC("a_sdnnt_sync"),
+    A_SDNNT_SYNC("a_sdnnt_sync", true, true),
     
     /** Object editation */
-    A_OBJECT_EDIT("a_object_edit"),
+    A_OBJECT_EDIT("a_object_edit", true, true),
     
     /** Admin openapi specification read */
     A_ADMIN_API_SPECIFICATION_READ("a_admin_api_specification_read");
     
     private String formalName;
     private boolean onlyGlobalAction;
-    
+    private final boolean restrictedInReadOnly;
+
     private SecuredActions(String formalName, boolean gA) {
         this.formalName = formalName;
         this.onlyGlobalAction = gA;
+        this.restrictedInReadOnly = false;
     }
     
     private SecuredActions(String formalName) {
         this.formalName = formalName;
         this.onlyGlobalAction = true;
+        this.restrictedInReadOnly = false;
     }
-    
+
+    // Optional: constructor for specifying read-only restriction
+    private SecuredActions(String formalName, boolean onlyGlobalAction, boolean restrictedInReadOnly) {
+        this.formalName = formalName;
+        this.onlyGlobalAction = onlyGlobalAction;
+        this.restrictedInReadOnly = restrictedInReadOnly;
+    }
+
     public String getFormalName() {
         return formalName;
     }
@@ -147,6 +161,10 @@ public enum SecuredActions {
             }
         }
         return null;
+    }
+
+    public boolean isRestrictedInReadOnly() {
+        return restrictedInReadOnly;
     }
 
 }

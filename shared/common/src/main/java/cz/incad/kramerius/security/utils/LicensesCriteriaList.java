@@ -22,15 +22,11 @@ import java.util.List;
 import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered;
 import cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels;
-import cz.incad.kramerius.security.impl.criteria.ReadDNNTLabelsIPFiltered;
 
 public class LicensesCriteriaList {
 
 
     public static List<String> NAMES = Arrays.asList(
-            ReadDNNTLabels.class.getName(),
-            ReadDNNTLabelsIPFiltered.class.getName(),
             Licenses.class.getName(),
             LicensesIPFiltered.class.getName(),
             LicensesGEOIPFiltered.class.getName()

@@ -51,6 +51,8 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 
@@ -94,8 +96,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
     SolrAccess solrAccess;
 
     @Inject
-    @Named("cachedFedoraAccess")
-    FedoraAccess fedoraAccess;
+    AkubraRepository akubraRepository;
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -157,14 +158,8 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
 
-                    String kModel = fedoraAccess.getKrameriusModelName(detailPid);
-                    //Document sDoc = this.solrAccess.getSolrDataByPid(pid);
-                    Document dc = null;
-                    try {
-                        dc = fedoraAccess.getDC(detailPid);
-                    } catch (IOException e) {
-                        LOGGER.fine("datastream DC not found for " + detailPid + ", ignoring statistics");
-                    }
+                    String kModel = akubraRepository.re().getModel(detailPid);
+                    Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
                     if (dc != null) {
                         Object dateFromDC = DCUtils.dateFromDC(dc);
                         dateFromDC = dateFromDC != null ? dateFromDC : new JDBCUpdateTemplate.NullObject(String.class);
@@ -181,7 +176,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
                         Object rights = DCUtils.rightsFromDC(dc);
                         rights = rights != null ? rights : new JDBCUpdateTemplate.NullObject(String.class);
 
-                        Document mods = fedoraAccess.getBiblioMods(detailPid);
+                        Document mods =  akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS).asDom(false);
                         List<String> languagesFromMods = null;
 
                         Map<String, List<String>> identifiers = null;

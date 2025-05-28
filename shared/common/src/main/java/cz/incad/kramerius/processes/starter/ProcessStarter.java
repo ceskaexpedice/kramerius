@@ -16,12 +16,14 @@
  */
 package cz.incad.kramerius.processes.starter;
 
+import cz.incad.kramerius.workmode.*;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.logging.LoggingLoader;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import org.ceskaexpedice.akubra.DistributedLocksException;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -35,15 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
-
-import cz.incad.kramerius.fedora.om.impl.AkubraDOManager;
-import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.WarningException;
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.logging.LoggingLoader;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
-import cz.incad.kramerius.utils.IPAddressUtils;
 
 /**
  * Process starting point
@@ -81,10 +74,13 @@ public class ProcessStarter {
     private static boolean PID_UPDATED_BY_ME = false;
 
     public static void main(String[] args) {
+
+        String authToken = args[0];
+        WorkModeService workModeService = new ApiWorkModeServiceImpl(authToken);
+
         PrintStream outStream = null;
         PrintStream errStream = null;
         try {
-
             // default process encoding
             System.setProperty("file.encoding", "UTF-8");
             
@@ -111,6 +107,11 @@ public class ProcessStarter {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }));
+
+            WorkMode workMode = workModeService.getWorkMode();
+            if(workMode != null && workMode.isReadOnly()){
+                throw new ReadOnlyWorkModeException();
+            }
 
             LOGGER.info("STARTING PROCESS WITH USER HOME:"+System.getProperty("user.home"));
             LOGGER.info("STARTING PROCESS WITH FILE ENCODING:"+System.getProperty("file.encoding"));
@@ -157,6 +158,10 @@ public class ProcessStarter {
             }
 
         } catch (Throwable e) {
+            DistributedLocksException distributedLockException = getDistributedLockException(e);
+            if(distributedLockException != null) {
+                handleWorkMode(distributedLockException, workModeService);
+            }
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             try {
                 updateStatus(States.FAILED);
@@ -178,7 +183,7 @@ public class ProcessStarter {
                 }
             }
         } finally {
-            AkubraDOManager.shutdown();
+            // TODO is it necessary to shutdown AkubraRepo here?
             String uuid = System.getProperty(ProcessStarter.UUID_KEY);
             String closeTokenFlag = System.getProperty(AUTOMATIC_CLOSE_TOKEN, "true");
             if (closeTokenFlag != null && closeTokenFlag.trim().toLowerCase().equals("true")) {
@@ -350,6 +355,21 @@ public class ProcessStarter {
         return defaultParams.length > i ? defaultParams[i] : null;
     }
 
+    private static DistributedLocksException getDistributedLockException(Throwable throwable) {
+        while (throwable != null) {
+            if (DistributedLocksException.class.isInstance(throwable)) {
+                return (DistributedLocksException) throwable;
+            }
+            throwable = throwable.getCause();
+        }
+        return null;
+    }
+
+    private static void handleWorkMode(DistributedLocksException dle, WorkModeService workModeService) {
+        if(!dle.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
+            workModeService.setWorkMode(new WorkMode(true, WorkModeReason.distributedLocksException));
+        }
+    }
 
     /**
      * Wrapper which represents found method

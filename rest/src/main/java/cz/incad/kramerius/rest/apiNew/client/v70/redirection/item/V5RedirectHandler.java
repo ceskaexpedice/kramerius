@@ -1,5 +1,34 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.item;
 
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.UniformInterfaceException;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.utils.pid.LexerException;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.monitoring.ApiCallEvent;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.relsext.FosterRelationsMapping;
+import org.ceskaexpedice.akubra.relsext.KnownRelations;
+import org.ceskaexpedice.akubra.relsext.OwnRelationsMapping;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -10,38 +39,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import javax.ws.rs.core.Response;
-
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
-import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
-import cz.inovatika.monitoring.ApiCallEvent;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
-
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.fedora.om.RepositoryException;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.FosterRelationsMapping;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.KnownRelations;
-import cz.incad.kramerius.repository.KrameriusRepositoryApi.OwnRelationsMapping;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.pid.LexerException;
 
 public class V5RedirectHandler extends ProxyItemHandler {
 
@@ -261,25 +258,25 @@ public class V5RedirectHandler extends ProxyItemHandler {
         JSONObject dataAvailable = new JSONObject();
         // metadata
         JSONObject metadata = new JSONObject();
-        metadata.put("mods", streams.has(KrameriusRepositoryApi.KnownDatastreams.BIBLIO_MODS.toString()));
-        metadata.put("dc", streams.has(KrameriusRepositoryApi.KnownDatastreams.BIBLIO_DC.toString()));
+        metadata.put("mods", streams.has(KnownDatastreams.BIBLIO_MODS.toString()));
+        metadata.put("dc", streams.has(KnownDatastreams.BIBLIO_DC.toString()));
         dataAvailable.put("metadata", metadata);
         JSONObject ocr = new JSONObject();
         // ocr
-        ocr.put("text", streams.has(KrameriusRepositoryApi.KnownDatastreams.OCR_TEXT.toString()));
-        ocr.put("alto", streams.has(KrameriusRepositoryApi.KnownDatastreams.OCR_ALTO.toString()));
+        ocr.put("text", streams.has(KnownDatastreams.OCR_TEXT.toString()));
+        ocr.put("alto", streams.has(KnownDatastreams.OCR_ALTO.toString()));
         dataAvailable.put("ocr", ocr);
         // images
         JSONObject image = new JSONObject();
-        image.put("full", streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_FULL.toString()));
-        image.put("thumb", streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_THUMB.toString()));
-        image.put("preview", streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_PREVIEW.toString()));
+        image.put("full", streams.has(KnownDatastreams.IMG_FULL.toString()));
+        image.put("thumb", streams.has(KnownDatastreams.IMG_THUMB.toString()));
+        image.put("preview", streams.has(KnownDatastreams.IMG_PREVIEW.toString()));
         dataAvailable.put("image", image);
         // audio
         JSONObject audio = new JSONObject();
-        audio.put("mp3", streams.has(KrameriusRepositoryApi.KnownDatastreams.AUDIO_MP3.toString()));
-        audio.put("ogg", streams.has(KrameriusRepositoryApi.KnownDatastreams.AUDIO_OGG.toString()));
-        audio.put("wav", streams.has(KrameriusRepositoryApi.KnownDatastreams.AUDIO_WAV.toString()));
+        audio.put("mp3", streams.has(KnownDatastreams.AUDIO_MP3.toString()));
+        audio.put("ogg", streams.has(KnownDatastreams.AUDIO_OGG.toString()));
+        audio.put("wav", streams.has(KnownDatastreams.AUDIO_WAV.toString()));
         dataAvailable.put("audio", audio);
         return dataAvailable;
     }
@@ -291,8 +288,8 @@ public class V5RedirectHandler extends ProxyItemHandler {
         if (info.has("zoom")) {
             json.put("type", "tiles");
         } else {
-            boolean imgFull = streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_FULL.name());
-            boolean imgPreview = streams.has(KrameriusRepositoryApi.KnownDatastreams.IMG_PREVIEW.name());
+            boolean imgFull = streams.has(KnownDatastreams.IMG_FULL.name());
+            boolean imgPreview = streams.has(KnownDatastreams.IMG_PREVIEW.name());
             // String retrieveMimetype = retrieveBasicDoc(pid);
             if (imgFull || imgPreview) {
                 if (basicDoc != null && basicDoc.has("img_full_mime")) {

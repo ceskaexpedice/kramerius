@@ -26,25 +26,25 @@ import java.util.Set;
 
 import org.antlr.stringtemplate.StringTemplate;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import org.ceskaexpedice.akubra.AkubraRepository;
 
 public class TitlesUtils {
 
-    public static String title(String uuid, SolrAccess solrAccess, FedoraAccess fa, ResourceBundle bundle) throws IOException {
-        return title(uuid, solrAccess, fa, true, bundle);
+    public static String title(String uuid, SolrAccess solrAccess, AkubraRepository akubraRepository, ResourceBundle bundle) throws IOException {
+        return title(uuid, solrAccess, akubraRepository, true, bundle);
     }
         
     
-    public static String title(String pid, SolrAccess solrAccess, FedoraAccess fa, boolean renderModel, ResourceBundle resourceBundle) throws IOException {
+    public static String title(String pid, SolrAccess solrAccess, AkubraRepository akubraRepository, boolean renderModel, ResourceBundle resourceBundle) throws IOException {
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 
         
         String[] path = paths[0].getPathFromRootToLeaf();
-        Map<String, String> mapModels = translateModels(fa, path, resourceBundle);
+        Map<String, String> mapModels = translateModels(akubraRepository, path, resourceBundle);
         
-        Map<String, String> mapTitlesToUUID = TitlesMapUtils.mapTitlesToUUID(fa, path);
+        Map<String, String> mapTitlesToUUID = TitlesMapUtils.mapTitlesToUUID(akubraRepository, path);
         List<String> titles = new ArrayList<String>();
         for (int i = 0; i < path.length; i++) {
             String u = path[i];
@@ -63,9 +63,9 @@ public class TitlesUtils {
     }
 
 
-    public static Map<String, String> translateModels(FedoraAccess fa, String[] path, ResourceBundle resourceBundle) throws IOException {
+    public static Map<String, String> translateModels(AkubraRepository akubraRepository, String[] path, ResourceBundle resourceBundle) throws IOException {
         Map<String, String> nmodels = new HashMap<String, String>();
-        Map<String, String> mapModels = TitlesMapUtils.mapModels(fa, path);
+        Map<String, String> mapModels = TitlesMapUtils.mapModels(akubraRepository, path);
         
         Set<String> keySet = mapModels.keySet();
         for (String key : keySet) {

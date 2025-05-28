@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -43,6 +42,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kramerius.Import;
@@ -54,16 +55,10 @@ import org.xml.sax.SAXException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.FedoraAccess;
-import cz.incad.kramerius.FedoraNamespaces;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.resourceindex.ProcessingIndexFeeder;
-import cz.incad.kramerius.resourceindex.ResourceIndexModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -73,8 +68,6 @@ import cz.incad.kramerius.utils.IterationUtils.IterationCallback;
 import cz.incad.kramerius.utils.IterationUtils.IterationEndCallback;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.collections.Restore;
-
-import static cz.incad.kramerius.utils.IterationUtils.*;
 
 public class FromK5Instance {
     
@@ -166,12 +159,12 @@ public class FromK5Instance {
                 public boolean acceptElement(Element element) {
                     String localName = element.getLocalName();
                     String nameSpace = element.getNamespaceURI();
-                    return localName != null && localName.equals("Description") && nameSpace.equals(FedoraNamespaces.RDF_NAMESPACE_URI);
+                    return localName != null && localName.equals("Description") && nameSpace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI);
                 }
             });
 
             if (rdfDecription != null) {
-                Element contains = foxml.createElementNS(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:standalone");
+                Element contains = foxml.createElementNS(RepositoryNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:standalone");
                 contains.setPrefix("rel");
                 contains.setTextContent("true");
                 rdfDecription.appendChild(contains);
@@ -197,15 +190,15 @@ public class FromK5Instance {
                 public boolean acceptElement(Element element) {
                     String localName = element.getLocalName();
                     String nameSpace = element.getNamespaceURI();
-                    return localName != null && localName.equals("Description") && nameSpace.equals(FedoraNamespaces.RDF_NAMESPACE_URI);
+                    return localName != null && localName.equals("Description") && nameSpace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI);
                 }
             });
 
             if (rdfDecription != null) {
                 for (String pid : pids) {
-                    Element contains = foxml.createElementNS(FedoraNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:contains");
+                    Element contains = foxml.createElementNS(RepositoryNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:contains");
                     contains.setPrefix("rel");
-                    contains.setAttributeNS(FedoraNamespaces.RDF_NAMESPACE_URI, "rdf:resource", String.format("info:fedora/%s", pid));
+                    contains.setAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "rdf:resource", String.format("info:fedora/%s", pid));
                     rdfDecription.appendChild(contains);
                 }
             }
@@ -213,7 +206,7 @@ public class FromK5Instance {
     }
 
     private static void createBiblioMods(Document foxml, JSONObject desc) {
-        Element dataStream = foxml.createElementNS(FedoraNamespaces.FEDORA_FOXML_URI, "datastream");
+        Element dataStream = foxml.createElementNS(RepositoryNamespaces.FEDORA_FOXML_URI, "datastream");
         dataStream.setAttribute("ID", "BIBLIO_MODS");
         dataStream.setAttribute("CONTROL_GROUP", "X");
         dataStream.setAttribute("STATE", "A");
@@ -221,7 +214,7 @@ public class FromK5Instance {
         foxml.getDocumentElement().appendChild(dataStream);
         
         
-        Element datastreamVersion = foxml.createElementNS(FedoraNamespaces.FEDORA_FOXML_URI, "datastreamVersion");
+        Element datastreamVersion = foxml.createElementNS(RepositoryNamespaces.FEDORA_FOXML_URI, "datastreamVersion");
         datastreamVersion.setAttribute("ID", "BIBLIO_MODS.0");
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
@@ -234,13 +227,13 @@ public class FromK5Instance {
         datastreamVersion.setAttribute("FORMAT_URI", "http://www.loc.gov/mods/v3");
         dataStream.appendChild(datastreamVersion);
         
-        Element xmlContent = foxml.createElementNS(FedoraNamespaces.FEDORA_FOXML_URI, "xmlContent");
+        Element xmlContent = foxml.createElementNS(RepositoryNamespaces.FEDORA_FOXML_URI, "xmlContent");
         datastreamVersion.appendChild(xmlContent);
         
-        Element modsCollection = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "modsCollection");
+        Element modsCollection = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "modsCollection");
         xmlContent.appendChild(modsCollection);
 
-        Element mods = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "mods");
+        Element mods = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "mods");
         mods.setAttribute("version", "3.4");
         modsCollection.appendChild(mods);
         
@@ -267,7 +260,7 @@ public class FromK5Instance {
                 });
                 
                 csAbstract= new String(Base64.decodeBase64(binary.getTextContent()));
-                Element abstractElm = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "abstract");
+                Element abstractElm = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "abstract");
                 abstractElm.setAttribute("lang", "cze");
                 abstractElm.setTextContent(csAbstract);
                 mods.appendChild(abstractElm);
@@ -275,11 +268,11 @@ public class FromK5Instance {
             
             
             
-            Element titleInfo = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "titleInfo");
+            Element titleInfo = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "titleInfo");
             titleInfo.setAttribute("lang", "cze");
             mods.appendChild(titleInfo);
 
-            Element title = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "title");
+            Element title = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "title");
             title.setTextContent(desc.getString("cs"));
             titleInfo.appendChild(title);
             
@@ -308,17 +301,17 @@ public class FromK5Instance {
                 });
                 
                 csAbstract= new String(Base64.decodeBase64(binary.getTextContent()));
-                Element abstractElm = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "abstract");
+                Element abstractElm = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "abstract");
                 abstractElm.setAttribute("lang", "eng");
                 abstractElm.setTextContent(csAbstract);
                 mods.appendChild(abstractElm);
             }
 
-            Element titleInfo = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "titleInfo");
+            Element titleInfo = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "titleInfo");
             titleInfo.setAttribute("lang", "eng");
             mods.appendChild(titleInfo);
 
-            Element title = foxml.createElementNS(FedoraNamespaces.BIBILO_MODS_URI, "title");
+            Element title = foxml.createElementNS(RepositoryNamespaces.BIBILO_MODS_URI, "title");
             title.setTextContent(desc.getString("en"));
             titleInfo.appendChild(title);
         }
@@ -447,20 +440,23 @@ public class FromK5Instance {
 
     
     public static void importTmpDir(String exportRoot, boolean startIndexer, String authToken) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
-        Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        FedoraAccess fa = injector.getInstance(Key.get(FedoraAccess.class, Names.named("rawFedoraAccess")));
+        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
-        ProcessingIndexFeeder feeder = injector.getInstance(ProcessingIndexFeeder.class);
-    
-        Import.run(fa, feeder, sortingServiceLocal,
-                KConfiguration.getInstance().getProperty("ingest.url"),
-                KConfiguration.getInstance().getProperty("ingest.user"),
-                KConfiguration.getInstance().getProperty("ingest.password"),
-                exportRoot, startIndexer, authToken, null);
-    
-        Restore.LOGGER.info(String.format("Deleting directory %s", exportRoot));
-        File exportFolder = new File(exportRoot);
-        FileUtils.deleteDirectory(exportFolder);
+
+        try {
+            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
+                    KConfiguration.getInstance().getProperty("ingest.url"),
+                    KConfiguration.getInstance().getProperty("ingest.user"),
+                    KConfiguration.getInstance().getProperty("ingest.password"),
+                    exportRoot, startIndexer, authToken, null);
+
+            Restore.LOGGER.info(String.format("Deleting directory %s", exportRoot));
+            File exportFolder = new File(exportRoot);
+            FileUtils.deleteDirectory(exportFolder);
+        }finally {
+            akubraRepository.shutdown();
+        }
     }
     
 }

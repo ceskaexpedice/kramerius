@@ -16,11 +16,7 @@
  */
 package cz.incad.kramerius.rest.api.replication;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -40,12 +36,14 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import cz.incad.kramerius.utils.RelsExtHelper;
+import cz.incad.kramerius.security.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.pdfbox.io.IOUtils;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,17 +55,12 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.FedoraAccess;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.DCConent;
 import cz.incad.kramerius.document.model.utils.DCContentUtils;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.SecuredActions;
-import cz.incad.kramerius.security.SpecialObjects;
-import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.service.ReplicationService;
 import cz.incad.kramerius.service.ResourceBundleService;
@@ -92,9 +85,8 @@ public class ReplicationsResource {
     Provider<Locale> localesProvider;
     
     @Inject
-    @Named("securedFedoraAccess")
-    FedoraAccess fedoraAccess;
-    
+    SecuredAkubraRepository akubraRepository;
+
     @Inject
     @Named("new-index")
     SolrAccess solrAccess;
@@ -119,8 +111,8 @@ public class ReplicationsResource {
     public Response getExportedDescription(@PathParam("pid") String pid) throws ReplicateException {
         try {
             if (checkPermission(pid)) {
-                if (this.fedoraAccess.getDC(pid) != null) {
-                    Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(fedoraAccess, solrAccess, Arrays.asList(pid));
+                if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC)) {
+                    Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(akubraRepository, solrAccess, Arrays.asList(pid));
                     List<DCConent> list = dcs.get(pid);
                     DCConent dcConent = DCConent.collectFirstWin(list);
                     String appURL = ApplicationURL.applicationURL(this.requestProvider.get());
@@ -175,7 +167,7 @@ public class ReplicationsResource {
         try {
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pid);
             if (checkPermission(pid)) {
-                if (this.fedoraAccess.getRelsExt(pid) != null) {
+                if (akubraRepository.re().exists(pid)) {
                     // raw generate to request writer
                 	boolean collectionFlag = Boolean.parseBoolean(replicateCollections);
                 	List<String> pidList = replicationService.prepareExport(pid,collectionFlag);
@@ -267,7 +259,7 @@ public class ReplicationsResource {
     @Path("img_original")
     @Produces("image/jp2")
     public Response getOriginalImage(@PathParam("pid") String pid) throws XPathExpressionException, IOException {
-        String tilesUrl = RelsExtHelper.getRelsExtTilesUrl(fedoraAccess.getRelsExt(pid));
+        String tilesUrl = akubraRepository.re().getTilesUrl(pid);
         if (tilesUrl == null) return Response.status(Response.Status.NOT_FOUND).build();
 
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {

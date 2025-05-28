@@ -100,6 +100,9 @@ allprojects {
     ext.jerseyversion = '1.19.4'
     ext.keycloakversion = '20.0.2' 
 
+    ext.hazelcastversion='1.0-rc1'
+    ext.akubraversion='1.0-rc1'
+
 
     ext.generatedSources = "generated-sources"
 
@@ -112,7 +115,6 @@ allprojects {
     }
 
     dependencies {
-
         // postgresql to all subprojects
         api "org.postgresql:postgresql:${postgresversion}"
         database "org.postgresql:postgresql:${postgresversion}"
@@ -222,6 +224,22 @@ allprojects {
             url "http://download.java.net/maven/2/"
         }*/
 
+
+		maven {
+			url "https://maven.pkg.github.com/ceskaexpedice/hazelcast-locks-server"
+			credentials {
+				username = System.getenv("USERNAME")
+				password = System.getenv("TOKEN")
+			}
+		}
+
+		maven {
+			url "https://maven.pkg.github.com/ceskaexpedice/akubra"
+			credentials {
+				username = System.getenv("USERNAME")
+				password = System.getenv("TOKEN")
+			}
+		}
     }
 
     tasks.withType(Javadoc) {
