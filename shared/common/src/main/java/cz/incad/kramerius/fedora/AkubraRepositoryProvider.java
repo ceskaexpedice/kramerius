@@ -14,6 +14,7 @@ import org.ceskaexpedice.hazelcast.HazelcastConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -35,11 +36,18 @@ public class AkubraRepositoryProvider implements Provider<AkubraRepository> {
         String hazelcastInstance = KConfiguration.getInstance().getConfiguration().getString("hazelcast.instance");
         String hazelcastUser = KConfiguration.getInstance().getConfiguration().getString("hazelcast.user");
 
+        // HAZELCAST SERVER ADDRESS
+        String env = System.getenv("HAZELCAST_SERVER_ADDRESSES");
+        List<String> envAddresses = env != null && !env.isEmpty()
+                ? Arrays.asList(env.split(","))
+                : new ArrayList<>();
+
         List<String> address = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("hazelcast.server.addresses", new ArrayList<>()), Functions.toStringFunction());
+
         HazelcastConfiguration hazelcastConfig = new HazelcastConfiguration.Builder()
                 .hazelcastClientConfigFile(hazelcastConfigFileS)
                 .hazelcastInstance(hazelcastInstance)
-                .setHazelcastServers(address.toArray(new String[0]))
+                .setHazelcastServers( env != null && !env.isEmpty() ? envAddresses.toArray(new String[0]) : address.toArray(new String[0]))
                 .hazelcastUser(hazelcastUser)
                 .build();
 

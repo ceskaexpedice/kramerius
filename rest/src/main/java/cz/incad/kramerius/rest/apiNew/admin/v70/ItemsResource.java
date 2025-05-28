@@ -608,61 +608,91 @@ public class ItemsResource extends AdminApiResource {
             checkObjectAndDatastreamExist(pid, dsId);
             switch (dsId) {
                 case "BIBLIO_MODS":
-                    Document document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(true);
-                    return Response.ok()
-                            .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(document.asXML())
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_MODS)) {
+                        Document document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom4j(true);
+                        return Response.ok()
+                                .type(MediaType.APPLICATION_XML + ";charset=utf-8")
+                                .entity(document.asXML())
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 case "DC":
-                    document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom4j(true);
-                    return Response.ok()
-                            .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(document.asXML())
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_DC)) {
+                        Document document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom4j(true);
+                        return Response.ok()
+                                .type(MediaType.APPLICATION_XML + ";charset=utf-8")
+                                .entity(document.asXML())
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+
                 case "RELS-EXT":
-                    document = akubraRepository.re().get(pid).asDom4j(true);
+                    Document relsext = akubraRepository.re().get(pid).asDom4j(true);
                     return Response.ok()
                             .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(document.asXML())
+                            .entity(relsext.asXML())
                             .build();
                 case "TEXT_OCR":
-                    String ocr = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
-                    return Response.ok()
-                            .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
-                            .entity(ocr)
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_TEXT)) {
+                        String ocr = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
+                        return Response.ok()
+                                .type(MediaType.TEXT_PLAIN + ";charset=utf-8")
+                                .entity(ocr)
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+
                 case "ALTO":
-                    document = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom4j(true);
-                    return Response.ok()
-                            .type(MediaType.APPLICATION_XML + ";charset=utf-8")
-                            .entity(document.asXML())
-                            .build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO)) {
+                        Document altoDocument = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom4j(true);
+                        return Response.ok()
+                                .type(MediaType.APPLICATION_XML + ";charset=utf-8")
+                                .entity(altoDocument.asXML())
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 case "IMG_FULL": {
-                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(is, output);
-                        IOUtils.closeQuietly(is);
-                    };
-                    return Response.ok().entity(stream).type(mimeType).build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
+                        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(is, output);
+                            IOUtils.closeQuietly(is);
+                        };
+                        return Response.ok().entity(stream).type(mimeType).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
                 case "IMG_THUMB": {
-                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(is, output);
-                        IOUtils.closeQuietly(is);
-                    };
-                    return Response.ok().entity(stream).type(mimeType).build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
+                        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(is, output);
+                            IOUtils.closeQuietly(is);
+                        };
+                        return Response.ok().entity(stream).type(mimeType).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
                 case "IMG_PREVIEW": {
-                    String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
-                    InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream();
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(is, output);
-                        IOUtils.closeQuietly(is);
-                    };
-                    return Response.ok().entity(stream).type(mimeType).build();
+                    if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW)) {
+                        String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
+                        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(is, output);
+                            IOUtils.closeQuietly(is);
+                        };
+                        return Response.ok().entity(stream).type(mimeType).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
                 //TODO: MP3, OGG, WAV
                 //TODO: POLICY

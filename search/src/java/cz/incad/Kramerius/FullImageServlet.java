@@ -91,7 +91,7 @@ public class FullImageServlet extends AbstractImageServlet {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 // transformace
             } else {
-                InputStream is = akubraRepository.getDatastreamContent(uuid, KnownDatastreams.IMG_FULL).asInputStream();
+                InputStream is = akubraRepository.datastreamExists(uuid, KnownDatastreams.IMG_FULL) ?  akubraRepository.getDatastreamContent(uuid, KnownDatastreams.IMG_FULL).asInputStream() : null;
                 if (outputFormat.equals(OutputFormats.RAW)) {
                     String asFileParam = req.getParameter("asFile");
                     String mimeType = akubraRepository.getDatastreamMetadata(uuid, KnownDatastreams.IMG_FULL).getMimetype();

@@ -64,7 +64,7 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
                     writeImage(req, resp, scale, OutputFormats.JPEG);
                 } else resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             } else {
-                InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream();
+                InputStream is = akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream() : null;
                 if (outputFormat.equals(OutputFormats.RAW)) {
                     rawContent(req, resp, pid, is);
                 } else {

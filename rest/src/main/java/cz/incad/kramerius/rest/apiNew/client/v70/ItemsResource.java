@@ -1300,12 +1300,16 @@ public class ItemsResource extends ClientApiResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             } else {
                 String mimeType = akubraRepository.getDatastreamMetadata(pid,data).getMimetype();
-                InputStream dataStream = akubraRepository.getDatastreamContent(pid, data).asInputStream();
-                StreamingOutput stream = output -> {
-                    IOUtils.copy(dataStream, output);
-                    IOUtils.closeQuietly(dataStream);
-                };
-                return Response.ok().entity(stream).type(mimeType).build();
+                if (akubraRepository.datastreamExists(pid,data)) {
+                    InputStream dataStream = akubraRepository.getDatastreamContent(pid, data).asInputStream();
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(dataStream, output);
+                        IOUtils.closeQuietly(dataStream);
+                    };
+                    return Response.ok().entity(stream).type(mimeType).build();
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).build();
+                }
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -1371,13 +1375,17 @@ public class ItemsResource extends ClientApiResource {
                 if(!akubraRepository.datastreamExists(pid, thumbId)) {
                     throw new NotFoundException("no image/thumb %s  available for object %s ", thumbId, pid);
                 } else {
-                    String mimetype = akubraRepository.getDatastreamMetadata(pid, thumbId).getMimetype();
-                    InputStream istream = akubraRepository.getDatastreamContent(pid, thumbId).asInputStream();
-                    StreamingOutput stream = output -> {
-                        IOUtils.copy(istream, output);
-                        IOUtils.closeQuietly(istream);
-                    };
-                    return Response.ok().entity(stream).type(mimetype).build();
+                    if (akubraRepository.datastreamExists(pid,thumbId)) {
+                        String mimetype = akubraRepository.getDatastreamMetadata(pid, thumbId).getMimetype();
+                        InputStream istream = akubraRepository.getDatastreamContent(pid, thumbId).asInputStream();
+                        StreamingOutput stream = output -> {
+                            IOUtils.copy(istream, output);
+                            IOUtils.closeQuietly(istream);
+                        };
+                        return Response.ok().entity(stream).type(mimetype).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
                 }
         } catch (WebApplicationException e) {
             throw e;
@@ -1450,25 +1458,29 @@ public class ItemsResource extends ClientApiResource {
 
             boolean epub = isEpubMimeType(pid, dsId);
             if (epub) {
-                InputStream is = akubraRepository.getDatastreamContent(pid, dsId.name()).asInputStream();
-                ZipInputStream zipInputStream = new ZipInputStream(is);
-                ZipEntry entry;
-                while ((entry = zipInputStream.getNextEntry()) != null) {
-                    if (entry.getName().equals(path)) {
-                        break; 
+                if (akubraRepository.datastreamExists(pid,dsId)) {
+                    InputStream is = akubraRepository.getDatastreamContent(pid, dsId.name()).asInputStream();
+                    ZipInputStream zipInputStream = new ZipInputStream(is);
+                    ZipEntry entry;
+                    while ((entry = zipInputStream.getNextEntry()) != null) {
+                        if (entry.getName().equals(path)) {
+                            break;
+                        }
                     }
-                }
-                
-                if (entry != null) {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = zipInputStream.read(buffer)) != -1) {
-                        bos.write(buffer,0, bytesRead);
+
+                    if (entry != null) {
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = zipInputStream.read(buffer)) != -1) {
+                            bos.write(buffer,0, bytesRead);
+                        }
+                        byte[] bytes = bos.toByteArray();
+                        return copyStreams(path,  bytes);
+
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
                     }
-                    byte[] bytes = bos.toByteArray();
-                    return copyStreams(path,  bytes);
-                    
                 } else {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 }
@@ -1519,7 +1531,7 @@ public class ItemsResource extends ClientApiResource {
 
     Pair<InputStream, String> getFirstAvailableImgThumb(String pid) {
         InputStream is = null;
-        DatastreamContentWrapper datastreamContent = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
+        DatastreamContentWrapper datastreamContent =  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
         if (datastreamContent != null) {
             is = datastreamContent.asInputStream();
         }
@@ -1537,7 +1549,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     Pair<InputStream, String> getFirstAvailableImgPreview(String pid) {
-        InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream();
+        InputStream is = akubraRepository.datastreamExists(pid,  KnownDatastreams.IMG_PREVIEW) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream() : null;
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
             return new Pair<>(is, mimeType);

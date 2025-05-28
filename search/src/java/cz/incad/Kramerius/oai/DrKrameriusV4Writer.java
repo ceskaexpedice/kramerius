@@ -198,7 +198,7 @@ public class DrKrameriusV4Writer implements OaiWriter {
     }
 
     private InputStream getBiblioStream(String pid) throws IOException {
-        InputStream dataStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asInputStream();
+        InputStream dataStream = akubraRepository.datastreamExists(pid, KnownDatastreams.BIBLIO_MODS) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asInputStream() : null;
         return dataStream;
     }
 

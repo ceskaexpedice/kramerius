@@ -76,7 +76,7 @@ public class CDKItemResource {
             if (!FedoraUtils.FEDORA_INTERNAL_STREAMS.contains(dsid)) {
                 if (!PIDSupport.isComposedPID(pid)) {
                     // audio streas is not suported
-                    if (!FedoraUtils.AUDIO_STREAMS.contains(dsid)) {
+                    if (!FedoraUtils.AUDIO_STREAMS.contains(dsid) && akubraRepository.datastreamExists(pid, dsid)) {
                         final InputStream is = akubraRepository.getDatastreamContent(pid, dsid).asInputStream();
                         String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
 
