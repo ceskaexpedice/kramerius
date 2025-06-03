@@ -101,14 +101,10 @@ allprojects {
     ext.keycloakversion = '20.0.2' 
 
     ext.hazelcastversion='1.0-rc1'
-    ext.akubraversion='1.0-rc1'
-
+    ext.akubraversion='1.0-rc4'
 
     ext.generatedSources = "generated-sources"
 
-
-//    sourceCompatibility = 1.8
-//    targetCompatibility= 1.8
 
     configurations {
         database
