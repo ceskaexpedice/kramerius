@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -17,7 +18,9 @@ import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,11 +48,6 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
      * args[1] - pid ; pidslist
      */
     public static void main(String[] args) throws IOException, SolrServerException {
-        //args
-        /*LOGGER.info("args: " + Arrays.asList(args));
-        for (String arg : args) {
-            System.out.println(arg);
-        }*/
         if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
         }
@@ -61,10 +59,50 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         String argument = args[argsIndex];
 
         List<String> pids = extractPids(argument); // pid muze byt pidslist  pid1;pid2;pid3;pid4
+        LOGGER.log(Level.INFO, String.format("Number of processing pids %d", pids.size()));
+        if (pids.size() > 4) {
+            List<String> titleList = new ArrayList<>(pids.subList(0,4));
+            titleList.add("...");
+            ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", titleList)));
+        } else {
+            ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", pids)));
+        }
 
+        boolean commitAfterRecord = KConfiguration.getInstance().getConfiguration().getBoolean("processing.index.afterRecordCommit",false);
+
+        final ProcessingIndexRebuildFromFoxmlByPid pir = new ProcessingIndexRebuildFromFoxmlByPid();
+        AtomicBoolean problems = new AtomicBoolean(false);
         for (String pid : pids) {
-            ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekt %s", pid));
-            new ProcessingIndexRebuildFromFoxmlByPid().rebuildProcessingIndexFromFoxml(pid);
+            LOGGER.log(Level.INFO, String.format("Processing pid %s", pid));
+            if (commitAfterRecord) {
+                pir.akubraRepository.pi().doWithCommit(()-> {
+                    try {
+                        pir.rebuildProcessingIndexFromFoxml(pid);
+                    } catch (IOException e) {
+                        problems.set(true);
+                        LOGGER.log(Level.SEVERE, String.format("Problematic pid %s", pid));
+                        LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                    }
+                });
+            } else {
+                try {
+                    pir.rebuildProcessingIndexFromFoxml(pid);
+                } catch (IOException e) {
+                    problems.set(true);
+                    LOGGER.log(Level.SEVERE, String.format("Problematic pid %s", pid));
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                }
+            }
+        }
+
+        if (!commitAfterRecord) {
+            pir.akubraRepository.pi().doWithCommit(() -> {
+                LOGGER.info("After batch commit");
+            });
+        }
+
+        if (problems.get()) {
+            throw new RuntimeException("Cannot process all pids, see error log");
         }
     }
 
@@ -89,10 +127,10 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
             throw new IOException("File can't be read: " + foxmlFile.getAbsolutePath());
         }
         try {
-            FileInputStream inputStream = new FileInputStream(foxmlFile);
-            DigitalObject digitalObject = createDigitalObject(inputStream);
+            //FileInputStream inputStream = new FileInputStream(foxmlFile);
+            //DigitalObject digitalObject = createDigitalObject(inputStream);
             akubraRepository.pi().deleteByPid(pid); //smazat vsechny existujici vazby z objektu, ALE netyka se tech, co na objekt vedou (ty ted neprebudovavame)
-            rebuildProcessingIndex(akubraRepository, digitalObject, true);
+            rebuildProcessingIndex(akubraRepository, pid, true);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error processing file: " + foxmlFile.getAbsolutePath(), ex);
         }

@@ -1089,12 +1089,48 @@ public class ProcessResource extends AdminApiResource {
                 return Collections.emptyList();
             }
             case "processing_rebuild_for_object": {
-                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String pid = extractOptionalParamString(params, "pid", null);
+                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                String checkPidlistFile = extractOptionalParamString(params, "pidlist_file", null);
+                File pidlistFile = null;
+                if (checkPidlistFile != null && (new File(checkPidlistFile)).exists()) {
+                    pidlistFile = new File(checkPidlistFile);
+                } else {
+                    pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
+                }
 
-                List<String> result = new ArrayList<>();
-                result.add(pid);
-                consumer.accept(false);
-                return result;
+                String target;
+                if (pid != null) {
+                    target = "pid:" + pid;
+                } else if (pidlist != null) {
+                    target = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+                } else if (pidlistFile != null) {
+                    target = "pidlist_file:" + pidlistFile.getAbsolutePath();
+
+                } else {
+                    throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist");
+                }
+
+                // musi mit prava pro cely repozitar
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                        ObjectPidsPath.REPOSITORY_PATH
+                };
+                User user = this.userProvider.get();
+                boolean permitProcessingIndex = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.A_REBUILD_PROCESSING_INDEX.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH)).flag() : false;
+                consumer.accept(permitProcessingIndex);
+                if (permitProcessingIndex) {
+                    List<String> result = new ArrayList<>();
+                    if (pid != null) {
+                        result.add(pid);
+                    } else if (pidlist != null) {
+                        result.add(pidlist.stream().collect(Collectors.joining(";")));
+                    } else {
+                        result.add(target);
+                    }
+                    return result;
+                } else {
+                    return new ArrayList<>();
+                }
             }
             case "import": {
                 // import directory

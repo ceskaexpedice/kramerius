@@ -1530,6 +1530,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     Pair<InputStream, String> getFirstAvailableImgThumb(String pid) {
+        LOGGER.fine(String.format("Finding img thumb for '%s'", pid));
         InputStream is = null;
         DatastreamContentWrapper datastreamContent =  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
         if (datastreamContent != null) {
@@ -1537,9 +1538,11 @@ public class ItemsResource extends ClientApiResource {
         }
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_THUMB).getMimetype();
+            LOGGER.fine(String.format("Returning thumb with mimetype %s", mimeType));
             return new Pair<>(is, mimeType);
         } else {
             String pidOfFirstChild = getPidOfFirstChild(pid);
+            LOGGER.fine(String.format("\t Returning first child of pid '%s' and child is '%s'", pid, pidOfFirstChild));
             if (pidOfFirstChild != null) {
                 return getFirstAvailableImgThumb(pidOfFirstChild);
             } else {
@@ -1555,6 +1558,7 @@ public class ItemsResource extends ClientApiResource {
             return new Pair<>(is, mimeType);
         } else {
             String pidOfFirstChild = getPidOfFirstChild(pid);
+            LOGGER.fine(String.format("\t Returning first child of pid '%s' and child is '%s'", pid, pidOfFirstChild));
             if (pidOfFirstChild != null) {
                 return getFirstAvailableImgPreview(pidOfFirstChild);
             } else {

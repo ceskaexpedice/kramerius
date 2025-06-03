@@ -188,6 +188,10 @@ public class ProcessingIndexRebuild {
         akubraRepository.pi().rebuildProcessingIndex(digitalObject.getPID());
     }
 
+    public static void rebuildProcessingIndex(AkubraRepository akubraRepository, String pid, boolean commitAfteringest ) {
+        akubraRepository.pi().rebuildProcessingIndex(pid);
+    }
+
     private static Unmarshaller initUnmarshaller() {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
