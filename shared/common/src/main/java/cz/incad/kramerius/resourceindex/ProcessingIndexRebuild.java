@@ -12,6 +12,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,7 +75,7 @@ public class ProcessingIndexRebuild {
             objectStoreRoot = Paths.get(KConfiguration.getInstance().getProperty("objectStore.path"));
         }
         
-        boolean exclusiveCommit = KConfiguration.getInstance().getConfiguration().getBoolean("processingIndex.commit", false);
+        //boolean exclusiveCommit = KConfiguration.getInstance().getConfiguration().getBoolean("processingIndex.commit", false);
         
 
         // ForkJoinPool is used to preserve parallelization.
@@ -103,7 +105,7 @@ public class ProcessingIndexRebuild {
                         String filename = file.toString();
                         try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                             DigitalObject digitalObject = createDigitalObject(inputStream);
-                            rebuildProcessingIndex(akubraRepository, digitalObject, exclusiveCommit);
+                            rebuildProcessingIndex(akubraRepository, digitalObject, null);
                         } catch (Exception ex) {
                             LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                         }
@@ -112,7 +114,7 @@ public class ProcessingIndexRebuild {
                     String filename = file.toString();
                     try (FileInputStream inputStream = new FileInputStream(file.toFile())) {
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(akubraRepository, digitalObject, exclusiveCommit);
+                        rebuildProcessingIndex(akubraRepository, digitalObject, null);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: " + filename, ex);
                     }
@@ -183,13 +185,13 @@ public class ProcessingIndexRebuild {
         return obj;
     }
 
-
-    public static void rebuildProcessingIndex(AkubraRepository akubraRepository, DigitalObject digitalObject, boolean commitAfteringest ) {
-        akubraRepository.pi().rebuildProcessingIndex(digitalObject.getPID());
+    // TODO: Change it; it can cause problem when traversing tree
+    public static void rebuildProcessingIndex(AkubraRepository akubraRepository, DigitalObject digitalObject,Consumer<UpdateRequest> var2 ) {
+        akubraRepository.pi().rebuildProcessingIndex(digitalObject.getPID(), var2);
     }
 
-    public static void rebuildProcessingIndex(AkubraRepository akubraRepository, String pid, boolean commitAfteringest ) {
-        akubraRepository.pi().rebuildProcessingIndex(pid);
+    public static void rebuildProcessingIndex(AkubraRepository akubraRepository, String pid, Consumer<UpdateRequest> var2) {
+        akubraRepository.pi().rebuildProcessingIndex(pid, var2);
     }
 
     private static Unmarshaller initUnmarshaller() {
