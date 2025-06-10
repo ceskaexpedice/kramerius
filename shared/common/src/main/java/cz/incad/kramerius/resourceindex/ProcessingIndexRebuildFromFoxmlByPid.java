@@ -10,6 +10,9 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.akubra.processingindex.ProcessingIndexQueryParameters;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 
 import javax.xml.bind.DatatypeConverter;
@@ -19,6 +22,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -69,7 +73,6 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         }
 
         boolean commitAfterRecord = KConfiguration.getInstance().getConfiguration().getBoolean("processing.index.afterRecordCommit",false);
-
         final ProcessingIndexRebuildFromFoxmlByPid pir = new ProcessingIndexRebuildFromFoxmlByPid();
         AtomicBoolean problems = new AtomicBoolean(false);
         for (String pid : pids) {
@@ -117,22 +120,34 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
     }
 
     private void rebuildProcessingIndexFromFoxml(String pid) throws IOException {
-        LOGGER.log(Level.INFO, "Updating processing index from FOXML of " + pid);
-        File foxmlFile = findFoxmlFile(pid);
-        LOGGER.log(Level.INFO, "FOXML file: " + foxmlFile.getAbsolutePath());
-        if (!foxmlFile.exists()) {
-            throw new IOException("File doesn't exist: " + foxmlFile.getAbsolutePath());
-        }
-        if (!foxmlFile.canRead()) {
-            throw new IOException("File can't be read: " + foxmlFile.getAbsolutePath());
-        }
+//        LOGGER.log(Level.INFO, "Updating processing index from FOXML of " + pid);
+//        File foxmlFile = findFoxmlFile(pid);
+//        LOGGER.log(Level.INFO, "FOXML file: " + foxmlFile.getAbsolutePath());
+//        if (!foxmlFile.exists()) {
+//            throw new IOException("File doesn't exist: " + foxmlFile.getAbsolutePath());
+//        }
+//        if (!foxmlFile.canRead()) {
+//            throw new IOException("File can't be read: " + foxmlFile.getAbsolutePath());
+//        }
         try {
-            //FileInputStream inputStream = new FileInputStream(foxmlFile);
-            //DigitalObject digitalObject = createDigitalObject(inputStream);
-            akubraRepository.pi().deleteByPid(pid); //smazat vsechny existujici vazby z objektu, ALE netyka se tech, co na objekt vedou (ty ted neprebudovavame)
-            rebuildProcessingIndex(akubraRepository, pid, true);
+            String query = "source:\"" + pid + "\"";
+            List<ProcessingIndexItem> pids = new ArrayList<>();
+            ProcessingIndexQueryParameters params = new ProcessingIndexQueryParameters.Builder()
+                    .queryString(query)
+                    .fieldsToFetch(Arrays.asList("pid"))
+                    .build();
+
+            akubraRepository.pi().lookAt(params, processingIndexItem -> {
+                pids.add(processingIndexItem);
+            });
+
+            rebuildProcessingIndex(akubraRepository, pid,(updateRequest -> {
+                pids.forEach(p->{
+                    updateRequest.deleteById(p.pid());
+                });
+            }));
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error processing file: " + foxmlFile.getAbsolutePath(), ex);
+            LOGGER.log(Level.SEVERE, "Error processing pid: " + pid, ex);
         }
     }
 

@@ -81,7 +81,7 @@ public enum LegacyMigrationParts {
                     try {
                         FileInputStream inputStream = new FileInputStream(f);
                         DigitalObject digitalObject = createDigitalObject(inputStream);
-                        rebuildProcessingIndex(akubraRepository, digitalObject, false);
+                        rebuildProcessingIndex(akubraRepository, digitalObject, null);
                     } catch (Exception ex) {
                         LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                     }
