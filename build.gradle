@@ -223,18 +223,28 @@ allprojects {
 
 		maven {
 			url "https://maven.pkg.github.com/ceskaexpedice/hazelcast-locks-server"
-			credentials {
-				username = System.getenv("USERNAME")
-				password = System.getenv("TOKEN")
-			}
+            credentials {
+                if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
+                    username = "$githubRepositoryUser"
+                    password = "$githubRepositoryToken"
+                } else {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
 		}
 
 		maven {
 			url "https://maven.pkg.github.com/ceskaexpedice/akubra"
-			credentials {
-				username = System.getenv("USERNAME")
-				password = System.getenv("TOKEN")
-			}
+            credentials {
+                if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
+                    username = "$githubRepositoryUser"
+                    password = "$githubRepositoryToken"
+                } else {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
 		}
     }
 

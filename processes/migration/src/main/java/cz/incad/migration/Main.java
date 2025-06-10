@@ -36,12 +36,12 @@ public class Main {
             @Override
             public String desc() {
                 StringBuilder builder = new StringBuilder();
-                builder.append("Migrace z  akubra_fs() -> akubra_fs(pattern) ").append('\n');
-                builder.append("Parametry: AKUBRA false ").append('\n');
+                builder.append("Migrace z  akubra_fs() nebo legacy_fs() -> akubra_fs(pattern) ").append('\n');
+                builder.append("Parametry: AKUBRA nebo AKUBRA legacy").append('\n');
                 builder.append("Nutne promenne pro migraci: ").append('\n');
 
-                builder.append("\tdatastreamStore.migrationsource").append(" - adresar zdrojoveho akubra_fs pro datastreamy").append('\n');
-                builder.append("\tobjectStore.migrationsource").append(" - adresar zdrojoveho akubra_fs pro objekty").append('\n');
+                builder.append("\tdatastreamStore.migrationsource").append(" - adresar zdrojoveho akubra_fs nebo legacy_fs pro datastreamy").append('\n');
+                builder.append("\tobjectStore.migrationsource").append(" - adresar zdrojoveho akubra_fs nebo legacy_fs pro objekty").append('\n');
 
                 builder.append("\tdatastreamStore.path").append(" - adresar ciloveho akubra_fs pro datastreamy").append('\n');
                 builder.append("\tobjectStore.path").append(" - adresar ciloveho akubra_fs pro objekty").append('\n');
@@ -78,7 +78,7 @@ public class Main {
             @Override
             public String desc() {
                 StringBuilder builder = new StringBuilder();
-                builder.append("Migrace z legacy_fs -> akubra_fs").append('\n');
+                builder.append("Migrace z legacy_db -> akubra_fs").append('\n');
                 builder.append("Parametry: LEGACY 0 1000 0 1000 false -m||-c").append('\n');
                 builder.append("2. param., od kterého tokendbid v tabulce datastreampaths chci datastreams nacitat").append('\n');
                 builder.append("3. param., před kterým tokendbid v tabulce datastreampaths chci skončit").append('\n');
