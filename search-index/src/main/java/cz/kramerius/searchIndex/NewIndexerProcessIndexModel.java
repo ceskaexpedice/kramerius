@@ -11,6 +11,7 @@ import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
+import cz.kramerius.searchIndex.indexer.execution.Counters;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
@@ -115,13 +116,14 @@ public class NewIndexerProcessIndexModel {
             cursor = cursor.equals(titlePidPairsByModel.nextCursor()) ? null : nextCursorMark;
             processed += titleIdPairs.size();
             List<ProcessingIndexItem> toBeIndexed = filters.indexAll() ? titleIdPairs : filter(solrAccess, titleIdPairs, filters);
+            Counters counters = new Counters();
             nowIgnored += titleIdPairs.size() - toBeIndexed.size();
             for (ProcessingIndexItem titlePidPair : toBeIndexed) {
                 String title = titlePidPair.dcTitle();
                 String pid = titlePidPair.source();
                 //report(String.format("indexing %s: %s", pid, title));
                 try {
-                    indexer.indexByObjectPid(pid, type, new ProgressListener() {
+                    indexer.indexByObjectPid(pid, type, counters, true, new ProgressListener() {
                         @Override
                         public void onProgress(int processed) {
                             totalObjectProcessed[0]++;

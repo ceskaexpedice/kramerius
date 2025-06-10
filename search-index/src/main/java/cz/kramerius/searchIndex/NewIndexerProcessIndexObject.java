@@ -9,6 +9,7 @@ import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
+import cz.kramerius.searchIndex.indexer.execution.Counters;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
@@ -51,13 +52,12 @@ public class NewIndexerProcessIndexObject {
         String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
         //process params
         String type = args[argsIndex++];
+        LOGGER.info(String.format("Type of indexation %s",type));
         
         // TODO: Support one pid or list of pids
         String argument = args[argsIndex++];
+        LOGGER.info("Extracting argument");
         List<String> pids = ProcessUtils.extractPids(argument);
-
-        //String pid = args[argsIndex++];
-
         
         Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
@@ -71,7 +71,6 @@ public class NewIndexerProcessIndexObject {
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
 
         if (argument.startsWith("pidlist_file")) {
-            
             ProcessStarter.updateName(title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, argument.substring(ProcessUtils.PIDLIST_FILE_PREFIX.length()), type)
                     : String.format("Indexace %s (typ %s)",argument.substring(ProcessUtils.PIDLIST_FILE_PREFIX.length()), type)
@@ -97,24 +96,34 @@ public class NewIndexerProcessIndexObject {
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         Indexer indexer = new Indexer(akubraRepository, solrConfig, System.out, ignoreInconsistentObjects);
-
-        for (String pid : pids) {
-            indexer.indexByObjectPid(pid, IndexationType.valueOf(type), new ProgressListener() {
-                @Override
-                public void onProgress(int processed) {
-                    //log number of objects processed so far
-                    if (processed < 100 && processed % 10 == 0 ||
-                            processed < 1000 && processed % 100 == 0 ||
-                            processed % 1000 == 0
-                    ) {
-                        LOGGER.info("objects processed so far: " + processed);
+        LOGGER.info(" --- PIDS PROCESSING --- ");
+        Counters counters = new Counters();
+        try {
+            for (int i = 0; i < pids.size(); i++) {
+                String pid = pids.get(i);
+                LOGGER.info(String.format("Processing pid '%s'; %d of %d ", pid, i, pids.size()));
+                indexer.indexByObjectPid(pid, IndexationType.valueOf(type), counters, false, new ProgressListener() {
+                    @Override
+                    public void onProgress(int processed) {
+                        //log number of objects processed so far
+                        if (processed < 100 && processed % 10 == 0 ||
+                                processed < 1000 && processed % 100 == 0 ||
+                                processed % 1000 == 0
+                        ) {
+                            LOGGER.info("objects processed so far: " + processed);
+                        }
                     }
-                }
 
-                @Override
-                public void onFinished(int processed) {
-                }
-            });
+                    @Override
+                    public void onFinished(int processed) {
+                    }
+                });
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } finally {
+            indexer.summary(pids, counters);
+            indexer.commmit(counters);
         }
     }
 

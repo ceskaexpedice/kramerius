@@ -63,13 +63,13 @@ public class SecurityDbInitializer {
 
     public static void initDatabase(Connection connection, VersionService versionService) {
         try {
+
+            if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
+                createSecurityTables(connection);
+            }
+
             if (versionService.getVersion() == null) {
 
-                if (!DatabaseUtils.tableExists(connection, "USER_ENTITY")) {
-                    createSecurityTables(connection);
-                    // new actions
-                    //createNewActions(connection);
-                }
                 // column DEACTIVATED has been created
                 makeSureThatUserEntity_DEACTIVATED(connection);
 
@@ -286,7 +286,9 @@ public class SecurityDbInitializer {
         });
     }
     
-    
+
+
+
     
     private static void checkLabelExists(Connection connection) {
 

@@ -12,6 +12,7 @@ import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
+import cz.kramerius.searchIndex.indexer.execution.Counters;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
@@ -356,13 +357,16 @@ public class Main {
 
             //pids
             String[] pids = subArray(args, 5);
+
             for (String pid : pids) {
                 SolrConfig solrConfig = new SolrConfig(solrBaseUrl, solrCollection, solrUseHttps, solrLogin, solrPassword);
+                Counters counters = new Counters();
                 Indexer process = new Indexer(akubraRepository, solrConfig, System.out, false);
                 //process.indexByObjectPid(pid, IndexationType.TREE);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT);
                 //process.indexByObjectPid(pid, IndexationType.OBJECT_AND_CHILDREN);
-                process.indexByObjectPid(pid, IndexationType.TREE, null);
+                process.indexByObjectPid(pid , IndexationType.TREE, counters, true, null);
+                process.summary(Arrays.asList(pid), counters );
             }
         }
     }

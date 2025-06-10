@@ -117,8 +117,6 @@ public class StartupServlet extends GuiceServlet {
             FolderDatabaseInitializer.initDatabase(k7dbConnection, versionService);
 
 
-            // Default OAI sets initializer - configuration part
-            OAIDBInitializer.initDatabase(k7dbConnection, versionService);
 
             // delete session keys
             LoggedUserDbHelper.deleteAllSessionKeys(k7dbConnection);
@@ -131,6 +129,9 @@ public class StartupServlet extends GuiceServlet {
             }
             // -- End of CDK cache initialization --
 
+
+            // Default OAI sets initializer - configuration part
+            OAIDBInitializer.initDatabase(k7dbConnection, versionService);
 
             // stores new db version to database if necessary
             versionService.updateVersionIfOutdated();

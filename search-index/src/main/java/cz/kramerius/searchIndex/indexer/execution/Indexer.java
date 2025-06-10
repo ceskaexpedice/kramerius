@@ -117,12 +117,12 @@ public class Indexer {
     }
 
 
-    public void indexByObjectPid(String pid, IndexationType type, ProgressListener progressListener) {
+
+    public void indexByObjectPid(String pid, IndexationType type, Counters counters, boolean commitAfterPid, ProgressListener progressListener) {
         if (shutDown) {
             report("Indexer has already been shut down");
         } else {
-            long start = System.currentTimeMillis();
-            Counters counters = new Counters();
+            //Counters counters = new Counters();
             LOGGER.info("Processing " + pid + " (indexation type: " + type + ")");
             RepositoryNode node = nodeManager.getKrameriusNode(pid);
             boolean setFullIndexationInProgress = type == IndexationType.TREE_AND_FOSTER_TREES;
@@ -134,33 +134,37 @@ public class Indexer {
             if (node != null && setFullIndexationInProgress) {
                 clearFullIndexationInProgress(pid, node);
             }
-            commitAfterLastIndexation(counters);
+            // commit only if necessary
+            if (commitAfterPid) {
+                commmit(counters);
+            }
 
             report(" ");
             if (shutDown) {
                 report("Indexer was shut down during execution");
             }
-            report("Summary* for " + pid);
-            report("=======================================");
-            report(" objects processed: " + counters.getProcessed());
-            report(" objects indexed:   " + counters.getIndexed());
-            report(" objects ignored:   " + counters.getIgnored());
-            report(" objects removed:   " + counters.getRemoved());
-            report(" objects erroneous: " + counters.getErrors());
-            report(" *counters include pages from pdf, i.e. not real objects in repository");
-            report(" records processing duration: " + formatTime(System.currentTimeMillis() - start));
-            report("=======================================");
-            report("");
-
-            if (counters.getErrors() > 0 || counters.getIgnored() >0) {
-                throw new IllegalStateException("Indexation finished with errors; see error log");
-            }
-            
+            //summary(pid, counters, start);
             if (progressListener != null) {
                 progressListener.onFinished(counters.getProcessed());
             }
-            
-            
+        }
+    }
+
+    public void summary(List<String> pids, Counters counters) {
+        report("Summary* for " + pids);
+        report("=======================================");
+        report(" objects processed: " + counters.getProcessed());
+        report(" objects indexed:   " + counters.getIndexed());
+        report(" objects ignored:   " + counters.getIgnored());
+        report(" objects removed:   " + counters.getRemoved());
+        report(" objects erroneous: " + counters.getErrors());
+        report(" *counters include pages from pdf, i.e. not real objects in repository");
+        report(" records processing duration: " + formatTime(System.currentTimeMillis() - counters.getStartTimestamp()));
+        report("=======================================");
+        report("");
+
+        if (counters.getErrors() > 0 || counters.getIgnored() >0) {
+            throw new IllegalStateException("Indexation finished with errors; see error log");
         }
     }
 
@@ -262,6 +266,9 @@ public class Indexer {
         } catch (SolrException e) {
             counters.incrementErrors();
             reportError(" Solr error", e);
+        } catch (RuntimeException e) {
+            counters.incrementErrors();
+            reportError(" Runtime error", e);
         } finally {
             if (progressListener != null) {
                 progressListener.onProgress(counters.getProcessed());
@@ -402,7 +409,8 @@ public class Indexer {
         }
     }
 
-    private void commitAfterLastIndexation(Counters counters) {
+
+    public void commmit(Counters counters) {
         try {
             solrIndexer.commit();
         } catch (IOException e) {

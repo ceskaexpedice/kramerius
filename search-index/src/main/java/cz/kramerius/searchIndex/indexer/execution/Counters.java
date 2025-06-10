@@ -1,11 +1,18 @@
 package cz.kramerius.searchIndex.indexer.execution;
 
 public class Counters {
+
+    private long startTimestamp = System.currentTimeMillis();
+
     private int processed = 0;
     private int indexed = 0;
     private int ignored = 0;
     private int removed = 0;
     private int errors = 0;
+
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
 
     public void incrementProcessed() {
         processed += 1;

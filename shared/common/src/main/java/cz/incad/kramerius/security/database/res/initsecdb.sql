@@ -152,7 +152,7 @@ VALUES(nextval('CRIT_PARAM_ID_SEQUENCE'), '127.*;localhost;0.*', 'Locahosts','Lo
 
 -- prirazeni policy kriteria 
 insert into RIGHTS_CRITERIUM_ENTITY(CRIT_ID, QNAME, "type") 
-VALUES(nextval('CRIT_ID_SEQUENCE'), 'cz.incad.kramerius.security.impl.criteria.PolicyFlag', 1);
+VALUES(nextval('CRIT_ID_SEQUENCE'), 'cz.incad.kramerius.security.impl.criteria.DefaultIPAddressFilter', 1);
 
 -- prirazeni default ip filtru
 insert into RIGHTS_CRITERIUM_ENTITY(CRIT_ID, QNAME,citeriumParam, "type") 
