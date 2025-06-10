@@ -42,7 +42,7 @@ public enum AkubraMigrationParts {
                 String datastreamPaths = KConfiguration.getInstance().getProperty("datastreamStore.path");
                 String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
 
-                Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+                //Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
                 final boolean legacyFormat = args.length>1 && "legacy".equalsIgnoreCase(args[1]);
                 LOGGER.info("Migrating datastreams" );
                 processRoot(   datastreamSource,  datastreamPaths,  datastreamPattern,  legacyFormat);

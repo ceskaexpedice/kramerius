@@ -295,7 +295,7 @@ public class Indexer {
     private void indexPagesFromPdf(String pid, RepositoryNode repositoryNode, Counters counters) throws IOException, DocumentException, SolrServerException {
         report("object " + pid + " contains PDF, extracting pages");
         InputStream imgFull =akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_FULL).asInputStream() : null;
-        PdfExtractor extractor = new PdfExtractor(pid, imgFull);
+        PdfExtractor extractor = new PdfExtractor(pid.replaceAll(":","_"), imgFull);
         int pages = extractor.getPagesCount();
         for (int i = 0; i < pages; i++) {
             int pageNumber = i + 1;
