@@ -32,7 +32,6 @@ public enum AkubraMigrationParts {
         @Override
         public void doMigrationPart(String[] args) throws SQLException, IOException, SAXException {
             long start = System.currentTimeMillis();
-            AkubraRepository akubraRepository = null;
             try {
                 String objectSource = KConfiguration.getInstance().getProperty("objectStore.migrationsource");
                 String objectPaths = KConfiguration.getInstance().getProperty("objectStore.path");
@@ -43,29 +42,27 @@ public enum AkubraMigrationParts {
                 String datastreamPaths = KConfiguration.getInstance().getProperty("datastreamStore.path");
                 String datastreamPattern = KConfiguration.getInstance().getProperty("datastreamStore.pattern");
 
-                Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
-                akubraRepository = injector.getInstance(AkubraRepository.class);
-                final boolean rebuildProcessingIndex = "true".equalsIgnoreCase(args[1]);
-                processRoot(akubraRepository, datastreamSource, datastreamPaths, datastreamPattern, false);
-                processRoot(akubraRepository, objectSource, objectPaths, objectPattern, rebuildProcessingIndex);
+                Injector injector = Guice.createInjector(new SolrModule(), new ResourceIndexModule(), new RepoModule(), new NullStatisticsModule());
+                final boolean legacyFormat = args.length>1 && "legacy".equalsIgnoreCase(args[1]);
+                LOGGER.info("Migrating datastreams" );
+                processRoot(   datastreamSource,  datastreamPaths,  datastreamPattern,  legacyFormat);
+                LOGGER.info("Migrating objects" );
+                processRoot(   objectSource,  objectPaths,  objectPattern,  legacyFormat);
 
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
+            }catch(Exception ex) {
+                throw  new RuntimeException(ex);
             } finally {
-                akubraRepository.shutdown();
                 long stop = System.currentTimeMillis();
-                LOGGER.info("AKubra repository restructured in " + (stop - start) + " ms");
+                LOGGER.info("Akubra repository restructured in "+(stop - start )+ " ms");
             }
         }
 
     };
 
-    private static void processRoot(AkubraRepository akubraRepository, String datastreamSource, String datastreamPaths, String datastreamPattern, boolean rebuildProcessingIndex) throws IOException, SolrServerException {
+    private static void processRoot(String datastreamSource, String datastreamPaths, String datastreamPattern, boolean legacyFormat) throws IOException, SolrServerException {
         try {
 
-            if (rebuildProcessingIndex) {
-                akubraRepository.pi().deleteProcessingIndex();
-            }
+
             Path objectStoreRoot = Paths.get(datastreamSource);
             HashPathIdMapper idMapper = new HashPathIdMapper(datastreamPattern);
             final AtomicInteger currentIteration = new AtomicInteger(0);
@@ -74,13 +71,17 @@ public enum AkubraMigrationParts {
                     if ((currentIteration.incrementAndGet() % LOG_MESSAGE_ITERATION) == 0) {
                         LOGGER.info("Migrated " + currentIteration + " items.");
                     }
-                    String filename = "";
-                    try {
-                        filename = java.net.URLDecoder.decode(path.getFileName().toString(), StandardCharsets.UTF_8.name());
-                        filename = filename.replace("info:fedora/", "");
-                        filename = filename.replace("/", "+");
-                    } catch (UnsupportedEncodingException e) {
-                        // not going to happen - value came from JDK's own StandardCharsets
+                    String filename = path.getFileName().toString();
+                    if (legacyFormat){
+                        filename = filename.replaceFirst("_", ":");
+                    }else {
+                        try {
+                            filename = java.net.URLDecoder.decode(filename, StandardCharsets.UTF_8.name());
+                            filename = filename.replace("info:fedora/", "");
+                            filename = filename.replace("/", "+");
+                        } catch (UnsupportedEncodingException e) {
+                            // not going to happen - value came from JDK's own StandardCharsets
+                        }
                     }
                     String internalId = idMapper.getInternalId(LegacyMigrationParts.getBlobId(filename)).toString();
                     String subdirPath = internalId.substring(internalId.indexOf(":") + 1, internalId.lastIndexOf("/"));
@@ -94,25 +95,19 @@ public enum AkubraMigrationParts {
                         throw new RuntimeException("Cannot rename file " + path + " to " + targetFile.getAbsolutePath());
                     }
 
-                    if (rebuildProcessingIndex) {
-                        FileInputStream inputStream = new FileInputStream(targetFile);
-                        DigitalObject digitalObject = LegacyMigrationParts.createDigitalObject(inputStream);
-                        rebuildProcessingIndex(akubraRepository, digitalObject, null);
-                    }
+
                 } catch (Exception ex) {
                     LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                 }
             });
+
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
-        } finally {
-            akubraRepository.pi().commit();
-            LOGGER.info("Feeder commited.");
         }
     }
 
 
-    abstract void doMigrationPart(String[] args) throws SQLException, IOException, SAXException;
+    abstract  void doMigrationPart(String[] args) throws SQLException, IOException, SAXException;
 
 
     static Logger LOGGER = Logger.getLogger(AkubraMigrationParts.class.getName());
