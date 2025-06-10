@@ -16,13 +16,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class RepositoryNodeManager {
 
+    public static final Logger LOGGER = Logger.getLogger(RepositoryNodeManager.class.getName());
+
     private final AkubraRepository akubraRepository;
     private final LRUCache<String, RepositoryNode> nodesByPid = new LRUCache<>(1024);
     private final boolean surviveInconsistentObjects;
+
+
 
     public RepositoryNodeManager(AkubraRepository akubraRepository, boolean surviveInconsistentObjects) {
         this.akubraRepository = akubraRepository;
@@ -33,12 +39,12 @@ public class RepositoryNodeManager {
         try {
             return getKrameriusNodeWithCycleDetection(pid, new ArrayList<>());
         } catch (RuntimeException e) {
-            e.printStackTrace();
             if (surviveInconsistentObjects) {
-                //e.printStackTrace();
-                System.err.println(e.getMessage());
+                LOGGER.log(Level.SEVERE, "Exception, ignoring");
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return null;
             } else {
+                LOGGER.log(Level.SEVERE, "Exception, propagation up");
                 throw e;
             }
         }
@@ -93,6 +99,11 @@ public class RepositoryNodeManager {
             Document relsExtDoc = akubraRepository.re().get(pid).asDom4j(false);
             //String model = KrameriusRepositoryUtils.extractKrameriusModelName(relsExtDoc);
             String model = akubraRepository.pi().getModel(pid);
+            if (model == null) {
+                throw new IllegalStateException(String.format("Pid %s has no model", pid));
+            }
+
+
             List<String> ownChildren = new ArrayList<>();
             List<String> fosterChildren = new ArrayList<>();
             if (!"page".equals(model) && !"track".equals(model)) { //just optimization, pages and tracks never have children

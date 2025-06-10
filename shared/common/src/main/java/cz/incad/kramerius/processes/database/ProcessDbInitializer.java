@@ -144,9 +144,6 @@ public class ProcessDbInitializer {
                     createProcessAuthTokenTable(connection);
                 }
                 //TODO: possibly move, doesn't really belong here, but own Initializator for single table would be overkill (also managing versions)
-                if (!DatabaseUtils.tableExists(connection, "CONFIG")) {
-                    createConfigTable(connection);
-                }
                 alterProcessTableParams(connection);
                 alterProcessTableParamsMapping(connection);
             
@@ -158,6 +155,11 @@ public class ProcessDbInitializer {
             } else { // >= 6.9.0
 
             }
+
+            if (!DatabaseUtils.tableExists(connection, "CONFIG")) {
+                createConfigTable(connection);
+            }
+
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {

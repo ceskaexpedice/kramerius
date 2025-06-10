@@ -62,8 +62,9 @@ public class DefaultPropertiesInstances implements Instances {
         this.configManager = configManager;
         this.deleteTriggerSupport = deleteTriggerSupport;
         LOGGER.info("Refreshing configuration with reharvestManager "+this.reharvestManager);
-        refresh();
+        //refresh();
     }
+
     @Override
     public void refresh() {
         this.instances.clear(); this.names.clear();

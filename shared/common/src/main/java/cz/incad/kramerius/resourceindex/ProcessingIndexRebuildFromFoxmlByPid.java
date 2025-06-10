@@ -9,6 +9,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrInputField;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static cz.incad.kramerius.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
 
@@ -130,20 +132,33 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
 //            throw new IOException("File can't be read: " + foxmlFile.getAbsolutePath());
 //        }
         try {
+
             String query = "source:\"" + pid + "\"";
-            List<ProcessingIndexItem> pids = new ArrayList<>();
+            List<ProcessingIndexItem> processingItems = new ArrayList<>();
             ProcessingIndexQueryParameters params = new ProcessingIndexQueryParameters.Builder()
                     .queryString(query)
+                    .rows(10_000) //TODO: do it configurable
                     .fieldsToFetch(Arrays.asList("pid"))
                     .build();
 
             akubraRepository.pi().lookAt(params, processingIndexItem -> {
-                pids.add(processingIndexItem);
+                processingItems.add(processingIndexItem);
             });
 
             rebuildProcessingIndex(akubraRepository, pid,(updateRequest -> {
-                pids.forEach(p->{
-                    updateRequest.deleteById(p.pid());
+
+                List<Object> updateRequestPids = updateRequest.getDocuments().stream().map(doc -> {
+                    SolrInputField sinputDoc = doc.getField("pid");
+                    return sinputDoc.getValue();
+                }).collect(Collectors.toList());
+
+                List<String> pidsFromIndex = processingItems.stream().map(ProcessingIndexItem::pid).collect(Collectors.toList());
+                updateRequestPids.stream().forEach(p-> {
+                    pidsFromIndex.remove(p);
+                });
+
+                pidsFromIndex.stream().forEach(p-> {
+                    updateRequest.deleteById(p);
                 });
             }));
         } catch (Exception ex) {
