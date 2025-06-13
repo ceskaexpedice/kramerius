@@ -228,15 +228,9 @@ allprojects {
                     println "Using project properties for GitHub credentials"
                     username = "$githubRepositoryUser"
                     password = "$githubRepositoryToken"
-
                 } else {
-
-                    println "Using environment variables for GitHub credentials"
-                    println "GITHUB_ACTOR: ${System.getenv("GITHUB_ACTOR")}"
-                    println "GITHUB_TOKEN is set: ${System.getenv("GITHUB_TOKEN") != null}"
-
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
+                    username = System.getenv("USERNAME")
+                    password = System.getenv("TOKEN")
                 }
             }
 		}
@@ -246,18 +240,11 @@ allprojects {
             credentials {
                 if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
                     println "Using project properties for GitHub credentials"
-
                     username = "$githubRepositoryUser"
                     password = "$githubRepositoryToken"
                 } else {
-
-                    println "Using environment variables for GitHub credentials"
-                    println "GITHUB_ACTOR: ${System.getenv("GITHUB_ACTOR")}"
-                    println "GITHUB_TOKEN is set: ${System.getenv("GITHUB_TOKEN") != null}"
-
-                    
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
+                    username = System.getenv("USERNAME")
+                    password = System.getenv("TOKEN")
                 }
             }
 		}
