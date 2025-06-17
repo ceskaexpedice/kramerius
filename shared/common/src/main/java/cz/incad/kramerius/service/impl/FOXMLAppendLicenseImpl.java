@@ -94,17 +94,18 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
 
                         try {
                             if (file.toFile().getName().toLowerCase().endsWith(".xml")) {
-                                Document parsedDocument = XMLUtils.parseDocument(new FileInputStream(file.toFile()),
-                                        true);
-                                String pid = parsedDocument.getDocumentElement().getAttribute("PID");
-                                Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parsedDocument.getDocumentElement());
-                                String model = RelsExtUtils.getModel(relsExt);
+                                try (FileInputStream is = new FileInputStream(file.toFile())) {
+                                    Document parsedDocument = XMLUtils.parseDocument(is, true);
+                                    String pid = parsedDocument.getDocumentElement().getAttribute("PID");
+                                    Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parsedDocument.getDocumentElement());
+                                    String model = RelsExtUtils.getModel(relsExt);
 
-                                Triple<String, String, File> triple = Triple.of(pid, model, file.toFile());
-                                if (!modelsMapping.containsKey(model)) {
-                                    modelsMapping.put(model, new ArrayList<>());
+                                    Triple<String, String, File> triple = Triple.of(pid, model, file.toFile());
+                                    if (!modelsMapping.containsKey(model)) {
+                                        modelsMapping.put(model, new ArrayList<>());
+                                    }
+                                    modelsMapping.get(model).add(triple);
                                 }
-                                modelsMapping.get(model).add(triple);
                             }
                         } catch (ParserConfigurationException | SAXException | IOException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage());
@@ -144,15 +145,17 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                     List<Triple<String, String, File>> containsLicense = modelsMapping.get(leftSide);
                     for (Triple<String, String, File> containsLicenseTripple : containsLicense) {
                         File right = containsLicenseTripple.getRight();
-                        Document parentDoc = XMLUtils.parseDocument(new FileInputStream(right), true);
-                        Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
-                        if (relsExt != null) {
-                            List<String> containsLicenses = RelsExtUtils.getContainsLicenses(relsExt);
-                            if (!containsLicenses.contains(license)) {
-                                LOGGER.info(String.format("Applying 'containsLicense' to %s",
-                                        containsLicenseTripple.getLeft()));
-                                RelsExtUtils.addRDFLiteral(relsExt, license, "containsLicense");
-                                changeDoc(right, parentDoc);
+                        try (FileInputStream is = new FileInputStream(right)) {
+                            Document parentDoc = XMLUtils.parseDocument(is, true);
+                            Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
+                            if (relsExt != null) {
+                                List<String> containsLicenses = RelsExtUtils.getContainsLicenses(relsExt);
+                                if (!containsLicenses.contains(license)) {
+                                    LOGGER.info(String.format("Applying 'containsLicense' to %s",
+                                            containsLicenseTripple.getLeft()));
+                                    RelsExtUtils.addRDFLiteral(relsExt, license, "containsLicense");
+                                    changeDoc(right, parentDoc);
+                                }
                             }
                         }
                     }
@@ -160,14 +163,16 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                     List<Triple<String, String, File>> licenses = modelsMapping.get(rightSide);
                     for (Triple<String, String, File> licenseTripple : licenses) {
                         File right = licenseTripple.getRight();
-                        Document parentDoc = XMLUtils.parseDocument(new FileInputStream(right), true);
-                        Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
-                        if (relsExt != null) {
-                            List<String> realContainsLicenses = RelsExtUtils.getLicenses(relsExt);
-                            if (!realContainsLicenses.contains(license)) {
-                                LOGGER.info(String.format("Applying 'license' to %s", licenseTripple.getLeft()));
-                                RelsExtUtils.addRDFLiteral(relsExt, license, "license");
-                                changeDoc(right, parentDoc);
+                        try (FileInputStream is = new FileInputStream(right)) {
+                            Document parentDoc = XMLUtils.parseDocument(is, true);
+                            Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
+                            if (relsExt != null) {
+                                List<String> realContainsLicenses = RelsExtUtils.getLicenses(relsExt);
+                                if (!realContainsLicenses.contains(license)) {
+                                    LOGGER.info(String.format("Applying 'license' to %s", licenseTripple.getLeft()));
+                                    RelsExtUtils.addRDFLiteral(relsExt, license, "license");
+                                    changeDoc(right, parentDoc);
+                                }
                             }
                         }
                     }
@@ -187,14 +192,16 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
                     List<Triple<String, String, File>> licenses = modelsMapping.get(licModel);
                     for (Triple<String, String, File> licenseTripple : licenses) {
                         File right = licenseTripple.getRight();
-                        Document parentDoc = XMLUtils.parseDocument(new FileInputStream(right), true);
-                        Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
-                        if (relsExt != null) {
-                            List<String> realLicenses = RelsExtUtils.getLicenses(relsExt);
-                            if (!realLicenses.contains(license)) {
-                                LOGGER.info(String.format("Applying 'license' to %s", licenseTripple.getLeft()));
-                                RelsExtUtils.addRDFLiteral(relsExt, license, "license");
-                                changeDoc(right, parentDoc);
+                        try (FileInputStream is = new FileInputStream(right)) {
+                            Document parentDoc = XMLUtils.parseDocument(is, true);
+                            Element relsExt = RelsExtUtils.getRELSEXTFromGivenFOXML(parentDoc.getDocumentElement());
+                            if (relsExt != null) {
+                                List<String> realLicenses = RelsExtUtils.getLicenses(relsExt);
+                                if (!realLicenses.contains(license)) {
+                                    LOGGER.info(String.format("Applying 'license' to %s", licenseTripple.getLeft()));
+                                    RelsExtUtils.addRDFLiteral(relsExt, license, "license");
+                                    changeDoc(right, parentDoc);
+                                }
                             }
                         }
                     }
@@ -204,10 +211,11 @@ public class FOXMLAppendLicenseImpl implements FOXMLAppendLicenseService {
     }
 
     private void changeDoc(File file, Document parentDoc) {
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             XMLUtils.print(parentDoc, fos);
         } catch (FileNotFoundException | TransformerException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
