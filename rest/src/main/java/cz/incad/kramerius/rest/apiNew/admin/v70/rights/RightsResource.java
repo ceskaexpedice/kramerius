@@ -511,18 +511,20 @@ public class RightsResource {
     }
 
     private JSONObject criteriumToJSON(RightCriteriumWrapper rcw) throws JSONException {
-        JSONObject jsonObj = new JSONObject();
-        jsonObj.put("qname", rcw.getRightCriterium().getQName());
-        jsonObj.put("params", paramToJSON(rcw.getCriteriumParams()));
+        if (rcw.getRightCriterium() != null && rcw.getRightCriterium().getQName() != null) {
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("qname", rcw.getRightCriterium().getQName());
+            jsonObj.put("params", paramToJSON(rcw.getCriteriumParams()));
 
-        License license = rcw.getLicense();
-        if (license != null) {
-            // legacy property
-            jsonObj.put("label", license.getName());
-            jsonObj.put("license", license.getName());
-        }
+            License license = rcw.getLicense();
+            if (license != null) {
+                // legacy property
+                jsonObj.put("label", license.getName());
+                jsonObj.put("license", license.getName());
+            }
 
-        return jsonObj;
+            return jsonObj;
+        } else return null;
     }
 
     private JSONObject rightsToJSON(Right r) throws JSONException {
@@ -536,8 +538,11 @@ public class RightsResource {
         }
         jsonObj.put("role", userToJSON(r.getRole()));
 
-        if (r.getCriteriumWrapper() != null)
-            jsonObj.put("criterium", criteriumToJSON(r.getCriteriumWrapper()));
+        if (r.getCriteriumWrapper() != null && r.getCriteriumWrapper().getRightCriterium() != null) {
+            JSONObject json = criteriumToJSON(r.getCriteriumWrapper());
+            if (json != null) jsonObj.put("criterium", json);
+        }
+
 
         return jsonObj;
     }

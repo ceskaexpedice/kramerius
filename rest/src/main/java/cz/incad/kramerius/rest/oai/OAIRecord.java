@@ -24,23 +24,18 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.rest.oai.metadata.utils.OAICDKUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
@@ -57,30 +52,19 @@ import org.xml.sax.SAXException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.utils.XMLUtils;
 
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class OAIRecord {
     public static final Logger LOGGER = Logger.getLogger(OAIRecord.class.getName());
-    /*
-    private String identifier;
-    private String solrIdentifier;
-    */
-    
+
     private String identifier;
     private String solrIdentifier;
     
-    // CDK extension
-    
+
     private List<String> cdkCollections = new ArrayList<>();
     
     private String dateTimeStamp;
@@ -214,7 +198,7 @@ public class OAIRecord {
 		try {
 			String pid = OAITools.pidFromOAIIdentifier(this.identifier);
             org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
-            ProxyItemHandler redirectHandler = MetadataExport.findRedirectHandler(solrDataByPid, solrAccess, userProvider, apacheClientProvieder, instances, request, pid, null);
+            ProxyItemHandler redirectHandler = OAICDKUtils.findRedirectHandler(solrDataByPid, solrAccess, userProvider, apacheClientProvieder, instances, request, pid, null);
 			if (!pid.contains("_")) {
 
                 String baseUrl = ApplicationURL.applicationURL(request);

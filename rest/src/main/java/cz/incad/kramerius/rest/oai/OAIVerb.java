@@ -477,7 +477,9 @@ public enum OAIVerb {
                             results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
 
                             if (results.getCompleteListSize() > 0) {
-                                for (OAIRecord oaiRec : results.getRecords()) { 
+                                for (OAIRecord oaiRec : results.getRecords()) {
+
+                                    // oai rec -> find
 
                                     Element record= doc.createElement("record");
                                     Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null,support);
@@ -504,6 +506,7 @@ public enum OAIVerb {
                             
                         } else {
                             results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
+
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
 

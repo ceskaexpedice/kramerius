@@ -287,10 +287,16 @@ public class OAISet {
                 OAIRecord oaiRecord = new OAIRecord(pidElm.getTextContent(), oaiIdentifier,dateElm != null ? dateElm.getTextContent() : "", this.cacheSupport);
                 oaiRecord.setCdkCollections(cdkCollections);
 
-                
                 return oaiRecord;
             }).collect(Collectors.toList());
-            
+
+
+            // najde k nim ekvivalenty prvnich stranek... jak na parenty ?
+            List<String> pids = records.stream().map(OAIRecord::getSolrIdentifier).collect(Collectors.toList());
+
+
+
+
             String nextCursor = records.size() == rows && solrNextCursor != null ? solrNextCursor+":"+this.setSpec+":"+metadataPrefix : null; 
             OAIResults results = new OAIResults(Integer.parseInt(number), nextCursor, metadataPrefix, records);
             
