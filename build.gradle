@@ -225,11 +225,12 @@ allprojects {
 			url "https://maven.pkg.github.com/ceskaexpedice/hazelcast-locks-server"
             credentials {
                 if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
+                    println "Using project properties for GitHub credentials"
                     username = "$githubRepositoryUser"
                     password = "$githubRepositoryToken"
                 } else {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
+                    username = System.getenv("USERNAME")
+                    password = System.getenv("TOKEN")
                 }
             }
 		}
@@ -238,11 +239,12 @@ allprojects {
 			url "https://maven.pkg.github.com/ceskaexpedice/akubra"
             credentials {
                 if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
+                    println "Using project properties for GitHub credentials"
                     username = "$githubRepositoryUser"
                     password = "$githubRepositoryToken"
                 } else {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
+                    username = System.getenv("USERNAME")
+                    password = System.getenv("TOKEN")
                 }
             }
 		}
