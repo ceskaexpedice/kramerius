@@ -42,8 +42,11 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OAICDKUtils {
+
+    public static final Logger LOGGER = Logger.getLogger(OAICDKUtils.class.getName());
 
     private OAICDKUtils() {}
 
@@ -71,7 +74,7 @@ public class OAICDKUtils {
         if (source == null) {
             source = defaultDocumentSource(solrByPid);
         }
-        MetadataExport.LOGGER.info("Info - default source " + source);
+        LOGGER.info("Info - default source " + source);
         OneInstance found = instances.find(source);
         if (found != null) {
             String remoteAddress = IPAddressUtils.getRemoteAddress(request, KConfiguration.getInstance().getConfiguration());
@@ -107,19 +110,19 @@ public class OAICDKUtils {
                     null
             );
 
-            MetadataExport.LOGGER.info(String.format("Storing cache item %s", cacheItem.toString()));
+            LOGGER.info(String.format("Storing cache item %s", cacheItem.toString()));
             cacheSupport.save(cacheItem);
         } catch (SQLException e) {
-            MetadataExport.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
     public static CDKRequestItem cacheSearchHitByPid(String url, String pid, CDKRequestCacheSupport cacheSupport) {
         int days = KConfiguration.getInstance().getConfiguration().getInt("cdk.cache.item", 30);
-        MetadataExport.LOGGER.log(Level.INFO, String.format("this.cacheSupport.find(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
+        LOGGER.log(Level.INFO, String.format("this.cacheSupport.find(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
         List<CDKRequestItem> cdkRequestItems = cacheSupport.find(null, url, pid, null);
         if (!cdkRequestItems.isEmpty() && !cdkRequestItems.get(0).isExpired(days)) {
-            MetadataExport.LOGGER.log(Level.INFO, String.format("this.cacheSupport.found(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
+            LOGGER.log(Level.INFO, String.format("this.cacheSupport.found(\"%s\", \"%s\",\"%s\", \"%s\")", null, url, pid, null));
             return cdkRequestItems.get(0);
         }
         return null;

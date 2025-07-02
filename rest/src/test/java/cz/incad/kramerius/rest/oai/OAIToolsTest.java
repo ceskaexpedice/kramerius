@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.rest.oai;
 
+import cz.incad.kramerius.rest.oai.utils.OAITools;
 import org.junit.Assert;
 import org.junit.Test;
 

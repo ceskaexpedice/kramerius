@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DateTimeException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +31,8 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.incad.kramerius.rest.oai.strategies.MetadataExportStrategy;
+import cz.incad.kramerius.rest.oai.utils.OAITools;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -40,7 +44,6 @@ import org.xml.sax.SAXException;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.oai.exceptions.OAIException;
-import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
@@ -62,8 +65,9 @@ public enum OAIVerb {
             
             Element listMetadataPrefix = doc.createElement("ListMetadataFormats");
             doc.getDocumentElement().appendChild(listMetadataPrefix);
-            MetadataExport[] values = MetadataExport.values();
-            for (MetadataExport metadataExport : values) {
+            Collection<MetadataExportStrategy> allExports = MetadataExportFactory.getAllExports();
+
+            for (MetadataExportStrategy metadataExport : allExports) {
                 if (metadataExport.isAvailableOnLocal()) {
                     Element metadataFormat= doc.createElement("metadataFormat");
 
@@ -96,8 +100,9 @@ public enum OAIVerb {
             
             Element listMetadataPrefix = doc.createElement("ListMetadataFormats");
             doc.getDocumentElement().appendChild(listMetadataPrefix);
-            MetadataExport[] values = MetadataExport.values();
-            for (MetadataExport metadataExport : values) {
+            Collection<MetadataExportStrategy> allExports = MetadataExportFactory.getAllExports();
+            //MetadataExport[] values = MetadataExport.values();
+            for (MetadataExportStrategy metadataExport : allExports) {
                 if (metadataExport.isAvailableOnCDKSide()) {
                     Element metadataFormat= doc.createElement("metadataFormat");
 
@@ -275,7 +280,7 @@ public enum OAIVerb {
         public void performOnLocal(ConfigManager configManager, AkubraRepository akubraRepository, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 
             OAISet selectedSet =  null;
-            MetadataExport selectedMetadata = null;
+            MetadataExportStrategy selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
                 URL urlObject = new URL(baseUrl);
@@ -305,7 +310,7 @@ public enum OAIVerb {
                             until = OAITools.untilFromResumptionToken(resumptionToken);
                         }
 
-                        if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                        if (metadataPrefix == null || MetadataExportFactory.findByPrefix(metadataPrefix).isEmpty()) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     }
@@ -328,7 +333,8 @@ public enum OAIVerb {
                         }
                     }
 
-                    selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
+                    Optional<MetadataExportStrategy> optional = MetadataExportFactory.findByPrefix(metadataPrefix);
+                    selectedMetadata = optional.isPresent() ?   optional.get() : null;
                     
                     if (selectedMetadata != null) {
                         if (selectedSet == null) {
@@ -343,7 +349,7 @@ public enum OAIVerb {
                         
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecordsOnLocal(solrAccess, solrCursor,metadataPrefix,rows,from, until);
+                            results = selectedSet.findRecordsOnLocal(solrAccess, solrCursor,selectedMetadata,rows,from, until);
                             for (OAIRecord oaiRec : results.getRecords()) { 
 
                                 Element record= doc.createElement("record");
@@ -363,7 +369,7 @@ public enum OAIVerb {
                             }
                         } else {
 
-                            results = selectedSet.findRecordsOnLocal(solrAccess,"*", metadataPrefix,rows,from, until);
+                            results = selectedSet.findRecordsOnLocal(solrAccess,"*", selectedMetadata,rows,from, until);
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
 
@@ -413,7 +419,7 @@ public enum OAIVerb {
         public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport support) throws OAIException{
 
             OAISet selectedSet =  null;
-            MetadataExport selectedMetadata = null;
+            MetadataExportStrategy selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
                 URL urlObject = new URL(baseUrl);
@@ -437,7 +443,7 @@ public enum OAIVerb {
                     } else if (resumptionToken != null){
                         selectedSet = sets.findByToken(resumptionToken);
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
-                        if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                        if (metadataPrefix == null || MetadataExportFactory.findByPrefix(metadataPrefix).isEmpty()) {
                             LOGGER.severe(String.format("Bad resumption token %s",resumptionToken));
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListRecords, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
@@ -458,8 +464,8 @@ public enum OAIVerb {
                         }
                     }
 
-
-                    selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
+                    Optional<MetadataExportStrategy> optional = MetadataExportFactory.findByPrefix(metadataPrefix);
+                    selectedMetadata = optional.get();
                     
                     if (selectedMetadata != null) {
                         if (selectedSet == null) {
@@ -474,7 +480,7 @@ public enum OAIVerb {
                         
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
+                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess, solrCursor,selectedMetadata,rows, from, until);
 
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) {
@@ -485,7 +491,7 @@ public enum OAIVerb {
                                     Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null,support);
                                     
                                     Element metadata = doc.createElement("metadata");
-                                    List<Element> metadataOnCDKSide = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request, doc, oaiRec.getIdentifier(), selectedMetadata, selectedSet, support);
+                                    List<Element> metadataOnCDKSide = oaiRec.toMetadataOnCDKSide(request, instances, doc, solrAccess, userProvider, clientProvider, oaiRec.getIdentifier(), selectedMetadata, selectedSet, support);
                                     //Element metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet,support);
                                     if (metadataOnCDKSide != null && !metadataOnCDKSide.isEmpty()) {
                                         metadataOnCDKSide.stream().forEach(metadata::appendChild);
@@ -505,7 +511,7 @@ public enum OAIVerb {
                             }
                             
                         } else {
-                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
+                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess,"*", selectedMetadata,rows, from, until);
 
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
@@ -515,7 +521,7 @@ public enum OAIVerb {
                                     //Element header = oaiRec.toHeader(doc, selectedSet);
                                     
                                     Element metadata = doc.createElement("metadata");
-                                    List<Element> metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,selectedSet, support);
+                                    List<Element> metadataElm = oaiRec.toMetadataOnCDKSide(request, instances, doc, solrAccess, userProvider, clientProvider, oaiRec.getIdentifier(), selectedMetadata,selectedSet, support);
                                     if (metadataElm != null && !metadataElm.isEmpty()) {
                                         metadataElm.stream().forEach(metadata::appendChild);
                                     } else {
@@ -560,7 +566,7 @@ public enum OAIVerb {
         
 		public void performOnLocal(ConfigManager configManager, AkubraRepository akubraRepository, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
 			OAISet selectedSet =  null;
-            MetadataExport selectedMetadata = null;
+            MetadataExportStrategy selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
 
@@ -590,7 +596,7 @@ public enum OAIVerb {
                             until = OAITools.untilFromResumptionToken(resumptionToken);
                         }
                         
-                        if ( metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                        if ( metadataPrefix == null || MetadataExportFactory.findByPrefix(metadataPrefix).isEmpty()) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     }
@@ -609,7 +615,8 @@ public enum OAIVerb {
                         }
                     }
 
-                    selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
+                    Optional<MetadataExportStrategy> optional = MetadataExportFactory.findByPrefix(metadataPrefix);
+                    selectedMetadata = optional.isPresent() ? optional.get() : null;
                     
                     if (selectedMetadata != null) {
                         if (selectedSet == null) {
@@ -623,10 +630,10 @@ public enum OAIVerb {
                         OAIResults results = null;
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecordsOnLocal(solrAccess, solrCursor,metadataPrefix,configuredRows, from, until);
+                            results = selectedSet.findRecordsOnLocal(solrAccess, solrCursor,selectedMetadata,configuredRows, from, until);
                             for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeaderOnLocal(doc, akubraRepository, selectedSet));}
                         } else {
-                            results = selectedSet.findRecordsOnLocal(solrAccess,"*", metadataPrefix,configuredRows, from, until);
+                            results = selectedSet.findRecordsOnLocal(solrAccess,"*", selectedMetadata,configuredRows, from, until);
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { identify.appendChild(oaiRec.toHeaderOnLocal(doc, akubraRepository, selectedSet));}
                             } else {
@@ -657,7 +664,7 @@ public enum OAIVerb {
 
         public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport cacheSupport) throws OAIException{
 			OAISet selectedSet =  null;
-            MetadataExport selectedMetadata = null;
+            MetadataExportStrategy selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
 
@@ -680,7 +687,7 @@ public enum OAIVerb {
                     } else if (resumptionToken != null){
                         selectedSet = sets.findByToken(resumptionToken);
                         metadataPrefix = OAITools.metadataFromResumptionToken(resumptionToken);
-                        if ( metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                        if ( metadataPrefix == null || MetadataExportFactory.findByPrefix(metadataPrefix).isEmpty()) {
                             throw new OAIException(ErrorCode.badResumptionToken, OAIVerb.ListIdentifiers, selectedSet, ApplicationURL.applicationURL(request),selectedMetadata);
                         }
                     }
@@ -700,7 +707,8 @@ public enum OAIVerb {
                         }
                     }
 
-                    selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
+                    Optional<MetadataExportStrategy> optional = MetadataExportFactory.findByPrefix(metadataPrefix);
+                    selectedMetadata =  optional.isPresent() ?  MetadataExportFactory.findByPrefix(metadataPrefix).get() : null;
                     
                     if (selectedMetadata != null) {
                         if (selectedSet == null) {
@@ -714,7 +722,7 @@ public enum OAIVerb {
                         OAIResults results = null;
                         if (resumptionToken != null) {
                             String solrCursor = OAITools.solrCursorMarkFromResumptionToken(resumptionToken);
-                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess, solrCursor,metadataPrefix,rows, from, until);
+                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess, solrCursor,selectedMetadata,rows, from, until);
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
                                     Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null,cacheSupport);
@@ -724,7 +732,7 @@ public enum OAIVerb {
                             }
                             
                         } else {
-                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess,"*", metadataPrefix,rows, from, until);
+                            results = selectedSet.findRecordsOnCDKSide(proxyFilter, solrAccess,"*", selectedMetadata,rows, from, until);
                             if (results.getCompleteListSize() > 0) {
                                 for (OAIRecord oaiRec : results.getRecords()) { 
                                     Element header = oaiRec.toHeaderOnCDKSide(doc, selectedSet, solrAccess, userProvider, clientProvider, instances, request, null, cacheSupport);
@@ -763,17 +771,18 @@ public enum OAIVerb {
     GetRecord {
         @Override
         public void performOnLocal(ConfigManager configManager, AkubraRepository akubraRepository, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement) throws OAIException{
-			MetadataExport selectedMetadata = null;
+			MetadataExportStrategy selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
 
                 String identifier = getIdentifier(request);
                 String metadataPrefix = request.getParameter(METADATA_PREFIX_PARAMETER);
-                if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                if (metadataPrefix == null || MetadataExportFactory.findByPrefix(metadataPrefix).isEmpty()) {
                     throw new OAIException(ErrorCode.cannotDisseminateFormat, OAIVerb.GetRecord, null, ApplicationURL.applicationURL(request),selectedMetadata);
                 }
 
-                selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
+                Optional<MetadataExportStrategy> optional = MetadataExportFactory.findByPrefix(metadataPrefix);
+                selectedMetadata = optional.isPresent() ?  optional.get() : null;
                 
                 if (selectedMetadata != null) {
 
@@ -781,16 +790,15 @@ public enum OAIVerb {
                     doc.getDocumentElement().appendChild(requestElement);
 
                     Element identify = doc.createElement("GetRecord");
-                    OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier, null);
+                    OAIRecord oaiRec = OAIRecordFactory.createRecord(identifier, solrAccess, selectedMetadata);
+                    //OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier);
                     if (oaiRec != null) {
 
-                        
                         
                         Element record= doc.createElement("record");
                         Element header = oaiRec.toHeaderOnLocal(doc, akubraRepository, null);
                         record.appendChild(header);
-                        
-                        
+
                         String pid = OAITools.pidFromOAIIdentifier(oaiRec.getIdentifier());
                         if (akubraRepository.exists(pid)) {
                             Element metadata = doc.createElement("metadata");
@@ -810,8 +818,7 @@ public enum OAIVerb {
                 } else {
                     throw new OAIException(ErrorCode.cannotDisseminateFormat, OAIVerb.GetRecord, null, ApplicationURL.applicationURL(request),selectedMetadata);
                 }
-
-            } catch ( IOException | SAXException | ParserConfigurationException  e) {
+            } catch ( IOException  e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 throw new OAIException(ErrorCode.badArgument, OAIVerb.GetRecord,null, ApplicationURL.applicationURL(request),selectedMetadata);
             }
@@ -830,18 +837,19 @@ public enum OAIVerb {
         }
 
         public void performOnCDKSide(Provider<User> userProvider, Provider<CloseableHttpClient> clientProvider, Instances instances, ConfigManager configManager, ProxyFilter proxyFilter, SolrAccess solrAccess, HttpServletRequest request, Document doc, Element rootElement, CDKRequestCacheSupport cacheSupport) throws OAIException{
-			MetadataExport selectedMetadata = null;
+			MetadataExportStrategy selectedMetadata = null;
             try {
                 String baseUrl = ApplicationURL.applicationURL(request);
 
                 String identifier = getIdentifier(request);
 
                 String metadataPrefix = request.getParameter("metadataPrefix");
-                if (metadataPrefix == null || MetadataExport.findByPrefix(metadataPrefix) == null) {
+                if (metadataPrefix == null || MetadataExportFactory.findByPrefix(metadataPrefix).isEmpty()) {
                     throw new OAIException(ErrorCode.cannotDisseminateFormat, OAIVerb.GetRecord, null, ApplicationURL.applicationURL(request),selectedMetadata);
                 }
 
-                selectedMetadata = MetadataExport.findByPrefix(metadataPrefix);
+                Optional<MetadataExportStrategy> optional = MetadataExportFactory.findByPrefix(metadataPrefix);
+                selectedMetadata = optional.isPresent() ? optional.get() : null;
                 
                 if (selectedMetadata != null) {
 
@@ -849,7 +857,7 @@ public enum OAIVerb {
                     doc.getDocumentElement().appendChild(requestElement);
 
                     Element identify = doc.createElement("GetRecord");
-                    OAIRecord oaiRec = OAIRecord.findRecord(solrAccess,identifier,cacheSupport);
+                    OAIRecord oaiRec =  OAIRecordFactory.createRecord(identifier, solrAccess, selectedMetadata);
                     if (oaiRec != null) {
 
                         Element record= doc.createElement("record");
@@ -857,7 +865,7 @@ public enum OAIVerb {
                         Element header = oaiRec.toHeaderOnCDKSide(doc, null, solrAccess, userProvider, clientProvider, instances, request, null, cacheSupport);
                         
                         Element metadata = doc.createElement("metadata");
-                        List<Element> metadataElm = oaiRec.toMetadataOnCDKSide(solrAccess, userProvider, clientProvider, instances, request,  doc, oaiRec.getIdentifier(), selectedMetadata,null, cacheSupport);
+                        List<Element> metadataElm = oaiRec.toMetadataOnCDKSide(request, instances, doc, solrAccess, userProvider, clientProvider, oaiRec.getIdentifier(), selectedMetadata,null, cacheSupport);
                         if (metadataElm != null && !metadataElm.isEmpty()) {
                             metadataElm.stream().forEach(metadata::appendChild);
                         } else {
@@ -877,7 +885,7 @@ public enum OAIVerb {
                     throw new OAIException(ErrorCode.cannotDisseminateFormat, OAIVerb.GetRecord, null, ApplicationURL.applicationURL(request),selectedMetadata);
                 }
 
-            } catch ( IOException | SAXException | ParserConfigurationException  e) {
+            } catch ( IOException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 throw new OAIException(ErrorCode.badArgument, OAIVerb.GetRecord,null, ApplicationURL.applicationURL(request),selectedMetadata);
             }

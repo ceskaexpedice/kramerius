@@ -49,7 +49,7 @@ public enum SecuredActions {
     //A_INDEX_CHILDREN("a_index_children"),
 
     /** process rebuild indexu */
-    A_REBUILD_PROCESSING_INDEX("a_rebuild_processing_index", false),
+    A_REBUILD_PROCESSING_INDEX("a_rebuild_processing_index", false, true),
     
     /** import */
     A_IMPORT("a_import", true, true),

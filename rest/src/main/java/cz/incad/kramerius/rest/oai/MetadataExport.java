@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.rest.oai.metadata.utils.EDMUtils;
 import cz.incad.kramerius.rest.oai.metadata.utils.OAICDKUtils;
+import cz.incad.kramerius.rest.oai.utils.OAITools;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import org.apache.commons.io.IOUtils;
@@ -182,6 +183,8 @@ public enum MetadataExport {
 
                         String dataProvider = OAICDKUtils.findMetadataProvider(solrDataByPid);
                         String dataProviderBaseUrl = KConfiguration.getInstance().getConfiguration().getString(String.format("cdk.collections.sources.%s.baseurl", dataProvider));
+
+                        //KConfiguration.getInstance().get
 
                         Element rdf = EDMUtils.createEdmDataElements(KConfiguration.getInstance().getConfiguration(), dataProvider, dataProviderBaseUrl, licenses, instances, owningDocument, oaiRec, directStreamDC, pid, baseUrl);
                         return Arrays.asList(rdf);

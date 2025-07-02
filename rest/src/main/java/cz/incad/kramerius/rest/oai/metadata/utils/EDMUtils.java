@@ -20,8 +20,11 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.oai.OAIRecord;
 import cz.incad.kramerius.rest.oai.metadata.decorators.DecoratorsChain;
+import cz.incad.kramerius.rest.oai.record.OAIRecordSupplement;
+import cz.incad.kramerius.rest.oai.record.SupplementType;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
@@ -32,6 +35,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 public class EDMUtils {
 
@@ -78,18 +82,33 @@ public class EDMUtils {
         providedCHO.appendChild(type);
         type.setTextContent("TEXT");
 
+
+        // replace by api on cdk side
+        OneInstance oneInstance = instances.find(dataProvider);
+        OneInstance.InstanceType instType = oneInstance.getInstanceType();
+
+
+
+
+
         // image - source library
         Element webresource = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:WebResource");
         rdf.appendChild(webresource);
-        OneInstance oneInstance = instances.find(dataProvider);
-        OneInstance.InstanceType instType = oneInstance.getInstanceType();
-        switch (instType) {
-            case V7:
-                webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/client/v7.0/items/%s/image/preview", dataProviderBaseUrl, pid));
-                break;
-            case V5:
-                webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/v5.0/items/%s/preview", dataProviderBaseUrl, pid));
-                break;
+
+        String apiPoint  = KConfiguration.getInstance().getConfiguration().getString("api.point");
+        Optional<OAIRecordSupplement> found = oaiRec.getSupplements().stream().filter(supplement -> supplement.supplementType().equals(SupplementType.REPRESENTATIVE_PAGE_PID)).findAny();
+        if (found.isPresent()) {
+            String repPagePid = (String) found.get().data();
+            webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/client/v7.0/items/%s/image/preview", apiPoint, repPagePid));
+        } else {
+            switch (instType) {
+                case V7:
+                    webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/client/v7.0/items/%s/image/preview", dataProviderBaseUrl, pid));
+                    break;
+                case V5:
+                    webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/v5.0/items/%s/preview", dataProviderBaseUrl, pid));
+                    break;
+            }
         }
 
         Element edmAggregation = owningDocument.createElementNS("http://www.openarchives.org/ore/terms/", "ore:Aggregation");
@@ -105,12 +124,29 @@ public class EDMUtils {
         edmAggregation.appendChild(edmAggregatedCHO);
 
         Element edmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:dataProvider");
-        edmDataPrvovider.setTextContent(dataProvider);
+        edmDataPrvovider.setTextContent(configuration.getString(String.format("cdk.collections.sources.%s.name", dataProvider)));
+        edmAggregation.appendChild(edmDataPrvovider);
+
+
+//        String cdkProviderDefaultEn = configuration.getString(String.format("cdk.collections.sources.%s.name_en", dataProvider));
+//        String cdkProviderDefaultCs = configuration.getString(String.format("cdk.collections.sources.%s.name_cs", dataProvider));
+//
+//        if (cdkProviderDefaultCs != null) {
+//            Element csedmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:dataProvider");
+//            csedmDataPrvovider.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:lang", "cs");
+//            csedmDataPrvovider.setTextContent(cdkProviderDefaultCs);
+//            edmAggregation.appendChild(csedmDataPrvovider);
+//        }
+//
+//        if (cdkProviderDefaultEn != null) {
+//            Element enedmDataPrvovider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:dataProvider");
+//            enedmDataPrvovider.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:lang", "en");
+//            enedmDataPrvovider.setTextContent(cdkProviderDefaultEn);
+//            edmAggregation.appendChild(enedmDataPrvovider);
+//        }
 
         // find data provider by acronym
         String acronym = configuration.getString("acronym", "");
-
-        edmAggregation.appendChild(edmDataPrvovider);
 
         Element shownAt = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:isShownAt");
         if (clientUrl != null) {
@@ -132,23 +168,32 @@ public class EDMUtils {
         }
         edmAggregation.appendChild(edmRights);
         Element edmObject = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:object");
-        switch (instType) {
-            case V7:
-                // tady by mela letet prvni stranka
-                edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image/full", dataProviderBaseUrl, pid));
-                break;
-            case V5:
-                edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/v5.0/items/%s/streams/FULL_IMG", dataProviderBaseUrl, pid));
-                break;
+
+        if (found.isPresent()) {
+            String repPagePid = (String) found.get().data();
+            edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image/full", apiPoint, repPagePid));
+        } else {
+            switch (instType) {
+                case V7:
+                    edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image/preview", dataProviderBaseUrl, pid));
+                    break;
+                case V5:
+                    edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/v5.0/items/%s/streams/IMG_PREVIEW", dataProviderBaseUrl, pid));
+                    break;
+            }
         }
+
         edmAggregation.appendChild(edmObject);
 
         // ceska digitalni kniovna
-        Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:provider");
         String edmProviderText = configuration.getString("oai.set.edm.provider", acronym);
+
+        Element edmProvider = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:provider");
         edmProvider.setTextContent(edmProviderText); //"Czech digital library/Česká digitální knihovna");
         edmAggregation.appendChild(edmProvider);
         rdf.appendChild(edmAggregation);
+
+
         return rdf;
     }
 }

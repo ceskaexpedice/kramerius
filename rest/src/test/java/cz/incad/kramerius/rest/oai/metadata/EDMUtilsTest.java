@@ -20,11 +20,14 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.oai.OAIRecord;
 import cz.incad.kramerius.rest.oai.metadata.utils.EDMUtils;
+import cz.incad.kramerius.rest.oai.record.OAIRecordSupplement;
+import cz.incad.kramerius.rest.oai.record.SupplementType;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -49,9 +52,13 @@ public class EDMUtilsTest {
         EasyMock.expect(conf.getString("client")).andReturn("https://test-client").anyTimes();
         EasyMock.expect(conf.getString("acronym","")).andReturn("").anyTimes();
         EasyMock.expect(conf.getString("oai.set.edm.provider","")).andReturn("Czech digital library").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name")).andReturn("Knihovna akademie ved").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name_cs")).andReturn("Knihovna akademie ved").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name_en")).andReturn("Library of academy of sciences").anyTimes();
 
         EasyMock.expect(instances.find("knav")).andReturn(knavInstance).anyTimes();
         EasyMock.expect(oaiRecord.getIdentifier()).andReturn("oai:oai-europeana.val.ceskadigitalniknihovna.cz:uuid:00035a90-9847-4822-95f8-e844694717eb").anyTimes();
+        EasyMock.expect(oaiRecord.getSupplements()).andReturn(Arrays.asList(new OAIRecordSupplement("uuid:00035a90-9847-4822-95f8-e844694717aa", SupplementType.REPRESENTATIVE_PAGE_PID))).anyTimes();
         EasyMock.expect(knavInstance.getInstanceType()).andReturn(OneInstance.InstanceType.V7).anyTimes();
 
         EasyMock.replay(conf, instances, knavInstance, oaiRecord);
@@ -74,6 +81,13 @@ public class EDMUtilsTest {
         Assert.assertNotNull(XMLUtils.findElement(rdf, (elm)-> {
             return elm.getLocalName().equals("type") && elm.getNamespaceURI().equals("http://purl.org/dc/elements/1.1/");
         }));
+
+        var found = XMLUtils.findElement(rdf, (elm)-> {
+            return elm.getLocalName().equals("object") && elm.getNamespaceURI().equals("http://www.europeana.eu/schemas/edm/");
+        });
+        Assert.assertNotNull(found);
+        String val =  found.getAttributeNodeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").getValue();
+        Assert.assertEquals("http://localhost:8080/search/api/v5.0/api/client/v7.0/items/uuid:00035a90-9847-4822-95f8-e844694717aa/image/full", val);
     }
 
     @Test
@@ -88,10 +102,15 @@ public class EDMUtilsTest {
         EasyMock.expect(conf.getString("client")).andReturn("https://test-client").anyTimes();
         EasyMock.expect(conf.getString("acronym","")).andReturn("").anyTimes();
         EasyMock.expect(conf.getString("oai.set.edm.provider","")).andReturn("Czech digital library").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name")).andReturn("Knihovna akademie ved").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name_cs")).andReturn("Knihovna akademie ved").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name_en")).andReturn("Library of academy of sciences").anyTimes();
+
 
         EasyMock.expect(instances.find("knav")).andReturn(knavInstance).anyTimes();
         EasyMock.expect(oaiRecord.getIdentifier()).andReturn("oai:oai-europeana.val.ceskadigitalniknihovna.cz:uuid:00035a90-9847-4822-95f8-e844694717eb").anyTimes();
         EasyMock.expect(knavInstance.getInstanceType()).andReturn(OneInstance.InstanceType.V7).anyTimes();
+        EasyMock.expect(oaiRecord.getSupplements()).andReturn(Arrays.asList(new OAIRecordSupplement("uuid:00035a90-9847-4822-95f8-e844694717aa", SupplementType.REPRESENTATIVE_PAGE_PID))).anyTimes();
 
         EasyMock.replay(conf, instances, knavInstance, oaiRecord);
 
@@ -128,9 +147,14 @@ public class EDMUtilsTest {
         EasyMock.expect(conf.getString("client")).andReturn("https://test-client").anyTimes();
         EasyMock.expect(conf.getString("acronym","")).andReturn("").anyTimes();
         EasyMock.expect(conf.getString("oai.set.edm.provider","")).andReturn("Czech digital library").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name")).andReturn("Knihovna akademie ved").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name_cs")).andReturn("Knihovna akademie ved").anyTimes();
+        EasyMock.expect(conf.getString("cdk.collections.sources.knav.name_en")).andReturn("Library of academy of sciences").anyTimes();
+
 
         EasyMock.expect(instances.find("knav")).andReturn(knavInstance).anyTimes();
         EasyMock.expect(oaiRecord.getIdentifier()).andReturn("oai:oai-europeana.val.ceskadigitalniknihovna.cz:uuid:00035a90-9847-4822-95f8-e844694717eb").anyTimes();
+        EasyMock.expect(oaiRecord.getSupplements()).andReturn(Arrays.asList(new OAIRecordSupplement("uuid:00035a90-9847-4822-95f8-e844694717aa", SupplementType.REPRESENTATIVE_PAGE_PID))).anyTimes();
         EasyMock.expect(knavInstance.getInstanceType()).andReturn(OneInstance.InstanceType.V7).anyTimes();
 
         EasyMock.replay(conf, instances, knavInstance, oaiRecord);
