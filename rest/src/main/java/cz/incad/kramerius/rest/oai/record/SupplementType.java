@@ -14,22 +14,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.oai;
+package cz.incad.kramerius.rest.oai.record;
 
-import org.junit.Assert;
-import org.junit.Test;
+/**
+ * SupplementType defines the types of supplemental data
+ * that can be attached to a record in the OAI export process.
+ */
+public enum SupplementType {
 
-public class MetadataExportTest {
+    /**
+     * Indicates that the supplement contains first pid
+     */
+    REPRESENTATIVE_PAGE_PID,
 
-    /** Test on cdk side */
-    @Test
-    public void testCDKEDMMetadata() {
-        Assert.assertFalse(MetadataExport.edm.isAvailableOnLocal());
+    /**
+     * Indicates that the supplement contains root_pid
+     */
+    ROOT_PID,
 
-    }
+    /**
+     * Indicates that the supplement contains onw_pid_path
+     */
+    OWN_PID_PATH,
 
-    public void testCDKDC() {
+    //own_parent.pid
+    OWN_PARENT_PID,
 
-    }
+    /**
+     * Mimetype of the repre page
+     */
+    REPRESENTATIVE_PAGE_MIME_TYPE,
+
+    /**
+     * CDK Collections if OAI is running on CDK side
+     */
+    CDK_COLLECTIONS;
 
 }
