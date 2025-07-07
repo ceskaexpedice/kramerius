@@ -23,6 +23,15 @@ import org.w3c.dom.Document;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Chain of Dublin Core decorators that are sequentially applied
+ * to a Dublin Core XML document.
+ * <p>
+ * This class implements the decorator chain pattern, where multiple
+ * {@link DublinCoreDecorator} instances can be composed and executed
+ * in a defined order to enrich the metadata.
+ * </p>
+ */
 public class DecoratorsChain {
 
     private List<DublinCoreDecorator> decorators = Arrays.asList(
@@ -31,6 +40,13 @@ public class DecoratorsChain {
     );
 
 
+    /**
+     * Applies all configured decorators to the provided Dublin Core document
+     * in the order they are defined in the chain.
+     *
+     * @param doc The original Dublin Core XML document.
+     * @return The decorated Dublin Core document after applying all decorators.
+     */
     public Document decorate(Document doc) {
         Document processDoc = doc;
         for (DublinCoreDecorator decorator : this.decorators) {

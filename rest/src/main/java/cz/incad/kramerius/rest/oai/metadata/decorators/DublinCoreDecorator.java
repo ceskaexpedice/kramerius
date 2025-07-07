@@ -18,8 +18,23 @@ package cz.incad.kramerius.rest.oai.metadata.decorators;
 
 import org.w3c.dom.Document;
 
+/**
+ * Interface for Dublin Core decorators used to enrich or modify
+ * the Dublin Core metadata of OAI records.
+ * <p>
+ * Implementations of this interface apply specific enrichment
+ * rules to a provided Dublin Core XML {@link Document}.
+ * </p>
+ */
 public interface DublinCoreDecorator {
 
+    /**
+     * Enriches or modifies the provided Dublin Core document according
+     * to the decorator's logic.
+     *
+     * @param dc The original Dublin Core XML document.
+     * @return The decorated (possibly modified) Dublin Core document.
+     */
     public Document decorate(Document dc);
 
 }
