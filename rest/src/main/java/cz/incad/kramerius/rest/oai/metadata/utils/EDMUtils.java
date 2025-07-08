@@ -89,8 +89,6 @@ public class EDMUtils {
 
 
 
-
-
         // image - source library
         Element webresource = owningDocument.createElementNS("http://www.europeana.eu/schemas/edm/", "edm:WebResource");
         rdf.appendChild(webresource);
@@ -99,7 +97,7 @@ public class EDMUtils {
         Optional<OAIRecordSupplement> found = oaiRec.getSupplements().stream().filter(supplement -> supplement.supplementType().equals(SupplementType.REPRESENTATIVE_PAGE_PID)).findAny();
         if (found.isPresent()) {
             String repPagePid = (String) found.get().data();
-            webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/api/client/v7.0/items/%s/image/preview", apiPoint, repPagePid));
+            webresource.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", String.format("%s/items/%s/image/preview", apiPoint, repPagePid));
         } else {
             switch (instType) {
                 case V7:
@@ -171,7 +169,7 @@ public class EDMUtils {
 
         if (found.isPresent()) {
             String repPagePid = (String) found.get().data();
-            edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/api/client/v7.0/items/%s/image/full", apiPoint, repPagePid));
+            edmObject.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:resource", String.format("%s/items/%s/image", apiPoint, repPagePid));
         } else {
             switch (instType) {
                 case V7:

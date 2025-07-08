@@ -87,7 +87,8 @@ public class EDMUtilsTest {
         });
         Assert.assertNotNull(found);
         String val =  found.getAttributeNodeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").getValue();
-        Assert.assertEquals("http://localhost:8080/search/api/v5.0/api/client/v7.0/items/uuid:00035a90-9847-4822-95f8-e844694717aa/image/full", val);
+        System.out.println(val);
+        Assert.assertEquals("http://localhost:8080/search/api/v5.0/items/uuid:00035a90-9847-4822-95f8-e844694717aa/image", val);
     }
 
     @Test
