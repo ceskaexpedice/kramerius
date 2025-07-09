@@ -181,6 +181,17 @@ public class LicenseHelper {
         });
     }
 
+
+    private static String getParentPid(AkubraRepository repository, String pidOfChild) {
+        var pi = repository.pi();
+        if (pi == null) return null;
+        var owned = pi.getOwnedAndFosteredParents(pidOfChild);
+        if (owned == null) return null;
+        var own = owned.own();
+        if (own == null) return null;
+        return own.source();
+    }
+
     /**
      * Returns list of pids of own ancestors of an object (@param pid), that don't have another source of license but this object (@param pid)
      * Object is never source of license for itself. Meaning that if it has rels-ext:license, but no rels-ext:containsLicense, it is considered not having source of license.
@@ -189,7 +200,9 @@ public class LicenseHelper {
         List<String> result = new ArrayList<>();
         String pidOfChild = pid;
         String pidOfParent;
-        while ((pidOfParent = repository.pi().getOwnedAndFosteredParents(pidOfChild).own().source()) != null) {
+        //while ((pidOfParent = repository.pi().getOwnedAndFosteredParents(pidOfChild).own().source()) != null) {
+
+        while ((pidOfParent = getParentPid(repository, pidOfChild)) != null) {
             String pidToBeIgnored = pidOfChild.equals(pid) ? null : pidOfChild; //only grandparent of original pid can be ignored, because it has been already anylized in this loop, but not the original pid
             boolean hasAnotherSourceOfLicense = hasAnotherSourceOfLicense(pidOfParent, pid, pidToBeIgnored, license, repository);
             boolean ownsLicense = ownsLicenseByRelsExt(pidOfParent, license, repository);

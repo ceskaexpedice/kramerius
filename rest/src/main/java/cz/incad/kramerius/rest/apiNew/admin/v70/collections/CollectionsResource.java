@@ -464,7 +464,7 @@ public class CollectionsResource extends AdminApiResource {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                 boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
                 if (!addedNow) {
-                    throw new ForbiddenException("item %s is already present in collection %s", itemPid, collectionPid);
+                    throw new BadRequestException("item %s is already present in collection %s", itemPid, collectionPid);
                 }
                 //save updated rels-ext
                 ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
@@ -688,7 +688,7 @@ public class CollectionsResource extends AdminApiResource {
                     // extract relsExt and update by removing relation
                     boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
                     if (!removed) {
-                        throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+                        throw new BadRequestException("item %s is not present in collection %s", itemPid, collectionPid);
                     } else {
                         reindexCollection.add(itemPid);
                     }
@@ -768,7 +768,7 @@ public class CollectionsResource extends AdminApiResource {
                     Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                     boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
                     if (!removed) {
-                        throw new ForbiddenException("item %s is not present in collection %s", itemPid, collectionPid);
+                        throw new BadRequestException("item %s is not present in collection %s", itemPid, collectionPid);
                     }
                     //save updated rels-ext
                     ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
