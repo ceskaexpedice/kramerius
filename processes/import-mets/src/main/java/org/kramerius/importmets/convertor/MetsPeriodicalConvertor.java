@@ -540,6 +540,8 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
             return MODEL_MAP;
         } else if (specialGenre.equals(Genre.SHEETMUSIC)) {
             return MODEL_SHEETMUSIC;
+        } else if (specialGenre.equals(Genre.GRAPHIC)) {
+            return MODEL_GRAPHIC;
         }
         return MODEL_MONOGRAPH;
     }
