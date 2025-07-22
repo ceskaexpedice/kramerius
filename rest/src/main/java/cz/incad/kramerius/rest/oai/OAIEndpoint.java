@@ -37,7 +37,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.inject.Provider;
-import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
@@ -51,7 +50,7 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-import static cz.incad.kramerius.rest.oai.OAITools.*;
+import static cz.incad.kramerius.rest.oai.utils.OAITools.*;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -101,13 +100,7 @@ public class OAIEndpoint extends ClientApiResource {
             ) throws OAIException {
         
 
-//        private String host;
-//        private String setSpec;
-//        private String setName;
-//        private String setDescription;
-//        private String filterQuery;
 
-        
         OAISets sets = new OAISets(configManager,null);
         OAISet found = sets.findBySet(set);
         if (found != null) {

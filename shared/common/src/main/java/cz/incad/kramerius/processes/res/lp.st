@@ -560,7 +560,7 @@
         <mainClass>cz.incad.kramerius.resourceindex.ProcessingIndexRebuild</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <securedaction>reindex</securedaction>
+        <securedaction>a_rebuild_processing_index</securedaction>
     </process>
 
     <!--rebuild processing index for given object (from it's foxml), i.e. fix description and relations going FROM this object-->
@@ -570,7 +570,7 @@
         <mainClass>cz.incad.kramerius.resourceindex.ProcessingIndexRebuildFromFoxmlByPid</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <securedaction>reindex</securedaction>
+        <securedaction>a_rebuild_processing_index</securedaction>
     </process>
 
     <!-- migrace dat z Krameria do Krameria -->

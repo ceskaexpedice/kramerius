@@ -123,6 +123,8 @@ public abstract class BaseConvertor {
 
     protected static final String MODEL_SHEETMUSIC = "model:sheetmusic";
 
+    protected static final String MODEL_GRAPHIC = "model:graphic";
+
     protected static final String MODEL_SOUND_RECORDING = "model:soundrecording";
 
     protected static final String MODEL_SOUND_UNIT = "model:soundunit";
@@ -922,7 +924,7 @@ public abstract class BaseConvertor {
         return title.toString().trim();
     }
 
-    protected static enum Genre {NONE, CARTOGRAPHIC, SHEETMUSIC}
+    protected static enum Genre {NONE, CARTOGRAPHIC, SHEETMUSIC, GRAPHIC}
 
     protected Genre getGenrefromMods(ModsDefinition mods) {
         StringBuilder title = new StringBuilder();
@@ -935,6 +937,9 @@ public abstract class BaseConvertor {
                 }
                 if ("sheetmusic".equalsIgnoreCase(gdString)) {
                     return Genre.SHEETMUSIC;
+                }
+                if ("graphic".equalsIgnoreCase(gdString)) {
+                    return Genre.GRAPHIC;
                 }
             }
         }

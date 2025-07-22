@@ -18,6 +18,9 @@ package cz.incad.kramerius.rest.oai;
 
 import java.util.List;
 
+/**
+ * Represents OAI result pages containing metadata and records.
+ */
 public class OAIResults {
     
     private String metadataPrerix;
@@ -25,6 +28,13 @@ public class OAIResults {
     private String resumptionToken;
     private List<OAIRecord> records;
 
+    /**
+     * Constructor for OAIResults.
+     * @param completeListSize the total number of records available in the OAI repository
+     * @param resumptionToken the token for resuming the result set, if applicable
+     * @param metadataPrefix the metadata format prefix used for the records
+     * @param records the list of OAI records in this result page
+     */
     public OAIResults(int completeListSize, String resumptionToken, String metadataPrefix, List<OAIRecord> records) {
         super();
         this.completeListSize = completeListSize;
@@ -32,20 +42,35 @@ public class OAIResults {
         this.records = records;
         this.metadataPrerix = metadataPrefix;
     }
-    
+
+    /**
+     * Gets the total number of records available in the OAI repository.
+     * @return the complete list size
+     */
     public int getCompleteListSize() {
         return completeListSize;
     }
-    
+
+    /**
+     * Gets the resumption token for this result set.
+     * @return the resumption token, or null if there are no more records to fetch
+     */
     public String getResumptionToken() {
         return resumptionToken;
     }
     
-    
-    public String getMetadataPrerix() {
+    /**
+     * Gets the metadata prefix used for the records in this result set.
+     * @return the metadata prefix
+     */
+    public String getMetadataPrefix() {
         return metadataPrerix;
     }
-    
+
+    /**
+     * Gets the list of OAI records in this result page.
+     * @return the list of OAI records
+     */
     public List<OAIRecord> getRecords() {
         return records;
     }
