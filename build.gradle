@@ -50,9 +50,10 @@ configurations {
 }
 
 
+/*
 configurations.all {
     exclude module: 'slf4j-log4j12'
-}
+}*/
 
 
 /*
@@ -95,6 +96,8 @@ allprojects {
 
     ext.postgresversion = '42.3.9'
     ext.slf4jversion='1.7.35'
+    //ext.slf4jversion='2.0.16'
+    ext.logbackclassicversion='1.4.14'
 
     //ext.jerseyversion = '1.17.1'
     ext.jerseyversion = '1.19.4'
@@ -137,7 +140,7 @@ allprojects {
         api "org.slf4j:log4j-over-slf4j:${slf4jversion}"
         api "org.slf4j:slf4j-jdk14:${slf4jversion}"
         api "org.slf4j:jcl-over-slf4j:${slf4jversion}"
-        api "org.apache.logging.log4j:log4j-to-slf4j:2.17.1"
+        //api "org.apache.logging.log4j:log4j-to-slf4j:2.17.1"
 
         //junit to all subprojects
         //testImplementation 'junit:junit:4.13.2'

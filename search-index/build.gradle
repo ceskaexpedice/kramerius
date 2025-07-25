@@ -35,7 +35,13 @@ dependencies {
 
     // tika
     implementation'org.apache.tika:tika-parser-text-module:3.1.0'
-    implementation 'org.apache.tika:tika-core:3.1.0'
+    implementation ('org.apache.tika:tika-core:3.1.0') {
+        {
+            exclude group: 'org.slf4j', module: 'slf4j-api'
+        }
+    }
+
+
 
     //  testCompile group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
