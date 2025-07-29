@@ -36,6 +36,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Locale;
+
 
 public class EDMUtils {
 
@@ -87,7 +92,6 @@ public class EDMUtils {
         String SKOS_NS = "http://www.w3.org/2004/02/skos/core#";
         String RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
-        //find <dc:date>
         Optional<Element> dcDateElement = elements.stream()
                 .filter(el -> "date".equals(el.getLocalName()) && "http://purl.org/dc/elements/1.1/".equals(el.getNamespaceURI()))
                 .findFirst();
@@ -95,34 +99,53 @@ public class EDMUtils {
         if (dcDateElement.isPresent()) {
             String dateText = dcDateElement.get().getTextContent().trim();
 
+            // Odeber hranaté závorky
+            dateText = dateText.replaceAll("[\\[\\]]", "");
+
+            // Jednoduchý rok
             if (dateText.matches("\\d{4}")) {
                 String year = dateText;
 
+                // ... vygeneruj TimeSpan pro jeden rok (to už máš)
+
+            }
+            // Rozsah roků
+            else if (dateText.matches("\\d{4}-\\d{4}")) {
+                String[] parts = dateText.split("-");
+                String startYear = parts[0];
+                String endYear = parts[1];
+
                 // dcterms:temporal
                 Element temporal = owningDocument.createElementNS(DCTERMS_NS, "dcterms:temporal");
-                temporal.setAttributeNS(RDF_NS, "rdf:resource", "#timespan-" + year);
+                temporal.setAttributeNS(RDF_NS, "rdf:resource", "#timespan-" + startYear + "-" + endYear);
                 providedCHO.appendChild(temporal);
 
                 // edm:TimeSpan
                 Element timeSpan = owningDocument.createElementNS(EDM_NS, "edm:TimeSpan");
-                timeSpan.setAttributeNS(RDF_NS, "rdf:about", "#timespan-" + year);
+                timeSpan.setAttributeNS(RDF_NS, "rdf:about", "#timespan-" + startYear + "-" + endYear);
 
                 Element begin = owningDocument.createElementNS(EDM_NS, "edm:begin");
-                begin.setTextContent(year);
+                begin.setTextContent(startYear + "-01-01");
                 timeSpan.appendChild(begin);
 
                 Element end = owningDocument.createElementNS(EDM_NS, "edm:end");
-                end.setTextContent(year);
+                end.setTextContent(endYear + "-12-31");
                 timeSpan.appendChild(end);
 
                 Element label = owningDocument.createElementNS(SKOS_NS, "skos:prefLabel");
-                label.setAttribute("xml:lang", "cs");
-                label.setTextContent("Rok " + year);
+                label.setAttribute("xml:lang", "zxx");
+                label.setTextContent(startYear + "-" + endYear);
                 timeSpan.appendChild(label);
+
+                Element notation = owningDocument.createElementNS(SKOS_NS, "skos:notation");
+                notation.setAttributeNS(RDF_NS, "rdf:datatype", "http://id.loc.gov/datatypes/edtf/EDTF-level1");
+                notation.setTextContent(startYear + "/" + endYear);
+                timeSpan.appendChild(notation);
 
                 rdf.appendChild(timeSpan);
             }
         }
+
 
         // replace by api on cdk side
         OneInstance oneInstance = instances.find(dataProvider);
