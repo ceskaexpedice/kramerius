@@ -82,6 +82,47 @@ public class EDMUtils {
         providedCHO.appendChild(type);
         type.setTextContent("TEXT");
 
+        String DCTERMS_NS = "http://purl.org/dc/terms/";
+        String EDM_NS = "http://www.europeana.eu/schemas/edm/";
+        String SKOS_NS = "http://www.w3.org/2004/02/skos/core#";
+        String RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+        //find <dc:date>
+        Optional<Element> dcDateElement = elements.stream()
+                .filter(el -> "date".equals(el.getLocalName()) && "http://purl.org/dc/elements/1.1/".equals(el.getNamespaceURI()))
+                .findFirst();
+
+        if (dcDateElement.isPresent()) {
+            String dateText = dcDateElement.get().getTextContent().trim();
+
+            if (dateText.matches("\\d{4}")) {
+                String year = dateText;
+
+                // dcterms:temporal
+                Element temporal = owningDocument.createElementNS(DCTERMS_NS, "dcterms:temporal");
+                temporal.setAttributeNS(RDF_NS, "rdf:resource", "#timespan-" + year);
+                providedCHO.appendChild(temporal);
+
+                // edm:TimeSpan
+                Element timeSpan = owningDocument.createElementNS(EDM_NS, "edm:TimeSpan");
+                timeSpan.setAttributeNS(RDF_NS, "rdf:about", "#timespan-" + year);
+
+                Element begin = owningDocument.createElementNS(EDM_NS, "edm:begin");
+                begin.setTextContent(year);
+                timeSpan.appendChild(begin);
+
+                Element end = owningDocument.createElementNS(EDM_NS, "edm:end");
+                end.setTextContent(year);
+                timeSpan.appendChild(end);
+
+                Element label = owningDocument.createElementNS(SKOS_NS, "skos:prefLabel");
+                label.setAttribute("xml:lang", "cs");
+                label.setTextContent("Rok " + year);
+                timeSpan.appendChild(label);
+
+                rdf.appendChild(timeSpan);
+            }
+        }
 
         // replace by api on cdk side
         OneInstance oneInstance = instances.find(dataProvider);
