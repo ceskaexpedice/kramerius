@@ -24,6 +24,8 @@ public class AddCreatedFromDateDecorator implements DublinCoreDecorator {
         Element root = dc.getDocumentElement();
         NodeList dateNodes = root.getElementsByTagNameNS(DC_NS, "date");
 
+        boolean createdAppended = false;
+
         for (int i = 0; i < dateNodes.getLength(); i++) {
             String raw = dateNodes.item(i).getTextContent().trim();
 
@@ -32,12 +34,22 @@ public class AddCreatedFromDateDecorator implements DublinCoreDecorator {
 
             // Validní rok (např. 1993, 2017)
             if (clean.matches("\\d{4}")) {
-                appendCreated(dc, "#" + clean);
+                if (!createdAppended) {
+                    appendCreated(dc, "#" + clean);
+                    createdAppended = true;
+                }
             }
 
             // Rozsah (např. 1974-1987 nebo 1974–1987)
             else if (clean.matches("\\d{4}[-–]\\d{4}")) {
-                appendCreated(dc, "#" + clean);
+                if (!createdAppended) {
+                    appendCreated(dc, "#" + clean);
+                    createdAppended = true;
+                }
+            }
+
+            if (createdAppended) {
+                break;
             }
         }
 
