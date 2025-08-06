@@ -34,6 +34,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -230,8 +231,9 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     final String detailPid = pathFromLeafToRoot[j];
                     String detailModel = akubraRepository.re().getModel(detailPid);
                     LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
-                    Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
-                    if (dc != null) {
+                    DatastreamContentWrapper dcDatastreamContent = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC);
+                    if (dcDatastreamContent != null) {
+                        Document dc = dcDatastreamContent.asDom(false);
                         Object dateFromDC = DCUtils.dateFromDC(dc);
                         if (dateFromDC != null) {
                             logRecord.addIssueDate(dateFromDC.toString());
