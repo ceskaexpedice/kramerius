@@ -798,10 +798,11 @@ public class ItemsResource extends AdminApiResource {
             }
             checkSupportedObjectPid(sourcePid);
             checkObjectExists(sourcePid);
-            String sourceModel = akubraRepository.pi().getModel(sourcePid);
-            if (!"page".equals(sourceModel)) {
-                throw new BadRequestException("source's model must be page (source is %s with model:%s)", targetPid, sourceModel);
+            boolean thumbExists = akubraRepository.datastreamExists(sourcePid, KnownDatastreams.IMG_THUMB);
+            if (!thumbExists) {
+                throw new BadRequestException("src pid (%s) must contain IMG_THUMB stream", sourcePid);
             }
+
             //copy whole datastream xml, with all datastreamVersions; datastreamVersion from repository always contains reference reference:
             //exterenal with CONTROL_GROUP="E" and contentLocation TYPE="URL"
             // or
