@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.rest.oai.metadata.decorators;
 
+import cz.incad.kramerius.rest.oai.metadata.decorators.impl.AddCreatedFromDateDecorator;
 import cz.incad.kramerius.rest.oai.metadata.decorators.impl.NoLangueDecorator;
 import cz.incad.kramerius.rest.oai.metadata.decorators.impl.NoTypeOrSubjectDecorator;
 import org.w3c.dom.Document;
@@ -36,7 +37,8 @@ public class DecoratorsChain {
 
     private List<DublinCoreDecorator> decorators = Arrays.asList(
             new NoLangueDecorator(),
-            new NoTypeOrSubjectDecorator()
+            new NoTypeOrSubjectDecorator(),
+            new AddCreatedFromDateDecorator()
     );
 
 
