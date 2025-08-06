@@ -25,6 +25,7 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -140,8 +141,9 @@ public class DNNTStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
             for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                 final String detailPid = pathFromLeafToRoot[j];
-                Document dc = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC).asDom(false);
-                if (dc != null) {
+                DatastreamContentWrapper datastreamContent = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC);
+                if (datastreamContent != null) {
+                    Document dc = datastreamContent.asDom(false);
                     List<String> collected = Arrays.stream(DCUtils.publishersFromDC(dc)).map(it -> {
                         return it.replaceAll("\\r?\\n", " ");
                     }).collect(Collectors.toList());
