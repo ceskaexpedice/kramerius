@@ -10,8 +10,6 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.*;
-import org.ceskaexpedice.akubra.core.repository.RepositoryDatastream;
-import org.ceskaexpedice.akubra.core.repository.RepositoryObject;
 import org.ceskaexpedice.akubra.relsext.RelsExtLiteral;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -24,7 +22,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -235,8 +232,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            //WorkingModeManager.setReadOnly
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -262,7 +259,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -292,8 +290,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            //WorkingModeManager.setReadOnly
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -323,8 +321,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            //WorkingModeManager.setReadOnly
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -333,7 +331,7 @@ public class AkubraResource extends AdminApiResource {
     }
 
     @POST
-    @Path("/createManagedDatastream")
+    @Path("/createRedirectedDatastream")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     public Response createRedirectedDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId, @QueryParam("mimeType") String mimeType,
                                                @QueryParam("url")String url) {
@@ -355,8 +353,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            //WorkingModeManager.setReadOnly
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -382,7 +380,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
