@@ -10,6 +10,8 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.*;
+import org.ceskaexpedice.akubra.core.repository.RepositoryDatastream;
+import org.ceskaexpedice.akubra.core.repository.RepositoryObject;
 import org.ceskaexpedice.akubra.relsext.RelsExtLiteral;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -315,6 +317,38 @@ public class AkubraResource extends AdminApiResource {
                 throw new BadRequestException("Datastream already exists:" + dsId);
             }
             akubraRepository.createManagedDatastream(pid, dsId, mimeType, inputStream);
+            JSONObject retVal = new JSONObject();
+            retVal.put("dsId", dsId);
+            return Response.ok(retVal.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            //WorkingModeManager.setReadOnly
+            // TODO AK_NEW
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("/createManagedDatastream")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response createRedirectedDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId, @QueryParam("mimeType") String mimeType,
+                                               @QueryParam("url")String url) {
+        try {
+            if (!permitAction(this.rightsResolver, false)) {
+                throw new ForbiddenException("user '%s' is not allowed to create a stream (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_EDIT);
+            }
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            if(akubraRepository.datastreamExists(pid, dsId)) {
+                throw new BadRequestException("Datastream already exists:" + dsId);
+            }
+
+            akubraRepository.createRedirectedDatastream(pid, dsId, url, mimeType);
             JSONObject retVal = new JSONObject();
             retVal.put("dsId", dsId);
             return Response.ok(retVal.toString()).build();
