@@ -490,7 +490,7 @@ public class Import {
 
                                     final DigitalObject transactionDigitalObject = dobj;
                                     String mimeType = akubraRepository.getDatastreamMetadata(transactionDigitalObject.getPID(), ds.getID()).getMimetype();
-                                    akubraRepository.updateRedirectedDatastream(transactionDigitalObject.getPID(), ds.getID(), dsversion.getContentLocation().getREF(), mimeType);
+                                    akubraRepository.updateExternalDatastream(transactionDigitalObject.getPID(), ds.getID(), dsversion.getContentLocation().getREF(), mimeType);
                                 }
                             }
                         }

@@ -22,7 +22,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -233,8 +232,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            //WorkingModeManager.setReadOnly
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -260,7 +259,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -290,8 +290,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            //WorkingModeManager.setReadOnly
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -321,8 +321,40 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            //WorkingModeManager.setReadOnly
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("/createExternalDatastream")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response createExternalDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId, @QueryParam("mimeType") String mimeType,
+                                             @QueryParam("url")String url) {
+        try {
+            if (!permitAction(this.rightsResolver, false)) {
+                throw new ForbiddenException("user '%s' is not allowed to create a stream (action '%s')", this.userProvider.get(),
+                        SecuredActions.A_AKUBRA_EDIT);
+            }
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            if(akubraRepository.datastreamExists(pid, dsId)) {
+                throw new BadRequestException("Datastream already exists:" + dsId);
+            }
+
+            akubraRepository.createExternalDatastream(pid, dsId, url, mimeType);
+            JSONObject retVal = new JSONObject();
+            retVal.put("dsId", dsId);
+            return Response.ok(retVal.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -348,7 +380,8 @@ public class AkubraResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
-            // TODO AK_NEW
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
             throw e;
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
