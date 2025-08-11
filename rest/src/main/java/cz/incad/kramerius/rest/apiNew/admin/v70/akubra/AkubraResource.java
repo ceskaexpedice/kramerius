@@ -331,10 +331,10 @@ public class AkubraResource extends AdminApiResource {
     }
 
     @POST
-    @Path("/createRedirectedDatastream")
+    @Path("/createExternalDatastream")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response createRedirectedDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId, @QueryParam("mimeType") String mimeType,
-                                               @QueryParam("url")String url) {
+    public Response createExternalDatastream(@QueryParam("pid") String pid, @QueryParam("dsId") String dsId, @QueryParam("mimeType") String mimeType,
+                                             @QueryParam("url")String url) {
         try {
             if (!permitAction(this.rightsResolver, false)) {
                 throw new ForbiddenException("user '%s' is not allowed to create a stream (action '%s')", this.userProvider.get(),
@@ -346,7 +346,7 @@ public class AkubraResource extends AdminApiResource {
                 throw new BadRequestException("Datastream already exists:" + dsId);
             }
 
-            akubraRepository.createRedirectedDatastream(pid, dsId, url, mimeType);
+            akubraRepository.createExternalDatastream(pid, dsId, url, mimeType);
             JSONObject retVal = new JSONObject();
             retVal.put("dsId", dsId);
             return Response.ok(retVal.toString()).build();

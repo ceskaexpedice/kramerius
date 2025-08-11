@@ -4324,7 +4324,7 @@ paths:
       tags:
         - akubra
 
-  /repository/createRedirectedDatastream:
+  /repository/createExternalDatastream:
     post:
       summary: Přidání  datastreamu typu E - extrnal referenced
       description: Plřidání externího datastreamu
