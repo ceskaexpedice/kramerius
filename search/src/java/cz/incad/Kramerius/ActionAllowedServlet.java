@@ -1,9 +1,9 @@
 package cz.incad.Kramerius;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.charset.Charset;
+//import java.io.InputStream;
+//import java.io.StringReader;
+//import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,21 +15,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+//import org.antlr.stringtemplate.StringTemplateGroup;
+//import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.name.Named;
+//import com.google.inject.name.Named;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.RightsResolver;
-import cz.incad.kramerius.security.RightCriteriumContextFactory;
+//import cz.incad.kramerius.security.RightCriteriumContextFactory;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.IOUtils;
+//import cz.incad.kramerius.utils.IOUtils;
 
 public class ActionAllowedServlet extends GuiceServlet {
 
@@ -38,8 +38,8 @@ public class ActionAllowedServlet extends GuiceServlet {
     SolrAccess solrAccess;
     @Inject
     RightsResolver rightsResolver;
-    @Inject
-    RightCriteriumContextFactory ctxFactory;
+    //@Inject
+    //RightCriteriumContextFactory ctxFactory;
     @Inject
     Provider<User> currentLoggedUserProvider;
 
@@ -48,7 +48,7 @@ public class ActionAllowedServlet extends GuiceServlet {
         try {
             StringBuilder out = new StringBuilder();
             out.append("{");
-            List<String>actions = new ArrayList<String>();
+            List<String> actions = new ArrayList<>();
             if (req.getParameterMap().containsKey("actions")) {
                 actions.addAll(Arrays.asList(req.getParameterValues("actions")));
             } else {
@@ -56,20 +56,19 @@ public class ActionAllowedServlet extends GuiceServlet {
             }
             String[] pids = req.getParameterValues("pid");
             User user = currentLoggedUserProvider.get();
-            Map<String, Boolean> mapper = new HashMap<String, Boolean>();
+            Map<String, Boolean> mapper = new HashMap<>();
             for (String pid : pids) {
                 Boolean b = null;
                 for (String act : actions) {
                     if (b == null) {
                         b = isActionAllowed(user, act, pid);
                     } else {
-                        b = b.booleanValue() && isActionAllowed(user, act, pid);
+                        b = b && isActionAllowed(user, act, pid);
                     }
                 }
                 mapper.put(pid, b);
             }
-            
-            
+
             //HashMap map = new HashMap();
             int i = 0;
             for (String pid : pids) {
@@ -85,7 +84,7 @@ public class ActionAllowedServlet extends GuiceServlet {
             }
 
             out.append("}");
-            
+
             resp.setContentType("application/json");
             resp.getWriter().println(out.toString());
         } catch (SecurityException e) {
@@ -104,28 +103,31 @@ public class ActionAllowedServlet extends GuiceServlet {
         return false;
     }
 
+    /*
     private StringTemplateGroup stGroup() throws IOException {
         InputStream stream = ActionAllowedServlet.class.getResourceAsStream("viewinfo.stg");
         String string = IOUtils.readAsString(stream, Charset.forName("UTF-8"), true);
         StringTemplateGroup group = new StringTemplateGroup(new StringReader(string), DefaultTemplateLexer.class);
         return group;
-    }
+    }*/
 
     public static void main(String[] args) {
         StringTemplate template = new StringTemplate(
                 "$data.keys:{action| $data.(action).keys:{ key| $key$ :  $data.(action).(key)$ };separator=\",\"$ }$");
 
-        HashMap map = new HashMap();
-
-        HashMap<String, String> data = new HashMap<String, String>();
-        {
-            data.put("drobnustky", "true");
-            data.put("stranka", "true");
-            data.put("repository", "true");
+        HashMap<String, String> data = new HashMap<>() {
+            {
+                put("drobnustky", "true");
+                put("stranka", "true");
+                put("repository", "true");
+            }
         };
-        map.put("edit", data);
 
-        template.setAttribute("data", map);
+        template.setAttribute("data", new HashMap<String, HashMap<String, String>>() {
+            {
+                put("edit", data);
+            }
+        });
         System.out.println(template.toString());
 
     }
