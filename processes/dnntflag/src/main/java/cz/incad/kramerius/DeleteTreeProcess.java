@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.processingindex.ConflictingOwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
@@ -136,20 +137,49 @@ public class DeleteTreeProcess {
                 }
             }
 
+            try{
 
-            //2. předci
-            OwnedAndFosteredParents pidsOfParents = akubraRepository.pi().getOwnedAndFosteredParents(pid);
-            //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
-            if (deletionRoot && pidsOfParents.own() != null) {
-                deleteRelationFromOwnParent(pid, pidsOfParents.own().source(), repository);
-            }
-            //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
-            for (ProcessingIndexItem fosterParent : pidsOfParents.foster()) {
-                deleteRelationFromForsterParent(pid, fosterParent.source(), repository);
-            }
+                //2. předci
+                OwnedAndFosteredParents pidsOfParents = akubraRepository.pi().getOwnedAndFosteredParents(pid);
+                //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
+                if (deletionRoot && pidsOfParents.own() != null) {
+                    deleteRelationFromOwnParent(pid, pidsOfParents.own().source(), repository);
+                }
+                //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
+                for (ProcessingIndexItem fosterParent : pidsOfParents.foster()) {
+                    deleteRelationFromForsterParent(pid, fosterParent.source(), repository);
+                }
 
-            //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
-            updateLicenseFlagsForAncestors(pid, akubraRepository, indexerAccess);
+                //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
+                updateLicenseFlagsForAncestors(pid, akubraRepository, indexerAccess);
+
+            }catch (RepositoryException re) {
+
+                if (ignoreIncosistencies) {
+                    ConflictingOwnedAndFosteredParents conflicts = akubraRepository.pi().getConflictingOwnerAndFosteredParents(pid);
+                    String header = String.format("Object \"%s\" has multiple own parents via:", pid);
+                    String firstRelation = String.format("\n\t - " + conflicts.ownItems().stream().map(ProcessingIndexItem::pid).collect(Collectors.joining(";")));
+                    LOGGER.severe(header+firstRelation);
+
+                    for (ProcessingIndexItem own : conflicts.ownItems()) {
+                        //2. předci
+                        //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
+                        if (deletionRoot && own.source() != null) {
+                            deleteRelationFromOwnParent(pid, own.source(), repository);
+                        }
+                    }
+
+                    //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
+                    for (ProcessingIndexItem fosterParent : conflicts.foster()) {
+                        deleteRelationFromForsterParent(pid, fosterParent.source(), repository);
+                    }
+
+                    //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
+                    updateLicenseFlagsForAncestors(pid, akubraRepository, indexerAccess);
+                } else {
+                    throw re;
+                }
+            }
 
         } else {
             LOGGER.warning(String.format("object %s is not found in repository, skipping 1b", pid));
