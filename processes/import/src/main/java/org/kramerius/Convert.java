@@ -8,7 +8,6 @@ import javax.xml.bind.JAXBException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
