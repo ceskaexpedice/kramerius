@@ -93,7 +93,7 @@ public class DCUtils {
 	    List<Element> elements = XMLUtils.getElements(doc.getDocumentElement(),  new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
-                return (element.getLocalName().equals("type") && element.getNamespaceURI().equals(RepositoryNamespaces.DC_NAMESPACE_URI));
+                return (element.getNodeName().equals("type"));
             }
         });
 	    

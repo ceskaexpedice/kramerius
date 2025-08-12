@@ -403,7 +403,7 @@ public class DocumentServiceImpl implements DocumentService {
             }
             for (String pid : selection) {
                 renderedDocument.addPage(createPage(renderedDocument, pid));
-                Document doc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asDom(false);
+                Document doc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
                 renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(doc));
             }
             return renderedDocument;

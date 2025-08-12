@@ -4324,6 +4324,54 @@ paths:
       tags:
         - akubra
 
+  /repository/createExternalDatastream:
+    post:
+      summary: Přidání  datastreamu typu E - extrnal referenced
+      description: Plřidání externího datastreamu
+      operationId: createManagedDatastream
+      parameters:
+        - name: pid
+          in: query
+          required: true
+          description: Identifikátor objektu.
+          schema:
+            type: string
+        - name: dsId
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+        - name: url
+          in: query
+          required: true
+          description: Identifikátor datastreamu.
+          schema:
+            type: string
+        - name: mimeType
+          in: query
+          required: true
+          description: Mimetype datastreamu
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Úspěšné přidání streamu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dsId:
+                    type: string
+                    description:  ID přidaný datastream.
+        '400':
+          description: Nevalidní parametry http dotazu
+        '404':
+          description: Objekt nenalezen
+      tags:
+        - akubra
+
   /repository/deleteDatastream:
     delete:
       summary: Smazani datastreamu z repozitáře

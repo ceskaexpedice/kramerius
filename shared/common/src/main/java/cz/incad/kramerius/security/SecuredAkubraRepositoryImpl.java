@@ -134,24 +134,25 @@ public class SecuredAkubraRepositoryImpl implements SecuredAkubraRepository {
         akubraRepository.updateManagedDatastream(pid, dsId, mimeType, binaryContent);
     }
 
+
     @Override
-    public void createRedirectedDatastream(String pid, String dsId, String url, String mimeType) {
-        akubraRepository.createRedirectedDatastream(pid, dsId, url, mimeType);
+    public void createExternalDatastream(String pid, String dsId, String url, String mimeType) {
+        akubraRepository.createExternalDatastream(pid, dsId, url, mimeType);
     }
 
     @Override
-    public void createRedirectedDatastream(String pid, KnownDatastreams dsId, String url, String mimeType) {
-        akubraRepository.createRedirectedDatastream(pid, dsId, url, mimeType);
+    public void createExternalDatastream(String pid, KnownDatastreams dsId, String url, String mimeType) {
+        akubraRepository.createExternalDatastream(pid, dsId, url, mimeType);
     }
 
     @Override
-    public void updateRedirectedDatastream(String pid, String dsId, String url, String mimeType) {
-        akubraRepository.updateRedirectedDatastream(pid, dsId, url, mimeType);
+    public void updateExternalDatastream(String pid, String dsId, String url, String mimeType) {
+        akubraRepository.updateExternalDatastream(pid, dsId, url, mimeType);
     }
 
     @Override
-    public void updateRedirectedDatastream(String pid, KnownDatastreams dsId, String url, String mimeType) {
-        akubraRepository.updateRedirectedDatastream(pid, dsId, url, mimeType);
+    public void updateExternalDatastream(String pid, KnownDatastreams dsId, String url, String mimeType) {
+        akubraRepository.updateExternalDatastream(pid, dsId, url, mimeType);
     }
 
     @Override

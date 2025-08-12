@@ -39,43 +39,22 @@ public class SolrIndexAccess {
     public static final int CONNECTION_TIMEOUT = 10000;
     public static final int SOCKET_TIMEOUT = 60000;
 
-    private final HttpSolrClient solrClient;
+    private static HttpSolrClient solrClient;
+
+
+
     private final String collection; //because solrClient is buggy and still requires explicit collection-name as a parameter for some operations even though it gets collection-name in the constructor
 
     public SolrIndexAccess(SolrConfig config) {
         System.setProperty("solr.cloud.client.stallTime", "119999");
-        this.solrClient = config.login == null
-                ? buildHttpSolrClientWithoutAuth(config.baseUrl, config.collection, config.useHttps)
-                : buildHttpSolrClientWithAuth(config.baseUrl, config.collection, config.useHttps, config.login, config.password);
+
+        if (solrClient == null) {
+                solrClient = buildHttpSolrClientWithoutAuth(config.baseUrl, config.collection, config.useHttps);
+        }
+
         this.collection = config.collection;
     }
 
-    private HttpSolrClient buildHttpSolrClientWithAuth(String baseUrl, String collection, boolean useHttps, String login, String password) {
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(login, password);
-        credentialsProvider.setCredentials(AuthScope.ANY, credentials);
-
-        ModifiableSolrParams params = new ModifiableSolrParams();
-        params.set(HttpClientUtil.PROP_BASIC_AUTH_USER, login);
-        params.set(HttpClientUtil.PROP_BASIC_AUTH_PASS, password);
-        params.set(HttpClientUtil.PROP_CONNECTION_TIMEOUT, CONNECTION_TIMEOUT);
-        params.set(HttpClientUtil.PROP_SO_TIMEOUT, SOCKET_TIMEOUT);
-        //params.set(HttpClientUtil.PROP_ALLOW_COMPRESSION, true);
-        //params.set(HttpClientUtil.PROP_FOLLOW_REDIRECTS, true);
-        //params.set(HttpClientUtil.PROP_MAX_CONNECTIONS, 22345);
-        //params.set(HttpClientUtil.PROP_MAX_CONNECTIONS_PER_HOST, 32345);
-        //params.set(HttpClientUtil.PROP_USE_RETRY, false);
-
-        //@see https://stackoverflow.com/questions/36822522/solr-nonrepeatablerequestexception-in-save-action
-        HttpClientUtil.addRequestInterceptor(new PreemptiveAuthInterceptor());
-        HttpClient httpClient = HttpClientUtil.createClient(params);
-
-        return new HttpSolrClient.Builder(buildUrl(baseUrl, collection, useHttps))
-                .withHttpClient(httpClient)
-                /*.withConnectionTimeout(CONNECTION_TIMEOUT)
-                .withSocketTimeout(SOCKET_TIMEOUT)*/
-                .build();
-    }
 
     private HttpSolrClient buildHttpSolrClientWithoutAuth(String baseUrl, String collection, boolean useHttps) {
         return new HttpSolrClient.Builder(buildUrl(baseUrl, collection, useHttps))
