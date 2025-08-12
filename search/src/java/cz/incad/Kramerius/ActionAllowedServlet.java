@@ -63,15 +63,14 @@ public class ActionAllowedServlet extends GuiceServlet {
                     if (b == null) {
                         b = isActionAllowed(user, act, pid);
                     } else {
-                        boolean nb = isActionAllowed(user, act, pid);
-                        b = new Boolean(b.booleanValue() && nb);
+                        b = b.booleanValue() && isActionAllowed(user, act, pid);
                     }
                 }
-                mapper.put(pid, new Boolean(b));
+                mapper.put(pid, b);
             }
             
             
-            HashMap map = new HashMap();
+            //HashMap map = new HashMap();
             int i = 0;
             for (String pid : pids) {
                 i++;

@@ -1,15 +1,8 @@
 package cz.incad.migration;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.solr.SolrModule;
-import cz.incad.kramerius.statistics.NullStatisticsModule;
+
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
-import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.xml.sax.SAXException;
 
 import java.io.*;
@@ -22,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
 import static cz.incad.migration.LegacyMigrationParts.LOG_MESSAGE_ITERATION;
 
 public enum AkubraMigrationParts {
@@ -49,11 +41,11 @@ public enum AkubraMigrationParts {
                 LOGGER.info("Migrating objects" );
                 processRoot(   objectSource,  objectPaths,  objectPattern,  legacyFormat);
 
-            }catch(Exception ex) {
+            }catch(IOException | SolrServerException ex) {
                 throw  new RuntimeException(ex);
             } finally {
                 long stop = System.currentTimeMillis();
-                LOGGER.info("Akubra repository restructured in "+(stop - start )+ " ms");
+                LOGGER.log(Level.INFO, "Akubra repository restructured in {0} ms", stop - start);
             }
         }
 
@@ -69,7 +61,7 @@ public enum AkubraMigrationParts {
             Files.walk(objectStoreRoot).parallel().filter(Files::isRegularFile).forEach(path -> {
                 try {
                     if ((currentIteration.incrementAndGet() % LOG_MESSAGE_ITERATION) == 0) {
-                        LOGGER.info("Migrated " + currentIteration + " items.");
+                        LOGGER.log(Level.INFO, "Migrated {0} items.", currentIteration);
                     }
                     String filename = path.getFileName().toString();
                     if (legacyFormat){
@@ -96,12 +88,12 @@ public enum AkubraMigrationParts {
                     }
 
 
-                } catch (Exception ex) {
+                } catch (RuntimeException ex) {
                     LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
                 }
             });
 
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Error processing file: ", ex);
         }
     }

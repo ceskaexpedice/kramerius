@@ -54,7 +54,7 @@ public class SOLRUtils {
         if (clz.equals(String.class))
             return (T) val;
         else if (clz.equals(Boolean.class))
-            return (T) new Boolean(val);
+            return (T) Boolean.valueOf(val);
         else if (clz.equals(Integer.class))
             return (T) Integer.valueOf(val);
         else

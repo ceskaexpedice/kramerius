@@ -76,7 +76,7 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
             escaping.add('"');
             escaping.add('\n');
         }
-        Map<Character, String> replacemets = new HashMap<Character, String>();
+        Map<Character, String> replacemets = new HashMap<>();
         {
             replacemets.put('\'', "\\'");
             replacemets.put('"', "\\\"");
@@ -89,7 +89,7 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
         StringBuilder builder = new StringBuilder();
         char[] array = str.toCharArray();
         for (char c : array) {
-            Character cObj = new Character(c);
+            Character cObj = c;
             if (escapeCharatectes.contains(cObj)) {
                 String repl = replacements.get(cObj);
                 builder.append(repl);
@@ -107,7 +107,7 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
                 InputStream is = lrProcess.getErrorProcessOutputStream();
                 String error = IOUtils.readAsString(is, Charset.forName(System.getProperty("file.encoding")), true);
                 ctx.setFormatedErrorMessage(error);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
@@ -115,7 +115,7 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
 
     JSONObject description(LRProcess lrProcess) throws IOException, FileNotFoundException {
         File descriptionFile = new File(lrProcess.processWorkingDirectory(), AbstractPhase.DESCRIPTION_FILE);
-        if ((descriptionFile != null) && (descriptionFile.canRead())) {
+        if (descriptionFile.canRead()) {
             String stringInput = IOUtils.readAsString(new FileInputStream(descriptionFile), Charset.forName("UTF-8"), true);
             try {
                 return JSONObject.fromObject(stringInput);

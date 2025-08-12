@@ -113,7 +113,7 @@ public class ImportToRepos {
             // system property 
             String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip")
                     : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
-            if (new Boolean(skipIngest)) {
+            if (Boolean.valueOf(skipIngest)) {
                 log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
                 return;
             }
@@ -171,7 +171,7 @@ public class ImportToRepos {
             String startSortProperty = System.getProperties().containsKey("ingest.sortRelations")
                     ? System.getProperty("ingest.sortRelations")
                     : KConfiguration.getInstance().getConfiguration().getString("ingest.sortRelations", "true");
-            if (new Boolean(startSortProperty)) {
+            if (Boolean.valueOf(startSortProperty)) {
 
                 if (sortRelations.isEmpty()) {
                     log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
@@ -187,7 +187,7 @@ public class ImportToRepos {
             String startIndexerProperty = System.getProperties().containsKey("ingest.startIndexer")
                     ? System.getProperty("ingest.startIndexer")
                     : KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true");
-            if (new Boolean(startIndexerProperty)) {
+            if (Boolean.valueOf(startIndexerProperty)) {
                 if (roots.isEmpty()) {
                     log.info("NO ROOT OBJECTS FOR INDEXING FOUND.");
                 } else {
