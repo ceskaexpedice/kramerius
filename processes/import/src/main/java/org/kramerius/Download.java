@@ -13,6 +13,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.net.ssl.*;
@@ -26,6 +27,15 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.xml.bind.JAXBException;
+
+import org.apache.solr.client.solrj.SolrServerException;
+import org.xml.sax.SAXException;
 
 public class Download {
 
@@ -45,16 +55,16 @@ public class Download {
     public static void replicateMonographs(BufferedReader reader){
         initLogfiles();
         Download download = new Download();
-        try {
+        try (reader) {
             for (String line; (line = reader.readLine()) != null;) {
                 if ("".equals(line)) continue;
-                log.info("Downloading "+line);
+                log.log(Level.INFO, "Downloading {0}", line);
                 Replication rep = Download.createReplication(DocType.MONOID, line, null);
                 processReplication( download,  rep);
             }
-            reader.close();
-        } catch (IOException e) {
-            log.severe("Exception reading document list file: " + e);
+        }
+         catch (IOException e) {
+            log.log(Level.SEVERE, "Exception reading document list file: {0}", e);
             throw new RuntimeException(e);
         } finally {
             closeLogfiles();
@@ -65,7 +75,7 @@ public class Download {
         try {
             return  new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.monographs"))));
         } catch (FileNotFoundException e) {
-            log.severe("Monographs file list not found: "+e);
+            log.log(Level.SEVERE, "Monographs file list not found: {0}", e);
             throw new RuntimeException(e);
         }
     }
@@ -78,19 +88,18 @@ public class Download {
     public static void replicatePeriodicals(BufferedReader reader){
         initLogfiles();
         Download download = new Download();
-        try {
+        try(reader) {
             for (String line; (line = reader.readLine()) != null;) {
                 if ("".equals(line)) continue;
-                log.info("Downloading "+line);
+                log.log(Level.INFO, "Downloading {0}", line);
                 StringTokenizer st = new StringTokenizer(line,";");
                 String id = st.nextToken();
                 String volume = st.nextToken();
                 Replication rep = Download.createReplication(DocType.ISSN, id,volume);
                 processReplication( download,  rep);
             }
-            reader.close();
         } catch (IOException e) {
-            log.severe("Exception reading document list file: " + e);
+            log.log(Level.SEVERE, "Exception reading document list file: {0}", e);
             throw new RuntimeException(e);
         } finally {
             closeLogfiles();
@@ -101,7 +110,7 @@ public class Download {
         try {
             return new BufferedReader(new FileReader(new File(KConfiguration.getInstance().getProperty("migration.periodicals"))));
         } catch (FileNotFoundException e) {
-            log.severe("Periodicals file list not found: "+e);
+            log.log(Level.SEVERE, "Periodicals file list not found: {0}", e);
             throw new RuntimeException(e);
         }
     }
@@ -116,13 +125,13 @@ public class Download {
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
             try {
-                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
+                Import.run(akubraRepository, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
             }finally {
                 akubraRepository.shutdown();
             }
 
             logSuccess(rep.getID(), uuid);
-        }catch (Exception t){
+        }catch (ServiceException | IOException | InterruptedException | JAXBException | SolrServerException | SAXException t){
             if (rep!=null){
                 logFailed(rep.getID(), t);
             }
@@ -150,7 +159,7 @@ public class Download {
         try {
             successWriter = new FileWriter("replication-success.txt");
             failedWriter = new FileWriter("replication-failed.txt");
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.log(Level.SEVERE,"Error in logfiles init:" ,e);
         }
     }
@@ -159,7 +168,7 @@ public class Download {
         try {
             successWriter.append(ID+"\t"+uuid+"\n");
             successWriter.flush();
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.log(Level.SEVERE,"Error in logSuccess method:" ,e);
         }
     }
@@ -170,7 +179,7 @@ public class Download {
             failedWriter.append(ID+"\t"+t+"\n");
             failedWriter.flush();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.log(Level.SEVERE,"Error in logFailed method:" ,e);
         }
     }
@@ -179,7 +188,7 @@ public class Download {
         try {
             successWriter.close();
             failedWriter.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.log(Level.SEVERE,"Error in logfiles close:" ,e);
         }
     }
@@ -203,7 +212,7 @@ public class Download {
     }
 
     /** buffer size used when data from remote connection are written to disc */
-    private static final int bufferSize = 4096;
+    private static final int BUFFERSIZE = 4096;
 
     /** replication directory (from configuration) */
     //private final String replicationDirectoryName ;
@@ -211,10 +220,10 @@ public class Download {
     //public static final String CONV_SUFFIX = "-converted";
 
     /** temporary file for metadata replication */
-    private static String replicationMetadataFileName = "metadata.xml";
+    private static final String REPLICATIONMETADATAFILENAME = "metadata.xml";
 
     /** temporary file for document names listing */
-    private static String replicationDocumentListFileName = "documents.txt";
+    private static final String REPLICATIONDOCUMENTLISTFILENAME = "documents.txt";
 
 
     public static enum DocType {
@@ -240,23 +249,23 @@ public class Download {
         repl.setInstitution(inst);
 
         switch (doctype) {
-        case ISSN:
+        case ISSN -> {
             repl.setIssn(docId);
             repl.setDtd(Replication.DTD_PERIODICAL);
             repl.setPeriodicalVolumeDate(volumeId);
-            break;
-        case ISBN:
+            }
+        case ISBN -> {
             repl.setIsbn(docId);
             repl.setDtd(Replication.DTD_MONOGRAPH);
-            break;
-        case MONOID:
+            }
+        case MONOID -> {
             try {
                 repl.setMonographId(Long.decode(docId));
             } catch (NumberFormatException e) {
                 log.log(Level.SEVERE, "Wrong monograph ID:", e);
             }
             repl.setDtd(Replication.DTD_MONOGRAPH);
-            break;
+            }
         }
 
         repl.setCreationTime(new Timestamp(System.currentTimeMillis()));
@@ -277,8 +286,8 @@ public class Download {
 
     private void saveRemoteMetadata(Replication repl, String migrationDirectory) {
         ReplicationURL fromURL = new ReplicationURL(repl, ReplicationURL.ACTION_METADATA);
-        log.fine("saveRemoteMetadata URL: " + fromURL);
-        File toFile = new File(migrationDirectory, replicationMetadataFileName);
+        log.log(Level.FINE, "saveRemoteMetadata URL: {0}", fromURL);
+        File toFile = new File(migrationDirectory, REPLICATIONMETADATAFILENAME);
         copyRemote(fromURL.toString(), toFile);
     }
 
@@ -291,21 +300,20 @@ public class Download {
      */
     private void saveRemoteDocuments(Replication repl, String migrationDirectory) {
         ReplicationURL fromURL = new ReplicationURL(repl, ReplicationURL.ACTION_DOCUMENT_LIST);
-        log.fine("documentList URL: " + fromURL);
-        File docListFile = new File(migrationDirectory, replicationDocumentListFileName);
+        log.log(Level.FINE, "documentList URL: {0}", fromURL);
+        File docListFile = new File(migrationDirectory, REPLICATIONDOCUMENTLISTFILENAME);
         copyRemote(fromURL.toString(), docListFile);
 
         fromURL = new ReplicationURL(repl, ReplicationURL.ACTION_DOCUMENT);
-        Map documents = getDocuments(docListFile);
-        Set names = documents.keySet();
+        Map<String,String> documents = getDocuments(docListFile);
+        Set<String> names = documents.keySet();
 
         String last_replicated_name = null;
         String last_replicated_id = null;
 
-        for (Iterator it = names.iterator(); it.hasNext();) {
-            String name = (String) it.next();
+        for (String name : names) {
             String id = (String) documents.get(name);
-            log.fine("Get remote document ...  id: " + id + ", name: " + name);
+            log.log(Level.FINE, "Get remote document ...  id: {0}, name: {1}", new Object[]{id, name});
             File toFile = new File(migrationDirectory, name);
             // id in URL is required!! (without it sometimes is ok, sometimes
             // not, depending on first id
@@ -324,8 +332,6 @@ public class Download {
         }
         if (last_replicated_name != null) {
             copyRemote(fromURL.toString(last_replicated_name, last_replicated_id), new File(migrationDirectory, last_replicated_name));
-            last_replicated_name = null;
-            last_replicated_id = null;
         }
         docListFile.delete();
     }
@@ -339,10 +345,9 @@ public class Download {
      * @return
      * @throws ServiceException
      */
-    private Map getDocuments(File documentListFile) {
-        Map documents = new LinkedHashMap();
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(documentListFile));
+    private Map<String,String> getDocuments(File documentListFile) {
+        Map<String,String> documents = new LinkedHashMap<>();
+        try (BufferedReader in = new BufferedReader(new FileReader(documentListFile))) {
             for (String line; (line = in.readLine()) != null;) {
                 String[] tokens = line.split(" ",2);
                 if (tokens.length == 2){
@@ -351,8 +356,8 @@ public class Download {
                     documents.put(name, id);
                 }
             }
-            in.close();
-        } catch (IOException e) {
+        }
+         catch (IOException e) {
             log.log(Level.SEVERE,"Exception reading document list file: "+documentListFile, e);
             throw new RuntimeException(e);
         }
@@ -360,13 +365,13 @@ public class Download {
     }
 
     private void copyRemote(String fromURL, File toFileName) {
-        OutputStream os = null;
-        InputStream is = null;
+        OutputStream os;
+        InputStream is;
         try {
             is = getRemoteInputStream(fromURL);
             os = new FileOutputStream(toFileName);
-            byte[] buf = new byte[bufferSize];
-            for (int byteRead; (byteRead = is.read(buf, 0, bufferSize)) >= 0;) {
+            byte[] buf = new byte[BUFFERSIZE];
+            for (int byteRead; (byteRead = is.read(buf, 0, BUFFERSIZE)) >= 0;) {
                 os.write(buf, 0, byteRead);
             }
             is.close();
@@ -381,18 +386,19 @@ public class Download {
         InputStream is = null;
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(fromURL);
+            URL url = new URI(fromURL).toURL();
             conn = (HttpURLConnection) url.openConnection();
 
-            if (conn instanceof HttpsURLConnection) {
+            if (conn instanceof HttpsURLConnection httpsURLConnection) {
                 SSLContext sc = SSLContext.getInstance("SSL");
                 TrustManager[] tm = { new MyX509TrustManager() };
                 sc.init(null, tm, new java.security.SecureRandom());
 
-                HttpsURLConnection connSec = (HttpsURLConnection) conn;
+                HttpsURLConnection connSec = httpsURLConnection;
                 connSec.setSSLSocketFactory(sc.getSocketFactory());
                 connSec.setHostnameVerifier(new MyHostnameVerifier());
             }
+            if(conn==null)throw new RuntimeException("Connection is null for URL: " + fromURL);
             if (conn.getResponseCode() == 200) {
                 String contentType = conn.getContentType();
                 if (contentType== null || !contentType.startsWith("text/html")) {
@@ -400,22 +406,22 @@ public class Download {
                 } else {
                     Reader r = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                     String remoteErrorMessage = "";
-                    char[] buf = new char[bufferSize];
-                    for (; r.read(buf, 0, bufferSize) >= 0;)
+                    char[] buf = new char[BUFFERSIZE];
+                    for (; r.read(buf, 0, BUFFERSIZE) >= 0;)
                         remoteErrorMessage += new String(buf);
                     log.severe("Bad content type text/html in getRemoteInputStream()");
                     log.severe(remoteErrorMessage);
                     throw new RuntimeException("Some URL parameter missing or wrong or no access rights ...");
                 }
             } else {
-                log.fine("Remote document not found: " + fromURL +" (responseCode:"+conn.getResponseCode()+")");
+                log.log(Level.FINE, "Remote document not found: {0} (responseCode:{1})", new Object[]{fromURL, conn.getResponseCode()});
                 throw new FileNotFoundException("Remote document not found: " + fromURL +" (responseCode:"+conn.getResponseCode()+")");
             }
         } catch (FileNotFoundException e) {
             if (conn != null)
                 conn.disconnect();
             throw new RuntimeException (e);
-        } catch (Throwable e) {
+        } catch (IOException | RuntimeException | URISyntaxException | KeyManagementException | NoSuchAlgorithmException e) {
             if (conn != null)
                 conn.disconnect();
             log.log(Level.SEVERE,"Exception in getRemoteInputStream: " +fromURL, e);
@@ -427,12 +433,15 @@ public class Download {
 
     private static class MyX509TrustManager implements X509TrustManager {
 
+        @Override
         public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String str) {
         }
 
+        @Override
         public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String str) {
         }
 
+        @Override
         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
             return null;
         }
@@ -440,6 +449,7 @@ public class Download {
 
     private static class MyHostnameVerifier implements HostnameVerifier {
 
+        @Override
         public boolean verify(String urlHostname, SSLSession session) {
             // return
             // java.net.InetAddress.getByName(urlHostname).equals(java.net.InetAddress.getByName(certHostname));
@@ -466,27 +476,27 @@ public class Download {
 
         private String baseURL;
 
-        private String sigla;
+        private final String sigla;
 
-        private String login;
+        private final String login;
 
-        private String pwd;
+        private final String pwd;
 
-        private String action;
+        private final String action;
 
-        private int mode;
+        private final int mode;
 
-        private String issn;
+        private final String issn;
 
-        private String isbn;
+        private final String isbn;
 
-        private String monographId;
+        private final String monographId;
 
-        private String volume;
+        private final String volume;
 
-        private String item;
+        private final String item;
 
-        private int rights;
+        private final int rights;
 
         public ReplicationURL(Replication repl, String action) {
             this.baseURL = repl.getInstitution().getReplicationURL();
@@ -504,7 +514,7 @@ public class Download {
             this.item = repl.getPeriodicalItemDate() == null ? "":repl.getPeriodicalItemDate();
             this.rights = repl.getRightsRestriction();
         }
-
+        @Override
         public String toString() {
 
             String URL = baseURL + "replicationServlet?" + "action=" + action + "&mode=" + mode
@@ -595,7 +605,7 @@ public class Download {
 
         private long museumObjectId;
 
-        private String id;
+        private final String id;
 
         /**
          * @return
@@ -951,7 +961,7 @@ public class Download {
 
         private Integer dtd;
 
-        private StringBuffer logBuffer = new StringBuffer();
+        private final StringBuffer logBuffer = new StringBuffer();
 
         /**
          * Mode of action, some of MODE_xx constants
@@ -979,7 +989,7 @@ public class Download {
         /**
          * log records
          */
-        private List logList = new ArrayList();
+        //private List logList = new ArrayList();
 
         /**
          * @return
@@ -1000,17 +1010,17 @@ public class Download {
          *
          * @return the List<DataActionLog>
          */
-        public List getLogList() {
+        /*public List getLogList() {
             return logList;
-        }
+        }*/
 
         /**
          * @param logList
          *            the logList to set
          */
-        public void setLogList(List logList) {
+        /*public void setLogList(List logList) {
             this.logList = logList;
-        }
+        }*/
 
         /**
          * @return the logBuffer
