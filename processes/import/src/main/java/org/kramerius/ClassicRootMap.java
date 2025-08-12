@@ -1,43 +1,80 @@
 package org.kramerius;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
-
-import org.apache.commons.lang.NotImplementedException;
 enum IndexType{
     Object,
     Subtree
 }
+class TitleTypeTuple {
+    String title;
+    IndexType type;
+    public TitleTypeTuple(String title, IndexType type) {
+        this.title = title;
+        this.type = type;
+    }
+}
+class Tuple<X, Y> { 
+  public final X x; 
+  public final Y y; 
+  public Tuple(X x, Y y) { 
+    this.x = x; 
+    this.y = y; 
+  } 
+} 
 
-public class ClassicRootMap implements Collection<TitlePidTuple> {
-    HashMap<TitlePidTuple,IndexType> map = new HashMap<>();
+
+public class ClassicRootMap implements Map<TitlePidTuple,IndexType> {
+    public HashMap<String,HashSet<String>> potentialParents = new HashMap<>();
+
+    HashMap<String,TitleTypeTuple> map = new HashMap<>();
     @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
-    @Override
-    public void forEach(Consumer<? super TitlePidTuple> action) {
-        map.forEach((key, value) -> action.accept(key));
+    public void forEach(Consumer <? super String> action) {
+        map.keySet().forEach(action);
     }
-    @Override
     public boolean add(TitlePidTuple tuple) {
-        return map.putIfAbsent(tuple, IndexType.Object) == null;
+        return map.putIfAbsent(tuple.pid,new TitleTypeTuple(tuple.title, IndexType.Subtree)) == null;
     }
     @Override
-    public boolean remove(Object o) {
-        if (o instanceof TitlePidTuple tuple) {
-            return map.remove(tuple) != null;
-        }
-        return false;
+    public IndexType put(TitlePidTuple key, IndexType value) {
+        return map.put(key.pid,new TitleTypeTuple(key.title,value)).type;
+    }
+    public IndexType put(String pid, String title, IndexType value) {
+        return map.put(pid,new TitleTypeTuple(title,value)).type;
     }
     @Override
-    public boolean contains(Object o) {
-        if (o instanceof TitlePidTuple tuple) {
-            return map.containsKey(tuple);
-        }
-        return false;
+    public IndexType putIfAbsent(TitlePidTuple key, IndexType value) {
+        return map.putIfAbsent(key.pid,new TitleTypeTuple(key.title,value)).type;
+    }
+    @Override
+    public IndexType remove(Object o) {
+        throw new UnsupportedOperationException("Incorrect type");
+    }
+    public IndexType remove(TitlePidTuple tuple) {
+        return map.remove(tuple.pid).type;
+    }
+    public IndexType remove(String pid) {
+        var t = map.remove(pid);
+        return (t == null)?null: t.type;
+    }
+    @Override
+    public boolean containsKey(Object o) {
+        throw new UnsupportedOperationException("Incorrect type");
+    }
+    public boolean containsKey(String pid) {
+        return map.containsKey(pid);
+
+    }
+    public boolean containsKey(TitlePidTuple tuple) {
+        return map.containsKey(tuple.pid);
     }
     @Override
     public int size() {
@@ -48,57 +85,58 @@ public class ClassicRootMap implements Collection<TitlePidTuple> {
         map.clear();
     }
     @Override
-    public boolean containsAll(Collection<?> c) {
-        for (Object o : c) {
-            if (o instanceof TitlePidTuple t && !contains(t)) {
-                return false;
+    public boolean containsValue(Object value) {
+        throw new UnsupportedOperationException("containsValue is not supported in ClassicRootMap");
+    }
+    @Override
+    public IndexType get(Object key) {
+        throw new UnsupportedOperationException("Incorrect type");
+    }
+    public IndexType get(TitlePidTuple tuple){
+        return map.get(tuple.pid).type;
+    }
+    public IndexType get(String pid){
+        return map.get(pid).type;
+    }
+    @Override
+    public void putAll(Map<? extends TitlePidTuple, ? extends IndexType> m) {
+        m.forEach((k, v) -> {
+            if (k instanceof TitlePidTuple tuple) {
+                map.put(tuple.pid, new TitleTypeTuple(tuple.title, v));
             }
-        }
-        return true;
+        });
     }
     @Override
-    public boolean addAll(Collection<? extends TitlePidTuple> c) {
-       /* boolean modified = false;
-        for (TitlePidTuple tuple : c) {
-            if (add(tuple)) {
-                modified = true;
-            }
-        }
-        return modified;*/throw new NotImplementedException("Not implemented in ClassicRootMap");
+    public Set<TitlePidTuple> keySet() {
+        return map.keySet().stream()
+                .map(pid -> new TitlePidTuple(map.get(pid).title, pid))
+                .collect(java.util.stream.Collectors.toSet());
     }
     @Override
-    public boolean removeAll(Collection<?> c) {
-        /*boolean modified = false;
-        for (Object o : c) {
-            if (o instanceof TitlePidTuple t && remove(t)) {
-                modified = true;
-            }
-        }
-        return modified;*/
-        throw new NotImplementedException("removeAll not implemented in ClassicRootMap");
+    public Collection<IndexType> values() {
+        return map.values().stream()
+                .map(tt -> tt.type)
+                .collect(java.util.stream.Collectors.toList());
     }
     @Override
-    public boolean retainAll(Collection<?> c) {
-        /*boolean modified = false;
-        for (TitlePidTuple tuple : map.keySet()) {
-            if (!c.contains(tuple)) {
-                remove(tuple);
-                modified = true;
-            }
-        }
-        return modified;*/throw new NotImplementedException("Not implemented in ClassicRootMap");
-    }
-    @Override
-    public Object[] toArray() {
-        return map.keySet().toArray();
-    }
-    @Override
-    public <T> T[] toArray(T[] a) {
-        return map.keySet().toArray(a);
-    }
-    @Override
-    public Iterator<TitlePidTuple> iterator() {
-        return map.keySet().iterator();
-    }
+    public Set<Entry<TitlePidTuple, IndexType>> entrySet() {
+        return map.entrySet().stream()
+                .map(entry -> new Entry<TitlePidTuple, IndexType>() {
+                    @Override
+                    public TitlePidTuple getKey() {
+                        return new TitlePidTuple(entry.getValue().title, entry.getKey());
+                    }
 
+                    @Override
+                    public IndexType getValue() {
+                        return entry.getValue().type;
+                    }
+
+                    @Override
+                    public IndexType setValue(IndexType value) {
+                        return entry.setValue(new TitleTypeTuple(entry.getValue().title, value)).type;
+                    }
+                })
+                .collect(java.util.stream.Collectors.toSet());
+    }
 }
