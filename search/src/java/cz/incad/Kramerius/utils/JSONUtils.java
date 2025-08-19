@@ -33,23 +33,23 @@ public class JSONUtils {
     public static String escaped(String input) {
         StringBuilder retString = new StringBuilder();
         List<Character> mustBeEscaped = new ArrayList<Character>(); {
-            mustBeEscaped.add(new Character('\\'));
-            mustBeEscaped.add(new Character('\n'));
-            mustBeEscaped.add(new Character('\''));
-            mustBeEscaped.add(new Character('"'));
+            mustBeEscaped.add('\\');
+            mustBeEscaped.add('\n');
+            mustBeEscaped.add('\'');
+            mustBeEscaped.add('"');
         }
         Map<Character,String> escapingPairs = new HashMap<Character, String>(); {
-            escapingPairs.put(new Character('\n'), "\\n");
-            escapingPairs.put(new Character('"'), "\\\"");
-            escapingPairs.put(new Character('\''), "\'");
-            escapingPairs.put(new Character('\\'), "\\\\");
+            escapingPairs.put('\n', "\\n");
+            escapingPairs.put('"', "\\\"");
+            escapingPairs.put('\'', "\'");
+            escapingPairs.put('\\', "\\\\");
         }
         char[] chArray = input.toCharArray();
         for (int i = 0; i < chArray.length; i++) {
             char ch = chArray[i];
-            if (mustBeEscaped.contains(new Character(ch))) {
+            if (mustBeEscaped.contains(ch)) {
                 retString.append('\\');
-                retString.append(escapingPairs.get(new Character(ch)));
+                retString.append(escapingPairs.get(ch));
             } else {
                 retString.append(ch);
             }

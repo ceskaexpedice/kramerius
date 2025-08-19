@@ -8,7 +8,6 @@ import javax.xml.bind.JAXBException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -37,13 +36,13 @@ public class Convert {
         if (args.length>0){
             visible = Boolean.parseBoolean(args[0]);
         }
-        String uuid = Main.convert(convertDirectory, convertTargetDirectory, false, visible, null);
+        /*String uuid = */Main.convert(convertDirectory, convertTargetDirectory, false, visible, null);
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(),new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         try {
-            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), convertTargetDirectory);
+            Import.run(akubraRepository, sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), convertTargetDirectory);
         }finally {
             akubraRepository.shutdown();
         }
