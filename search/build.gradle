@@ -200,7 +200,7 @@ tasks.named('jib') {
 }
 jib {
     from {
-        image = 'tomcat:9.0.87-jre21-temurin-jammy'
+        image = 'tomcat:9.0.87-jdk21-temurin-jammy'
         
 		platforms {
             platform {
