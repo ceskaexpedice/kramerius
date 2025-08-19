@@ -9,6 +9,7 @@ import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
@@ -202,6 +203,30 @@ public class Indexer {
         solrIndexer.setSingleFieldValue(pid, repositoryNode, "full_indexation_in_progress", null, false, false);
     }
 
+
+    /**
+     * <para>Returns offset to the last word in the text and the last word, if it ends with a hyphen. Otherwise returns null.</para>
+     * <para>Offset example: "This is a test text-" returns 0, "This is a test text-\n-32-" returns 5</para>
+     * @param text
+     * @return
+     */
+    private Pair<String,Integer> getLastWordAndOffsetIfHyphen(String text) {
+        String[] words = text.split("\\s");
+        int lenghtFromEnd = 0;
+        for(int i = words.length - 1; i >= 0; i--) {
+            String word = words[i].trim();
+            //Is not empty, is at least 2 characters long, and all but the last character are letters. If the last one is hyphen, return the word, otherwise return null.
+            if (!word.isEmpty() && word.length()>1 && word.substring(0,word.length()-1).chars().allMatch(Character::isLetter)) {
+                if(word.endsWith("-")){
+                    return Pair.of(word,lenghtFromEnd);
+                }
+                else return null;
+            }
+            lenghtFromEnd+=word.length()+1;
+        }
+        return null;
+    }
+
     private void indexObjectWithCounters(String pid, RepositoryNode repositoryNode, Counters counters, boolean setFullIndexationInProgress, ProgressListener progressListener) {
         try {
             counters.incrementProcessed();
@@ -233,7 +258,29 @@ public class Indexer {
                 boolean ocrExists = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_TEXT);
                 String ocr = ocrExists ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString() : null;
                 String ocrText = normalizeWhitespacesForOcrText(ocr);
-                //System.out.println("ocr: " + ocrText);
+
+                //Check if the last character of the last valid word in OCR text is a hyphen, and if so, check the next page for the first word
+                if (ocrText != null) {
+                    Pair<String,Integer> tuple = getLastWordAndOffsetIfHyphen(ocrText);
+                    if(tuple != null) {
+                        int pos = repositoryNode.getPositionInOwnParent();
+                        List<String> syblings = nodeManager.getKrameriusNode(repositoryNode.getOwnParentPid()).getPidsOfOwnChildren();
+                        if (syblings.size() > pos+1) {
+                            String nextPid = syblings.get(pos + 1);
+                            if (akubraRepository.datastreamExists(nextPid, KnownDatastreams.OCR_TEXT)) {
+                                String nextOcrText = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
+                                if (nextOcrText != null) {
+                                    String lastWord = tuple.getLeft();
+                                    int offset = tuple.getRight();
+                                    //Uncomment the following 2 lines if we normalise differently (Awaiting confirmation from the team)
+                                    ocrText= ocrText.substring(0, ocrText.length()-1-offset)+nextOcrText.split("\\s+")[0]+" "+lastWord+ocrText.substring( ocrText.length()-offset);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ocrText = normalizeWhitespacesForOcrText(ocrText);
                 //IMG_FULL mimetype
                 String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
 
