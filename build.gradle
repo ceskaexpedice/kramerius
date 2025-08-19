@@ -149,6 +149,7 @@ allprojects {
         //dom4j
         implementation 'jaxen:jaxen:1.2.0'
         implementation 'org.dom4j:dom4j:2.1.1'
+        implementation 'org.apache.commons:commons-text:1.10.0'
 
         //junit to all subprojects
         testImplementation "junit:junit:4.4"
