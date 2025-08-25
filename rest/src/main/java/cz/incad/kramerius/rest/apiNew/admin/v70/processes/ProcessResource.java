@@ -1147,7 +1147,9 @@ public class ProcessResource extends AdminApiResource {
 
                 String license = extractOptionalParamString(params, "license", null);
                 String collections = extractOptionalParamString(params, "collections", null);
-                
+
+                String indexationType = extractOptionalParamString(params, "indexationType", null);
+
                 List<String> result = new ArrayList<>();
                 result.add(inputDataDir.getPath());
                 result.add(startIndexer.toString());
@@ -1161,6 +1163,7 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     result.add(NONE_KEYWORD);
                 }
+                result.add(indexationType);
 
                 consumer.accept(false);
                 return result;
@@ -1185,6 +1188,7 @@ public class ProcessResource extends AdminApiResource {
 
                 String license = extractOptionalParamString(params, "license", null);
                 String collections = extractOptionalParamString(params, "collections", null);
+                String indexationType = extractOptionalParamString(params, "indexationType", null);
 
                 
                 List<String> result = new ArrayList<>();
@@ -1204,6 +1208,7 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     result.add(NONE_KEYWORD);
                 }
+                result.add(indexationType);
                 consumer.accept(false);
                 return result;
             }

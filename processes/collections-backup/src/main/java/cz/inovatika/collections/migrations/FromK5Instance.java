@@ -48,6 +48,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kramerius.Import;
 import org.kramerius.ImportModule;
+import org.kramerius.indexingmap.ScheduleStrategy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -449,7 +450,7 @@ public class FromK5Instance {
                     KConfiguration.getInstance().getProperty("ingest.url"),
                     KConfiguration.getInstance().getProperty("ingest.user"),
                     KConfiguration.getInstance().getProperty("ingest.password"),
-                    exportRoot, startIndexer, authToken, null);
+                    exportRoot, startIndexer, authToken, null, ScheduleStrategy.indexRoots);
 
             Restore.LOGGER.info(String.format("Deleting directory %s", exportRoot));
             File exportFolder = new File(exportRoot);

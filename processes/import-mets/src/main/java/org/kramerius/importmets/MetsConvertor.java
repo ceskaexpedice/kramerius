@@ -25,6 +25,7 @@ import org.kramerius.ImportModule;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.ServiceException;
+import org.kramerius.indexingmap.ScheduleStrategy;
 import org.kramerius.mets.Mets;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -89,7 +90,7 @@ public class MetsConvertor {
             log.info(String.format("Import directory %s", importRoot));
 
             String exportRoot = args.length > argsIndex ? args[argsIndex++] : KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
-            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null, null, null);
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, false, null, null, null, ScheduleStrategy.indexRoots);
         } else { // as a process
             if (args.length < 2) {
                 throw new RuntimeException("Not enough arguments.");
@@ -121,15 +122,17 @@ public class MetsConvertor {
 
             String addToCollections = null;
             addToCollections = args.length > argsIndex ? args[argsIndex++] : null; 
-            
+
+            ScheduleStrategy strategy = ScheduleStrategy.indexRoots;
+            strategy = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : ScheduleStrategy.indexRoots;
+
             try {
                 ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
-            
-            
-            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken, license,addToCollections);
+
+            new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken, license,addToCollections, strategy);
         }
     }
 
@@ -152,7 +155,7 @@ public class MetsConvertor {
         }
     }
 
-    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license, String addToCollections) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license, String addToCollections, ScheduleStrategy strategy) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
         checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
@@ -178,7 +181,7 @@ public class MetsConvertor {
                     KConfiguration.getInstance().getProperty("ingest.url"),
                     KConfiguration.getInstance().getProperty("ingest.user"),
                     KConfiguration.getInstance().getProperty("ingest.password"),
-                    exportRoot, startIndexer, authToken,addToCollections);
+                    exportRoot, startIndexer, authToken,addToCollections, strategy);
 
 
             if (deleteContractSubfolder()) {
