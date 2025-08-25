@@ -15,6 +15,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.kramerius.indexingmap.ScheduleStrategy;
 import org.xml.sax.SAXException;
 
 import com.qbizm.kramerius.imptool.poc.Main;
@@ -43,7 +44,7 @@ public class Convert {
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
         try {
-            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), convertTargetDirectory);
+            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), convertTargetDirectory, ScheduleStrategy.indexRoots);
         }finally {
             akubraRepository.shutdown();
         }

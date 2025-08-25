@@ -14,6 +14,7 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.kramerius.indexingmap.ScheduleStrategy;
 
 import javax.net.ssl.*;
 
@@ -116,7 +117,7 @@ public class Download {
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
             try {
-                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory);
+                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory, ScheduleStrategy.indexRoots);
             }finally {
                 akubraRepository.shutdown();
             }
