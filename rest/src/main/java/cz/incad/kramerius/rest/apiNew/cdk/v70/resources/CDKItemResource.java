@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import cz.incad.kramerius.security.SecuredAkubraRepository;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.json.JSONArray;
@@ -53,6 +54,10 @@ public class CDKItemResource {
     @Inject
     SecuredAkubraRepository akubraRepository;
 
+    @Inject
+    AggregatedAccessLogs accessLog;
+
+
     public Response providedBy(String pid) {
         try {
             RuntimeInformation extractInformations = RightRuntimeInformations.extractInformations(this.actionAllowed, this.solrAccess, pid);
@@ -77,6 +82,15 @@ public class CDKItemResource {
                 if (!PIDSupport.isComposedPID(pid)) {
                     // audio streas is not suported
                     if (!FedoraUtils.AUDIO_STREAMS.contains(dsid) && akubraRepository.datastreamExists(pid, dsid)) {
+
+                        if (FedoraUtils.DEFAULT_SECURED_STREAM.contains(dsid)) {
+                            try {
+                                this.accessLog.reportAccess(pid, dsid);
+                            } catch (IOException e) {
+                                LOGGER.log(Level.WARNING, "Cannot log access to " + pid + "/" + dsid, e);
+                            }
+                        }
+
                         final InputStream is = akubraRepository.getDatastreamContent(pid, dsid).asInputStream();
                         String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
 

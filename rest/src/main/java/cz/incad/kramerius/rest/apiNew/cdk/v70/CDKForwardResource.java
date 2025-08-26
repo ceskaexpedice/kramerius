@@ -26,6 +26,7 @@ import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
 import cz.incad.kramerius.service.ReplicateException;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 /**
  * CDK Forward resource
@@ -51,7 +52,11 @@ public class CDKForwardResource {
 
     @Inject
     SOLRResource solrResource;
-    
+
+    @Inject
+    AggregatedAccessLogs accessLog;
+
+
     // --------- User's endpoint --------------------
     @GET
     @Path("user")
