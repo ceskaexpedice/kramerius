@@ -391,13 +391,18 @@ public class FromK5Instance {
         }
         
 
-        List<String> models = Arrays.asList(
+
+
+        List<String> models = KConfiguration.getInstance().getConfiguration().getList("collections.migrate.models",Arrays.asList(
                 "monograph",
                 "periodical",
                 "sheetmusic",
-                "monographunit"
-                );
-        
+                "monographunit",
+                "graphic",
+                "map"
+        )).stream().map(Object::toString).toList();
+
+
         String fqModel = "fedora.model:("+models.stream().collect(Collectors.joining(" OR "))+") AND ";
         String collectionPid="(collection:\""+vcPid+"\")";
         String masterQuery= URLEncoder.encode(fqModel + collectionPid, "UTF-8");
