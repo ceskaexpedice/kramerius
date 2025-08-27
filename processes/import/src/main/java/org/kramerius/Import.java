@@ -245,6 +245,8 @@ public class Import {
             // prozkoumani importni slozky
             ImportInventoryFactory factory = new ImportInventoryFactory(unmarshaller, marshallingLock, akubraRepository.pi());
             ImportInventory importInventory = factory.createIndexMap(importFile);
+            LOGGER.info("- PRINT INVENTORY - ");
+            importInventory.printInventory();
 
             Set<TitlePidTuple> convolutes = new HashSet<TitlePidTuple>();
             Set<TitlePidTuple> collections = new HashSet<TitlePidTuple>();

@@ -21,6 +21,7 @@ import java.util.List;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * Represents a single object discovered during the digital library data import process.
@@ -32,6 +33,8 @@ import java.util.Objects;
  * the object is already present in the target index.
  */
 public class ImportInventoryItem {
+
+    public static final Logger LOGGER = Logger.getLogger(ImportInventoryItem.class.getName());
 
     /**
      * Defines the scheduling strategy for an item's indexation.
@@ -310,6 +313,41 @@ public class ImportInventoryItem {
         return Objects.hash(pid, model, presentInProcessingIndex, childrenPids, parent, children, indexationPlanType);
     }
 
+
+
+    /**
+     * Prints a hierarchical representation of the tree structure from this item to the console.
+     * This method is useful for visual debugging and verifying the tree structure.
+     */
+    public void printTree() {
+        printTree(0);
+    }
+
+    /**
+     * Helper recursive method for printing the tree with indentation.
+     * @param depth The depth for indentation.
+     */
+    private void printTree(int depth) {
+        StringBuilder indent = new StringBuilder();
+        for (int i = 0; i < depth; i++) {
+            indent.append("  ");
+        }
+
+        String prefix = this.isPresentInProcessingIndex() ? "+ " : "- ";
+        String line = String.format("%s%s%s (%s) - present in index: %s",
+                indent.toString(),
+                prefix,
+                this.getPid(),
+                this.getModel(),
+                this.isPresentInProcessingIndex());
+
+        LOGGER.info(line);
+        if (this.children != null) {
+            for (ImportInventoryItem child : this.getChildren()) {
+                child.printTree(depth + 1);
+            }
+        }
+    }
 
     @Override
     public String toString() {
