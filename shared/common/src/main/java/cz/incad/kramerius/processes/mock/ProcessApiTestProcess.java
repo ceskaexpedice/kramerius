@@ -4,7 +4,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
-import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.processes.utils.Utils;

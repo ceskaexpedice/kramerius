@@ -7,11 +7,9 @@ import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.GCCheckFoundCandidatesTask;
 import cz.incad.kramerius.processes.GCFindCandiatesTask;
 import cz.incad.kramerius.processes.GCScheduler;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class GCSchedulerImpl implements GCScheduler {

@@ -25,8 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.processes.database.ProcessDbInitializer;
-import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;

@@ -28,11 +28,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -40,16 +38,12 @@ import javax.ws.rs.core.StreamingOutput;
 
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.*;
-
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.statistics.filters.*;
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

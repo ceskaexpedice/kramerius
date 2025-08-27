@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,8 +35,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -56,9 +53,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.processes.BatchStates;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.IOUtils;

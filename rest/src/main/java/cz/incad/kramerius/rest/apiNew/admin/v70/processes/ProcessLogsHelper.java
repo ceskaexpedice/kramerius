@@ -1,7 +1,5 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
-import cz.incad.kramerius.processes.LRProcess;
-
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;

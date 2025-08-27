@@ -79,7 +79,6 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.gdpr.AnonymizationSupport;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;

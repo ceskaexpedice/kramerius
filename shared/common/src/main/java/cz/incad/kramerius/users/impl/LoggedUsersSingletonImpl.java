@@ -36,7 +36,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;

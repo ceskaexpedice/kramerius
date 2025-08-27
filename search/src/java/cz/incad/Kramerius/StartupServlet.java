@@ -16,9 +16,7 @@
  */
 package cz.incad.Kramerius;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
@@ -33,7 +31,6 @@ import cz.incad.kramerius.database.VersionDbInitializer;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.processes.database.MostDesirableDbInitializer;
-import cz.incad.kramerius.processes.database.ProcessDbInitializer;
 import cz.incad.kramerius.rest.oai.db.OAIDBInitializer;
 import cz.incad.kramerius.security.database.SecurityDbInitializer;
 import cz.incad.kramerius.service.LifeCycleHookRegistry;

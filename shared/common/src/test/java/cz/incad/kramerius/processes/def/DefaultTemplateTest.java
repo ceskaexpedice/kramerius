@@ -16,9 +16,7 @@
  */
 package cz.incad.kramerius.processes.def;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,7 +28,6 @@ import java.util.Locale;
 import java.util.PropertyResourceBundle;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import junit.framework.Assert;
 
@@ -42,18 +39,15 @@ import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.google.gwt.dom.client.Node;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 
-import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.annotations.DefaultParameterValue;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.service.ResourceBundleService;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.WhitespaceUtility;
 import cz.incad.kramerius.utils.XMLUtils;
 

@@ -4,10 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;

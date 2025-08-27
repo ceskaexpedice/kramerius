@@ -31,9 +31,6 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 
-import com.google.inject.Inject;
-
-import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 

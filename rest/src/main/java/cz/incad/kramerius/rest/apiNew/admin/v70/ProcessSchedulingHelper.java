@@ -1,14 +1,9 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

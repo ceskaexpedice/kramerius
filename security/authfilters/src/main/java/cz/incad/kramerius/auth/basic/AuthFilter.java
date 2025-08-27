@@ -20,7 +20,6 @@
 package cz.incad.kramerius.auth.basic;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.util.HashMap;
@@ -42,7 +41,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.jaas.K4User;
 

@@ -2,7 +2,6 @@ package cz.incad.kramerius.template;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;

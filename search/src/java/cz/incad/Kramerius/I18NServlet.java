@@ -1,13 +1,11 @@
 package cz.incad.Kramerius;
 
-import java.awt.Desktop.Action;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 import javax.servlet.ServletContext;
@@ -24,8 +22,6 @@ import com.google.inject.Provider;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.ApplicationURL;

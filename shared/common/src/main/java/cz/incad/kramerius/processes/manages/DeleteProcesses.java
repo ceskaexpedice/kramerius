@@ -30,7 +30,6 @@ import javax.ws.rs.core.MediaType;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.processes.starter.ProcessStarter;

@@ -1,14 +1,8 @@
 package cz.incad.kramerius.processes.new_api;
 
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.NotReadyException;
-import cz.incad.kramerius.processes.ProcessManagerException;
-import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Collections;

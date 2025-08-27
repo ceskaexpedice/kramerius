@@ -18,7 +18,6 @@ package org.kramerius.imports.input;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;

@@ -17,11 +17,8 @@
 package cz.incad.kramerius.processes.mock.logs;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.io.Writer;
 
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.template.ProcessOutputTemplate;
 
 public class LogsOutputTemplate implements ProcessOutputTemplate {

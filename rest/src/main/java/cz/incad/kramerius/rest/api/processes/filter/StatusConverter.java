@@ -16,7 +16,6 @@
  */
 package cz.incad.kramerius.rest.api.processes.filter;
 
-import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.utils.database.SQLFilter.ConverterAndFormatter;
 
 public class StatusConverter implements ConverterAndFormatter{
