@@ -73,6 +73,9 @@ public class ImportInventoryFactoryTest {
             EasyMock.replay(factory);
 
             ImportInventory indexMap = factory.createIndexMap(testDir.toFile());
+
+            indexMap.printInventory();
+
             List<ImportInventoryItem> roots = ScheduleStrategy.indexRoots.scheduleItems(indexMap);
             Assert.assertTrue(roots.size() == 1);
             ImportInventoryItem root = roots.get(0);

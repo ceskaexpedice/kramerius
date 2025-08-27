@@ -85,4 +85,18 @@ public class ImportInventory {
         }
         return false;
     }
+
+
+    public void printInventory() {
+        List<ImportInventoryItem> roots = new ArrayList<>();
+        for (ImportInventoryItem item : this.getIndexationPlanItems()) {
+            ImportInventoryItem root = item.findRoot();
+            if (root != null) {
+                if (!roots.contains(root)) {roots.add(root);}
+            }
+        }
+        for (ImportInventoryItem root : roots) {
+            root.printTree();
+        }
+    }
 }
