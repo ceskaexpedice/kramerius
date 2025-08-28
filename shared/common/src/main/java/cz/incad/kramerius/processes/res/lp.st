@@ -48,7 +48,7 @@
         <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexObject</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <checkErrorStream>false</checkErrorStream>
         <securedaction>a_index</securedaction>
     </process>
@@ -59,7 +59,7 @@
         <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexObject</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
         <!--<parameters>duration processesInBatch finalState</parameters>-->
         <checkErrorStream>false</checkErrorStream>
@@ -73,7 +73,7 @@
         <mainClass>cz.kramerius.searchIndex.NewIndexerProcessIndexModel</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <!--tohle neni definice ocekavanych parametru, ale hardcoded parametry pred temi predavanymi-->
         <!--<parameters>duration processesInBatch finalState</parameters>-->
         <checkErrorStream>false</checkErrorStream>
@@ -264,7 +264,7 @@
         <mainClass>cz.incad.kramerius.SetLicenseProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <!--<checkErrorStream>false</checkErrorStream>-->
         <parameters>ADD</parameters>
         <securedaction>a_set_accessibility</securedaction>
@@ -276,7 +276,7 @@
         <mainClass>cz.incad.kramerius.SetLicenseProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <!--<checkErrorStream>false</checkErrorStream>-->
         <parameters>REMOVE</parameters>
         <securedaction>a_set_accessibility</securedaction>
@@ -289,7 +289,7 @@
         <mainClass>cz.inovatika.licenses.FlagToLicenseProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <!--<checkErrorStream>false</checkErrorStream>-->
         <!--parameters>ADD</parameters-->
         <securedaction>a_set_accessibility</securedaction>
@@ -314,6 +314,7 @@
         <mainClass>cz.incad.kramerius.DeleteTreeProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_delete</securedaction>
     </process>
 
@@ -340,7 +341,7 @@
         <mainClass>org.kramerius.convert.ParametrizedConvert</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>convert</securedaction>
     </process>
 
@@ -351,7 +352,7 @@
         <mainClass>org.kramerius.importmets.parametrized.ParametrizedMetsNKDImport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>ndk_mets_import</securedaction>
     </process>
 
@@ -363,7 +364,7 @@
         <mainClass>org.kramerius.Convert</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
     </process>
 
     <!-- deprecated: only nonparamtrized version (import) is used now -->
@@ -374,6 +375,7 @@
         <mainClass>org.kramerius.imports.ParametrizedImport</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_import</securedaction>
     </process>
 
@@ -384,6 +386,7 @@
         <mainClass>org.kramerius.Import</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_import</securedaction>
     </process>
 
@@ -394,6 +397,7 @@
         <mainClass>org.kramerius.importmets.MetsConvertor</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_import</securedaction>
     </process>
 
@@ -404,7 +408,7 @@
         <mainClass>cz.incad.kramerius.imaging.lp.GenerateDeepZoomCache</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx3072m -Xms512m -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true
+        <javaProcessParameters>-Xmx4g -Xms1g -Dcz.incad.kramerius.imaging.lp.GenerateDeepZoomFlag=true
             -Dcz.incad.kramerius.imaging.lp.GenerateThumbnail=true
         </javaProcessParameters>
     </process>
@@ -657,7 +661,7 @@
         <standardOs>lrOut</standardOs>
         <!-- err vystup -->
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g -Dfile.encoding=UTF-8</javaProcessParameters>
         <securedaction>a_generate_nkplogs</securedaction>
     </process>
 
@@ -671,7 +675,7 @@
         <standardOs>lrOut</standardOs>
         <!-- err vystup -->
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g -Dfile.encoding=UTF-8</javaProcessParameters>
         <securedaction>a_generate_nkplogs</securedaction>
     </process>
 
@@ -683,7 +687,7 @@
         <standardOs>lrOut</standardOs>
         <!-- err vystup -->
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g -Dfile.encoding=UTF-8</javaProcessParameters>
         <securedaction>a_collections_edit</securedaction>
     </process>
 
@@ -695,7 +699,7 @@
         <standardOs>lrOut</standardOs>
         <!-- err vystup -->
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g -Dfile.encoding=UTF-8</javaProcessParameters>
         <securedaction>a_collections_edit</securedaction>
     </process>
 
@@ -707,7 +711,7 @@
         <standardOs>lrOut</standardOs>
         <!-- err vystup -->
         <errOs>lrErr</errOs>
-        <javaProcessParameters>-Xmx4096m -Xms256m -Dfile.encoding=UTF-8</javaProcessParameters>
+        <javaProcessParameters>-Xmx4g -Xms1g -Dfile.encoding=UTF-8</javaProcessParameters>
         <securedaction>a_collections_edit</securedaction>
     </process>
 
