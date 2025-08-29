@@ -1,3 +1,16 @@
+pluginManagement {
+    repositories {
+		maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-plugin-gradle/docs")
+        }
+        maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-worker-plugin-gradle/docs")
+        }
+        gradlePluginPortal()
+    }
+}
+
+
 // cdk bridge
 include ':bridge'
 
