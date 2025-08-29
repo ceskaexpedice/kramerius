@@ -208,15 +208,6 @@
 		</servlet-class>
 	</servlet>
 
-	<!-- lr processes -->
-	<servlet>
-		<servlet-name>lr</servlet-name>
-		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet
-		</servlet-class>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-
-
 	<!-- METS export -->
 	<servlet>
 		<servlet-name>mets</servlet-name>

@@ -1,6 +1,5 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
-import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.IPAddressUtils;

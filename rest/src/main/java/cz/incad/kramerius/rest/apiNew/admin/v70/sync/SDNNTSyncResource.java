@@ -4,8 +4,6 @@ import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import cz.incad.kramerius.processes.new_api.ProcessInBatch;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.rest.apiNew.admin.v70.ProcessSchedulingHelper;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;

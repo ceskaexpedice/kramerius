@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!--
-<config>
-<coreRootDirectory>processing</coreRootDirectory>
-</config>
--->
-<solr>
-  <str name="coreRootDirectory">processing</str>
-</solr>

@@ -35,7 +35,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -43,7 +42,6 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
 import cz.incad.kramerius.users.UserProfileManager;
 
 public abstract class AbstractLoggedUserProvider implements Provider<User>{
