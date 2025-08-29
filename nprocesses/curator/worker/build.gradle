@@ -1,0 +1,15 @@
+plugins {
+    id 'org.ceskaexpedice.processplatform.worker' version '1.0.0'
+}
+
+processWorker {
+	workerName = "testworker"
+
+    warProject = project(":process-worker")
+
+    plugins = [
+        project(":test-plugins:test-plugin1"),
+        project(":test-plugins:test-plugin2")
+    ]
+	
+}

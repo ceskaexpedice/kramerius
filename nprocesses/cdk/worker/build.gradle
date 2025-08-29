@@ -1,0 +1,14 @@
+plugins {
+    id 'org.ceskaexpedice.processplatform.worker' version '1.0.0'
+}
+
+processWorker {
+	workerName = "cdk"
+
+    warProject = project(":process-worker")
+
+    plugins = [
+        project(":processes:cdk:cdkharvest"),
+    ]
+	
+}
