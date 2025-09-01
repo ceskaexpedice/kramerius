@@ -165,6 +165,9 @@ allprojects {
         flatDir {
             dirs "../../buildSrc/lib"
         }
+        flatDir {
+            dirs "../../../buildSrc/lib"
+        }
 
 
 

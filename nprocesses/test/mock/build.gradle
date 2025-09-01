@@ -1,0 +1,35 @@
+plugins {
+    id 'java-library'
+	id 'org.ceskaexpedice.processplatform.process' version '1.0.1'
+}
+
+/** Process definition */ 
+processPlugin {
+    pluginName = "mock-plugin"
+    profiles = [
+        [
+           profileId: "mock",
+           description: "Mock",
+           jvmArgs: ["-Xms1g","-Xmx32g","-Dname=big"]
+        ]
+    ]
+}
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.ceskaexpedice:process-api:1.0-dev'
+	api project(':shared:common')
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}

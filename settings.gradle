@@ -1,4 +1,17 @@
+pluginManagement {
+    repositories {
+		maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-plugin-gradle/docs")
+        }
+        maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-worker-plugin-gradle/docs")
+        }
+        gradlePluginPortal()
+    }
+}
+
 // cdk bridge
+
 include ':bridge'
 
 
@@ -37,8 +50,6 @@ include 'processes:licenses'
 include 'processes:collections-backup'
 
 
-
-
 include 'security:authfilters'
 include 'security:oauth'
 
@@ -46,9 +57,12 @@ include 'security:oauth'
 include 'processes:cdkreharvest'
 include 'processes:cdkprocesses'
 
+// test worker - only for testing (contains mock plugin
+include 'nprocesses:test:worker'	
 
-//include 'authfilters'
-//include 'solr-migration'
+// mock plugin
+include 'nprocesses:test:mock'	
+include 'nprocesses:test:import'	
 
 
 
