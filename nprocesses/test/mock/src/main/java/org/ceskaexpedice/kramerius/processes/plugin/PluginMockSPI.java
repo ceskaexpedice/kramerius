@@ -16,38 +16,60 @@
  */
 package org.ceskaexpedice.kramerius.processes.plugin;
 
+import com.google.auto.service.AutoService;
 import org.ceskaexpedice.processplatform.api.PluginSpi;
 import org.ceskaexpedice.processplatform.common.model.PayloadFieldSpec;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
+@AutoService(PluginSpi.class)
 public class PluginMockSPI implements PluginSpi {
+
+    private final Properties props = new Properties();
+
+    public PluginMockSPI() {
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream("plugin.properties")) {
+            if (in != null) {
+                props.load(in);
+            } else {
+                throw new IllegalStateException("Missing plugin.properties on classpath");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load plugin.properties", e);
+        }
+    }
 
     @Override
     public String getPluginId() {
-        return "mockProcess";
+        return props.getProperty("plugin.id");
     }
 
     @Override
     public String getDescription() {
-        return "Mock process";
+        return props.getProperty("plugin.description");
     }
 
     @Override
     public String getMainClass() {
-        return "org.ceskaexpedice.kramerius.processes.MockProcess";
+        return props.getProperty("plugin.mainClass");
     }
 
     @Override
     public Map<String, PayloadFieldSpec> getPayloadSpec() {
-        Map<String, PayloadFieldSpec>  map = new HashMap<>();
-        return map;
+        return new HashMap<>();
     }
 
     @Override
     public Set<String> getScheduledProfiles() {
-        return Set.of();
+        String profiles = props.getProperty("plugin.scheduledProfiles", "");
+        if (profiles.isBlank()) {
+            return Set.of();
+        }
+        return Set.of(profiles.split(","));
     }
 }

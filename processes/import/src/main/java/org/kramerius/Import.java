@@ -29,6 +29,9 @@ import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.pid.LexerException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.fedoramodel.*;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
+import org.ceskaexpedice.processplatform.common.model.ScheduleSubProcess;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kramerius.indexingmap.ImportInventory;
@@ -190,7 +193,10 @@ public class Import {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
 
-                ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+
+                PluginContext pluginContext = PluginContextHolder.getContext();
+                pluginContext.updateProcessName(String.format("Import FOXML z %s ", importDirectory));
+
                 log.info("import dir: " + licensesImportFile);
                 log.info("start indexer: " + startIndexer);
                 log.info("license : " + license);
@@ -202,7 +208,10 @@ public class Import {
 
             } else {
 
-                ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+
+                PluginContext pluginContext = PluginContextHolder.getContext();
+                pluginContext.updateProcessName(String.format("Import FOXML z %s ", importDirectory));
+
                 log.info("import dir: " + importDirectory);
                 log.info("start indexer: " + startIndexer);
 
@@ -330,7 +339,16 @@ public class Import {
                         if (authToken != null) {
                             for (TitlePidTuple col : collections) {
 
-                                ProcessScheduler.scheduleIndexation(col.pid, col.title, false, authToken);
+                                Map<String,String> payload = new HashMap<>();
+                                payload.put("pid", col.pid);
+                                payload.put("title",col.title);
+                                payload.put("type", "object");
+                                payload.put("ignoreInconsistentObjects", "true");
+
+                                ScheduleSubProcess subProcess = new ScheduleSubProcess("indexer", payload);
+                                PluginContext pluginContext = PluginContextHolder.getContext();
+                                pluginContext.scheduleSubProcess(subProcess);
+
                             }
                             log.info("ALL COLLECTIONS SCHEDULED FOR INDEXING.");
                         } else {
@@ -353,7 +371,18 @@ public class Import {
 
                         if (authToken != null) {
                             for (TitlePidTuple convolute : convolutes) {
-                                ProcessScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
+
+                                Map<String,String> payload = new HashMap<>();
+                                payload.put("pid", convolute.pid);
+                                payload.put("title",convolute.title);
+                                payload.put("type", "object");
+                                payload.put("ignoreInconsistentObjects", "true");
+
+                                ScheduleSubProcess subProcess = new ScheduleSubProcess("indexer", payload);
+                                PluginContext pluginContext = PluginContextHolder.getContext();
+                                pluginContext.scheduleSubProcess(subProcess);
+
+                                //ProcessScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
                             }
                             log.info("ALL CONVOLUTES SCHEDULED FOR INDEXING.");
                         } else {
@@ -376,7 +405,18 @@ public class Import {
 
                             for (ImportInventoryItem scheduleItem : strategy.scheduleItems(importInventory)) {
                                 ImportInventoryItem.TypeOfSchedule schedule = scheduleItem.getIndexationPlanType();
-                                ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
+
+                                Map<String,String> payload = new HashMap<>();
+                                payload.put("pid", scheduleItem.getPid());
+                                payload.put("title",scheduleItem.getTitle());
+                                payload.put("type", schedule == ImportInventoryItem.TypeOfSchedule.TREE ? "tree" : "object");
+                                payload.put("ignoreInconsistentObjects", "true");
+
+                                ScheduleSubProcess subProcess = new ScheduleSubProcess("indexer", payload);
+                                PluginContext pluginContext = PluginContextHolder.getContext();
+                                pluginContext.scheduleSubProcess(subProcess);
+
+                                //ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
                             }
                             log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                         } else {
