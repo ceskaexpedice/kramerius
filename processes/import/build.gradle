@@ -6,5 +6,7 @@ dependencies {
     //api project(':processes:import-jaxb')
     api project(':processes:import-cmdtool')
     api 'commons-codec:commons-codec:1.5'
+	implementation 'org.ceskaexpedice:process-api:1.0-dev'
+	
 }
 
