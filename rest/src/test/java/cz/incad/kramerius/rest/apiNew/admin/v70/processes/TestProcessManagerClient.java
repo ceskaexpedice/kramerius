@@ -14,6 +14,7 @@
  */
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -31,7 +32,11 @@ import org.mockito.MockitoAnnotations;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -73,8 +78,10 @@ public class TestProcessManagerClient {
         final ResourceConfig rc = new ResourceConfig(ProcessManagerProcessEndpoint.class);
         server = GrizzlyHttpServerFactory.createHttpServer(URI.create(MANAGER_BASE_URL), rc);
         server.start();
+        URL resource = this.getClass().getResource("configuration.properties");
+        Path filePath = Paths.get(resource.toURI());
+        KConfiguration.setWorkingDir(filePath.getParent().toString());
         processManagerClient = new ProcessManagerClient(getClient());
-
     }
 
     @After
@@ -84,7 +91,7 @@ public class TestProcessManagerClient {
 
     @Test
     public void testGetOwners() {
-        JSONObject owners = processManagerClient.getOwners();
+        List<String> owners = processManagerClient.getOwners();
         System.out.println(owners);
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }

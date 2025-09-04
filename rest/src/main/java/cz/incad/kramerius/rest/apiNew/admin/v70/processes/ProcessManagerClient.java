@@ -26,12 +26,15 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.net.URIBuilder;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -53,30 +56,22 @@ public class ProcessManagerClient {
         baseUrl = KConfiguration.getInstance().getProcessManagerURL();
     }
 
-    public JSONObject getOwners() {
-        URIBuilder uriBuilder;
-        HttpGet get;
-        try {
-            //String baseUrl = "http://localhost:8088/process-manager/api/";
-            uriBuilder = new URIBuilder(baseUrl + "process/owner");
-//            uriBuilder = new URIBuilder(workerConfiguration.getManagerBaseUrl() + "process/owner");
-            URI uri = uriBuilder.build();
-            get = new HttpGet(uri);
-        } catch (URISyntaxException e) {
-            throw new InternalErrorException(e.toString(), e);
-        }
-        int statusCode = -1;
+    public List<String> getOwners() {
+        String url = baseUrl + "process/owner";
+        HttpGet get =  new HttpGet(url);
         try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
             int code = response.getCode();
             if (code == 200) {
                 HttpEntity entity = response.getEntity();
                 String json = EntityUtils.toString(entity);
-
                 JSONObject jsonObject = new JSONObject(json);
-
-
-                //ScheduledProcess process = mapper.readValue(json, ScheduledProcess.class);
-                return jsonObject;
+                JSONArray ownersArray = jsonObject.getJSONArray("owners");
+                List<String> owners = new ArrayList<>();
+                for (int i = 0; i < ownersArray.length(); i++) {
+                    JSONObject ownerObj = ownersArray.getJSONObject(i);
+                    owners.add(ownerObj.getString("owner"));
+                }
+                return owners;
             } else if (code == 404) {
                 return null;
             } else {
