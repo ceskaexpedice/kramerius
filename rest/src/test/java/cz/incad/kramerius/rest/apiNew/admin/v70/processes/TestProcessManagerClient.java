@@ -14,6 +14,9 @@
  */
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessInBatch;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessManagerMapper;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -26,20 +29,14 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 // TODO pepo
 /**
@@ -91,8 +88,17 @@ public class TestProcessManagerClient {
 
     @Test
     public void testGetOwners() {
-        List<String> owners = processManagerClient.getOwners();
+        JSONObject owners = processManagerClient.getOwners();
+        List<ProcessOwner> processOwners = ProcessManagerMapper.mapOwners(owners);
         System.out.println(owners);
+        //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+    }
+
+    @Test
+    public void testGetProcess() {
+        JSONObject process = processManagerClient.getProcess("ed25ce29-2149-439d-85c4");
+        ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
+        System.out.println(processInBatch);
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 

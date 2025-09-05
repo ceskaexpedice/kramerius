@@ -5,12 +5,17 @@ import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.*;
 import cz.incad.kramerius.processes.mock.ProcessApiTestProcess;
-import cz.incad.kramerius.processes.new_api.*;
+import cz.incad.kramerius.processes.new_api.Batch;
+import cz.incad.kramerius.processes.new_api.Filter;
+import cz.incad.kramerius.processes.new_api.ProcessInBatch;
+import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.processes.utils.SecurityProcessUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.ProcessSchedulingHelper;
 import cz.incad.kramerius.rest.apiNew.admin.v70.Utils;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessManagerMapper;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -93,6 +98,9 @@ public class ProcessResourceNew extends AdminApiResource {
     ProcessManager processManager;
 
     @Inject
+    ProcessManagerClient processManagerClient;
+
+    @Inject
     ProcessSchedulingHelper processSchedulingHelper;
     
     
@@ -118,7 +126,10 @@ public class ProcessResourceNew extends AdminApiResource {
             }
             
             //get data from db
-            List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            // TODO pepo List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            JSONObject json = processManagerClient.getOwners();
+            List<ProcessOwner> owners = ProcessManagerMapper.mapOwners(json);
+
             //sort
             owners.sort((o1, o2) -> {
                 if (o1.name.startsWith("_") && o1.name.startsWith("_")) {
@@ -170,7 +181,10 @@ public class ProcessResourceNew extends AdminApiResource {
                 }
             }
             //get process (& it's batch) data from db
-            ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
+            // TODO pepo ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
+            JSONObject process = processManagerClient.getProcess(processId);
+            cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
+
 
             if (processInBatch == null) {
                 throw new NotFoundException("there's no process with process_id=" + processId);
@@ -186,7 +200,8 @@ public class ProcessResourceNew extends AdminApiResource {
             }
 
             
-            JSONObject result = processInBatchToJson(processInBatch);
+            //JSONObject result = processInBatchToJson(processInBatch);
+            JSONObject result = null;
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;

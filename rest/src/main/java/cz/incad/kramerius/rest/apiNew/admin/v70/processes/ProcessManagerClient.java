@@ -25,14 +25,10 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.net.URIBuilder;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -56,29 +52,41 @@ public class ProcessManagerClient {
         baseUrl = KConfiguration.getInstance().getProcessManagerURL();
     }
 
-    public List<String> getOwners() {
+    public JSONObject getOwners() {
         String url = baseUrl + "process/owner";
-        HttpGet get =  new HttpGet(url);
+        HttpGet get = new HttpGet(url);
+
         try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
             int code = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
             if (code == 200) {
-                HttpEntity entity = response.getEntity();
-                String json = EntityUtils.toString(entity);
-                JSONObject jsonObject = new JSONObject(json);
-                JSONArray ownersArray = jsonObject.getJSONArray("owners");
-                List<String> owners = new ArrayList<>();
-                for (int i = 0; i < ownersArray.length(); i++) {
-                    JSONObject ownerObj = ownersArray.getJSONObject(i);
-                    owners.add(ownerObj.getString("owner"));
-                }
-                return owners;
+                return new JSONObject(body);
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch owners. HTTP " + code + ": " + body);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
+    public JSONObject getProcess(String processId) {
+        String url = baseUrl + "process/" + processId;
+        HttpGet get = new HttpGet(url);
+
+        try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+            int code = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
+            if (code == 200) {
+                return new JSONObject(body);
             } else if (code == 404) {
                 return null;
             } else {
-                throw new InternalErrorException("Failed to get next scheduled process");
+                throw new ProcessManagerClientException("Failed to fetch process. HTTP " + code + ": " + body);
             }
-        } catch (IOException | ParseException e) {
-            throw new InternalErrorException(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
         }
     }
 

@@ -19,10 +19,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -51,19 +48,29 @@ public class ProcessManagerProcessEndpoint {
 
      */
 
-    /*
     @GET
     @Path("{processId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getProcess(@PathParam("processId") String processId) {
-        ProcessInfo process = processService.getProcess(processId);
-        if (process == null) {
-            return APIRestUtilities.notFound("Process not found: [%s]", processId);
-        }
-        return Response.ok(process).build();
+        String json = "{" +
+                "                  \"processId\": \"ed25ce29-2149-439d-85c4-cc5e516e3036\"," +
+                "                  \"description\": \"Main process for the profile testPlugin1-big\"," +
+                "                  \"profileId\": \"testPlugin1-big\"," +
+                "                  \"workerId\": \"curatorWorker\"," +
+                "                  \"pid\": 9889," +
+                "                  \"planned\": 1756198668715," +
+                "                  \"started\": 1756202186751," +
+                "                  \"finished\": null," +
+                "                  \"status\": \"RUNNING\"," +
+                "                  \"payload\": {" +
+                "                    \"name\": \"Pe\"," +
+                "                    \"surname\": \"Po\"" +
+                "                  }," +
+                "                  \"batchId\": \"ed25ce29-2149-439d-85c4-cc5e516e3036\"," +
+                "                  \"owner\": \"PePo\"" +
+                "                }";
+        return jsonPayload(json);
     }
-
-     */
 
     /*
     @GET
@@ -129,16 +136,17 @@ public class ProcessManagerProcessEndpoint {
     @Path("owner")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOwners() {
-        List<String> owners = List.of("PePo", "PaSt");
-        JSONArray ownersJson = new JSONArray();
-        for (String owner : owners) {
-            JSONObject ownerJson = new JSONObject();
-            ownerJson.put("owner", owner);
-            ownersJson.put(ownerJson);
-        }
-        JSONObject result = new JSONObject();
-        result.put("owners", ownersJson);
-        return jsonPayload(result.toString());
+        String json = "{" +
+                "                \"owners\": [" +
+                "                  {" +
+                "                    \"owner\": \"PePo\"" +
+                "                  }," +
+                "                  {" +
+                "                    \"owner\": \"PaSt\"" +
+                "                  }" +
+                "                ]" +
+                "              }";
+        return jsonPayload(json);
     }
 
     private static Response jsonPayload(String jsonPayload) {
