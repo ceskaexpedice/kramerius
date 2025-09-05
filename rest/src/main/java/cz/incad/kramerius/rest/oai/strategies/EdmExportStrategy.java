@@ -78,18 +78,8 @@ public class EdmExportStrategy extends MetadataExportStrategy{
             ProxyItemHandler redirectHandler = OAICDKUtils.findRedirectHandler(solrDataByPid,solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
             if (redirectHandler != null) {
 
-                InputStream directStreamDC = null;
-                String cacheURl = baseUrl + "/dc";
-
-                CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
-                if (hit != null) {
-                    directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
-                } else {
-                    InputStream dc = redirectHandler.directStreamDC(null);
-                    String remoteData = IOUtils.toString(dc, "UTF-8");
-                    OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
-                    directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
-                }
+                InputStream directStreamDC = getRemoteDC(cacheSupport, baseUrl, pid, redirectHandler);
+                InputStream directStreamMods = getRemoteMods(cacheSupport, baseUrl, pid, redirectHandler);
 
                 if (directStreamDC != null) {
                     List<String> licenses = new ArrayList<>();
@@ -112,7 +102,7 @@ public class EdmExportStrategy extends MetadataExportStrategy{
                     String dataProvider = OAICDKUtils.findMetadataProvider(solrDataByPid);
                     String dataProviderBaseUrl = KConfiguration.getInstance().getConfiguration().getString(String.format("cdk.collections.sources.%s.baseurl", dataProvider));
 
-                    Element rdf = EDMUtils.createEdmDataElements(KConfiguration.getInstance().getConfiguration(), dataProvider, dataProviderBaseUrl, licenses, instances, owningDocument, oaiRec, directStreamDC, pid, baseUrl);
+                    Element rdf = EDMUtils.createEdmDataElements(KConfiguration.getInstance().getConfiguration(), dataProvider, dataProviderBaseUrl, licenses, instances, owningDocument, oaiRec, directStreamDC, directStreamMods, pid, baseUrl);
                     return Arrays.asList(rdf);
                 } else {
                     return null;

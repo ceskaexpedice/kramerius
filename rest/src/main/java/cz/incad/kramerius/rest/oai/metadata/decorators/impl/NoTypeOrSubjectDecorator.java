@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.rest.oai.metadata.decorators.impl;
 
-import cz.incad.kramerius.rest.oai.metadata.decorators.DublinCoreDecorator;
+import cz.incad.kramerius.rest.oai.metadata.decorators.MetadataDecorator;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,10 +28,10 @@ import org.w3c.dom.Element;
  *
  * Adding default type <dc:type>print</dc:type>
  */
-public class NoTypeOrSubjectDecorator implements DublinCoreDecorator {
+public class NoTypeOrSubjectDecorator implements MetadataDecorator {
 
     @Override
-    public Document decorate(Document dc) {
+    public Document decorate(Document dc, Document mods) {
         Element subjectOrType = XMLUtils.findElement(dc.getDocumentElement(), (elm)-> {
             return  (elm.getLocalName().equals("subject") || elm.getLocalName().equals("type"));
         });

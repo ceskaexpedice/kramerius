@@ -17,28 +17,33 @@
 package cz.incad.kramerius.rest.oai.metadata.decorators;
 
 import cz.incad.kramerius.rest.oai.metadata.decorators.impl.AddCreatedFromDateDecorator;
+import cz.incad.kramerius.rest.oai.metadata.decorators.impl.AuthorFromModsDecorator;
 import cz.incad.kramerius.rest.oai.metadata.decorators.impl.NoLangueDecorator;
 import cz.incad.kramerius.rest.oai.metadata.decorators.impl.NoTypeOrSubjectDecorator;
 import org.w3c.dom.Document;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Chain of Dublin Core decorators that are sequentially applied
  * to a Dublin Core XML document.
  * <p>
  * This class implements the decorator chain pattern, where multiple
- * {@link DublinCoreDecorator} instances can be composed and executed
+ * {@link MetadataDecorator} instances can be composed and executed
  * in a defined order to enrich the metadata.
  * </p>
  */
 public class DecoratorsChain {
 
-    private List<DublinCoreDecorator> decorators = Arrays.asList(
+    public static final Logger LOGGER = Logger.getLogger(DecoratorsChain.class.getName());
+
+    private List<MetadataDecorator> decorators = Arrays.asList(
             new NoLangueDecorator(),
             new NoTypeOrSubjectDecorator(),
-            new AddCreatedFromDateDecorator()
+            new AddCreatedFromDateDecorator(),
+            new AuthorFromModsDecorator()
     );
 
 
@@ -46,13 +51,16 @@ public class DecoratorsChain {
      * Applies all configured decorators to the provided Dublin Core document
      * in the order they are defined in the chain.
      *
-     * @param doc The original Dublin Core XML document.
+     * @param dc The original Dublin Core XML document.
      * @return The decorated Dublin Core document after applying all decorators.
      */
-    public Document decorate(Document doc) {
-        Document processDoc = doc;
-        for (DublinCoreDecorator decorator : this.decorators) {
-            processDoc = decorator.decorate(processDoc);
+    public Document dublinCoreDecorate(Document dc, Document mods) {
+        LOGGER.info(" Starting Dublin Core decoration with " + this.decorators.size() + " decorators.");
+        LOGGER.info(" MODS instance  " + mods);
+
+        Document processDoc = dc;
+        for (MetadataDecorator decorator : this.decorators) {
+            processDoc = decorator.decorate(processDoc, mods);
         }
         return processDoc;
     }

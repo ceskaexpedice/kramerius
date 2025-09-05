@@ -43,6 +43,8 @@ public class EDMUtilsTest {
     @Test
     public void testGenericCase() throws ParserConfigurationException, IOException, SAXException, TransformerException {
         InputStream dcStream = this.getClass().getResourceAsStream("dc.xml");
+        InputStream modsStream = this.getClass().getResourceAsStream("mods.xml");
+
 
         Configuration conf = EasyMock.createMock(Configuration.class);
         Instances instances = EasyMock.createMock(Instances.class);
@@ -69,7 +71,7 @@ public class EDMUtilsTest {
                 "knav",
                 "https://kramerius.lib.cas.cz/search/api",
                 Arrays.asList("dnnto", "onsite"),
-                instances, owningDoc, oaiRecord, dcStream, "uuid:00035a90-9847-4822-95f8-e844694717eb", "http://baseurl");
+                instances, owningDoc, oaiRecord, dcStream, modsStream, "uuid:00035a90-9847-4822-95f8-e844694717eb", "http://baseurl");
 
         XMLUtils.print(rdf, System.out);
         Assert.assertTrue(rdf != null);
@@ -121,7 +123,7 @@ public class EDMUtilsTest {
                 "knav",
                 "https://kramerius.lib.cas.cz/search/api",
                 Arrays.asList("dnnto", "onsite"),
-                instances, owningDoc, oaiRecord, dcStream, "uuid:00035a90-9847-4822-95f8-e844694717eb", "http://baseurl");
+                instances, owningDoc, oaiRecord, dcStream, null, "uuid:00035a90-9847-4822-95f8-e844694717eb", "http://baseurl");
 
         XMLUtils.print(rdf, System.out);
         Assert.assertTrue(rdf != null);
@@ -166,7 +168,7 @@ public class EDMUtilsTest {
                 "knav",
                 "https://kramerius.lib.cas.cz/search/api",
                 Arrays.asList("dnnto", "onsite"),
-                instances, owningDoc, oaiRecord, dcStream, "uuid:00035a90-9847-4822-95f8-e844694717eb", "http://baseurl");
+                instances, owningDoc, oaiRecord, dcStream, null, "uuid:00035a90-9847-4822-95f8-e844694717eb", "http://baseurl");
 
         XMLUtils.print(rdf, System.out);
         Assert.assertTrue(rdf != null);

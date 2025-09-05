@@ -156,29 +156,45 @@ public class DeleteTreeProcess {
             }catch (RepositoryException re) {
 
                 if (ignoreIncosistencies) {
-                    ConflictingOwnedAndFosteredParents conflicts = akubraRepository.pi().getConflictingOwnerAndFosteredParents(pid);
-                    String header = String.format("Object \"%s\" has multiple own parents via:", pid);
-                    String firstRelation = String.format("\n\t - " + conflicts.ownItems().stream().map(ProcessingIndexItem::pid).collect(Collectors.joining(";")));
-                    LOGGER.severe(header+firstRelation);
+                    try {
+                        ConflictingOwnedAndFosteredParents conflicts = akubraRepository.pi().getConflictingOwnerAndFosteredParents(pid);
+                        String header = String.format("Object \"%s\" has multiple own parents via:", pid);
+                        String firstRelation = String.format("\n\t - " + conflicts.ownItems().stream().map(ProcessingIndexItem::pid).collect(Collectors.joining(";")));
+                        LOGGER.severe(header+firstRelation);
 
-                    for (ProcessingIndexItem own : conflicts.ownItems()) {
-                        //2. předci
-                        //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
-                        if (deletionRoot && own.source() != null) {
-                            deleteRelationFromOwnParent(pid, own.source(), repository);
+                        for (ProcessingIndexItem own : conflicts.ownItems()) {
+                            //2. předci
+                            //2.a. pokud jsem deletionRoot, smaz rels-ext vazbu na me z vlastniho rodice (pokud existuje)
+                            if (deletionRoot && own.source() != null) {
+                                deleteRelationFromOwnParent(pid, own.source(), repository);
+                            }
                         }
-                    }
 
-                    //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
-                    for (ProcessingIndexItem fosterParent : conflicts.foster()) {
-                        deleteRelationFromForsterParent(pid, fosterParent.source(), repository);
-                    }
+                        //2.a. smaz rels-ext vazby na me ze vsech nevlastnich rodicu
+                        for (ProcessingIndexItem fosterParent : conflicts.foster()) {
+                            deleteRelationFromForsterParent(pid, fosterParent.source(), repository);
+                        }
 
-                    //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
-                    updateLicenseFlagsForAncestors(pid, akubraRepository, indexerAccess);
+                        //3. pokud mazany objekt ma licenci, aktualizovat predky (rels-ext:containsLicense a solr:contains_licenses)
+                        updateLicenseFlagsForAncestors(pid, akubraRepository, indexerAccess);
+                    } catch(Throwable ex) {
+                        if (ignoreIncosistencies) {
+                            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                        } else {
+                            throw ex;
+                        }
+                        someProblem =true;
+                    }
                 } else {
                     throw re;
                 }
+            } catch (Exception ex) {
+                if (ignoreIncosistencies) {
+                    LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                } else {
+                    throw ex;
+                }
+                someProblem = true;
             }
 
         } else {

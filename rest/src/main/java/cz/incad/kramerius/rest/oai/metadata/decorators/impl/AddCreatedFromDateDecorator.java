@@ -1,26 +1,19 @@
 package cz.incad.kramerius.rest.oai.metadata.decorators.impl;
 
-import cz.incad.kramerius.rest.oai.metadata.decorators.DublinCoreDecorator;
-import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.rest.oai.metadata.decorators.MetadataDecorator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.w3c.dom.*;
-import javax.xml.parsers.*;
-import java.io.InputStream;
-import java.net.URL;
 
-import org.w3c.dom.*;
-import java.util.regex.Pattern;
-
-public class AddCreatedFromDateDecorator implements DublinCoreDecorator {
+public class AddCreatedFromDateDecorator implements MetadataDecorator {
 
     private static final String DC_NS = "http://purl.org/dc/elements/1.1/";
     private static final String DCTERMS_NS = "http://purl.org/dc/terms/";
     private static final String RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
     @Override
-    public Document decorate(Document dc) {
+    public Document decorate(Document dc, Document mods) {
         Element root = dc.getDocumentElement();
         NodeList dateNodes = root.getElementsByTagNameNS(DC_NS, "date");
 

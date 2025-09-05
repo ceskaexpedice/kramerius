@@ -18,17 +18,27 @@ package cz.incad.kramerius.rest.oai.strategies;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.rest.oai.OAIRecord;
 import cz.incad.kramerius.rest.oai.OAISet;
+import cz.incad.kramerius.rest.oai.metadata.utils.OAICDKUtils;
 import cz.incad.kramerius.security.User;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+import cz.inovatika.cdk.cache.CDKRequestItem;
+import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 
 
@@ -139,4 +149,39 @@ public abstract class MetadataExportStrategy {
     public String getMetadataPrefix() {
         return metadataPrefix;
     }
+
+    @NotNull
+    protected static InputStream getRemoteDC(CDKRequestCacheSupport cacheSupport, String baseUrl, String pid, ProxyItemHandler redirectHandler) throws ProxyHandlerException, IOException {
+        InputStream directStreamDC = null;
+        String cacheURl = baseUrl + "/dc";
+
+        CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+        if (hit != null) {
+            directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+        } else {
+            InputStream dc = redirectHandler.directStreamDC(null);
+            String remoteData = IOUtils.toString(dc, "UTF-8");
+            OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
+            directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+        }
+        return directStreamDC;
+    }
+
+    @NotNull
+    protected static InputStream getRemoteMods(CDKRequestCacheSupport cacheSupport, String baseUrl, String pid, ProxyItemHandler redirectHandler) throws ProxyHandlerException, IOException {
+        InputStream directStreamMods = null;
+        String cacheURl = baseUrl + "/mods";
+
+        CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+        if (hit != null) {
+            directStreamMods = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+        } else {
+            InputStream dc = redirectHandler.directStreamDC(null);
+            String remoteData = IOUtils.toString(dc, "UTF-8");
+            OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
+            directStreamMods = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+        }
+        return directStreamMods;
+    }
+
 }

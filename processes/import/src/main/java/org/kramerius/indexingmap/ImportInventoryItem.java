@@ -344,7 +344,9 @@ public class ImportInventoryItem {
         LOGGER.info(line);
         if (this.children != null) {
             for (ImportInventoryItem child : this.getChildren()) {
-                child.printTree(depth + 1);
+                if (child != null) {
+                    child.printTree(depth + 1);
+                }
             }
         }
     }

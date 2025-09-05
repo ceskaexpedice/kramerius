@@ -36,10 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.Map;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.Locale;
 
 
 public class EDMUtils {
@@ -57,6 +53,7 @@ public class EDMUtils {
             Document owningDocument,
             OAIRecord oaiRec,
             InputStream directStreamDC,
+            InputStream directStreamMods,
             String pid,
             /* pid prvni stranky */
             String baseUrl) throws ParserConfigurationException, SAXException, IOException {
@@ -65,8 +62,10 @@ public class EDMUtils {
 
         // direct dc stream
         Document dc = XMLUtils.parseDocument(directStreamDC, true);
+        Document mods = directStreamMods != null ? XMLUtils.parseDocument(directStreamMods, true) : null;
+
         // decorate; add default language and type
-        dc = new DecoratorsChain().decorate(dc);
+        dc = new DecoratorsChain().dublinCoreDecorate(dc, mods);
 
         Element dcElement = dc.getDocumentElement();
 

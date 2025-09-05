@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.rest.oai.metadata.decorators.impl;
 
-import cz.incad.kramerius.rest.oai.metadata.decorators.DublinCoreDecorator;
+import cz.incad.kramerius.rest.oai.metadata.decorators.MetadataDecorator;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,12 +28,12 @@ import org.w3c.dom.Element;
  *
  * Adding default language <dc:lang>und</dc:lang>
  */
-public class NoLangueDecorator implements DublinCoreDecorator {
+public class NoLangueDecorator implements MetadataDecorator {
 
     public static final String UNDEFINED_LANGUAGE = "und";
 
     @Override
-    public Document decorate(Document dc) {
+    public Document decorate(Document dc, Document mods) {
         Element languageElm = XMLUtils.findElement(dc.getDocumentElement(), (elm)-> {
             return  (elm.getLocalName().equals("language"));
         });
