@@ -26,15 +26,16 @@ import org.w3c.dom.Document;
  * rules to a provided Dublin Core XML {@link Document}.
  * </p>
  */
-public interface DublinCoreDecorator {
+public interface MetadataDecorator {
 
     /**
      * Enriches or modifies the provided Dublin Core document according
      * to the decorator's logic.
      *
-     * @param dc The original Dublin Core XML document.
+     * @param dc   The original Dublin Core XML document
+     * @param mods Biblo mods document
      * @return The decorated (possibly modified) Dublin Core document.
      */
-    public Document decorate(Document dc);
+    public Document decorate(Document dc, Document mods);
 
 }

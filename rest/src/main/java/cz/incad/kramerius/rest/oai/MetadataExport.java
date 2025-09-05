@@ -17,6 +17,7 @@
 package cz.incad.kramerius.rest.oai;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.oai.metadata.utils.EDMUtils;
 import cz.incad.kramerius.rest.oai.metadata.utils.OAICDKUtils;
 import cz.incad.kramerius.rest.oai.utils.OAITools;
@@ -43,6 +45,7 @@ import org.ceskaexpedice.akubra.pid.PIDParser;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.akubra.utils.DomUtils;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -88,17 +91,7 @@ public enum MetadataExport {
 
                 if (redirectHandler != null) {
                     String baseUrl = ApplicationURL.applicationURL(request);
-                    InputStream directStreamDC = null;
-                    String cacheURl = baseUrl + "/dc";
-                    CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
-                    if (hit != null) {
-                        directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
-                    } else {
-                        InputStream dc = redirectHandler.directStreamDC(null);
-                        String remoteData = IOUtils.toString(dc, "UTF-8");
-                        OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
-                        directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
-                    }
+                    InputStream directStreamDC = getRemoteDC(cacheSupport, baseUrl, pid, redirectHandler);
                     if (directStreamDC != null) {
                         Document dc = DomUtils.streamToDocument(directStreamDC, true);
                         Element rootElement = dc.getDocumentElement();
@@ -150,18 +143,8 @@ public enum MetadataExport {
                 ProxyItemHandler redirectHandler = OAICDKUtils.findRedirectHandler(solrDataByPid,solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
                 if (redirectHandler != null) {
 
-                    InputStream directStreamDC = null;
-                    String cacheURl = baseUrl + "/dc";
-
-                    CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
-                    if (hit != null) {
-                        directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
-                    } else {
-                        InputStream dc = redirectHandler.directStreamDC(null);
-                        String remoteData = IOUtils.toString(dc, "UTF-8");
-                        OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
-                        directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
-                    }
+                    InputStream directStreamDC = getRemoteDC(cacheSupport, baseUrl, pid, redirectHandler);
+                    InputStream directStreamMods = MetadataExport.getRemoteMods(cacheSupport, baseUrl, pid, redirectHandler);
 
                     if (directStreamDC != null) {
                         List<String> licenses = new ArrayList<>();
@@ -186,7 +169,7 @@ public enum MetadataExport {
 
                         //KConfiguration.getInstance().get
 
-                        Element rdf = EDMUtils.createEdmDataElements(KConfiguration.getInstance().getConfiguration(), dataProvider, dataProviderBaseUrl, licenses, instances, owningDocument, oaiRec, directStreamDC, pid, baseUrl);
+                        Element rdf = EDMUtils.createEdmDataElements(KConfiguration.getInstance().getConfiguration(), dataProvider, dataProviderBaseUrl, licenses, instances, owningDocument, oaiRec, directStreamDC, directStreamMods, pid, baseUrl);
                         return Arrays.asList(rdf);
                     } else {
                         return null;
@@ -271,18 +254,10 @@ public enum MetadataExport {
                 ProxyItemHandler redirectHandler = OAICDKUtils.findRedirectHandler(solrDataByPid,solrAccess, userProvider, apacheClientProvider, instances, request, pid, null);
 
                 if (redirectHandler != null) {
-                    String cacheURl = baseUrl + "/dc";
+                    InputStream directStreamDC = getRemoteDC(cacheSupport, baseUrl, pid, redirectHandler);
+                    InputStream directStreamMods = MetadataExport.getRemoteMods(cacheSupport, baseUrl, pid, redirectHandler);
 
-                    CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
-                    InputStream directStreamDC = null;
-                    if (hit != null) {
-                        directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
-                    } else {
-                        InputStream dc = redirectHandler.directStreamDC(null);
-                        String remoteData = IOUtils.toString(dc, "UTF-8");
-                        OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
-                        directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
-                    }
+
                     if (directStreamDC != null) {
                         Document dc = DomUtils.streamToDocument(directStreamDC, true);
                         Element dcElement = dc.getDocumentElement();
@@ -428,6 +403,40 @@ public enum MetadataExport {
             return false;
         }
     };
+
+    @NotNull
+    private static InputStream getRemoteDC(CDKRequestCacheSupport cacheSupport, String baseUrl, String pid, ProxyItemHandler redirectHandler) throws ProxyHandlerException, IOException {
+        InputStream directStreamDC = null;
+        String cacheURl = baseUrl + "/dc";
+
+        CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+        if (hit != null) {
+            directStreamDC = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+        } else {
+            InputStream dc = redirectHandler.directStreamDC(null);
+            String remoteData = IOUtils.toString(dc, "UTF-8");
+            OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
+            directStreamDC = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+        }
+        return directStreamDC;
+    }
+
+    @NotNull
+    private static InputStream getRemoteMods(CDKRequestCacheSupport cacheSupport, String baseUrl, String pid, ProxyItemHandler redirectHandler) throws ProxyHandlerException, IOException {
+        InputStream directStreamMods = null;
+        String cacheURl = baseUrl + "/mods";
+
+        CDKRequestItem hit = OAICDKUtils.cacheSearchHitByPid(cacheURl, pid, cacheSupport);
+        if (hit != null) {
+            directStreamMods = new ByteArrayInputStream(hit.getData().toString().getBytes(Charset.forName("UTF-8")));
+        } else {
+            InputStream dc = redirectHandler.directStreamDC(null);
+            String remoteData = IOUtils.toString(dc, "UTF-8");
+            OAICDKUtils.saveToCache(remoteData, cacheURl, pid, cacheSupport);
+            directStreamMods = new ByteArrayInputStream(remoteData.getBytes("UTF-8"));
+        }
+        return directStreamMods;
+    }
 
 
     public static final Logger LOGGER = Logger.getLogger(MetadataExport.class.getName());
