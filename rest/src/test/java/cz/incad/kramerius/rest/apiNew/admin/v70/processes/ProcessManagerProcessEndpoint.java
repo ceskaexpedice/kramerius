@@ -22,6 +22,10 @@ import org.json.JSONObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 // TODO pepo
@@ -33,6 +37,8 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProcessManagerProcessEndpoint {
+    static final String OUT_LOG_PART = "TestPlugin1.createFullName:name-Petr,surname-Harasil";
+    static final String ERR_LOG_PART = "Connection refused";
 
     public ProcessManagerProcessEndpoint() {
     }
@@ -72,7 +78,6 @@ public class ProcessManagerProcessEndpoint {
         return jsonPayload(json);
     }
 
-    /*
     @GET
     @Path("batch")
     @Produces(MediaType.APPLICATION_JSON)
@@ -84,26 +89,84 @@ public class ProcessManagerProcessEndpoint {
             @QueryParam("to") String to,
             @QueryParam("state") String state
     ) {
-        int offset = processService.getBatchOffset(offsetStr);
-        int limit = processService.getBatchLimit(limitStr);
-        BatchFilter batchFilter = processService.createBatchFilter(owner, from, to, state);
-        int totalSize = processService.countBatchHeaders(batchFilter);
-        JSONObject result = new JSONObject();
-        result.put("offset", offset);
-        result.put("limit", limit);
-        result.put("totalSize", totalSize);
-
-        List<Batch> batches = processService.getBatches(batchFilter, offset, limit);
-        JSONArray batchesJson = new JSONArray();
-        for (Batch batch : batches) {
-            JSONObject batchJson = ProcessServiceMapper.mapBatchToJson(batch);
-            batchesJson.put(batchJson);
-        }
-        result.put("batches", batchesJson);
-        return APIRestUtilities.jsonPayload(result.toString());
+        String json = "{" +
+                "                \"batches\": [" +
+                "                  {" +
+                "                    \"owner\": \"PePo\"," +
+                "                    \"processes\": [" +
+                "                      {" +
+                "                        \"owner\": \"PePo\"," +
+                "                        \"workerId\": \"curatorWorker\"," +
+                "                        \"processId\": \"ed25ce29-2149-439d-85c4-cc5e516e3036\"," +
+                "                        \"payload\": {" +
+                "                          \"surname\": \"Po\"," +
+                "                          \"name\": \"Pe\"" +
+                "                        }," +
+                "                        \"profileId\": \"testPlugin1-big\"," +
+                "                        \"description\": \"Main process for the profile testPlugin1-big\"," +
+                "                        \"pid\": 9889," +
+                "                        \"started\": 1756202186751," +
+                "                        \"finished\": null," +
+                "                        \"planned\": 1756198668715," +
+                "                        \"batchId\": \"ed25ce29-2149-439d-85c4-cc5e516e3036\"," +
+                "                        \"status\": \"RUNNING\"" +
+                "                      }" +
+                "                    ]," +
+                "                    \"mainProcessId\": \"ed25ce29-2149-439d-85c4-cc5e516e3036\"," +
+                "                    \"started\": 1756202186751," +
+                "                    \"finished\": null," +
+                "                    \"planned\": 1756198668715," +
+                "                    \"status\": \"RUNNING\"" +
+                "                  }," +
+                "                  {" +
+                "                    \"owner\": \"PePo\"," +
+                "                    \"processes\": [" +
+                "                      {" +
+                "                        \"owner\": \"PePo\"," +
+                "                        \"workerId\": \"curatorWorker\"," +
+                "                        \"processId\": \"6853579d-15c1-4fb9-ad11-3e107141aedb\"," +
+                "                        \"payload\": {" +
+                "                          \"surname\": \"Po\"," +
+                "                          \"name\": \"Pe\"" +
+                "                        }," +
+                "                        \"profileId\": \"testPlugin1-big\"," +
+                "                        \"description\": \"NewProcessName-PePo\"," +
+                "                        \"pid\": 27204," +
+                "                        \"started\": 1755262856918," +
+                "                        \"finished\": 1755262857087," +
+                "                        \"planned\": 1755262848459," +
+                "                        \"batchId\": \"6853579d-15c1-4fb9-ad11-3e107141aedb\"," +
+                "                        \"status\": \"FINISHED\"" +
+                "                      }," +
+                "                      {" +
+                "                        \"owner\": \"PePo\"," +
+                "                        \"workerId\": \"curatorWorker\"," +
+                "                        \"processId\": \"114a8406-1788-4cc5-bb04-89ca1a8ba9fe\"," +
+                "                        \"payload\": {}," +
+                "                        \"profileId\": \"testPlugin2\"," +
+                "                        \"description\": \"Sub process for the profile testPlugin2\"," +
+                "                        \"pid\": 10900," +
+                "                        \"started\": 1755262858373," +
+                "                        \"finished\": 1755262858428," +
+                "                        \"planned\": 1755262857057," +
+                "                        \"batchId\": \"6853579d-15c1-4fb9-ad11-3e107141aedb\"," +
+                "                        \"status\": \"FINISHED\"" +
+                "                      }" +
+                "                    ]," +
+                "                    \"mainProcessId\": \"6853579d-15c1-4fb9-ad11-3e107141aedb\"," +
+                "                    \"started\": 1755262856918," +
+                "                    \"finished\": 1755262857087," +
+                "                    \"planned\": 1755262848459," +
+                "                    \"status\": \"FINISHED\"" +
+                "                  }" +
+                "                ]," +
+                "                \"totalSize\": 2," +
+                "                \"offset\": 0," +
+                "                \"limit\": 50" +
+                "              }";
+        return jsonPayload(json);
     }
 
-     */
     /*
 
     @DELETE
@@ -153,37 +216,32 @@ public class ProcessManagerProcessEndpoint {
         return Response.ok(jsonPayload, MediaType.APPLICATION_JSON).build();
     }
 
-/*
     @GET
     @Path("{processId}/log/out")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getProcessLogOut(@PathParam("processId") String processId,
                                       @DefaultValue("out.txt") @QueryParam("fileName") String fileName) {
-        InputStream logStream = processService.getProcessLog(processId, false);
+        InputStream logStream = new ByteArrayInputStream(OUT_LOG_PART.getBytes(StandardCharsets.UTF_8));
         return Response.ok((StreamingOutput) output -> {
                     try (logStream) {
                         logStream.transferTo(output);
                     }
-                }).header("Content-Disposition", "inline; filename=\"" + fileName + "\"")
+                }).header("Content-Disposition", "inline; filename=\"" + fileName + ".log\"")
                 .build();
     }
 
- */
-/*
     @GET
     @Path("{processId}/log/err")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getProcessLogErr(@PathParam("processId") String processId,
                                       @DefaultValue("err.txt") @QueryParam("fileName") String fileName) {
-        InputStream logStream = processService.getProcessLog(processId, true);
+        InputStream logStream = new ByteArrayInputStream(ERR_LOG_PART.getBytes(StandardCharsets.UTF_8));
         return Response.ok((StreamingOutput) output -> {
                     try (logStream) {
                         logStream.transferTo(output);
                     }
-                }).header("Content-Disposition", "inline; filename=\"" + fileName + "\"")
+                }).header("Content-Disposition", "inline; filename=\"" + fileName + ".log\"")
                 .build();
     }
-
- */
 
 }

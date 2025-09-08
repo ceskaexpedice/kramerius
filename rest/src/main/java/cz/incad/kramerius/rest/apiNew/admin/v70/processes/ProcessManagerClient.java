@@ -25,10 +25,16 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -84,6 +90,56 @@ public class ProcessManagerClient {
                 return null;
             } else {
                 throw new ProcessManagerClientException("Failed to fetch process. HTTP " + code + ": " + body);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
+    public JSONObject getBatches(String offset, String limit, String owner, String from, String to, String state) {
+        String url = baseUrl + "process/batch";
+        try {
+            URIBuilder uriBuilder = new URIBuilder(url);
+
+            if (offset != null) uriBuilder.addParameter("offset", offset);
+            if (limit != null) uriBuilder.addParameter("limit", limit);
+            if (owner != null) uriBuilder.addParameter("owner", owner);
+            if (from != null) uriBuilder.addParameter("from", from);
+            if (to != null) uriBuilder.addParameter("to", to);
+            if (state != null) uriBuilder.addParameter("state", state);
+
+            HttpGet get = new HttpGet(uriBuilder.build());
+            try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+                int code = response.getCode();
+                HttpEntity entity = response.getEntity();
+                String body = entity != null ? EntityUtils.toString(entity) : "";
+                if (code == 200) {
+                    return new JSONObject(body);
+                } else {
+                    throw new ProcessManagerClientException("Failed to fetch batches. HTTP " + code + ": " + body);
+                }
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
+    public InputStream getProcessLog(String processId, boolean err) {
+        String suffix = err ? "err" : "out";
+        String url = baseUrl + "process/" + processId + "/log/" +  suffix;
+        HttpGet get = new HttpGet(url);
+        int statusCode = -1;
+        try {
+            LOGGER.info(String.format("Getting process log for processId: [%s]; url: [%s] ", processId, get.getUri().toString()));
+            CloseableHttpResponse response = closeableHttpClient.execute(get);
+            int code = response.getCode();
+            if (code == 200) {
+                InputStream is = response.getEntity().getContent();
+                return is;
+            } else if(code == 404){
+                return null;
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch logs. HTTP " + code);
             }
         } catch (Exception e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);

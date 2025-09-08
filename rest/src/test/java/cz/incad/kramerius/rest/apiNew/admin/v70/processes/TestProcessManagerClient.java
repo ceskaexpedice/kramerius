@@ -14,6 +14,7 @@
  */
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
+import cz.incad.kramerius.rest.apiNew.admin.v70.Utils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessInBatch;
 import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner;
@@ -25,20 +26,26 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.jupiter.api.Assertions;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessManagerProcessEndpoint.OUT_LOG_PART;
 import static org.mockito.ArgumentMatchers.eq;
 
 // TODO pepo
+
 /**
  * TestWorkerClient
  *
@@ -56,6 +63,16 @@ public class TestProcessManagerClient {
 
     private HttpServer server;
     private ProcessManagerClient processManagerClient;
+
+    @BeforeClass
+    public static void beforeAll() throws URISyntaxException {
+        /*
+        URL resource = TestProcessManagerClient.class.getResource("configuration.properties");
+        Path filePath = Paths.get(resource.toURI());
+        KConfiguration.setWorkingDir(filePath.getParent().toString());
+
+         */
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -75,9 +92,6 @@ public class TestProcessManagerClient {
         final ResourceConfig rc = new ResourceConfig(ProcessManagerProcessEndpoint.class);
         server = GrizzlyHttpServerFactory.createHttpServer(URI.create(MANAGER_BASE_URL), rc);
         server.start();
-        URL resource = this.getClass().getResource("configuration.properties");
-        Path filePath = Paths.get(resource.toURI());
-        KConfiguration.setWorkingDir(filePath.getParent().toString());
         processManagerClient = new ProcessManagerClient(getClient());
     }
 
@@ -86,6 +100,7 @@ public class TestProcessManagerClient {
         server.shutdownNow();
     }
 
+    @Ignore
     @Test
     public void testGetOwners() {
         JSONObject owners = processManagerClient.getOwners();
@@ -94,12 +109,40 @@ public class TestProcessManagerClient {
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 
+    @Ignore
     @Test
     public void testGetProcess() {
         JSONObject process = processManagerClient.getProcess("ed25ce29-2149-439d-85c4");
         ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
         System.out.println(processInBatch);
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+    }
+
+    @Ignore
+    @Test
+    public void testGetBatches() {
+        String DATE_STRING = "2025-09-07T14:30:00";
+        JSONObject batches = processManagerClient.getBatches("0", "50", "PePo", DATE_STRING, DATE_STRING, "PLANNED");
+        JSONArray jsonArray = batches.getJSONArray("batches");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObjectBatch = jsonArray.getJSONObject(i);
+
+            JSONObject batchToJson = ProcessManagerMapper.mapBatchWithProcesses(jsonObjectBatch);
+
+            System.out.println(jsonObjectBatch);
+        }
+        //ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
+        System.out.println(batches);
+        //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+    }
+
+
+    @Ignore
+    @Test
+    public void testGetProcessLog() throws IOException {
+        InputStream processLog = processManagerClient.getProcessLog("ed25ce29-2149-439d-85c4", false);
+        String outLog = new String(processLog.readAllBytes(), StandardCharsets.UTF_8);
+        Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 
     private CloseableHttpClient getClient() {

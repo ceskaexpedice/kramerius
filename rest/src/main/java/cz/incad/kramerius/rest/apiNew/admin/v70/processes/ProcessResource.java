@@ -8,6 +8,7 @@ import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.processes.utils.SecurityProcessUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.*;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -19,6 +20,7 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
 
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,8 +95,11 @@ public class ProcessResource extends AdminApiResource {
 
     @Inject
     ProcessSchedulingHelper processSchedulingHelper;
-    
-    
+
+    // TODO pepo
+    @Inject
+    @javax.inject.Named("forward-client")
+    private CloseableHttpClient apacheClient;
 
     /**
      * Returns list of users who have scheduled some process
@@ -581,6 +586,7 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+// TODO pepo
     /**
      * Returns filtered batches
      *
@@ -657,14 +663,43 @@ public class ProcessResource extends AdminApiResource {
                 filter.stateCode = toBatchStateCode(filterState);
             }
 
+
+
+
             //response size
-            int totalSize = this.processManager.getBatchesCount(filter);
+            //int totalSize = this.processManager.getBatchesCount(filter);
+            /*
             JSONObject result = new JSONObject();
             result.put("offset", offset);
             result.put("limit", limit);
             result.put("total_size", totalSize);
+            */
+
+
+            //--------------------
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject batches = processManagerClient.getBatches(null, null, null, null, null, null);
+
+            JSONObject result = new JSONObject();
+            result.put("offset", offset);
+            result.put("limit", limit);
+            result.put("total_size", batches.getInt("totalSize"));
+
+
+            JSONArray jsonArray = batches.getJSONArray("batches");
+            JSONArray batchesJson = new JSONArray();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObjectBatch = jsonArray.getJSONObject(i);
+
+                JSONObject batchToJson = ProcessManagerMapper.mapBatchWithProcesses(jsonObjectBatch);
+                batchesJson.put(batchToJson);
+
+            }
+            //--------------------
+
 
             //batch & process data
+            /*
             List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
             List<BatchWithProcesses> batchWithProcesses = extractBatchesWithProcesses(pibs);
             JSONArray batchesJson = new JSONArray();
@@ -672,6 +707,8 @@ public class ProcessResource extends AdminApiResource {
                 JSONObject batchJson = batchToJson(batch);
                 batchesJson.put(batchJson);
             }
+
+             */
             result.put("batches", batchesJson);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
@@ -1688,6 +1725,10 @@ public class ProcessResource extends AdminApiResource {
 
 
     private String toBatchStateName(Integer batchStateCode) {
+        if(batchStateCode == null){
+            return "UNKNOWN";
+        }
+
         switch (batchStateCode) {
             case 0:
                 return "PLANNED";

@@ -17,6 +17,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.incad.kramerius.rest.apiNew.admin.v70.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,6 +74,67 @@ public final class ProcessManagerMapper {
         //processInBatch.processStarted = toLocalDateTime(rs.getTimestamp("process_started"));
         //processInBatch.processFinished = toLocalDateTime(rs.getTimestamp("process_finished"));
         return processInBatch;
+    }
+
+    public static JSONObject mapBatchWithProcesses(JSONObject batchWithProcesses) {
+        JSONObject json = new JSONObject();
+        //batch
+        JSONObject batchJson = new JSONObject();
+//        batchJson.put("token", batchWithProcesses.token);
+        batchJson.put("token", batchWithProcesses.getString("mainProcessId"));
+        // batchJson.put("id", batchWithProcesses.firstProcessId);
+        batchJson.put("id", batchWithProcesses.getString("mainProcessId"));
+        // batchJson.put("state", toBatchStateName(batchWithProcesses.stateCode));
+        batchJson.put("state", batchWithProcesses.getString("status"));
+
+        // batchJson.put("planned", Utils.toFormattedStringOrNull(batchWithProcesses.planned));
+        batchJson.put("planned", Utils.toFormattedStringOrNull(batchWithProcesses.getInt("planned")));
+        // batchJson.put("started", Utils.toFormattedStringOrNull(batchWithProcesses.started));
+        batchJson.put("started", Utils.toFormattedStringOrNull(batchWithProcesses.getInt("started")));
+        // batchJson.put("finished", Utils.toFormattedStringOrNull(batchWithProcesses.finished));
+        if(!batchWithProcesses.isNull("finished")){
+            batchJson.put("finished", Utils.toFormattedStringOrNull(batchWithProcesses.getInt("finished")));
+        }
+        // batchJson.put("owner_id", batchWithProcesses.ownerId);
+        batchJson.put("owner_id", batchWithProcesses.getString("owner"));
+        // batchJson.put("owner_name", batchWithProcesses.ownerName);
+        batchJson.put("owner_name", batchWithProcesses.getString("owner"));
+
+
+        json.put("batch", batchJson);
+        //processes
+        JSONArray processArray = new JSONArray();
+
+        JSONArray batchProcesses = batchWithProcesses.getJSONArray("processes");
+        for (int j = 0; j < batchProcesses.length(); j++) {
+            JSONObject processInBatch = batchProcesses.getJSONObject(j);
+
+
+            JSONObject processJson = new JSONObject();
+            //processJson.put("id", process.id);
+            processJson.put("id", processInBatch.getString("processId"));
+            //processJson.put("uuid", process.uuid);
+            processJson.put("uuid", processInBatch.getString("processId"));
+            //processJson.put("defid", process.defid);
+            processJson.put("defid", processInBatch.getString("profileId"));
+            //processJson.put("name", process.name);
+            processJson.put("name", processInBatch.getString("description"));
+            //processJson.put("state", toProcessStateName(process.stateCode));
+            processJson.put("state", processInBatch.getString("status"));
+            //processJson.put("planned", Utils.toFormattedStringOrNull(process.planned));
+            processJson.put("planned", Utils.toFormattedStringOrNull(processInBatch.getInt("planned")));
+            //processJson.put("started", Utils.toFormattedStringOrNull(process.started));
+            processJson.put("started", Utils.toFormattedStringOrNull(processInBatch.getInt("started")));
+            //processJson.put("finished", Utils.toFormattedStringOrNull(process.finished));
+            if(!processInBatch.isNull("finished")){
+                processJson.put("finished", Utils.toFormattedStringOrNull(processInBatch.getInt("finished")));
+            }
+            processArray.put(processJson);
+        }
+        json.put("processes", processArray);
+
+
+        return json;
     }
 
 }

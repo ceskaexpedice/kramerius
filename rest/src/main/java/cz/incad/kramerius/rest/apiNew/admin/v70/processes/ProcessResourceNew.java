@@ -35,6 +35,7 @@ import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import java.io.File;
 import java.io.IOException;
@@ -264,6 +265,15 @@ public class ProcessResourceNew extends AdminApiResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @DefaultValue("out.txt") @QueryParam("fileName") String fileName) {
+        InputStream logStream = processManagerClient.getProcessLog(processUuid, false);
+        return Response.ok((StreamingOutput) output -> {
+                    try (logStream) {
+                        logStream.transferTo(output);
+                    }
+                }).header("Content-Disposition", "inline; filename=\"" + fileName + "\"")
+                .build();
+
+        /* TODO pepo
         try {
             return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, fileName);
         } catch (WebApplicationException e) {
@@ -271,7 +281,7 @@ public class ProcessResourceNew extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
-        }
+        }*/
     }
 
     /**
@@ -672,6 +682,8 @@ public class ProcessResourceNew extends AdminApiResource {
             if (StringUtils.isAnyString(filterState)) {
                 filter.stateCode = toBatchStateCode(filterState);
             }
+            // TODO pepo
+            JSONObject batches = processManagerClient.getBatches(offsetStr, limitStr, filterOwner, filterFrom, filterUntil, filterState);
 
             //response size
             int totalSize = this.processManager.getBatchesCount(filter);
