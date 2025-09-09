@@ -66,12 +66,12 @@ public class TestProcessManagerClient {
 
     @BeforeClass
     public static void beforeAll() throws URISyntaxException {
-        /*
+/*
         URL resource = TestProcessManagerClient.class.getResource("configuration.properties");
         Path filePath = Paths.get(resource.toURI());
         KConfiguration.setWorkingDir(filePath.getParent().toString());
 
-         */
+*/
     }
 
     @Before
@@ -113,7 +113,8 @@ public class TestProcessManagerClient {
     @Test
     public void testGetProcess() {
         JSONObject process = processManagerClient.getProcess("ed25ce29-2149-439d-85c4");
-        ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
+       // ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
+        JSONObject processInBatch = ProcessManagerMapper.processInBatchToJson(process);
         System.out.println(processInBatch);
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }

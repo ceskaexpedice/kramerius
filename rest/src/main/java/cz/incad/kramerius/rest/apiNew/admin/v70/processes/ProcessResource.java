@@ -32,6 +32,7 @@ import javax.inject.Provider;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 import java.io.File;
 import java.io.IOException;
@@ -122,7 +123,13 @@ public class ProcessResource extends AdminApiResource {
             }
             
             //get data from db
-            List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            //List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            //get data from db
+            // TODO pepo List<ProcessOwner> owners = this.processManager.getProcessesOwners();
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject json = processManagerClient.getOwners();
+            List<cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner> owners = ProcessManagerMapper.mapOwners(json);
+
             //sort
             owners.sort((o1, o2) -> {
                 if (o1.name.startsWith("_") && o1.name.startsWith("_")) {
@@ -135,7 +142,7 @@ public class ProcessResource extends AdminApiResource {
             });
             //convert to JSON
             JSONArray ownersJson = new JSONArray();
-            for (ProcessOwner owner : owners) {
+            for (cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner owner : owners) {
                 JSONObject ownerJson = new JSONObject();
                 ownerJson.put("id", owner.id);
                 ownerJson.put("name", owner.name);
@@ -165,6 +172,7 @@ public class ProcessResource extends AdminApiResource {
             List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
 
             //id
+            /*
             Integer processIdInt = null;
             if (StringUtils.isAnyString(processId)) {
                 try {
@@ -173,14 +181,22 @@ public class ProcessResource extends AdminApiResource {
                     throw new BadRequestException("process_id must be a number, '%s' is not", processId);
                 }
             }
+
+             */
             //get process (& it's batch) data from db
-            ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
+            // TODO pepo ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject process = processManagerClient.getProcess(processId);
+            cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
+            //get process (& it's batch) data from db
+            //ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
 
             if (processInBatch == null) {
                 throw new NotFoundException("there's no process with process_id=" + processId);
             }
             
             //authorization
+            /* TODO pepo
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
             boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
                                 SecurityProcessUtils.permitReader(rightsResolver, user) ||
@@ -189,8 +205,11 @@ public class ProcessResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
 
-            
-            JSONObject result = processInBatchToJson(processInBatch);
+             */
+
+
+//            JSONObject result = processInBatchToJson(processInBatch);
+            JSONObject result = ProcessManagerMapper.processInBatchToJson(process);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -253,6 +272,16 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getProcessLogsOutByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @DefaultValue("out.txt") @QueryParam("fileName") String fileName) {
+        ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+        InputStream logStream = processManagerClient.getProcessLog(processUuid, false);
+        return Response.ok((StreamingOutput) output -> {
+                    try (logStream) {
+                        logStream.transferTo(output);
+                    }
+                }).header("Content-Disposition", "inline; filename=\"" + fileName + "\"")
+                .build();
+
+        /* TODO pepo
         try {
             return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, fileName);
         } catch (WebApplicationException e) {
@@ -260,7 +289,7 @@ public class ProcessResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
-        }
+        }*/
     }
 
     /**
