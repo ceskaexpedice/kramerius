@@ -167,20 +167,16 @@ public class ProcessManagerProcessEndpoint {
         return jsonPayload(json);
     }
 
-    /*
-
     @DELETE
     @Path("batch/{mainProcessId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteBatch(@PathParam("mainProcessId") String mainProcessId) {
-        int deleted = processService.deleteBatch(mainProcessId);
         JSONObject result = new JSONObject();
         result.put("mainProcessId", mainProcessId);
-        result.put("deleted", deleted);
-        return APIRestUtilities.jsonPayload(result.toString());
+        result.put("deleted", 2);
+        return jsonPayload(result.toString());
     }
 
-     */
 /*
     @DELETE
     @Path("batch/{mainProcessId}/execution")

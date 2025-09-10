@@ -14,10 +14,6 @@
  */
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
-import cz.incad.kramerius.rest.apiNew.admin.v70.Utils;
-import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessInBatch;
-import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessManagerMapper;
-import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -39,7 +35,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessManagerProcessEndpoint.OUT_LOG_PART;
 import static org.mockito.ArgumentMatchers.eq;
@@ -70,8 +65,8 @@ public class TestProcessManagerClient {
         URL resource = TestProcessManagerClient.class.getResource("configuration.properties");
         Path filePath = Paths.get(resource.toURI());
         KConfiguration.setWorkingDir(filePath.getParent().toString());
-
 */
+
     }
 
     @Before
@@ -104,8 +99,8 @@ public class TestProcessManagerClient {
     @Test
     public void testGetOwners() {
         JSONObject owners = processManagerClient.getOwners();
-        List<ProcessOwner> processOwners = ProcessManagerMapper.mapOwners(owners);
-        System.out.println(owners);
+        JSONObject jsonObject = ProcessManagerMapper.mapOwners(owners);
+        System.out.println(jsonObject);
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 
@@ -114,7 +109,7 @@ public class TestProcessManagerClient {
     public void testGetProcess() {
         JSONObject process = processManagerClient.getProcess("ed25ce29-2149-439d-85c4");
        // ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
-        JSONObject processInBatch = ProcessManagerMapper.processInBatchToJson(process);
+        JSONObject processInBatch = ProcessManagerMapper.mapProcess(process);
         System.out.println(processInBatch);
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
@@ -137,13 +132,18 @@ public class TestProcessManagerClient {
         //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 
-
     @Ignore
     @Test
     public void testGetProcessLog() throws IOException {
         InputStream processLog = processManagerClient.getProcessLog("ed25ce29-2149-439d-85c4", false);
         String outLog = new String(processLog.readAllBytes(), StandardCharsets.UTF_8);
         Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+    }
+
+    @Ignore
+    @Test
+    public void testDeleteBatch() throws IOException {
+        processManagerClient.deleteBatch("ed25ce29-2149-439d-85c4");
     }
 
     private CloseableHttpClient getClient() {

@@ -8,7 +8,6 @@ import cz.incad.kramerius.processes.new_api.*;
 import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.rest.api.processes.utils.SecurityProcessUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.*;
-import cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.exceptions.*;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
@@ -55,7 +54,7 @@ public class ProcessResource extends AdminApiResource {
 
     /** Special keyword for null value; If there is need to fill all program arguments and one of them must be null */
     public static final String NONE_KEYWORD = "-none-";
-    
+
     private static final int MAX_TITLE_LENGTH = 1024;
 
     public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
@@ -65,7 +64,6 @@ public class ProcessResource extends AdminApiResource {
 
     private static final Integer GET_LOGS_DEFAULT_OFFSET = 0;
     private static final Integer GET_LOGS_DEFAULT_LIMIT = 10;
-
 
 
     @Inject
@@ -84,12 +82,12 @@ public class ProcessResource extends AdminApiResource {
     Provider<User> userProvider;
 
     @Inject
-    @Named("new-index") 
+    @Named("new-index")
     SolrAccess solrAccess;
-    
+
     @Inject
     RightsResolver rightsResolver;
-    
+
     //TODO: Merge it in future
     @Inject
     ProcessManager processManager;
@@ -112,49 +110,16 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getOwners() {
         try {
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
             User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-
             boolean permitted = SecurityProcessUtils.permitManager(this.rightsResolver, user) || SecurityProcessUtils.permitReader(this.rightsResolver, user);
             if (!permitted) {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s' or '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
-            
-            //get data from db
-            //List<ProcessOwner> owners = this.processManager.getProcessesOwners();
-            //get data from db
-            // TODO pepo List<ProcessOwner> owners = this.processManager.getProcessesOwners();
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-            JSONObject json = processManagerClient.getOwners();
-            List<cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner> owners = ProcessManagerMapper.mapOwners(json);
-
-            //sort
-            owners.sort((o1, o2) -> {
-                if (o1.name.startsWith("_") && o1.name.startsWith("_")) {
-                    return o1.name.compareTo(o2.name);
-                } else if (o1.name.startsWith("_")) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            });
-            //convert to JSON
-            JSONArray ownersJson = new JSONArray();
-            for (cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessOwner owner : owners) {
-                JSONObject ownerJson = new JSONObject();
-                ownerJson.put("id", owner.id);
-                ownerJson.put("name", owner.name);
-                ownersJson.put(ownerJson);
-            }
-            JSONObject result = new JSONObject();
-            result.put("owners", ownersJson);
-            //return
+            JSONObject pcpOwners = processManagerClient.getOwners();
+            JSONObject result = ProcessManagerMapper.mapOwners(pcpOwners);
             return Response.ok().entity(result.toString()).build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
@@ -166,37 +131,14 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
             User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-
-            //id
-            /*
-            Integer processIdInt = null;
-            if (StringUtils.isAnyString(processId)) {
-                try {
-                    processIdInt = Integer.valueOf(processId);
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("process_id must be a number, '%s' is not", processId);
-                }
-            }
-
-             */
-            //get process (& it's batch) data from db
-            // TODO pepo ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-            JSONObject process = processManagerClient.getProcess(processId);
-            cz.incad.kramerius.rest.apiNew.admin.v70.processes.mapper.ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
-            //get process (& it's batch) data from db
-            //ProcessInBatch processInBatch = processManager.getProcessInBatchByProcessId(processIdInt);
-
-            if (processInBatch == null) {
+            JSONObject pcpProcess = processManagerClient.getProcess(processId);
+            if (pcpProcess == null) {
                 throw new NotFoundException("there's no process with process_id=" + processId);
             }
-            
             //authorization
-            /* TODO pepo
+            /* TODO pepo - pravdepodobne pomoci pcpProcess.profileId ziskat plugin a jeho scheduledProfiles a ty testovat
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
             boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
                                 SecurityProcessUtils.permitReader(rightsResolver, user) ||
@@ -204,12 +146,8 @@ public class ProcessResource extends AdminApiResource {
             if (!permitted) {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
-
              */
-
-
-//            JSONObject result = processInBatchToJson(processInBatch);
-            JSONObject result = ProcessManagerMapper.processInBatchToJson(process);
+            JSONObject result = ProcessManagerMapper.mapProcess(pcpProcess);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -225,42 +163,8 @@ public class ProcessResource extends AdminApiResource {
     @Path("by_process_uuid/{process_uuid}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcessByProcessUuid(@PathParam("process_uuid") String processUuid) {
-        lrProcessManager.getSynchronizingLock().lock();
-        try {
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
-            User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-            
-            ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessUUid(processUuid);
-
-            if (processInBatch == null) {
-                throw new NotFoundException("there's no process with process_uuid=" + processUuid);
-            }
-
-            
-            LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
-            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                                SecurityProcessUtils.permitReader(rightsResolver, user) ||
-                                SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
-            if (!permitted) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
-            }
-            
-            JSONObject result = processInBatchToJson(processInBatch);
-            return Response.ok().entity(result.toString()).build();
-
-            
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        } finally {
-            lrProcessManager.getSynchronizingLock().unlock();
-        }
+        return getProcessByProcessId(processUuid);
     }
-
 
     /**
      * Get whole OUT log file
@@ -280,16 +184,6 @@ public class ProcessResource extends AdminApiResource {
                     }
                 }).header("Content-Disposition", "inline; filename=\"" + fileName + "\"")
                 .build();
-
-        /* TODO pepo
-        try {
-            return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, fileName);
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }*/
     }
 
     /**
@@ -302,27 +196,13 @@ public class ProcessResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getProcessLogsErrByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                    @DefaultValue("err.txt") @QueryParam("fileName") String fileName) {
-        try {
-            return getProcessLogsFileByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, fileName);
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-    private Response getProcessLogsFileByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String fileName) {
-        //resource is secured by difficulty of guessing uuid, also client needs this to be accessible without authentication
-        //access to process data
-        LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
-        if (lrProces == null) {
-            throw new BadRequestException("process with uuid " + processUuid + " not found");
-        }
-        ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
-        InputStream processInputStream = processLogsHelper.getLogsFileWhole(logType);
-        return Response.ok().entity(processInputStream)
-                .header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
+        ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+        InputStream logStream = processManagerClient.getProcessLog(processUuid, true);
+        return Response.ok((StreamingOutput) output -> {
+                    try (logStream) {
+                        logStream.transferTo(output);
+                    }
+                }).header("Content-Disposition", "inline; filename=\"" + fileName + "\"")
                 .build();
     }
 
@@ -340,6 +220,7 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessLogsOutLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                         @QueryParam("offset") String offsetStr,
                                                         @QueryParam("limit") String limitStr) {
+        // TODO pepo not supported yet
         try {
             return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
         } catch (WebApplicationException e) {
@@ -364,6 +245,7 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessLogsErrLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                         @QueryParam("offset") String offsetStr,
                                                         @QueryParam("limit") String limitStr) {
+        // TODO) pepo not supported yet
         try {
             return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
         } catch (WebApplicationException e) {
@@ -430,38 +312,73 @@ public class ProcessResource extends AdminApiResource {
             }
             result.put("lines", linesJson);
             return Response.ok().entity(result.toString()).build();
-        }finally{
+        } finally {
             lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
-    private JSONObject processInBatchToJson(ProcessInBatch processInBatch) {
-        JSONObject json = new JSONObject();
-        //batch
-        JSONObject batchJson = new JSONObject();
-        batchJson.put("token", processInBatch.batchToken);
-        batchJson.put("id", processInBatch.batchId);
-        batchJson.put("state", toBatchStateName(processInBatch.batchStateCode));
-        batchJson.put("planned", Utils.toFormattedStringOrNull(processInBatch.batchPlanned));
-        batchJson.put("started", Utils.toFormattedStringOrNull(processInBatch.batchStarted));
-        batchJson.put("finished", Utils.toFormattedStringOrNull(processInBatch.batchFinished));
-        batchJson.put("owner_id", processInBatch.batchOwnerId);
-        batchJson.put("owner_name", processInBatch.batchOwnerName);
-        json.put("batch", batchJson);
-        //process
-        JSONObject processJson = new JSONObject();
-        processJson.put("id", processInBatch.processId);
-        processJson.put("uuid", processInBatch.processUuid);
-        processJson.put("defid", processInBatch.processDefid);
-        processJson.put("name", processInBatch.processName);
-        processJson.put("state", toProcessStateName(processInBatch.processStateCode));
-        processJson.put("planned", Utils.toFormattedStringOrNull(processInBatch.processPlanned));
-        processJson.put("started", Utils.toFormattedStringOrNull(processInBatch.processStarted));
-        processJson.put("finished", Utils.toFormattedStringOrNull(processInBatch.processFinished));
-        JSONObject result = new JSONObject();
-        result.put("process", processJson);
-        result.put("batch", batchJson);
-        return result;
+    /**
+     * Returns filtered batches
+     *
+     * @param offsetStr   offset
+     * @param limitStr    limit
+     * @param filterOwner filter to batches run by user with this id (login)
+     * @param filterFrom  filter to batches started after this datetime, format is 2019-01-01T00:00:00
+     * @param filterUntil filter to batches finished before this datetime, format is 2019-12-31T23:59:59
+     * @param filterState filter to batches with this state (possible values are PLANNED, RUNNING, FINISHED, KILLED or FAILED)
+     * @return
+     */
+    @GET
+    @Path("batches")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getBatches(
+            @QueryParam("offset") String offsetStr,
+            @QueryParam("limit") String limitStr,
+            @QueryParam("owner") String filterOwner,
+            @QueryParam("from") String filterFrom,
+            @QueryParam("until") String filterUntil,
+            @QueryParam("state") String filterState
+    ) {
+        lrProcessManager.getSynchronizingLock().lock();
+        try {
+            User user = this.userProvider.get();
+            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
+                    SecurityProcessUtils.permitReader(rightsResolver, user);
+            if (!permitted) {
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            }
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject pcpBatches = processManagerClient.getBatches(offsetStr, limitStr, filterOwner, filterFrom, filterUntil, filterState);
+
+            JSONObject result = new JSONObject();
+            result.put("offset", offsetStr);
+            result.put("limit", limitStr);
+            result.put("total_size", pcpBatches.getInt("totalSize"));
+            JSONArray pcpBatchesArray = pcpBatches.getJSONArray("batches");
+            JSONArray resultBatchesArray = new JSONArray();
+            for (int i = 0; i < pcpBatchesArray.length(); i++) {
+                JSONObject pcpBatchWithProcesses = pcpBatchesArray.getJSONObject(i);
+                JSONObject resultBatchWithProcesses = ProcessManagerMapper.mapBatchWithProcesses(pcpBatchWithProcesses);
+                resultBatchesArray.put(resultBatchWithProcesses);
+
+            }
+            result.put("batches", resultBatchesArray);
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (ProcessManagerClientException e) {
+            if(e.getErrorCode() == ErrorCode.INVALID_INPUT){
+                throw new BadRequestException(e.getMessage());
+            }else{
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } finally {
+            lrProcessManager.getSynchronizingLock().unlock();
+        }
     }
 
     @DELETE
@@ -493,23 +410,22 @@ public class ProcessResource extends AdminApiResource {
             if (batch == null) {
                 throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
             }
-            
-            
-            
+
+
             ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessId(processIdInt);
 
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
             boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                                //SecurityProcessUtils.permitReader(rightsResolver, user) ||
-                                SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user,  SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+                    //SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                    SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
 
             //authorization
             //String role = ROLE_DELETE_PROCESSES;
             if (!permitted) {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s','%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
-            
-            
+
+
             //check batch is deletable
             String batchState = toBatchStateName(batch.stateCode);
             if (!isDeletableState(batchState)) {
@@ -518,19 +434,19 @@ public class ProcessResource extends AdminApiResource {
 
             // delete folders
             List<LRProcess> lrs = this.lrProcessManager.getLongRunningProcessesByGroupToken(batch.token);
-            
+
 
             //delete processes in batch
             int deleted = this.processManager.deleteBatchByBatchToken(batch.token);
-                
+
             if (deleted == lrs.size()) {
                 List<File> folders = lrs.stream().map(LRProcess::processWorkingDirectory).collect(Collectors.toList());
-                folders.stream().forEach(f-> {
+                folders.stream().forEach(f -> {
                     IOUtils.cleanDirectory(f);
                     f.delete();
                 });
             } else {
-                LOGGER.log(Level.INFO, "Cannot delete directory for processes "+batch.token);
+                LOGGER.log(Level.INFO, "Cannot delete directory for processes " + batch.token);
             }
 
             JSONObject result = new JSONObject();
@@ -573,15 +489,15 @@ public class ProcessResource extends AdminApiResource {
             if (batch == null) {
                 throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
             }
-            
+
             ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessId(processIdInt);
 
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
             boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                                SecurityProcessUtils.permitReader(rightsResolver, user) ||
-                                SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user,  SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
+                    SecurityProcessUtils.permitReader(rightsResolver, user) ||
+                    SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
             if (!permitted) {
-                    throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s','%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s','%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
 
 
@@ -596,7 +512,8 @@ public class ProcessResource extends AdminApiResource {
                         try {
                             lrProcess.stopMe();
                             lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
-                        } catch (Throwable e) { //because AbstractLRProcessImpl.stopMe() throws java.lang.IllegalStateException: cannot stop this process! No PID associated
+                        } catch (
+                                Throwable e) { //because AbstractLRProcessImpl.stopMe() throws java.lang.IllegalStateException: cannot stop this process! No PID associated
                             e.printStackTrace();
                         }
                     } else { //process in batch not running
@@ -605,141 +522,6 @@ public class ProcessResource extends AdminApiResource {
                 }
             }
             return Response.ok().build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        } finally {
-            lrProcessManager.getSynchronizingLock().unlock();
-        }
-    }
-
-// TODO pepo
-    /**
-     * Returns filtered batches
-     *
-     * @param offsetStr   offset
-     * @param limitStr    limit
-     * @param filterOwner filter to batches run by user with this id (login)
-     * @param filterFrom  filter to batches started after this datetime, format is 2019-01-01T00:00:00
-     * @param filterUntil filter to batches finished before this datetime, format is 2019-12-31T23:59:59
-     * @param filterState filter to batches with this state (possible values are PLANNED, RUNNING, FINISHED, KILLED or FAILED)
-     * @return
-     */
-    @GET
-    @Path("batches")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getBatches(
-            @QueryParam("offset") String offsetStr,
-            @QueryParam("limit") String limitStr,
-            @QueryParam("owner") String filterOwner,
-            @QueryParam("from") String filterFrom,
-            @QueryParam("until") String filterUntil,
-            @QueryParam("state") String filterState
-    ) {
-        lrProcessManager.getSynchronizingLock().lock();
-        try {
-            //access control with basic access authentication (deprecated)
-            //checkAccessControlByBasicAccessAuth();
-
-            //authentication
-            User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-
-            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                                SecurityProcessUtils.permitReader(rightsResolver, user);
-            if (!permitted) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
-            }
-
-            //offset & limit
-            int offset = GET_BATCHES_DEFAULT_OFFSET;
-            if (StringUtils.isAnyString(offsetStr)) {
-                try {
-                    offset = Integer.valueOf(offsetStr);
-                    if (offset < 0) {
-                        throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
-                    }
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
-                }
-            }
-            int limit = GET_BATCHES_DEFAULT_LIMIT;
-            if (StringUtils.isAnyString(limitStr)) {
-                try {
-                    limit = Integer.valueOf(limitStr);
-                    if (limit < 1) {
-                        throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
-                    }
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
-                }
-            }
-
-            //filter
-            Filter filter = new Filter();
-            if (StringUtils.isAnyString(filterOwner)) {
-                filter.owner = filterOwner;
-            }
-            if (StringUtils.isAnyString(filterFrom)) {
-                filter.from = parseLocalDateTime(filterFrom);
-            }
-            if (StringUtils.isAnyString(filterUntil)) {
-                filter.until = parseLocalDateTime(filterUntil);
-            }
-            if (StringUtils.isAnyString(filterState)) {
-                filter.stateCode = toBatchStateCode(filterState);
-            }
-
-
-
-
-            //response size
-            //int totalSize = this.processManager.getBatchesCount(filter);
-            /*
-            JSONObject result = new JSONObject();
-            result.put("offset", offset);
-            result.put("limit", limit);
-            result.put("total_size", totalSize);
-            */
-
-
-            //--------------------
-            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-            JSONObject batches = processManagerClient.getBatches(null, null, null, null, null, null);
-
-            JSONObject result = new JSONObject();
-            result.put("offset", offset);
-            result.put("limit", limit);
-            result.put("total_size", batches.getInt("totalSize"));
-
-
-            JSONArray jsonArray = batches.getJSONArray("batches");
-            JSONArray batchesJson = new JSONArray();
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObjectBatch = jsonArray.getJSONObject(i);
-
-                JSONObject batchToJson = ProcessManagerMapper.mapBatchWithProcesses(jsonObjectBatch);
-                batchesJson.put(batchToJson);
-
-            }
-            //--------------------
-
-
-            //batch & process data
-            /*
-            List<ProcessInBatch> pibs = this.processManager.getProcessesInBatches(filter, offset, limit);
-            List<BatchWithProcesses> batchWithProcesses = extractBatchesWithProcesses(pibs);
-            JSONArray batchesJson = new JSONArray();
-            for (BatchWithProcesses batch : batchWithProcesses) {
-                JSONObject batchJson = batchToJson(batch);
-                batchesJson.put(batchJson);
-            }
-
-             */
-            result.put("batches", batchesJson);
-            return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -787,7 +569,7 @@ public class ProcessResource extends AdminApiResource {
             if (processDefinition.has("params")) {
                 params = processDefinition.getJSONObject("params");
             }
-            
+
             if (parentProcessAuthToken != null) { //run by "parent" process (more precisely it's "older sibling" process - the new process will be its sibling within same batch)
                 ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
                 if (parentProcess == null) {
@@ -798,7 +580,7 @@ public class ProcessResource extends AdminApiResource {
                 String batchToken = parentProcess.getBatchToken();
                 List<String> paramsList = new ArrayList<>();
                 paramsList.addAll(paramsToList(defid, params, (permitted) -> {
-                    
+
                 }));
                 String title = shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
                 return scheduleProcess(defid, paramsList, userId, userName, batchToken, title);
@@ -807,14 +589,14 @@ public class ProcessResource extends AdminApiResource {
                 //System.out.println("process auth token NOT found");
                 String batchToken = UUID.randomUUID().toString();
                 List<String> paramsList = new ArrayList<>();
-                paramsList.addAll(paramsToList(defid, params, flag-> {
+                paramsList.addAll(paramsToList(defid, params, flag -> {
                     if (flag) pidPermitted.getAndSet(true);
                 }));
 
                 //authentication
                 User user = this.userProvider.get();
                 LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition(defid);
-                
+
                 boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
                         SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, definition) || pidPermitted.get();
 
@@ -822,8 +604,8 @@ public class ProcessResource extends AdminApiResource {
                     throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
                 }
 
-                String title =  shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
-                
+                String title = shortenIfTooLong(buildInitialProcessName(defid, paramsList), MAX_TITLE_LENGTH);
+
                 return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, title);
             }
         } catch (WebApplicationException e) {
@@ -844,7 +626,7 @@ public class ProcessResource extends AdminApiResource {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uuid", lrProcess.getUUID());
-        
+
         jsonObject.put("pid", lrProcess.getPid()); //empty
         jsonObject.put("id", lrProcess.getDefinitionId());
         jsonObject.put("state", lrProcess.getProcessState().toString());
@@ -861,7 +643,7 @@ public class ProcessResource extends AdminApiResource {
 
     //TODO: I18N
     private String buildInitialProcessName(String defId, List<String> params) {
-        
+
         try {
             switch (defId) {
                 case "new_process_api_test":
@@ -874,11 +656,11 @@ public class ProcessResource extends AdminApiResource {
                             ? String.format("Indexace %s (%s, typ %s)", title, pid, type)
                             : String.format("Indexace %s (typ %s)", pid, type);
                 }
-                
+
                 case "new_indexer_index_model": {
                     return String.format("Indexace %s (typ %s)", params.get(1), params.get(0));
                 }
-                
+
                 case "set_policy": {
                     String scope = params.get(0);
                     String policy = params.get(1);
@@ -888,17 +670,17 @@ public class ProcessResource extends AdminApiResource {
                             ? String.format("Změna viditelnosti %s (%s, %s, %s)", title, pid, policy, scope)
                             : String.format("Změna viditelnosti %s (%s, %s)", pid, policy, scope);
                 }
-                
+
                 case "remove_policy": {
                     String scope = params.get(0);
                     String pid = params.get(1);
                     String title = params.get(2);
                     return title != null
                             ? String.format("Odebrání příznaku viditelnosti %s (%s, %s)", title, pid, scope)
-                            : String.format("Odebrání příznaku viditelnosti %s (%s)", pid,  scope);
-               }
-               
-               case "processing_rebuild":
+                            : String.format("Odebrání příznaku viditelnosti %s (%s)", pid, scope);
+                }
+
+                case "processing_rebuild":
                     return "Přebudování Processing indexu";
                 case "processing_rebuild_for_object":
                     return String.format("Aktualizace Processing indexu z FOXML pro objekt %s", params.get(0));
@@ -915,13 +697,13 @@ public class ProcessResource extends AdminApiResource {
                     return String.format("Odebrání licence '%s' pro %s", params.get(0), params.get(1));
                 }
                 case "flag_to_license": {
-                    if(params.get(0).equals("true")) {
+                    if (params.get(0).equals("true")) {
                         return String.format("Změna příznaku na licence a spuštění procesu mazání příznaku");
                     } else {
                         return String.format("Změna příznaku na licence");
                     }
                 }
-                
+
                 case "nkplogs": {
                     return String.format("Generování NKP logů pro období %s - %s", params.get(0), params.get(1));
                 }
@@ -957,7 +739,7 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    
+
     private static String shortenIfTooLong(String string, int maxLength) {
         if (string == null || string.isEmpty() || string.length() <= maxLength) {
             return string;
@@ -967,7 +749,7 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    
+
     private List<String> paramsToList(String id, JSONObject params, Consumer<Boolean> consumer) {
         switch (id) {
             case "new_process_api_test": {
@@ -990,7 +772,7 @@ public class ProcessResource extends AdminApiResource {
                 String pid = extractOptionalParamString(params, "pid", null);
                 List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
 
-                
+
                 String checkPidlistFile = extractOptionalParamString(params, "pidlist_file", null);
                 File pidlistFile = null;
                 if (checkPidlistFile != null && (new File(checkPidlistFile)).exists()) {
@@ -999,13 +781,13 @@ public class ProcessResource extends AdminApiResource {
                     pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
                 }
 
-                
+
                 Boolean ignoreInconsistentObjects = extractOptionalParamBoolean(params, "ignoreInconsistentObjects", false);
                 String title = extractOptionalParamString(params, "title", null);
 
                 List<String> result = new ArrayList<>();
                 result.add(type);//indexation type
-                
+
                 String target;
                 if (pid != null) {
                     target = pid;
@@ -1018,8 +800,8 @@ public class ProcessResource extends AdminApiResource {
                     throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist");
                 }
                 result.add(target);
-                
- 
+
+
                 result.add(ignoreInconsistentObjects.toString());
                 result.add(title);//indexation's root title
                 consumer.accept(false);
@@ -1050,7 +832,7 @@ public class ProcessResource extends AdminApiResource {
                 String policy = extractMandatoryParamWithValueFromEnum(params, "policy", SetPolicyProcess.Policy.class);
                 String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
                 String title = extractOptionalParamString(params, "title", null);
-                
+
                 try {
                     ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
                     User user = this.userProvider.get();
@@ -1059,9 +841,9 @@ public class ProcessResource extends AdminApiResource {
                     consumer.accept(permit);
                 } catch (IOException e) {
                     consumer.accept(false);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
-                
+
                 List<String> result = new ArrayList<>();
                 result.add(scope);
                 result.add(policy);
@@ -1098,7 +880,7 @@ public class ProcessResource extends AdminApiResource {
                     throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist");
                 }
 
-                
+
                 if (pid != null) {
                     try {
                         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
@@ -1108,10 +890,10 @@ public class ProcessResource extends AdminApiResource {
                         consumer.accept(permit);
                     } catch (IOException e) {
                         consumer.accept(false);
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 } else if (pidlist != null) {
-                    pidlist.stream().forEach(p-> {
+                    pidlist.stream().forEach(p -> {
                         try {
                             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
                             User user = this.userProvider.get();
@@ -1120,12 +902,12 @@ public class ProcessResource extends AdminApiResource {
                             consumer.accept(permit);
                         } catch (IOException e) {
                             consumer.accept(false);
-                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                     });
                 } else {
                     // musi mit prava pro cely repozitar
-                    ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                    ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
                             ObjectPidsPath.REPOSITORY_PATH
                     };
                     User user = this.userProvider.get();
@@ -1133,12 +915,12 @@ public class ProcessResource extends AdminApiResource {
                     boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                     consumer.accept(permit);
                 }
-                
-                
+
+
                 List<String> result = new ArrayList<>();
 
                 result.add(scope);
-                
+
                 if (pid != null) {
                     result.add(pid);
                 } else if (pidlist != null) {
@@ -1178,11 +960,11 @@ public class ProcessResource extends AdminApiResource {
                 }
 
                 // musi mit prava pro cely repozitar
-                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
                         ObjectPidsPath.REPOSITORY_PATH
                 };
                 User user = this.userProvider.get();
-                boolean permitProcessingIndex = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.A_REBUILD_PROCESSING_INDEX.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH)).flag() : false;
+                boolean permitProcessingIndex = user != null ? (rightsResolver.isActionAllowed(user, SecuredActions.A_REBUILD_PROCESSING_INDEX.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)).flag() : false;
                 consumer.accept(permitProcessingIndex);
                 if (permitProcessingIndex) {
                     List<String> result = new ArrayList<>();
@@ -1206,7 +988,7 @@ public class ProcessResource extends AdminApiResource {
                 if (pathType.equals("relative")) {
                     inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
                 } else { // absolute
-                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir",  null);
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", null);
                 }
 
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
@@ -1243,10 +1025,10 @@ public class ProcessResource extends AdminApiResource {
                 if (pathType.equals("relative")) {
                     inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("convert.directory")));
                 } else { // absolute
-                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir",  null);
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", null);
                 }
 
-                
+
                 String convertedDataDirSuffix = new SimpleDateFormat("yyMMdd_HHmmss_SSS").format(System.currentTimeMillis());
                 File convertedDataDir = new File(new File(KConfiguration.getInstance().getProperty("convert.target.directory")), inputDataDir.getName() + "_" + convertedDataDirSuffix);
                 Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
@@ -1256,7 +1038,7 @@ public class ProcessResource extends AdminApiResource {
                 String collections = extractOptionalParamString(params, "collections", null);
                 String indexationType = extractOptionalParamString(params, "indexationType", null);
 
-                
+
                 List<String> result = new ArrayList<>();
                 result.add(policy);
                 result.add(inputDataDir.getPath());
@@ -1268,7 +1050,7 @@ public class ProcessResource extends AdminApiResource {
                     result.add(license.toString());
                 } else {
                     result.add(NONE_KEYWORD);
-                }                
+                }
                 if (collections != null) {
                     result.add(collections.toString());
                 } else {
@@ -1287,13 +1069,13 @@ public class ProcessResource extends AdminApiResource {
                 // TODO: Change it; not only files came from convert.directory
                 String checkPidlistFile = extractOptionalParamString(params, "pidlist_file", null);
                 File pidlistFile = null;
-                
+
                 if (checkPidlistFile != null && (new File(checkPidlistFile)).exists()) {
                     pidlistFile = new File(checkPidlistFile);
                 } else {
                     pidlistFile = extractOptionalParamFileContainedInADir(params, "pidlist_file", new File(KConfiguration.getInstance().getProperty("convert.directory"))); //TODO: specialni adresar pro pidlisty, ne convert.directory
                 }
-                
+
                 String target;
                 if (pid != null) {
                     target = "pid:" + pid;
@@ -1304,7 +1086,7 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     throw new BadRequestException("target not specified, use one of following parameters: pid, pidlist, pidlist_file");
                 }
-                
+
                 if (pid != null) {
                     try {
                         ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
@@ -1314,10 +1096,10 @@ public class ProcessResource extends AdminApiResource {
                         consumer.accept(permit);
                     } catch (IOException e) {
                         consumer.accept(false);
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                 } else if (pidlist != null) {
-                    pidlist.forEach(p-> {
+                    pidlist.forEach(p -> {
                         try {
                             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
                             User user = this.userProvider.get();
@@ -1326,13 +1108,13 @@ public class ProcessResource extends AdminApiResource {
                             consumer.accept(permit);
                         } catch (IOException e) {
                             consumer.accept(false);
-                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                     });
-                    
+
                 } else {
                     // musi mit prava pro cely repozitar
-                    ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+                    ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
                             ObjectPidsPath.REPOSITORY_PATH
                     };
                     User user = this.userProvider.get();
@@ -1348,27 +1130,27 @@ public class ProcessResource extends AdminApiResource {
             }
 
             case "flag_to_license": {
-                    
+
                 //String modelList = extractOptionalParamString(params, "modellist","monographunit;periodicalvolume");
-                boolean removePolicy = extractOptionalParamBoolean(params, "remove_policy",false);
-                
-                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
-                    ObjectPidsPath.REPOSITORY_PATH
+                boolean removePolicy = extractOptionalParamBoolean(params, "remove_policy", false);
+
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
+                        ObjectPidsPath.REPOSITORY_PATH
                 };
                 User user = this.userProvider.get();
                 LRProcessDefinition definition = this.definitionManager.getLongRunningProcessDefinition("add_license");
                 boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                 consumer.accept(permit);
 
-                
+
                 List<String> result = new ArrayList<>();
                 //result.add(modelList);
-                result.add(""+removePolicy);
-                
+                result.add("" + removePolicy);
+
                 return result;
 
             }
-                
+
             case "nkplogs": { //TODO: rename to verb like "generate_nkp_logs"
 
                 String dateFrom = extractMandatoryParamString(params, "dateFrom");
@@ -1390,13 +1172,13 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 result.add(dateFrom);
                 result.add(dateTo);
-                    
+
                 if (emailNotification != null) {
-                    result.add(emailNotification+"");
+                    result.add(emailNotification + "");
                 } else {
                     result.add(Boolean.FALSE.toString());
                 }
-                
+
 
                 consumer.accept(false);
                 return result;
@@ -1406,14 +1188,14 @@ public class ProcessResource extends AdminApiResource {
                 return result;
             }
 
-            case "backup-collections": { 
+            case "backup-collections": {
                 String backupname = extractMandatoryParamString(params, "backupname");
                 List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
-                
-                String target  = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
-                
+
+                String target = "pidlist:" + pidlist.stream().collect(Collectors.joining(";"));
+
                 if (pidlist != null) {
-                    pidlist.forEach(p-> {
+                    pidlist.forEach(p -> {
                         try {
                             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(p);
                             User user = this.userProvider.get();
@@ -1422,7 +1204,7 @@ public class ProcessResource extends AdminApiResource {
                             consumer.accept(permit);
                         } catch (IOException e) {
                             consumer.accept(false);
-                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                     });
                 }
@@ -1433,10 +1215,10 @@ public class ProcessResource extends AdminApiResource {
                 return result;
             }
 
-            case "restore-collections": { 
+            case "restore-collections": {
                 String backupname = extractMandatoryParamString(params, "backupname");
-                
-                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
                         ObjectPidsPath.REPOSITORY_PATH
                 };
                 User user = this.userProvider.get();
@@ -1449,10 +1231,10 @@ public class ProcessResource extends AdminApiResource {
                 return result;
             }
 
-            case "migrate-collections-from-k5": { 
+            case "migrate-collections-from-k5": {
                 String k5 = extractMandatoryParamString(params, "k5");
-                
-                ObjectPidsPath[] pidPaths = new ObjectPidsPath[] {
+
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
                         ObjectPidsPath.REPOSITORY_PATH
                 };
                 User user = this.userProvider.get();
@@ -1477,7 +1259,7 @@ public class ProcessResource extends AdminApiResource {
                 if (ignoreIncostencies) {
                     result.add(ignoreIncostencies.toString());
                 }
-                
+
 
                 try {
                     ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
@@ -1487,7 +1269,7 @@ public class ProcessResource extends AdminApiResource {
                     consumer.accept(permit);
                 } catch (IOException e) {
                     consumer.accept(false);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
 
                 return result;
@@ -1502,7 +1284,7 @@ public class ProcessResource extends AdminApiResource {
 
     private List<String> extractOptionalParamStringList(JSONObject params, String paramName, List<String> defaultValue) {
         if (params.has(paramName)) {
-            if (! (params.get(paramName) instanceof JSONArray)) {
+            if (!(params.get(paramName) instanceof JSONArray)) {
                 throw new BadRequestException("mandatory parameter %s is not array", paramName);
             }
             JSONArray jsonArray = params.getJSONArray(paramName);
@@ -1578,7 +1360,7 @@ public class ProcessResource extends AdminApiResource {
 
     private File extractFileContainedInADirFromParamValue(String paramValue, String paramName, File rootDir) {
         //sanitize against problematic characters
-        char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!',  '@', '+', '`', '|', '=', ';', ' ', '\t'};
+        char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!', '@', '+', '`', '|', '=', ';', ' ', '\t'};
         for (char forbiddenChar : forbiddenChars) {
             if (paramValue.indexOf(forbiddenChar) != -1) {
                 throw new BadRequestException("invalid value of %s (contains forbidden character '%s'): '%s'", paramName, forbiddenChar, paramValue);
@@ -1586,7 +1368,7 @@ public class ProcessResource extends AdminApiResource {
         }
         try {
 
-            boolean canonical = KConfiguration.getInstance().getConfiguration().getBoolean("io.canonical.file",true);
+            boolean canonical = KConfiguration.getInstance().getConfiguration().getBoolean("io.canonical.file", true);
             File paramFile = null;
             if (rootDir != null) {
                 paramFile = canonical ? new File(rootDir, paramValue).getCanonicalFile() : new File(rootDir, paramValue);
@@ -1703,14 +1485,14 @@ public class ProcessResource extends AdminApiResource {
         batchJson.put("token", batchWithProcesses.token);
         batchJson.put("id", batchWithProcesses.firstProcessId);
         batchJson.put("state", toBatchStateName(batchWithProcesses.stateCode));
-        
+
         batchJson.put("planned", Utils.toFormattedStringOrNull(batchWithProcesses.planned));
         batchJson.put("started", Utils.toFormattedStringOrNull(batchWithProcesses.started));
         batchJson.put("finished", Utils.toFormattedStringOrNull(batchWithProcesses.finished));
         batchJson.put("owner_id", batchWithProcesses.ownerId);
         batchJson.put("owner_name", batchWithProcesses.ownerName);
 
-        
+
         json.put("batch", batchJson);
         //processes
         JSONArray processArray = new JSONArray();
@@ -1754,7 +1536,7 @@ public class ProcessResource extends AdminApiResource {
 
 
     private String toBatchStateName(Integer batchStateCode) {
-        if(batchStateCode == null){
+        if (batchStateCode == null) {
             return "UNKNOWN";
         }
 

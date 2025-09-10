@@ -17,8 +17,8 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -69,7 +69,7 @@ public class ProcessManagerClient {
             if (code == 200) {
                 return new JSONObject(body);
             } else {
-                throw new ProcessManagerClientException("Failed to fetch owners. HTTP " + code + ": " + body);
+                throw new ProcessManagerClientException("Failed to fetch owners. HTTP " + code + ": " + code);
             }
         } catch (Exception e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);
@@ -89,7 +89,7 @@ public class ProcessManagerClient {
             } else if (code == 404) {
                 return null;
             } else {
-                throw new ProcessManagerClientException("Failed to fetch process. HTTP " + code + ": " + body);
+                throw new ProcessManagerClientException("Failed to fetch process. HTTP " + code + ": " + code);
             }
         } catch (Exception e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);
@@ -115,8 +115,10 @@ public class ProcessManagerClient {
                 String body = entity != null ? EntityUtils.toString(entity) : "";
                 if (code == 200) {
                     return new JSONObject(body);
+                } else if (code == 400) {
+                    throw new ProcessManagerClientException("Invalid input: " + body, ErrorCode.INVALID_INPUT);
                 } else {
-                    throw new ProcessManagerClientException("Failed to fetch batches. HTTP " + code + ": " + body);
+                    throw new ProcessManagerClientException("Failed to fetch batches. HTTP " + code + ": " + code);
                 }
             }
         } catch (Exception e) {
@@ -126,22 +128,36 @@ public class ProcessManagerClient {
 
     public InputStream getProcessLog(String processId, boolean err) {
         String suffix = err ? "err" : "out";
-        String url = baseUrl + "process/" + processId + "/log/" +  suffix;
+        String url = baseUrl + "process/" + processId + "/log/" + suffix;
         HttpGet get = new HttpGet(url);
-        int statusCode = -1;
         try {
-            LOGGER.info(String.format("Getting process log for processId: [%s]; url: [%s] ", processId, get.getUri().toString()));
             CloseableHttpResponse response = closeableHttpClient.execute(get);
             int code = response.getCode();
             if (code == 200) {
                 InputStream is = response.getEntity().getContent();
                 return is;
-            } else if(code == 404){
+            } else if (code == 404) {
                 return null;
             } else {
                 throw new ProcessManagerClientException("Failed to fetch logs. HTTP " + code);
             }
         } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
+    public void deleteBatch(String mainProcessId) {
+        String url = baseUrl + "process/batch/" + mainProcessId;
+        HttpDelete httpDelete = new HttpDelete(url);
+        int statusCode = -1;
+        try (CloseableHttpResponse response = closeableHttpClient.execute(httpDelete)) {
+            statusCode = response.getCode();
+            if (statusCode == 400) {
+                throw new ProcessManagerClientException("Invalid state", ErrorCode.INVALID_INPUT);
+            } else if (statusCode != 200) {
+                throw new ProcessManagerClientException("Failed to delete batch. HTTP " + statusCode);
+            }
+        } catch (IOException e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);
         }
     }
