@@ -20,11 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
 
@@ -58,6 +61,25 @@ public class ProcessManagerClient {
         baseUrl = KConfiguration.getInstance().getProcessManagerURL();
     }
 
+    public String scheduleProcess(JSONObject scheduleMainProcess) {
+        String url = baseUrl + "process";
+        HttpPost post = new HttpPost(url);
+        StringEntity entity = new StringEntity(scheduleMainProcess.toString(), ContentType.APPLICATION_JSON);
+        post.setEntity(entity);
+        try (CloseableHttpResponse response = closeableHttpClient.execute(post)) {
+            int statusCode = response.getCode();
+            HttpEntity entityResp = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entityResp) : "";
+            if (statusCode == 200 || statusCode == 204) {
+                return new JSONObject(body).getString("processId");
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch process. HTTP code" + ": " + statusCode);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
     public JSONObject getOwners() {
         String url = baseUrl + "process/owner";
         HttpGet get = new HttpGet(url);
@@ -69,7 +91,7 @@ public class ProcessManagerClient {
             if (code == 200) {
                 return new JSONObject(body);
             } else {
-                throw new ProcessManagerClientException("Failed to fetch owners. HTTP " + code + ": " + code);
+                throw new ProcessManagerClientException("Failed to fetch owners. HTTP code" + ": " + code);
             }
         } catch (Exception e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);
@@ -89,7 +111,7 @@ public class ProcessManagerClient {
             } else if (code == 404) {
                 return null;
             } else {
-                throw new ProcessManagerClientException("Failed to fetch process. HTTP " + code + ": " + code);
+                throw new ProcessManagerClientException("Failed to fetch process. HTTP code" + ": " + code);
             }
         } catch (Exception e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);
@@ -118,7 +140,7 @@ public class ProcessManagerClient {
                 } else if (code == 400) {
                     throw new ProcessManagerClientException("Invalid input: " + body, ErrorCode.INVALID_INPUT);
                 } else {
-                    throw new ProcessManagerClientException("Failed to fetch batches. HTTP " + code + ": " + code);
+                    throw new ProcessManagerClientException("Failed to fetch batches. HTTP code" + ": " + code);
                 }
             }
         } catch (Exception e) {
@@ -146,18 +168,44 @@ public class ProcessManagerClient {
         }
     }
 
-    public void deleteBatch(String mainProcessId) {
+    public int deleteBatch(String mainProcessId) {
         String url = baseUrl + "process/batch/" + mainProcessId;
         HttpDelete httpDelete = new HttpDelete(url);
-        int statusCode = -1;
         try (CloseableHttpResponse response = closeableHttpClient.execute(httpDelete)) {
-            statusCode = response.getCode();
-            if (statusCode == 400) {
+            int statusCode = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
+            if (statusCode == 200) {
+                return new JSONObject(body).getInt("deleted");
+            } else if (statusCode == 400) {
                 throw new ProcessManagerClientException("Invalid state", ErrorCode.INVALID_INPUT);
-            } else if (statusCode != 200) {
+            } else if (statusCode == 404) {
+                throw new ProcessManagerClientException("Batch not found", ErrorCode.NOT_FOUND);
+            } else {
                 throw new ProcessManagerClientException("Failed to delete batch. HTTP " + statusCode);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
+    public int killBatch(String mainProcessId) {
+        String url = baseUrl + "process/batch/" + mainProcessId + "/execution";
+        HttpDelete httpDelete = new HttpDelete(url);
+        try (CloseableHttpResponse response = closeableHttpClient.execute(httpDelete)) {
+            int statusCode = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
+            if (statusCode == 200) {
+                return new JSONObject(body).getInt("killed");
+            } else if (statusCode == 400) {
+                throw new ProcessManagerClientException("Invalid state", ErrorCode.INVALID_INPUT);
+            } else if (statusCode == 404) {
+                throw new ProcessManagerClientException("Batch not found", ErrorCode.NOT_FOUND);
+            } else {
+                throw new ProcessManagerClientException("Failed to kill batch. HTTP " + statusCode);
+            }
+        } catch (Exception e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);
         }
     }

@@ -256,6 +256,7 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    // TODO pepo
     private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
@@ -387,33 +388,8 @@ public class ProcessResource extends AdminApiResource {
     public Response deleteBatch(@PathParam("process_id") String processId) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
-            //authentication
             User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-
-//            //authorization
-//            String role = ROLE_DELETE_PROCESSES;
-//            if (!roles.contains(role)) {
-//                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s')", user.getLoginname(), role); //403
-//            }
-            //id
-            Integer processIdInt = null;
-            if (StringUtils.isAnyString(processId)) {
-                try {
-                    processIdInt = Integer.valueOf(processId);
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("process_id must be a number, '%s' is not", processId);
-                }
-            }
-            //get batch data from db
-            Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
-            if (batch == null) {
-                throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
-            }
-
-
-            ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessId(processIdInt);
-
+            /* TODO pepo security
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
             boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
                     //SecurityProcessUtils.permitReader(rightsResolver, user) ||
@@ -425,38 +401,24 @@ public class ProcessResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s','%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
 
-
-            //check batch is deletable
-            String batchState = toBatchStateName(batch.stateCode);
-            if (!isDeletableState(batchState)) {
-                throw new BadRequestException("batch in state %s cannot be deleted", batchState);
-            }
-
-            // delete folders
-            List<LRProcess> lrs = this.lrProcessManager.getLongRunningProcessesByGroupToken(batch.token);
-
-
-            //delete processes in batch
-            int deleted = this.processManager.deleteBatchByBatchToken(batch.token);
-
-            if (deleted == lrs.size()) {
-                List<File> folders = lrs.stream().map(LRProcess::processWorkingDirectory).collect(Collectors.toList());
-                folders.stream().forEach(f -> {
-                    IOUtils.cleanDirectory(f);
-                    f.delete();
-                });
-            } else {
-                LOGGER.log(Level.INFO, "Cannot delete directory for processes " + batch.token);
-            }
-
+             */
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            int deleted = processManagerClient.deleteBatch(processId);
             JSONObject result = new JSONObject();
-            result.put("batch_id", batch.firstProcessId);
-            result.put("batch_token", batch.token);
+            result.put("batch_id", processId);
+            result.put("batch_token", "-"); // TODO pepo
             result.put("processes_deleted", deleted);
 
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
+        } catch (ProcessManagerClientException e) {
+            if(e.getErrorCode() == ErrorCode.NOT_FOUND){
+                throw new NotFoundException(e.getMessage());
+            }else{
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -471,25 +433,8 @@ public class ProcessResource extends AdminApiResource {
     public Response killBatch(@PathParam("process_id") String processId) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
-            //authentication
-            //AuthenticatedUser user = getAuthenticatedUserByOauth();
             User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-
-            Integer processIdInt = null;
-            if (StringUtils.isAnyString(processId)) {
-                try {
-                    processIdInt = Integer.valueOf(processId);
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("process_id must be a positive number, '%s' is not", processId);
-                }
-            }
-            //get batch data from db
-            Batch batch = this.processManager.getBatchByFirstProcessId(processIdInt);
-            if (batch == null) {
-                throw new BadRequestException("batch with first-process-id %d doesn't exist", processIdInt);
-            }
-
+            /* TODO pepo security
             ProcessInBatch processInBatch = this.processManager.getProcessInBatchByProcessId(processIdInt);
 
             LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
@@ -500,30 +445,19 @@ public class ProcessResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s','%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
             }
 
-
-            //kill all processes in batch if possible
-            String batchState = toBatchStateName(batch.stateCode);
-            if (isKillableState(batchState)) {
-                List<ProcessInBatch> processes = processManager.getProcessesInBatchByFirstProcessId(processIdInt);
-                for (ProcessInBatch process : processes) {
-                    String uuid = process.processUuid;
-                    //LRProcess lrProcess = lrProcessManager.getLongRunningProcess(uuid);
-                    if (lrProcess != null && !States.notRunningState(lrProcess.getProcessState())) { //process in batch is running
-                        try {
-                            lrProcess.stopMe();
-                            lrProcessManager.updateLongRunningProcessFinishedDate(lrProcess);
-                        } catch (
-                                Throwable e) { //because AbstractLRProcessImpl.stopMe() throws java.lang.IllegalStateException: cannot stop this process! No PID associated
-                            e.printStackTrace();
-                        }
-                    } else { //process in batch not running
-                        //System.out.println(lrProcess.getProcessState());
-                    }
-                }
-            }
+             */
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            int killed = processManagerClient.killBatch(processId);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;
+        } catch (ProcessManagerClientException e) {
+            if(e.getErrorCode() == ErrorCode.NOT_FOUND){
+                throw new NotFoundException(e.getMessage());
+            }else{
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -531,20 +465,6 @@ public class ProcessResource extends AdminApiResource {
             lrProcessManager.getSynchronizingLock().unlock();
         }
     }
-
-//    private void checkAccessControlByBasicAccessAuth() {
-//        boolean disabled = true;
-//        if (!disabled) {
-//            User user = this.userProvider.get();
-//            if (user == null) {
-//                throw new UnauthorizedException("user==null"); //401
-//            }
-//            boolean allowed = rightsResolver.isActionAllowed(user, SecuredActions.MANAGE_LR_PROCESS.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag();
-//            if (!allowed) {
-//                throw new ForbiddenException("user '%s' is not allowed to manage processes", user.getLoginname()); //403
-//            }
-//        }
-//    }
 
     /**
      * Schedules new process
@@ -557,6 +477,38 @@ public class ProcessResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
         try {
+            /*
+            {
+              "defid" : "import",
+              "params" : {
+                "license" : "dnntt",
+                "inputDataDir" : "/045b1250-7e47-11e0-add1-000d606f5dc6",
+                "startIndexer" : true
+              }
+            }
+            {
+              "profileId" : "testPlugin1-big",
+              "payload" : {
+                "surname" : "Po",
+                "name" : "Pe"
+              },
+              "ownerId" : "PePo"
+            }
+             */
+            JSONObject pcpSchedule = ProcessManagerMapper.mapScheduleMainProcess(processDefinition, "owner");
+            /*
+            boolean ret = true;
+            if(ret){
+                return Response.ok().build();
+            }
+
+             */
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            String processId = processManagerClient.scheduleProcess(pcpSchedule);
+            JSONObject result = new JSONObject();
+            result.put("processId", processId);
+            return Response.ok().entity(result.toString()).build();
+            /*
             String parentProcessAuthToken = getParentProcessAuthToken();
             if (processDefinition == null) {
                 throw new BadRequestException("missing process definition");
@@ -570,6 +522,8 @@ public class ProcessResource extends AdminApiResource {
                 params = processDefinition.getJSONObject("params");
             }
 
+             */
+/*
             if (parentProcessAuthToken != null) { //run by "parent" process (more precisely it's "older sibling" process - the new process will be its sibling within same batch)
                 ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
                 if (parentProcess == null) {
@@ -608,6 +562,8 @@ public class ProcessResource extends AdminApiResource {
 
                 return scheduleProcess(defid, paramsList, user.getLoginname(), user.getLoginname(), batchToken, title);
             }
+
+ */
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -616,12 +572,16 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+    /*
     private Response scheduleProcess(String defid, List<String> params, String ownerId, String ownerName, String batchToken, String processName) {
         LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, params, ownerId, ownerName, batchToken, processName);
         URI uri = UriBuilder.fromResource(LRResource.class).path("{uuid}").build(newProcess.getUUID());
         return Response.created(uri).entity(lrPRocessToJSONObject(newProcess).toString()).build();
     }
 
+     */
+
+    /*
     private JSONObject lrPRocessToJSONObject(LRProcess lrProcess) throws JSONException {
 
         JSONObject jsonObject = new JSONObject();
@@ -641,7 +601,10 @@ public class ProcessResource extends AdminApiResource {
         return jsonObject;
     }
 
+     */
+
     //TODO: I18N
+    /*
     private String buildInitialProcessName(String defId, List<String> params) {
 
         try {
@@ -739,7 +702,9 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+     */
 
+/*
     private static String shortenIfTooLong(String string, int maxLength) {
         if (string == null || string.isEmpty() || string.length() <= maxLength) {
             return string;
@@ -748,8 +713,8 @@ public class ProcessResource extends AdminApiResource {
             return string.substring(0, maxLength - suffix.length()) + suffix;
         }
     }
-
-
+*/
+/*
     private List<String> paramsToList(String id, JSONObject params, Consumer<Boolean> consumer) {
         switch (id) {
             case "new_process_api_test": {
@@ -1281,7 +1246,8 @@ public class ProcessResource extends AdminApiResource {
             }
         }
     }
-
+*/
+    /*
     private List<String> extractOptionalParamStringList(JSONObject params, String paramName, List<String> defaultValue) {
         if (params.has(paramName)) {
             if (!(params.get(paramName) instanceof JSONArray)) {
@@ -1296,8 +1262,9 @@ public class ProcessResource extends AdminApiResource {
         } else {
             return defaultValue;
         }
-    }
+    }*/
 
+    /*
     private Integer extractOptionalParamPositiveInteger(JSONObject params, String paramName, int defaultValue) {
         if (params.has(paramName)) {
             try {
@@ -1313,12 +1280,16 @@ public class ProcessResource extends AdminApiResource {
         } else {
             return defaultValue;
         }
-    }
+    }*/
 
+    /*
     private String extractOptionalParamString(JSONObject params, String paramName, String defaultValue) {
         return params.has(paramName) ? params.getString(paramName) : defaultValue;
     }
 
+     */
+
+    /*
     private Boolean extractOptionalParamBoolean(JSONObject params, String paramName, boolean defaultValue) {
         if (params.has(paramName)) {
             return params.getBoolean(paramName);
@@ -1327,6 +1298,8 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+     */
+/*
     private Boolean extractMandatoryParamBoolean(JSONObject params, String paramName) {
         if (params.has(paramName)) {
             return params.getBoolean(paramName);
@@ -1334,7 +1307,8 @@ public class ProcessResource extends AdminApiResource {
             throw new BadRequestException("missing mandatory parameter %s: ", paramName);
         }
     }
-
+*/
+    /*
     private String extractMandatoryParamString(JSONObject params, String paramName) {
         String value = extractOptionalParamString(params, paramName, null);
         if (value == null) {
@@ -1342,8 +1316,9 @@ public class ProcessResource extends AdminApiResource {
         } else {
             return value;
         }
-    }
+    }*/
 
+    /*
     private File extractMandatoryParamFileContainedInADir(JSONObject params, String paramName, File rootDir) {
         String value = extractOptionalParamString(params, paramName, null);
         if (value == null) {
@@ -1353,11 +1328,17 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+     */
+
+    /*
     private File extractOptionalParamFileContainedInADir(JSONObject params, String paramName, File rootDir) {
         String value = extractOptionalParamString(params, paramName, null);
         return value == null ? null : extractFileContainedInADirFromParamValue(value, paramName, rootDir);
     }
 
+     */
+
+    /*
     private File extractFileContainedInADirFromParamValue(String paramValue, String paramName, File rootDir) {
         //sanitize against problematic characters
         char[] forbiddenChars = new char[]{'~', '#', '%', '&', '{', '}', '<', '>', '*', '?', '$', '!', '@', '+', '`', '|', '=', ';', ' ', '\t'};
@@ -1381,7 +1362,9 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+     */
 
+/*
     private String extractMandatoryParamWithValuePrefixed(JSONObject params, String paramName, String prefix) {
         String value = extractOptionalParamString(params, paramName, null);
         if (value == null) {
@@ -1394,6 +1377,9 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+ */
+
+    /*
     private String extractOptionalParamWithValueFromEnum(JSONObject params, String paramName, Class enumClass, String defaultValue) {
         String value = extractOptionalParamString(params, paramName, defaultValue);
         if (value == null) {
@@ -1410,6 +1396,9 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
+     */
+
+    /*
     private String extractMandatoryParamWithValueFromEnum(JSONObject params, String paramName, Class enumClass) {
         String value = extractOptionalParamString(params, paramName, null);
         if (value == null) {
@@ -1426,183 +1415,11 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-
-    private LocalDateTime parseLocalDateTime(String string) {
-        if (string == null) {
-            return null;
-        } else {
-            try {
-                return LocalDateTime.parse(string, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            } catch (DateTimeParseException e) {
-                throw new BadRequestException("incorrect date-time format '%s'", string);
-            }
-        }
-    }
-
-    private List<BatchWithProcesses> extractBatchesWithProcesses(List<ProcessInBatch> allPibs) {
-        Map<String, List<ProcessInBatch>> pibListByToken = new HashMap<>();
-        for (ProcessInBatch pib : allPibs) {
-            if (!pibListByToken.containsKey(pib.batchToken)) {
-                pibListByToken.put(pib.batchToken, new ArrayList<>());
-            }
-            List<ProcessInBatch> pibList = pibListByToken.get(pib.batchToken);
-            pibList.add(pib);
-        }
-        List<BatchWithProcesses> result = new ArrayList<>(pibListByToken.size());
-        for (List<ProcessInBatch> pibsOfBatch : pibListByToken.values()) {
-            ProcessInBatch firstPib = pibsOfBatch.get(0);
-            BatchWithProcesses batchWithProcesses = new BatchWithProcesses();
-            batchWithProcesses.token = firstPib.batchToken;
-            batchWithProcesses.firstProcessId = firstPib.batchId;
-            batchWithProcesses.stateCode = firstPib.batchStateCode;
-            batchWithProcesses.planned = firstPib.batchPlanned;
-            batchWithProcesses.started = firstPib.batchStarted;
-            batchWithProcesses.finished = firstPib.batchFinished;
-            batchWithProcesses.ownerId = firstPib.batchOwnerId;
-            batchWithProcesses.ownerName = firstPib.batchOwnerName;
-            for (ProcessInBatch pib : pibsOfBatch) {
-                Process process = new Process();
-                process.uuid = pib.processUuid;
-                process.id = pib.processId;
-                process.defid = pib.processDefid;
-                process.name = pib.processName;
-                process.stateCode = pib.processStateCode;
-                process.planned = pib.processPlanned;
-                process.started = pib.processStarted;
-                process.finished = pib.processFinished;
-                batchWithProcesses.processes.add(process);
-            }
-            result.add(batchWithProcesses);
-        }
-        Collections.sort(result, (o1, o2) -> -1 * o1.planned.compareTo(o2.planned));
-        return result;
-    }
-
-    private JSONObject batchToJson(BatchWithProcesses batchWithProcesses) {
-        JSONObject json = new JSONObject();
-        //batch
-        JSONObject batchJson = new JSONObject();
-        batchJson.put("token", batchWithProcesses.token);
-        batchJson.put("id", batchWithProcesses.firstProcessId);
-        batchJson.put("state", toBatchStateName(batchWithProcesses.stateCode));
-
-        batchJson.put("planned", Utils.toFormattedStringOrNull(batchWithProcesses.planned));
-        batchJson.put("started", Utils.toFormattedStringOrNull(batchWithProcesses.started));
-        batchJson.put("finished", Utils.toFormattedStringOrNull(batchWithProcesses.finished));
-        batchJson.put("owner_id", batchWithProcesses.ownerId);
-        batchJson.put("owner_name", batchWithProcesses.ownerName);
-
-
-        json.put("batch", batchJson);
-        //processes
-        JSONArray processArray = new JSONArray();
-        for (Process process : batchWithProcesses.processes) {
-            JSONObject processJson = new JSONObject();
-            processJson.put("id", process.id);
-            processJson.put("uuid", process.uuid);
-            processJson.put("defid", process.defid);
-            processJson.put("name", process.name);
-            processJson.put("state", toProcessStateName(process.stateCode));
-            processJson.put("planned", Utils.toFormattedStringOrNull(process.planned));
-            processJson.put("started", Utils.toFormattedStringOrNull(process.started));
-            processJson.put("finished", Utils.toFormattedStringOrNull(process.finished));
-            processArray.put(processJson);
-        }
-        json.put("processes", processArray);
-        return json;
-    }
-
-
-    private String toProcessStateName(Integer stateCode) {
-        switch (stateCode) {
-            case 0:
-                return "NOT_RUNNING";
-            case 1:
-                return "RUNNING";
-            case 2:
-                return "FINISHED";
-            case 3:
-                return "FAILED";
-            case 4:
-                return "KILLED";
-            case 5:
-                return "PLANNED";
-            case 9:
-                return "WARNING";
-            default:
-                return "UNKNOWN";
-        }
-    }
-
-
-    private String toBatchStateName(Integer batchStateCode) {
-        if (batchStateCode == null) {
-            return "UNKNOWN";
-        }
-
-        switch (batchStateCode) {
-            case 0:
-                return "PLANNED";
-            case 1:
-                return "RUNNING";
-            case 2:
-                return "FINISHED";
-            case 3:
-                return "FAILED";
-            case 4:
-                return "KILLED";
-            case 5:
-                return "WARNING";
-            default:
-                return "UNKNOWN";
-        }
-    }
-
-    private int toBatchStateCode(String batchStateName) {
-        switch (batchStateName) {
-            case "PLANNED":
-                return 0;
-            case "RUNNING":
-                return 1;
-            case "FINISHED":
-                return 2;
-            case "FAILED":
-                return 3;
-            case "KILLED":
-                return 4;
-            case "WARNING":
-                return 5;
-            default:
-                throw new BadRequestException("unknown state '%s'", batchStateName);
-        }
-    }
-
-    private boolean isDeletableState(String batchState) {
-        String[] deletableStates = new String[]{"FINISHED", "FAILED", "KILLED"};
-        return batchState != null && Arrays.asList(deletableStates).contains(batchState);
-    }
-
-    private boolean isKillableState(String batchState) {
-        String[] deletableStates = new String[]{"PLANNED", "RUNNING"};
-        return batchState != null && Arrays.asList(deletableStates).contains(batchState);
-    }
-
-    public static final class BatchWithProcesses extends Batch {
-        List<Process> processes = new ArrayList<>();
-    }
-
-    public static final class Process {
-        public String id;
-        public String uuid;
-        public String defid;
-        public String name;
-        public Integer stateCode;
-        public LocalDateTime planned;
-        public LocalDateTime started;
-        public LocalDateTime finished;
-    }
-
+     */
+/*
     public enum Policy {
         PRIVATE, PUBLIC
     }
+
+ */
 }

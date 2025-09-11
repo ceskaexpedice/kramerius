@@ -43,16 +43,13 @@ public class ProcessManagerProcessEndpoint {
     public ProcessManagerProcessEndpoint() {
     }
 
-    /*
     @POST
-    public Response scheduleMainProcess(ScheduleMainProcess scheduleMainProcess) {
-        String processId = processService.scheduleMainProcess(scheduleMainProcess);
+    public Response scheduleMainProcess(String scheduleMainProcess) {
+        JSONObject scheduleMainProcessJson = new JSONObject(scheduleMainProcess);
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("processId", processId);
-        return APIRestUtilities.jsonPayload(jsonObject.toString());
+        jsonObject.put("processId", "ed25ce29-2149-439d-85c4-cc5e516e3036");
+        return jsonPayload(jsonObject.toString());
     }
-
-     */
 
     @GET
     @Path("{processId}")
@@ -177,19 +174,15 @@ public class ProcessManagerProcessEndpoint {
         return jsonPayload(result.toString());
     }
 
-/*
     @DELETE
     @Path("batch/{mainProcessId}/execution")
     @Produces(MediaType.APPLICATION_JSON)
     public Response killBatch(@PathParam("mainProcessId") String mainProcessId) {
-        int killed = processService.killBatch(mainProcessId);
         JSONObject result = new JSONObject();
         result.put("mainProcessId", mainProcessId);
-        result.put("killed", killed);
-        return APIRestUtilities.jsonPayload(result.toString());
+        result.put("killed", 2);
+        return jsonPayload(result.toString());
     }
-
- */
 
     @GET
     @Path("owner")

@@ -26,10 +26,11 @@ import org.json.JSONObject;
  */
 public final class ProcessManagerMapper {
 
-    private ProcessManagerMapper(){}
+    private ProcessManagerMapper() {
+    }
 
     public static JSONObject mapOwners(JSONObject pcpOwners) {
-        if(pcpOwners == null){
+        if (pcpOwners == null) {
             return null;
         }
         JSONArray ownersJson = new JSONArray();
@@ -53,13 +54,13 @@ public final class ProcessManagerMapper {
         batch.put("token", pcpBatchWithProcesses.getString("mainProcessId"));
         batch.put("id", pcpBatchWithProcesses.getString("mainProcessId"));
         batch.put("state", pcpBatchWithProcesses.getString("status"));
-        if(!pcpBatchWithProcesses.isNull("planned")){
+        if (!pcpBatchWithProcesses.isNull("planned")) {
             batch.put("planned", toFormattedStringOrNull(pcpBatchWithProcesses.getLong("planned")));
         }
-        if(!pcpBatchWithProcesses.isNull("started")){
+        if (!pcpBatchWithProcesses.isNull("started")) {
             batch.put("started", toFormattedStringOrNull(pcpBatchWithProcesses.getLong("started")));
         }
-        if(!pcpBatchWithProcesses.isNull("finished")){
+        if (!pcpBatchWithProcesses.isNull("finished")) {
             batch.put("finished", toFormattedStringOrNull(pcpBatchWithProcesses.getLong("finished")));
         }
         batch.put("owner_id", pcpBatchWithProcesses.getString("owner"));
@@ -77,13 +78,13 @@ public final class ProcessManagerMapper {
             process.put("defid", processInBatch.getString("profileId"));
             process.put("name", processInBatch.getString("description"));
             process.put("state", processInBatch.getString("status"));
-            if(!processInBatch.isNull("planned")){
+            if (!processInBatch.isNull("planned")) {
                 process.put("planned", toFormattedStringOrNull(processInBatch.getLong("planned")));
             }
-            if(!processInBatch.isNull("started")){
+            if (!processInBatch.isNull("started")) {
                 process.put("started", toFormattedStringOrNull(processInBatch.getLong("started")));
             }
-            if(!processInBatch.isNull("finished")){
+            if (!processInBatch.isNull("finished")) {
                 process.put("finished", toFormattedStringOrNull(processInBatch.getLong("finished")));
             }
             processArray.put(process);
@@ -125,18 +126,63 @@ public final class ProcessManagerMapper {
         processJson.put("defid", pcpProcess.getString("profileId"));
         processJson.put("name", pcpProcess.getString("description"));
         processJson.put("state", pcpProcess.getString("status"));
-        if(!pcpProcess.isNull("planned")){
+        if (!pcpProcess.isNull("planned")) {
             processJson.put("planned", toFormattedStringOrNull(pcpProcess.getLong("planned")));
         }
-        if(!pcpProcess.isNull("started")){
+        if (!pcpProcess.isNull("started")) {
             processJson.put("started", toFormattedStringOrNull(pcpProcess.getLong("started")));
         }
-        if(!pcpProcess.isNull("finished")){
+        if (!pcpProcess.isNull("finished")) {
             processJson.put("finished", toFormattedStringOrNull(pcpProcess.getLong("finished")));
         }
         JSONObject result = new JSONObject();
         result.put("process", processJson);
         result.put("batch", batchJson);
+        return result;
+    }
+
+    public static JSONObject mapScheduleMainProcess(JSONObject krSchedule, String owner) {
+            /*
+            {
+              "defid" : "import",
+              "params" : {
+                "license" : "dnntt",
+                "inputDataDir" : "/045b1250-7e47-11e0-add1-000d606f5dc6",
+                "startIndexer" : true
+              }
+            }
+            {
+              "profileId" : "testPlugin1-big",
+              "payload" : {
+                "surname" : "Po",
+                "name" : "Pe"
+              },
+              "ownerId" : "PePo"
+            }
+             */
+        boolean justTemp = true;
+        if(justTemp){
+            String scheduleMainProcess = "            {" +
+                    "              \"profileId\" : \"testPlugin1-small\"," +
+                    "              \"payload\" : {" +
+                    "                \"surname\" : \"Po\"," +
+                    "                \"name\" : \"Pe\"" +
+                    "              }," +
+                    "              \"ownerId\" : \"PePo\"" +
+                    "            }";
+            return new JSONObject(scheduleMainProcess);
+        }
+
+
+
+        JSONObject result = new JSONObject();
+        if (krSchedule.has("defid")) {
+            result.put("profileId", krSchedule.getString("defid"));
+        }
+        if (krSchedule.has("params")) {
+            result.put("payload", krSchedule.getJSONObject("params"));
+        }
+        result.put("ownerId", owner);
         return result;
     }
 

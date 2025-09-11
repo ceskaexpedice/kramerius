@@ -97,6 +97,22 @@ public class TestProcessManagerClient {
 
     @Ignore
     @Test
+    public void testScheduleProcess() {
+        String scheduleMainProcess = "            {" +
+                "              \"profileId\" : \"testPlugin1-big\"," +
+                "              \"payload\" : {" +
+                "                \"surname\" : \"Po\"," +
+                "                \"name\" : \"Pe\"" +
+                "              }," +
+                "              \"ownerId\" : \"PePo\"" +
+                "            }";
+        String processId = processManagerClient.scheduleProcess(new JSONObject(scheduleMainProcess));
+        System.out.println(processId);
+        //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+    }
+
+    @Ignore
+    @Test
     public void testGetOwners() {
         JSONObject owners = processManagerClient.getOwners();
         JSONObject jsonObject = ProcessManagerMapper.mapOwners(owners);
@@ -142,8 +158,16 @@ public class TestProcessManagerClient {
 
     @Ignore
     @Test
-    public void testDeleteBatch() throws IOException {
-        processManagerClient.deleteBatch("ed25ce29-2149-439d-85c4");
+    public void testDeleteBatch() {
+        int deleted = processManagerClient.deleteBatch("ed25ce29-2149-439d-85c4");
+        System.out.println(deleted);
+    }
+
+    @Ignore
+    @Test
+    public void testKillBatch() {
+        int killed = processManagerClient.killBatch("ed25ce29-2149-439d-85c4");
+        System.out.println(killed);
     }
 
     private CloseableHttpClient getClient() {
