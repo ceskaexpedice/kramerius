@@ -26,6 +26,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 // TODO pepo
@@ -231,6 +232,36 @@ public class ProcessManagerProcessEndpoint {
                     }
                 }).header("Content-Disposition", "inline; filename=\"" + fileName + ".log\"")
                 .build();
+    }
+
+    @GET
+    @Path("{processId}/log/out/lines")
+    public Response getProcessLogOutLines(@PathParam("processId") String processId,
+                                          @QueryParam("offset") String offsetStr,
+                                          @QueryParam("limit") String limitStr) {
+        return getProcessLogLinesHelper(processId, offsetStr, limitStr, false);
+    }
+
+    @GET
+    @Path("{processId}/log/err/lines")
+    public Response getProcessLogErrLines(@PathParam("processId") String processId,
+                                          @QueryParam("offset") String offsetStr,
+                                          @QueryParam("limit") String limitStr) {
+        return getProcessLogLinesHelper(processId, offsetStr, limitStr, true);
+    }
+
+    private Response getProcessLogLinesHelper(String processId, String offsetStr,String limitStr, boolean err) {
+        JSONObject result = new JSONObject();
+        result.put("totalSize", 21);
+        JSONArray linesJson = new JSONArray();
+        List<String> lines = new ArrayList<>();
+        lines.add("first line");
+        lines.add("second line");
+        for (String line : lines) {
+            linesJson.put(line);
+        }
+        result.put("lines", linesJson);
+        return jsonPayload(result.toString());
     }
 
 }

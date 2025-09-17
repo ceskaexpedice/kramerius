@@ -194,9 +194,8 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessLogsOutLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                         @QueryParam("offset") String offsetStr,
                                                         @QueryParam("limit") String limitStr) {
-        // TODO pepo not supported yet
         try {
-            return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.OUT, offsetStr, limitStr);
+            return getProcessLogsLinesByProcessUuid(processUuid, false, offsetStr, limitStr);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -219,9 +218,8 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessLogsErrLinesByProcessUuid(@PathParam("process_uuid") String processUuid,
                                                         @QueryParam("offset") String offsetStr,
                                                         @QueryParam("limit") String limitStr) {
-        // TODO) pepo not supported yet
         try {
-            return getProcessLogsLinesByProcessUuid(processUuid, ProcessLogsHelper.LogType.ERR, offsetStr, limitStr);
+            return getProcessLogsLinesByProcessUuid(processUuid, true, offsetStr, limitStr);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -230,63 +228,13 @@ public class ProcessResource extends AdminApiResource {
         }
     }
 
-    // TODO pepo
-    private Response getProcessLogsLinesByProcessUuid(String processUuid, ProcessLogsHelper.LogType logType, String offsetStr, String limitStr) {
+    private Response getProcessLogsLinesByProcessUuid(String processUuid, boolean err, String offsetStr, String limitStr) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
-            //authentication
-            User user = this.userProvider.get();
-            List<String> roles = Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.toList());
-
-
-            LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processUuid);
-            boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) ||
-                    SecurityProcessUtils.permitReader(rightsResolver, user) ||
-                    SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(this.definitionManager, lrProcess.getDefinitionId()));
-
-            if (!permitted) {
-                throw new ForbiddenException("user '%s' is not allowed to manage processes (missing actions '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
-            }
-
-            //offset & limit
-            long offset = GET_LOGS_DEFAULT_OFFSET;
-            if (StringUtils.isAnyString(offsetStr)) {
-                try {
-                    offset = Long.valueOf(offsetStr);
-                    if (offset < 0) {
-                        throw new BadRequestException("offset must be zero or a positive number, '%s' is not", offsetStr);
-                    }
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("offset must be a number, '%s' is not", offsetStr);
-                }
-            }
-            long limit = GET_LOGS_DEFAULT_LIMIT;
-            if (StringUtils.isAnyString(limitStr)) {
-                try {
-                    limit = Long.valueOf(limitStr);
-                    if (limit < 1) {
-                        throw new BadRequestException("limit must be a positive number, '%s' is not", limitStr);
-                    }
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("limit must be a number, '%s' is not", limitStr);
-                }
-            }
-            //access to process data
-            LRProcess lrProces = lrProcessManager.getLongRunningProcess(processUuid);
-            if (lrProces == null) {
-                throw new BadRequestException("process with uuid " + processUuid + " not found");
-            }
-            ProcessLogsHelper processLogsHelper = new ProcessLogsHelper(lrProces);
-            //result
-            JSONObject result = new JSONObject();
-            result.put("total_size", processLogsHelper.getLogsFileSize(logType));
-            JSONArray linesJson = new JSONArray();
-            List<String> lines = processLogsHelper.getLogsFileData(logType, offset, limit);
-            for (String line : lines) {
-                linesJson.put(line);
-            }
-            result.put("lines", linesJson);
-            return Response.ok().entity(result.toString()).build();
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject processLogLines = processManagerClient.getProcessLogLines(processUuid, offsetStr, limitStr, err);
+            processLogLines = ProcessManagerMapper.mapLogLines(processLogLines);
+            return Response.ok().entity(processLogLines.toString()).build();
         } finally {
             lrProcessManager.getSynchronizingLock().unlock();
         }

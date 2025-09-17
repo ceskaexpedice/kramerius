@@ -24,12 +24,12 @@ import org.json.JSONObject;
  * ProcessManagerMapper
  * @author ppodsednik
  */
-public final class ProcessManagerMapper {
+final class ProcessManagerMapper {
 
     private ProcessManagerMapper() {
     }
 
-    public static JSONObject mapOwners(JSONObject pcpOwners) {
+    static JSONObject mapOwners(JSONObject pcpOwners) {
         if (pcpOwners == null) {
             return null;
         }
@@ -47,7 +47,7 @@ public final class ProcessManagerMapper {
         return result;
     }
 
-    public static JSONObject mapBatchWithProcesses(JSONObject pcpBatchWithProcesses) {
+    static JSONObject mapBatchWithProcesses(JSONObject pcpBatchWithProcesses) {
         JSONObject json = new JSONObject();
         //batch
         JSONObject batch = new JSONObject();
@@ -112,7 +112,7 @@ public final class ProcessManagerMapper {
   "status" : "RUNNING"
 }
      */
-    public static JSONObject mapProcess(JSONObject pcpProcess) {
+    static JSONObject mapProcess(JSONObject pcpProcess) {
         JSONObject json = new JSONObject();
         //batch
         JSONObject batchJson = new JSONObject();
@@ -141,7 +141,7 @@ public final class ProcessManagerMapper {
         return result;
     }
 
-    public static JSONObject mapScheduleMainProcess(JSONObject krSchedule, String owner) {
+    static JSONObject mapScheduleMainProcess(JSONObject krSchedule, String owner) {
             /*
             {
               "defid" : "import",
@@ -186,7 +186,15 @@ public final class ProcessManagerMapper {
         return result;
     }
 
-    public static String toFormattedStringOrNull(long timeMillis) {
+    static JSONObject mapLogLines(JSONObject pcpLogLines) {
+        if (pcpLogLines.has("totalSize")) {
+            Object value = pcpLogLines.remove("totalSize");
+            pcpLogLines.put("total_size", value);
+        }
+        return pcpLogLines;
+    }
+
+    private static String toFormattedStringOrNull(long timeMillis) {
         return Utils.toFormattedStringOrNull(timeMillis / 1000);
     }
 }

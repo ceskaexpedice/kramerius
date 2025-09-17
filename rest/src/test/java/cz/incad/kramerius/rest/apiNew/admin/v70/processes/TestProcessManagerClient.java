@@ -158,6 +158,13 @@ public class TestProcessManagerClient {
 
     @Ignore
     @Test
+    public void testGetProcessLogLines() throws IOException {
+        JSONObject logLines = processManagerClient.getProcessLogLines("ed25ce29-2149-439d-85c4", "0", "50", false);
+        Assertions.assertEquals(2, logLines.getJSONArray("lines").length());
+    }
+
+    @Ignore
+    @Test
     public void testDeleteBatch() {
         int deleted = processManagerClient.deleteBatch("ed25ce29-2149-439d-85c4");
         System.out.println(deleted);

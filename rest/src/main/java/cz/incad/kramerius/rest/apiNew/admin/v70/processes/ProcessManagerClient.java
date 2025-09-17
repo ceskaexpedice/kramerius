@@ -168,6 +168,32 @@ public class ProcessManagerClient {
         }
     }
 
+    public JSONObject getProcessLogLines(String processId, String offset, String limit, boolean err) {
+        String suffix = err ? "err" : "out";
+        String url = baseUrl + "process/" + processId + "/log/" + suffix + "/lines";
+        try {
+            URIBuilder uriBuilder = new URIBuilder(url);
+            if (offset != null) uriBuilder.addParameter("offset", offset);
+            if (limit != null) uriBuilder.addParameter("limit", limit);
+
+            HttpGet get = new HttpGet(uriBuilder.build());
+            try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+                int code = response.getCode();
+                HttpEntity entity = response.getEntity();
+                String body = entity != null ? EntityUtils.toString(entity) : "";
+                if (code == 200) {
+                    return new JSONObject(body);
+                } else if (code == 400) {
+                    throw new ProcessManagerClientException("Invalid input: " + body, ErrorCode.INVALID_INPUT);
+                } else {
+                    throw new ProcessManagerClientException("Failed to fetch logs. HTTP " + code);
+                }
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
     public int deleteBatch(String mainProcessId) {
         String url = baseUrl + "process/batch/" + mainProcessId;
         HttpDelete httpDelete = new HttpDelete(url);
