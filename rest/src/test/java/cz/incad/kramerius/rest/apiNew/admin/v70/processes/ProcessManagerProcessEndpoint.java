@@ -48,7 +48,7 @@ public class ProcessManagerProcessEndpoint {
     public Response scheduleMainProcess(String scheduleMainProcess) {
         JSONObject scheduleMainProcessJson = new JSONObject(scheduleMainProcess);
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("processId", "ed25ce29-2149-439d-85c4-cc5e516e3036");
+        jsonObject.put("processId", TestProcessManagerClient.SCHEDULED_PROCESS_ID);
         return jsonPayload(jsonObject.toString());
     }
 
@@ -57,7 +57,7 @@ public class ProcessManagerProcessEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getProcess(@PathParam("processId") String processId) {
         String json = "{" +
-                "                  \"processId\": \"ed25ce29-2149-439d-85c4-cc5e516e3036\"," +
+                "                  \"processId\": \"" + processId + "\"," +
                 "                  \"description\": \"Main process for the profile testPlugin1-big\"," +
                 "                  \"profileId\": \"testPlugin1-big\"," +
                 "                  \"workerId\": \"curatorWorker\"," +

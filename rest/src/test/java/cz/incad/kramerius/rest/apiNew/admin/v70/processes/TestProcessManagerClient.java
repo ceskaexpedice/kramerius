@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.*;
 import org.junit.jupiter.api.Assertions;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,65 +38,47 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessManagerProcessEndpoint.OUT_LOG_PART;
-import static org.mockito.ArgumentMatchers.eq;
-
-// TODO pepo
+import static org.mockito.Mockito.*;
 
 /**
- * TestWorkerClient
+ * TestProcessManagerClient
  *
  * @author ppodsednik
  */
 public class TestProcessManagerClient {
-    public static final String MANAGER_BASE_URL = "http://localhost:9998/process-manager/api/";
-    /*
-    @Mock
-    private ProcessService processServiceMock;
-    @Mock
-    private NodeService nodeServiceMock;
+    public static final String SCHEDULED_PROCESS_ID = "ed25ce29-2149-439d-85c4";
 
-     */
+    private static final String MANAGER_BASE_URL = "http://localhost:9998/process-manager/api/";
 
     private HttpServer server;
     private ProcessManagerClient processManagerClient;
-
-    @BeforeClass
-    public static void beforeAll() throws URISyntaxException {
-/*
-        URL resource = TestProcessManagerClient.class.getResource("configuration.properties");
-        Path filePath = Paths.get(resource.toURI());
-        KConfiguration.setWorkingDir(filePath.getParent().toString());
-*/
-
-    }
+    private MockedStatic<KConfiguration> kConfigStatic;
 
     @Before
     public void setUp() throws Exception {
-        /*
-        MockitoAnnotations.openMocks(this);
-        ProcessInfo processInfo = new ProcessInfo();
-        processInfo.setProcessId(ManagerTestsUtils.PROCESS1_ID);
-        processInfo.setWorkerId(ManagerTestsUtils.NODE_WORKER1_ID);
-        when(processServiceMock.getProcess(eq(ManagerTestsUtils.PROCESS1_ID))).thenReturn(processInfo);
-        Node node = new Node();
-        node.setNodeId(ManagerTestsUtils.NODE_WORKER1_ID);
-        node.setUrl(ManagerTestsUtils.WORKER_BASE_URI);
-        when(nodeServiceMock.getNode(eq(ManagerTestsUtils.NODE_WORKER1_ID))).thenReturn(node);
-
-         */
-
         final ResourceConfig rc = new ResourceConfig(ProcessManagerProcessEndpoint.class);
         server = GrizzlyHttpServerFactory.createHttpServer(URI.create(MANAGER_BASE_URL), rc);
         server.start();
+
+        // Mock static KConfiguration
+        MockedStatic<KConfiguration> mockedStatic = mockStatic(KConfiguration.class);
+        KConfiguration mockConfig = mock(KConfiguration.class);
+        mockedStatic.when(KConfiguration::getInstance).thenReturn(mockConfig);
+        when(mockConfig.getProcessManagerURL()).thenReturn(MANAGER_BASE_URL);
+        processManagerClient = new ProcessManagerClient(getClient());
+        this.kConfigStatic = mockedStatic;
+
         processManagerClient = new ProcessManagerClient(getClient());
     }
 
     @After
     public void tearDown() {
+        if (kConfigStatic != null) {
+            kConfigStatic.close(); // release static mock
+        }
         server.shutdownNow();
     }
 
-    @Ignore
     @Test
     public void testScheduleProcess() {
         String scheduleMainProcess = "            {" +
@@ -107,74 +90,58 @@ public class TestProcessManagerClient {
                 "              \"ownerId\" : \"PePo\"" +
                 "            }";
         String processId = processManagerClient.scheduleProcess(new JSONObject(scheduleMainProcess));
-        System.out.println(processId);
-        //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+        Assertions.assertEquals(SCHEDULED_PROCESS_ID, processId);
     }
 
-    @Ignore
     @Test
     public void testGetOwners() {
         JSONObject owners = processManagerClient.getOwners();
-        JSONObject jsonObject = ProcessManagerMapper.mapOwners(owners);
-        System.out.println(jsonObject);
-        //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+        JSONObject ownersKr = ProcessManagerMapper.mapOwners(owners);
+        Assertions.assertEquals(2, ownersKr.getJSONArray("owners").length());
     }
 
-    @Ignore
     @Test
     public void testGetProcess() {
-        JSONObject process = processManagerClient.getProcess("ed25ce29-2149-439d-85c4");
-       // ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
+        JSONObject process = processManagerClient.getProcess(SCHEDULED_PROCESS_ID);
         JSONObject processInBatch = ProcessManagerMapper.mapProcess(process);
-        System.out.println(processInBatch);
-        //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
+        Assertions.assertEquals(SCHEDULED_PROCESS_ID, processInBatch.getJSONObject("process").getString("id"));
     }
 
-    @Ignore
     @Test
     public void testGetBatches() {
         String DATE_STRING = "2025-09-07T14:30:00";
-        JSONObject batches = processManagerClient.getBatches("0", "50", "PePo", DATE_STRING, DATE_STRING, "PLANNED");
-        JSONArray jsonArray = batches.getJSONArray("batches");
+        JSONObject pcpBatches = processManagerClient.getBatches("0", "50", "PePo", DATE_STRING, DATE_STRING, "PLANNED");
+        JSONArray jsonArray = pcpBatches.getJSONArray("batches");
+        Assertions.assertEquals(2, jsonArray.length());
         for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject jsonObjectBatch = jsonArray.getJSONObject(i);
-
-            JSONObject batchToJson = ProcessManagerMapper.mapBatchWithProcesses(jsonObjectBatch);
-
-            System.out.println(jsonObjectBatch);
+            JSONObject pcpBatch = jsonArray.getJSONObject(i);
+            JSONObject krBatch = ProcessManagerMapper.mapBatchWithProcesses(pcpBatch); // just to be sure mapping works
         }
-        //ProcessInBatch processInBatch = ProcessManagerMapper.mapProcess(process);
-        System.out.println(batches);
-        //Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 
-    @Ignore
     @Test
     public void testGetProcessLog() throws IOException {
-        InputStream processLog = processManagerClient.getProcessLog("ed25ce29-2149-439d-85c4", false);
+        InputStream processLog = processManagerClient.getProcessLog(SCHEDULED_PROCESS_ID, false);
         String outLog = new String(processLog.readAllBytes(), StandardCharsets.UTF_8);
         Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 
-    @Ignore
     @Test
-    public void testGetProcessLogLines() throws IOException {
-        JSONObject logLines = processManagerClient.getProcessLogLines("ed25ce29-2149-439d-85c4", "0", "50", false);
+    public void testGetProcessLogLines() {
+        JSONObject logLines = processManagerClient.getProcessLogLines(SCHEDULED_PROCESS_ID, "0", "50", false);
         Assertions.assertEquals(2, logLines.getJSONArray("lines").length());
     }
 
-    @Ignore
     @Test
     public void testDeleteBatch() {
-        int deleted = processManagerClient.deleteBatch("ed25ce29-2149-439d-85c4");
-        System.out.println(deleted);
+        int deleted = processManagerClient.deleteBatch(SCHEDULED_PROCESS_ID);
+        Assertions.assertEquals(2, deleted);
     }
 
-    @Ignore
     @Test
     public void testKillBatch() {
-        int killed = processManagerClient.killBatch("ed25ce29-2149-439d-85c4");
-        System.out.println(killed);
+        int killed = processManagerClient.killBatch(SCHEDULED_PROCESS_ID);
+        Assertions.assertEquals(2, killed);
     }
 
     private CloseableHttpClient getClient() {
