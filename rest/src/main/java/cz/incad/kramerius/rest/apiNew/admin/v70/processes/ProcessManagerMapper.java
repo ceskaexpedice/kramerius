@@ -25,6 +25,45 @@ import org.json.JSONObject;
  * @author ppodsednik
  */
 final class ProcessManagerMapper {
+    // general
+    static final String PLANNED = "planned";
+    static final String STARTED = "started";
+    static final String FINISHED = "finished";
+    static final String PROCESSES = "processes";
+    static final String PROCESS = "process";
+    static final String BATCH = "batch";
+    static final String BATCHES = "batches";
+    static final String OFFSET = "offset";
+    static final String LIMIT = "limit";
+
+    static final String PCP_STATUS = "status";
+    static final String PCP_DESCRIPTION = "description";
+    static final String PCP_PROFILE_ID = "profileId";
+    static final String PCP_PROCESS_ID = "processId";
+    static final String PCP_PAYLOAD = "payload";
+    static final String PCP_TOTAL_SIZE = "totalSize";
+    static final String PCP_OWNERS = "owners";
+    static final String PCP_OWNER_ID = "owner";
+    static final String PCP_OWNER_ID_SCH = "ownerID";
+    static final String PCP_OWNER_NAME = "owner";
+    static final String PCP_MAIN_PROCESS_ID = "mainProcessId";
+    static final String PCP_BATCH_ID = "batchId";
+
+    static final String KR_PROCESS_UUID = "uuid";
+    static final String KR_PROFILE_ID = "defid";
+    static final String KR_ID = "id";
+    static final String KR_STATUS = "state";
+    static final String KR_DESCRIPTION = "name";
+    static final String KR_PAYLOAD = "params";
+    static final String KR_TOTAL_SIZE = "total_size";
+    static final String KR_OWNERS = "owners";
+    static final String KR_OWNER_NAME = "name";
+    static final String KR_BATCH_ID = "batch_id";
+    static final String KR_BATCH_TOKEN = "token";
+    static final String KR_BATCH_TOKEN_1 = "batch_token";
+    static final String KR_BATCH_OWNER_ID = "owner_id";
+    static final String KR_BATCH_OWNER_NAME = "owner_name";
+    static final String KR_PROCESSES_DELETED = "processes_deleted";
 
     private ProcessManagerMapper() {
     }
@@ -34,16 +73,16 @@ final class ProcessManagerMapper {
             return null;
         }
         JSONArray ownersJson = new JSONArray();
-        JSONArray pcpOwnersArray = pcpOwners.getJSONArray("owners");
+        JSONArray pcpOwnersArray = pcpOwners.getJSONArray(PCP_OWNERS);
         for (int i = 0; i < pcpOwnersArray.length(); i++) {
             JSONObject pcpOwner = pcpOwnersArray.getJSONObject(i);
             JSONObject ownerJson = new JSONObject();
-            ownerJson.put("id", pcpOwner.getString("owner"));
-            ownerJson.put("name", pcpOwner.getString("owner"));
+            ownerJson.put(KR_ID, pcpOwner.getString(PCP_OWNER_ID));
+            ownerJson.put(KR_OWNER_NAME, pcpOwner.getString(PCP_OWNER_NAME));
             ownersJson.put(ownerJson);
         }
         JSONObject result = new JSONObject();
-        result.put("owners", ownersJson);
+        result.put(KR_OWNERS, ownersJson);
         return result;
     }
 
@@ -51,115 +90,79 @@ final class ProcessManagerMapper {
         JSONObject json = new JSONObject();
         //batch
         JSONObject batch = new JSONObject();
-        batch.put("token", pcpBatchWithProcesses.getString("mainProcessId"));
-        batch.put("id", pcpBatchWithProcesses.getString("mainProcessId"));
-        batch.put("state", pcpBatchWithProcesses.getString("status"));
-        if (!pcpBatchWithProcesses.isNull("planned")) {
-            batch.put("planned", toFormattedStringOrNull(pcpBatchWithProcesses.getLong("planned")));
+        batch.put(KR_BATCH_TOKEN, pcpBatchWithProcesses.getString(PCP_MAIN_PROCESS_ID));
+        batch.put(KR_ID, pcpBatchWithProcesses.getString(PCP_MAIN_PROCESS_ID));
+        batch.put(KR_STATUS, pcpBatchWithProcesses.getString(PCP_STATUS));
+        if (!pcpBatchWithProcesses.isNull(PLANNED)) {
+            batch.put(PLANNED, toFormattedStringOrNull(pcpBatchWithProcesses.getLong(PLANNED)));
         }
-        if (!pcpBatchWithProcesses.isNull("started")) {
-            batch.put("started", toFormattedStringOrNull(pcpBatchWithProcesses.getLong("started")));
+        if (!pcpBatchWithProcesses.isNull(STARTED)) {
+            batch.put(STARTED, toFormattedStringOrNull(pcpBatchWithProcesses.getLong(STARTED)));
         }
-        if (!pcpBatchWithProcesses.isNull("finished")) {
-            batch.put("finished", toFormattedStringOrNull(pcpBatchWithProcesses.getLong("finished")));
+        if (!pcpBatchWithProcesses.isNull(FINISHED)) {
+            batch.put(FINISHED, toFormattedStringOrNull(pcpBatchWithProcesses.getLong(FINISHED)));
         }
-        batch.put("owner_id", pcpBatchWithProcesses.getString("owner"));
-        batch.put("owner_name", pcpBatchWithProcesses.getString("owner"));
-        json.put("batch", batch);
+        batch.put(KR_BATCH_OWNER_ID, pcpBatchWithProcesses.getString(PCP_OWNER_ID));
+        batch.put(KR_BATCH_OWNER_NAME, pcpBatchWithProcesses.getString(PCP_OWNER_NAME));
+        json.put(BATCH, batch);
 
         //processes
         JSONArray processArray = new JSONArray();
-        JSONArray batchProcesses = pcpBatchWithProcesses.getJSONArray("processes");
+        JSONArray batchProcesses = pcpBatchWithProcesses.getJSONArray(PROCESSES);
         for (int j = 0; j < batchProcesses.length(); j++) {
             JSONObject processInBatch = batchProcesses.getJSONObject(j);
             JSONObject process = new JSONObject();
-            process.put("id", processInBatch.getString("processId"));
-            process.put("uuid", processInBatch.getString("processId"));
-            process.put("defid", processInBatch.getString("profileId"));
-            process.put("name", processInBatch.getString("description"));
-            process.put("state", processInBatch.getString("status"));
-            if (!processInBatch.isNull("planned")) {
-                process.put("planned", toFormattedStringOrNull(processInBatch.getLong("planned")));
+            process.put(KR_ID, processInBatch.getString(PCP_PROCESS_ID));
+            process.put(KR_PROCESS_UUID, processInBatch.getString(PCP_PROCESS_ID));
+            process.put(KR_PROFILE_ID, processInBatch.getString(PCP_PROFILE_ID));
+            process.put(KR_DESCRIPTION, processInBatch.getString(PCP_DESCRIPTION));
+            process.put(KR_STATUS, processInBatch.getString(PCP_STATUS));
+            if (!processInBatch.isNull(PLANNED)) {
+                process.put(PLANNED, toFormattedStringOrNull(processInBatch.getLong(PLANNED)));
             }
-            if (!processInBatch.isNull("started")) {
-                process.put("started", toFormattedStringOrNull(processInBatch.getLong("started")));
+            if (!processInBatch.isNull(STARTED)) {
+                process.put(STARTED, toFormattedStringOrNull(processInBatch.getLong(STARTED)));
             }
-            if (!processInBatch.isNull("finished")) {
-                process.put("finished", toFormattedStringOrNull(processInBatch.getLong("finished")));
+            if (!processInBatch.isNull(FINISHED)) {
+                process.put(FINISHED, toFormattedStringOrNull(processInBatch.getLong(FINISHED)));
             }
             processArray.put(process);
         }
-        json.put("processes", processArray);
+        json.put(PROCESSES, processArray);
         return json;
     }
 
-    /* pcpProcess example
-    {
-  "owner" : "PePo",
-  "workerId" : "curatorWorker",
-  "processId" : "ed25ce29-2149-439d-85c4-cc5e516e3036",
-  "payload" : {
-    "surname" : "Po",
-    "name" : "Pe"
-  },
-  "profileId" : "testPlugin1-big",
-  "description" : "Main process for the profile testPlugin1-big",
-  "pid" : 9889,
-  "started" : 1756202186751,
-  "finished" : null,
-  "planned" : 1756198668715,
-  "batchId" : "ed25ce29-2149-439d-85c4-cc5e516e3036",
-  "status" : "RUNNING"
-}
-     */
     static JSONObject mapProcess(JSONObject pcpProcess) {
         JSONObject json = new JSONObject();
         //batch
         JSONObject batchJson = new JSONObject();
-        batchJson.put("token", pcpProcess.getString("batchId"));
-        batchJson.put("id", pcpProcess.getString("batchId"));
-        json.put("batch", batchJson);
+        batchJson.put(KR_BATCH_TOKEN, pcpProcess.getString(PCP_BATCH_ID));
+        batchJson.put(KR_ID, pcpProcess.getString(PCP_BATCH_ID));
+        json.put(BATCH, batchJson);
         //process
         JSONObject processJson = new JSONObject();
-        processJson.put("id", pcpProcess.getString("processId"));
-        processJson.put("uuid", pcpProcess.getString("processId"));
-        processJson.put("defid", pcpProcess.getString("profileId"));
-        processJson.put("name", pcpProcess.getString("description"));
-        processJson.put("state", pcpProcess.getString("status"));
-        if (!pcpProcess.isNull("planned")) {
-            processJson.put("planned", toFormattedStringOrNull(pcpProcess.getLong("planned")));
+        processJson.put(KR_ID, pcpProcess.getString(PCP_PROCESS_ID));
+        processJson.put(KR_PROCESS_UUID, pcpProcess.getString(PCP_PROCESS_ID));
+        processJson.put(KR_PROFILE_ID, pcpProcess.getString(PCP_PROFILE_ID));
+        processJson.put(KR_DESCRIPTION, pcpProcess.getString(PCP_DESCRIPTION));
+        processJson.put(KR_STATUS, pcpProcess.getString(PCP_STATUS));
+        if (!pcpProcess.isNull(PLANNED)) {
+            processJson.put(PLANNED, toFormattedStringOrNull(pcpProcess.getLong(PLANNED)));
         }
-        if (!pcpProcess.isNull("started")) {
-            processJson.put("started", toFormattedStringOrNull(pcpProcess.getLong("started")));
+        if (!pcpProcess.isNull(STARTED)) {
+            processJson.put(STARTED, toFormattedStringOrNull(pcpProcess.getLong(STARTED)));
         }
-        if (!pcpProcess.isNull("finished")) {
-            processJson.put("finished", toFormattedStringOrNull(pcpProcess.getLong("finished")));
+        if (!pcpProcess.isNull(FINISHED)) {
+            processJson.put(FINISHED, toFormattedStringOrNull(pcpProcess.getLong(FINISHED)));
         }
         JSONObject result = new JSONObject();
-        result.put("process", processJson);
-        result.put("batch", batchJson);
+        result.put(PROCESS, processJson);
+        result.put(BATCH, batchJson);
         return result;
     }
 
     static JSONObject mapScheduleMainProcess(JSONObject krSchedule, String owner) {
-            /*
-            {
-              "defid" : "import",
-              "params" : {
-                "license" : "dnntt",
-                "inputDataDir" : "/045b1250-7e47-11e0-add1-000d606f5dc6",
-                "startIndexer" : true
-              }
-            }
-            {
-              "profileId" : "testPlugin1-big",
-              "payload" : {
-                "surname" : "Po",
-                "name" : "Pe"
-              },
-              "ownerId" : "PePo"
-            }
-             */
+        /* TODO pepo
         boolean justTemp = true;
         if(justTemp){
             String scheduleMainProcess = "            {" +
@@ -172,24 +175,22 @@ final class ProcessManagerMapper {
                     "            }";
             return new JSONObject(scheduleMainProcess);
         }
-
-
-
+*/
         JSONObject result = new JSONObject();
-        if (krSchedule.has("defid")) {
-            result.put("profileId", krSchedule.getString("defid"));
+        if (krSchedule.has(KR_PROFILE_ID)) {
+            result.put(PCP_PROFILE_ID, krSchedule.getString(KR_PROFILE_ID));
         }
-        if (krSchedule.has("params")) {
-            result.put("payload", krSchedule.getJSONObject("params"));
+        if (krSchedule.has(KR_PAYLOAD)) {
+            result.put(PCP_PAYLOAD, krSchedule.getJSONObject(KR_PAYLOAD));
         }
-        result.put("ownerId", owner);
+        result.put(PCP_OWNER_ID_SCH, owner);
         return result;
     }
 
     static JSONObject mapLogLines(JSONObject pcpLogLines) {
-        if (pcpLogLines.has("totalSize")) {
-            Object value = pcpLogLines.remove("totalSize");
-            pcpLogLines.put("total_size", value);
+        if (pcpLogLines.has(PCP_TOTAL_SIZE)) {
+            Object value = pcpLogLines.remove(PCP_TOTAL_SIZE);
+            pcpLogLines.put(KR_TOTAL_SIZE, value);
         }
         return pcpLogLines;
     }

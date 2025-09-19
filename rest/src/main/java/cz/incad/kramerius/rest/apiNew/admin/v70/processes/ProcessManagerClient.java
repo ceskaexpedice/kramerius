@@ -52,7 +52,6 @@ public class ProcessManagerClient {
     private static final Logger LOGGER = Logger.getLogger(ProcessManagerClient.class.getName());
 
     private final CloseableHttpClient closeableHttpClient;
-    private final ObjectMapper mapper = new ObjectMapper();
     private final String baseUrl;
 
     @Inject
