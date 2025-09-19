@@ -14,7 +14,7 @@ import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.kramerius.indexingmap.ScheduleStrategy;
+import org.kramerius.importer.inventory.ScheduleStrategy;
 
 import javax.net.ssl.*;
 

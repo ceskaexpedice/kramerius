@@ -379,6 +379,17 @@
         <securedaction>a_import</securedaction>
     </process>
 
+    <!-- Update FOXML process -->
+    <process>
+        <id>update</id>
+        <description>Update FOXML Stream</description>
+        <mainClass>org.kramerius.UpdateStreams</mainClass>
+        <standardOs>lrOut</standardOs>
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
+        <securedaction>a_import</securedaction>
+    </process>
+
     <!-- Import FOXML process -->
     <process>
         <id>import</id>

@@ -839,6 +839,9 @@ public class ProcessResource extends AdminApiResource {
                 case "import": {
                     return String.format("Import FOXML z %s ", params.get(0));
                 }
+                case "update": {
+                    return String.format("Update metadat z %s ", params.get(0));
+                }
                 case "convert_and_import": {
                     return String.format("Import NDK METS z %s ", params.get(1));
                 }
@@ -1131,6 +1134,22 @@ public class ProcessResource extends AdminApiResource {
                 } else {
                     return new ArrayList<>();
                 }
+            }
+
+            case "update" :{
+                File inputDataDir = null;
+                String pathType = extractOptionalParamString(params, "pathtype", "relative");
+                if (pathType.equals("relative")) {
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir", new File(KConfiguration.getInstance().getProperty("import.directory")));
+                } else { // absolute
+                    inputDataDir = extractMandatoryParamFileContainedInADir(params, "inputDataDir",  null);
+                }
+                Boolean startIndexer = extractMandatoryParamBoolean(params, "startIndexer");
+                List<String> result = new ArrayList<>();
+                result.add(inputDataDir.getPath());
+                result.add(startIndexer.toString());
+                consumer.accept(false);
+                return result;
             }
             case "import": {
                 // import directory

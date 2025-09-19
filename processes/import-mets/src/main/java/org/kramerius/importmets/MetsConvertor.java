@@ -25,7 +25,7 @@ import org.kramerius.ImportModule;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
 import org.kramerius.importmets.valueobj.ConvertorConfig;
 import org.kramerius.importmets.valueobj.ServiceException;
-import org.kramerius.indexingmap.ScheduleStrategy;
+import org.kramerius.importer.inventory.ScheduleStrategy;
 import org.kramerius.mets.Mets;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

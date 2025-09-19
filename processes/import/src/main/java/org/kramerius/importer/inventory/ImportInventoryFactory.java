@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.indexingmap;
+package org.kramerius.importer.inventory;
 
 import cz.incad.kramerius.utils.XMLUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.pid.LexerException;
 import org.ceskaexpedice.akubra.pid.PIDParser;
@@ -55,15 +56,15 @@ public class ImportInventoryFactory {
         this.pi = pi;
     }
 
-    public ImportInventory createIndexMap(File file) {
+    public ImportInventory createIndexMap(File file, ImportInventoryItem.TypeOfInstance importType) {
         long start = System.currentTimeMillis();
         ImportInventory plan = new ImportInventory();
         Path startPath = file.toPath();
         try {
             LOGGER.info("Loading digital objects from: " + startPath);
-            List<DigitalObject> digitalObjects = loadDigitalObjects(startPath);
-            LOGGER.info("Creating processing map for " + digitalObjects.size() + " digital objects.");
-            Map<String, ImportInventoryItem> processingMap = createProcessingMap(digitalObjects);
+            Map<File, DigitalObject> digitalObjectMap = loadDigitalObjects(startPath);
+            LOGGER.info("Creating processing map for " + digitalObjectMap.size() + " digital objects.");
+            Map<String, ImportInventoryItem> processingMap = createProcessingMap(digitalObjectMap, importType);
             LOGGER.info("Building tree structure for processing map.");
             buildTree(processingMap, plan);
         } catch (IOException e) {
@@ -91,9 +92,12 @@ public class ImportInventoryFactory {
         });
     }
 
-    private Map<String, ImportInventoryItem> createProcessingMap(List<DigitalObject> digitalObjects) {
+    private Map<String, ImportInventoryItem> createProcessingMap(Map<File, DigitalObject> digitalObjects, ImportInventoryItem.TypeOfInstance importType) {
         Map<String, ImportInventoryItem> processingMap = new HashMap<>();
-        digitalObjects.stream().forEach(digitalObject -> {
+
+        digitalObjects.keySet().forEach(f->  {
+
+            DigitalObject digitalObject = digitalObjects.get(f);
             String pid = digitalObject.getPID();
             String model = null;
             List<String> children = new ArrayList<>();
@@ -151,27 +155,38 @@ public class ImportInventoryFactory {
                     }
                 });
             }
-            processingMap.put(pid, new ImportInventoryItem(pid, model, title, children, exists));
+            ImportInventoryItem importItem = new ImportInventoryItem(f, pid, model, title, children, exists);
+            if (importType != null && importType.equals(ImportInventoryItem.TypeOfInstance.FULL)) {
+                importItem.setDigitalObject(digitalObject);
+            }
+            processingMap.put(pid, importItem);
         });
         return processingMap;
     }
 
-    private List<DigitalObject> loadDigitalObjects(Path startPath) throws IOException {
-        List<DigitalObject> digitalObjects = new ArrayList<>();
+    private Map<File, DigitalObject> loadDigitalObjects(Path startPath) throws IOException {
+        Map<File, DigitalObject> digitalObjectMap = new HashMap<>();
         synchronized (marshallingLock) {
             Files.walk(startPath, 20)
-            .filter(Files::isRegularFile).map(f-> {
+            .filter(Files::isRegularFile)
+            .filter(p -> p.toString().toLowerCase().endsWith(".xml"))
+            .map(f-> {
                 try {
                     Object obj = unmarshaller.unmarshal(f.toFile());
-                    return (DigitalObject) obj;
+                    Pair<Path, DigitalObject> p = Pair.of(f, (DigitalObject) obj);
+                    return p;
                 } catch (JAXBException e) {
-                    LOGGER.warning(e.getMessage());
+                    LOGGER.info("Skipping file '" + f.toFile().getName() + "'; not an FOXML object.");
                     return null;
                 }
-            }).filter(Objects::nonNull).forEach(digitalObjects::add);
+            }).filter(Objects::nonNull).forEach(p-> {
+                Path path = p.getLeft();
+                DigitalObject dobj =  p.getRight();
+                digitalObjectMap.put(path.toFile(), dobj);
+            });
         }
 
-        return digitalObjects;
+        return digitalObjectMap;
     }
 
     boolean existsInProcessingIndex(String pid) {

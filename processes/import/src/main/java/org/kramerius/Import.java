@@ -31,10 +31,11 @@ import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.fedoramodel.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.kramerius.indexingmap.ImportInventory;
-import org.kramerius.indexingmap.ImportInventoryFactory;
-import org.kramerius.indexingmap.ImportInventoryItem;
-import org.kramerius.indexingmap.ScheduleStrategy;
+import org.kramerius.importer.ImporterCommons;
+import org.kramerius.importer.inventory.ImportInventory;
+import org.kramerius.importer.inventory.ImportInventoryFactory;
+import org.kramerius.importer.inventory.ImportInventoryItem;
+import org.kramerius.importer.inventory.ScheduleStrategy;
 import org.kramerius.utils.DigitalObjectUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,9 +46,6 @@ import org.xml.sax.SAXException;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
@@ -85,41 +83,21 @@ public class Import {
     static int counter = 0;
     private static final Logger log = Logger.getLogger(Import.class.getName());
 
-    // only syncronization object
-    private static Object marshallingLock = new Object();
-
-    private static Unmarshaller unmarshaller = null;
-    private static Marshaller datastreamMarshaller = null;
-
     private static List<String> classicRootModels = null; //top-level models, not including convolutes
     private static SortingService sortingService;
     private static Map<String, List<String>> updateMap = new HashMap<String, List<String>>();
 
     private static String imgTreePath = "";
     private static String imgTreeUrl = "";
-    private static DocumentBuilder docBuilder;
 
     static {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
-            unmarshaller = jaxbContext.createUnmarshaller();
-            JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
-            datastreamMarshaller = jaxbdatastreamContext.createMarshaller();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            docBuilder = documentBuilderFactory.newDocumentBuilder();
-        } catch (Exception e) {
-            log.log(Level.SEVERE, "Cannot init JAXB", e);
-            throw new RuntimeException(e);
-        }
         classicRootModels = Arrays.asList(KConfiguration.getInstance().getPropertyList("fedora.topLevelModels"));
         if (classicRootModels == null) {
             classicRootModels = new ArrayList<>();
         }
         if (useImageServer() && KConfiguration.getInstance().getConfiguration().getBoolean("convert.imageServerDirectorySubfolders", false)) {
-
             setImgTree(); //set imgTreePath and imgTreeUrl for export to imageserver
         }
-
     }
 
     /**
@@ -149,7 +127,6 @@ public class Import {
             indexationType = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : null;
         }
 
-
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
@@ -170,7 +147,6 @@ public class Import {
             startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
         }
 
-
         try {
             if (license != null && !license.equals(NON_KEYWORD)) {
 
@@ -180,7 +156,6 @@ public class Import {
                 licensesImportFile.mkdirs();
                 log.info(String.format("Copy data from  %s to %s", importFolder.getAbsolutePath(), licensesImportFile.getAbsolutePath()));
                 FileUtils.copyDirectory(importFolder, licensesImportFile);
-
 
                 log.info(String.format("Applying license %s", license));
                 try {
@@ -201,7 +176,6 @@ public class Import {
                 FileUtils.deleteDirectory(licensesImportFile);
 
             } else {
-
                 ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
                 log.info("import dir: " + importDirectory);
                 log.info("start indexer: " + startIndexer);
@@ -212,6 +186,8 @@ public class Import {
             akubraRepository.shutdown();
         }
     }
+
+
 
     public static void run(AkubraRepository akubraRepository, ProcessingIndex feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, ScheduleStrategy strategy) throws IOException, SolrServerException {
         run(akubraRepository, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, null, strategy);
@@ -243,8 +219,8 @@ public class Import {
             initialize(user, pwd);
 
             // prozkoumani importni slozky
-            ImportInventoryFactory factory = new ImportInventoryFactory(unmarshaller, marshallingLock, akubraRepository.pi());
-            ImportInventory importInventory = factory.createIndexMap(importFile);
+            ImportInventoryFactory factory = new ImportInventoryFactory(ImporterCommons.unmarshaller, ImporterCommons.marshallingLock, akubraRepository.pi());
+            ImportInventory importInventory = factory.createIndexMap(importFile, ImportInventoryItem.TypeOfInstance.ONLY_METADATA);
             LOGGER.info("- PRINT INVENTORY - ");
             importInventory.printInventory();
 
@@ -253,10 +229,9 @@ public class Import {
 
             Set<String> sortRelations = new HashSet<String>();
             if (importFile.isDirectory()) {
-
                 visitAllDirsAndFiles(akubraRepository, importFile, importInventory, convolutes, collections, sortRelations, updateExisting);
             } else {
-                //TODO: Delete; not used in these days
+                //
                 BufferedReader reader = null;
                 try {
                     reader = new BufferedReader(new FileReader(importFile));
@@ -329,7 +304,6 @@ public class Import {
 
                         if (authToken != null) {
                             for (TitlePidTuple col : collections) {
-
                                 ProcessScheduler.scheduleIndexation(col.pid, col.title, false, authToken);
                             }
                             log.info("ALL COLLECTIONS SCHEDULED FOR INDEXING.");
@@ -437,19 +411,17 @@ public class Import {
                     return;
                 }
                 // must be syncrhonized
-                synchronized (marshallingLock) {
-                    Object obj = unmarshaller.unmarshal(importFile);
+                synchronized (ImporterCommons.marshallingLock) {
+                    Object obj = ImporterCommons.unmarshaller.unmarshal(importFile);
                     dobj = (DigitalObject) obj;
                 }
             } catch (Exception e) {
-                log.warning("Skipping file " + importFile.getName() + " - not an FOXML object. (" + e + ")");
-                log.log(Level.WARNING, "Underlying error was:", e);
+                //Issue #1194
+                log.info("Skipping file " + importFile.getName() + " - not an FOXML object. (" + e + ")");
                 return;
             }
             try {
-
-                // preparing indexing map
-
+                // update map - move to separate method
                 if (updateMap.containsKey(dobj.getPID())) {
                     log.info("Updating datastreams " + updateMap.get(dobj.getPID()) + " in object " + dobj.getPID());
                     List<DatastreamType> importedDatastreams = dobj.getDatastream();
@@ -500,7 +472,7 @@ public class Import {
                         }
                     }
                     if (importInventory != null) {
-                        importInventory.addIndexationPlanItem(new ImportInventoryItem(dobj.getPID(), dobj.getPID(), new ArrayList<>(), false));
+                        importInventory.addIndexationPlanItem(new ImportInventoryItem(importFile,dobj.getPID(), dobj.getPID(), new ArrayList<>(), false));
                         TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
                         //classicRoots.add(npt);
                         log.info("Added updated object for indexing:" + dobj.getPID());
@@ -509,7 +481,7 @@ public class Import {
                 } else {
                     final DigitalObject transactionDigitalObject = dobj;
                     ingest(akubraRepository, importFile, sortRelations, importInventory, updateExisting);
-                    checkModelIsConvoluteOrCollection(transactionDigitalObject, convolutes, collections, importInventory);
+                    checkModelIsConvoluteOrCollection(importFile, transactionDigitalObject, convolutes, collections, importInventory);
                 }
             } catch (Throwable t) {
                 log.severe("Error when ingesting PID: " + dobj.getPID() + ", " + t.getMessage());
@@ -557,12 +529,12 @@ public class Import {
         byte[] bytes = bos.toByteArray();
         DigitalObject obj = null;
         try {
-            synchronized (marshallingLock) {
-                obj = (DigitalObject) unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
+            synchronized (ImporterCommons.marshallingLock) {
+                obj = (DigitalObject) ImporterCommons.unmarshaller.unmarshal(new ByteArrayInputStream(bytes));
             }
         } catch (Exception e) {
+            // Issue #1194
             log.info("Skipping file " + filename + " - not an FOXML object.");
-            log.log(Level.INFO, "Underlying error was:", e);
             return;
         }
         if (useImageServer()) {
@@ -963,7 +935,7 @@ public class Import {
      * PID to convolutes list. Objects in the convolutes list then will be submitted to
      * Indexer (object-only indexation)
      */
-    private static void checkModelIsConvoluteOrCollection(DigitalObject dobj, Set<TitlePidTuple> convolutes, Set<TitlePidTuple> collections, ImportInventory importInventory) {
+    private static void checkModelIsConvoluteOrCollection(File importFile, DigitalObject dobj, Set<TitlePidTuple> convolutes, Set<TitlePidTuple> collections, ImportInventory importInventory) {
         try {
             boolean isConvolute = false;
             boolean isCollection = false;
@@ -1006,7 +978,7 @@ public class Import {
                                     // TODO: from collection
                                     if (importInventory != null) {
                                         // musi se preindexovat cely root dane polozky, tedy
-                                        importInventory.addIndexationPlanItem(new ImportInventoryItem(rootPid, rootPid, new ArrayList<>(), false));
+                                        importInventory.addIndexationPlanItem(new ImportInventoryItem(importFile, rootPid, rootPid, new ArrayList<>(), false));
                                     }
                                 }
                             }

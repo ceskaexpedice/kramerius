@@ -8,14 +8,13 @@ import javax.xml.bind.JAXBException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.kramerius.indexingmap.ScheduleStrategy;
+import org.kramerius.importer.inventory.ScheduleStrategy;
 import org.xml.sax.SAXException;
 
 import com.qbizm.kramerius.imptool.poc.Main;
