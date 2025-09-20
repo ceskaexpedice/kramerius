@@ -51,9 +51,6 @@ public class ForbiddenCheck {
 
     public static void checkByProfile(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
                                       String profileId, boolean checkReader) {
-        //authorization
-        /* TODO pepo - pravdepodobne pomoci pcpProcess.profileId */
-        //LRProcess lrProcess = this.lrProcessManager.getLongRunningProcess(processInBatch.processUuid);
         boolean permitted = false;
         if(checkReader){
             permitted = SecurityProcessUtils.permitReader(rightsResolver, user);

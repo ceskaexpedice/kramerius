@@ -72,13 +72,13 @@ public class ProcessResource extends AdminApiResource {
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
-            String profileId = null; // TODO pepo
-            ForbiddenCheck.checkByProfile(userProvider.get(), rightsResolver, definitionManager, profileId, true);
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
             JSONObject pcpProcess = processManagerClient.getProcess(processId);
             if (pcpProcess == null) {
                 throw new NotFoundException("there's no process with process_id=" + processId);
             }
+            ForbiddenCheck.checkByProfile(userProvider.get(), rightsResolver, definitionManager,
+                    pcpProcess.getString(ProcessManagerMapper.PCP_PROFILE_ID), true);
             JSONObject result = ProcessManagerMapper.mapProcess(pcpProcess);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
@@ -237,10 +237,14 @@ public class ProcessResource extends AdminApiResource {
     public Response deleteBatch(@PathParam("process_id") String processId) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
-            String profileId = null; // TODO pepo
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject pcpProcess = processManagerClient.getProcess(processId);
+            if (pcpProcess == null) {
+                throw new NotFoundException("there's no process with process_id=" + processId);
+            }
+            String profileId = pcpProcess.getString(ProcessManagerMapper.PCP_PROFILE_ID);
             ForbiddenCheck.checkByProfile(userProvider.get(), rightsResolver, definitionManager, profileId, false);
 
-            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
             int deleted = processManagerClient.deleteBatch(processId);
             JSONObject result = new JSONObject();
             result.put(ProcessManagerMapper.KR_BATCH_ID, processId);
@@ -271,9 +275,14 @@ public class ProcessResource extends AdminApiResource {
     public Response killBatch(@PathParam("process_id") String processId) {
         lrProcessManager.getSynchronizingLock().lock();
         try {
-            String profileId = null; // TODO pepo
-            ForbiddenCheck.checkByProfile(userProvider.get(), rightsResolver, definitionManager, profileId, false);
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject pcpProcess = processManagerClient.getProcess(processId);
+            if (pcpProcess == null) {
+                throw new NotFoundException("there's no process with process_id=" + processId);
+            }
+            String profileId = pcpProcess.getString(ProcessManagerMapper.PCP_PROFILE_ID);
+            ForbiddenCheck.checkByProfile(userProvider.get(), rightsResolver, definitionManager, profileId, false);
+
             int killed = processManagerClient.killBatch(processId);
             return Response.ok().build();
         } catch (WebApplicationException e) {
