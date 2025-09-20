@@ -48,7 +48,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kramerius.Import;
 import org.kramerius.ImportModule;
-import org.kramerius.indexingmap.ScheduleStrategy;
+import org.kramerius.importer.inventory.ScheduleStrategy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;

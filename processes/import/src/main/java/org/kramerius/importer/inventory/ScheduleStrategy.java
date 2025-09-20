@@ -1,4 +1,4 @@
-package org.kramerius.indexingmap;
+package org.kramerius.importer.inventory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

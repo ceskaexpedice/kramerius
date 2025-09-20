@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.indexingmap;
+package org.kramerius.importer.inventory;
 
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.fedoramodel.DatastreamType;
@@ -23,6 +23,7 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.kramerius.indexingmap.TestDirectoryHandler;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -72,7 +73,10 @@ public class ImportInventoryFactoryTest {
                     .anyTimes();
             EasyMock.replay(factory);
 
-            ImportInventory indexMap = factory.createIndexMap(testDir.toFile());
+            ImportInventory indexMap = factory.createIndexMap(testDir.toFile(), ImportInventoryItem.TypeOfInstance.ONLY_METADATA);
+            for (ImportInventoryItem item : indexMap.getIndexationPlanItems()) {
+                Assert.assertTrue(item.getSourceFile() != null);
+            }
 
             indexMap.printInventory();
 
@@ -144,8 +148,12 @@ public class ImportInventoryFactoryTest {
                     .anyTimes();
             EasyMock.replay(factory);
 
-            ImportInventory indexMap = factory.createIndexMap(testDir.toFile());
+            ImportInventory indexMap = factory.createIndexMap(testDir.toFile(),ImportInventoryItem.TypeOfInstance.ONLY_METADATA);
             List<ImportInventoryItem> roots =  ScheduleStrategy.indexRoots.scheduleItems(indexMap); //indexMap.planScheduleIndexForRoots();
+
+            for (ImportInventoryItem item : indexMap.getIndexationPlanItems()) {
+                Assert.assertTrue(item.getSourceFile() != null);
+            }
 
             Assert.assertTrue(roots.size() == 1);
             ImportInventoryItem root = roots.get(0);
@@ -179,4 +187,55 @@ public class ImportInventoryFactoryTest {
         }
     }
 
+
+    @Test
+    public void testIssue1149() {
+        try (TestDirectoryHandler handler = new TestDirectoryHandler( "data_2.zip", this.getClass())) {
+            Path testDir = handler.getTempDirectory();
+
+            Unmarshaller unmarshaller;
+            try {
+                JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
+                unmarshaller = jaxbContext.createUnmarshaller();
+                JAXBContext jaxbdatastreamContext = JAXBContext.newInstance(DatastreamType.class);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            ImportInventoryFactory factory = EasyMock.createMockBuilder(ImportInventoryFactory.class)
+                    .withConstructor(Unmarshaller.class, Object.class, ProcessingIndex.class)
+                    .withArgs(unmarshaller, new Object(), null)
+                    .addMockedMethod("existsInProcessingIndex")
+                    .createMock();
+
+
+            final Set<String> pidsToReturnTrue = new HashSet<>(Arrays.asList(
+                    "uuid:045b1250-7e47-11e0-add1-000d606f5dc6",
+                    "uuid:f7e50720-80b6-11e0-9ec7-000d606f5dc6"
+            ));
+
+            EasyMock.expect(factory.existsInProcessingIndex(EasyMock.anyString()))
+                    .andAnswer(new IAnswer<Boolean>() {
+                        @Override
+                        public Boolean answer() throws Throwable {
+                            String pid = (String) EasyMock.getCurrentArguments()[0];
+                            return pidsToReturnTrue.contains(pid);
+                        }
+                    })
+                    .anyTimes();
+            EasyMock.replay(factory);
+
+            ImportInventory indexMap = factory.createIndexMap(testDir.toFile(), ImportInventoryItem.TypeOfInstance.FULL);
+            for (ImportInventoryItem item : indexMap.getIndexationPlanItems()) {
+                Assert.assertTrue(item.getSourceFile() != null);
+                Assert.assertTrue(item.getDigitalObject() != null);
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

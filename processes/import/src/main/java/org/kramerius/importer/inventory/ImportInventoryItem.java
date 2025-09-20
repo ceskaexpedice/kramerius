@@ -14,8 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.kramerius.indexingmap;
+package org.kramerius.importer.inventory;
 
+import org.ceskaexpedice.fedoramodel.DigitalObject;
+
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,12 +48,26 @@ public class ImportInventoryItem {
     public static enum TypeOfSchedule {
         TREE, OBJECT;
     }
+
+    public static enum TypeOfInstance {
+        ONLY_METADATA, FULL;
+    }
+
     /** The unique persistent identifier (PID) of the object. */
     private String pid;
     /** The content model of the object (e.g., "monograph", "periodical", "page"). */
     private String model;
     /** The title of the object. Can be null for objects without a title. */
     private String title;
+    /** Source file */
+    private File sourceFile;
+
+    /** Type of instance */
+    private TypeOfInstance typeOfInstance = TypeOfInstance.ONLY_METADATA;
+    /** The digital object data read from file; null if not FULL instance */
+    private DigitalObject digitalObject = null;
+
+
     /**
      * Indicates whether this object is already imported.
      */
@@ -72,7 +89,8 @@ public class ImportInventoryItem {
      * @param childrenPids           A list of PIDs of the item's direct children.
      * @param presentInProcessingIndex True if the item already exists in the processing index.
      */
-    public ImportInventoryItem(String pid, String model, List<String> childrenPids, boolean presentInProcessingIndex) {
+    public ImportInventoryItem(File sourceFile, String pid, String model, List<String> childrenPids, boolean presentInProcessingIndex) {
+        this.sourceFile = sourceFile;
         this.pid = pid;
         this.model = model;
         this.presentInProcessingIndex = presentInProcessingIndex;
@@ -89,7 +107,8 @@ public class ImportInventoryItem {
      * @param childrenPids           A list of PIDs of the item's direct children.
      * @param presentInProcessingIndex True if the item already exists in the processing index.
      */
-    public ImportInventoryItem(String pid, String model, String title, List<String> childrenPids, boolean presentInProcessingIndex) {
+    public ImportInventoryItem(File sourceFile,String pid, String model, String title, List<String> childrenPids, boolean presentInProcessingIndex) {
+        this.sourceFile = sourceFile;
         this.pid = pid;
         this.model = model;
         this.title = title;
@@ -104,7 +123,8 @@ public class ImportInventoryItem {
      * @param pid   The unique persistent identifier (PID) of the item.
      * @param model The content model of the item.
      */
-    private ImportInventoryItem(String pid, String model) {
+    private ImportInventoryItem(File sourceFile,String pid, String model) {
+        this.sourceFile = sourceFile;
         this.pid = pid;
         this.model = model;
     }
@@ -116,11 +136,29 @@ public class ImportInventoryItem {
      * @param model The content model of the item.
      * @param title The title of the item.
      */
-    private ImportInventoryItem(String pid, String model, String title) {
+    private ImportInventoryItem(File sourceFile,String pid, String model, String title) {
+        this.sourceFile = sourceFile;
         this.pid = pid;
         this.model = model;
         this.title = title;
     }
+
+    /**
+     * Returns the source file from which this item was read.
+     * @return
+     */
+    public File getSourceFile() {
+        return sourceFile;
+    }
+
+    /**
+     * Returns the type of instance for this item.
+     * @return
+     */
+    public TypeOfInstance getTypeOfInstance() {
+        return typeOfInstance;
+    }
+
 
     /**
      * Returns the unique persistent identifier (PID) of this item.
@@ -153,9 +191,32 @@ public class ImportInventoryItem {
     }
 
 
+    /**
+     * Returns digital object if this is FULL instance, null otherwise.
+     * @return
+     */
+    public DigitalObject getDigitalObject() {
+        return digitalObject;
+    }
+
+    /**
+     * Set digital object. Setting non-null object makes this item FULL instance.
+     * @param digitalObject
+     */
+    public void setDigitalObject(DigitalObject digitalObject) {
+        this.digitalObject = digitalObject;
+        if (digitalObject != null) {
+            this.typeOfInstance = TypeOfInstance.FULL;
+        } else {
+            this.typeOfInstance = TypeOfInstance.ONLY_METADATA;
+        }
+    }
+
+
     List<String> getChildrenPids() {
         return childrenPids;
     }
+
 
     /**
      * Checks if this item is present in the processing index.
@@ -245,11 +306,14 @@ public class ImportInventoryItem {
      * @return A new {@link ImportInventoryItem} instance.
      */
     public ImportInventoryItem withIndexationPlan(TypeOfSchedule indexationPlan) {
-        ImportInventoryItem newItem = new ImportInventoryItem(this.pid, this.model, this.title);
+        ImportInventoryItem newItem = new ImportInventoryItem(this.sourceFile, this.pid, this.model, this.title);
         newItem.setIndexationPlanType(indexationPlan);
         newItem.setPresentInProcessingIndex(this.presentInProcessingIndex);
         return newItem;
     }
+
+
+
 
     /**
      * Traverses up the tree to find and return the root ancestor of this item.
