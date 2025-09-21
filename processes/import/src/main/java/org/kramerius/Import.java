@@ -622,8 +622,8 @@ public class Import {
                 throw new IllegalStateException("Cannot merge object: " + pid + " - object does not have RELS-EXT stream");
             }
             IOUtils.copyStreams(repo.re().get(pid).asInputStream(), bos);
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Cannot copy streams in merge", e);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Cannot copy foxml streams in merge for pid '"+pid+"'", e);
             throw new RuntimeException(e);
         }
         byte[] existingBytes = bos.toByteArray();
