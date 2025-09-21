@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -59,12 +60,10 @@ public class DeleteTreeProcess {
      * args[1] - pid of root object, for example "uuid:df693396-9d3f-4b3b-bf27-3be0aaa2aadf"
      * args[2-...] - optional title of the root object
      */
+
+
     public static void main(String[] args) throws IOException, SolrServerException {
-        //args
-        /*LOGGER.info("args: " + Arrays.asList(args));
-        for (String arg : args) {
-            System.out.println(arg);
-        }*/
+
         if (args.length < 2) {
             throw new RuntimeException("Not enough arguments.");
         }
@@ -87,6 +86,7 @@ public class DeleteTreeProcess {
         if (args.length > 3) {
             ignoreIncosistencies = Boolean.parseBoolean(args[argsIndex++]);
         }
+
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
@@ -120,7 +120,6 @@ public class DeleteTreeProcess {
 
         String myModel = "";
         if (!skipP) {
-
             //1. potomci
             OwnedAndFosteredChildren pidsOfChildren = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
             //1.a. smaz vlastni potomky
@@ -198,16 +197,30 @@ public class DeleteTreeProcess {
             }
 
         } else {
-            LOGGER.warning(String.format("object %s is not found in repository, skipping 1b", pid));
+            LOGGER.warning(String.format("object %s is not found in repository, skipping", pid));
         }
 
         //4. smaz me z repozitare i vyhledavaciho indexu
-        deleteObject(pid, "collection".equals(myModel), repository, indexerAccess);
-
+        try {
+            deleteObject(pid, "collection".equals(myModel), repository, indexerAccess, ignoreIncosistencies);
+        } catch(Throwable ex) {
+            if (ignoreIncosistencies) {
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+            } else {
+                throw ex;
+            }
+            someProblem = true;
+        }
         return !someProblem;
     }
 
     private static void updateLicenseFlagsForAncestors(String pid, AkubraRepository akubraRepository, SolrIndexAccess indexerAccess) throws IOException {
+        boolean readableAndParsable = isReadableAndParsable(pid, akubraRepository, true);
+        // TODO: Plan reindex of parents
+        if (!readableAndParsable) {
+            LOGGER.warning(String.format("object %s is not readable or parsable, skipping updating license flags for ancestors", pid));
+            return;
+        }
         List<String> licences = LicenseHelper.getLicensesByRelsExt(pid, akubraRepository);
         for (String license : licences) {
             //Z rels-ext vsech (vlastnich) predku se odebere containsLicence=L, pokud tam je.
@@ -256,22 +269,33 @@ public class DeleteTreeProcess {
         }
     }
 
-    private static void deleteObject(String pid, boolean isCollection, AkubraRepository repository, SolrIndexAccess indexerAccess) throws SolrServerException, IOException {
+    private static void deleteObject(String pid, boolean isCollection, AkubraRepository repository, SolrIndexAccess indexerAccess, boolean ignoreIncosistencies) throws SolrServerException, IOException {
         LOGGER.info(String.format("deleting object %s", pid));
         LOGGER.info(String.format("deleting %s from repository", pid));
         if (!DRY_RUN) {
-
             String tilesUrl = null;
-            try {
-                tilesUrl = repository.re().getTilesUrl(pid);
-            } catch (RepositoryException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+
+            AtomicReference<Boolean> readableAndParsableRef = new AtomicReference<>(false);
 
             if (repository.exists(pid)) {
+                readableAndParsableRef.set(isReadableAndParsable(pid, repository, ignoreIncosistencies));
+                if (readableAndParsableRef.get()) {
+                    try {
+                        tilesUrl = repository.re().getTilesUrl(pid);
+                    } catch (RepositoryException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+
+
                 repository.doWithWriteLock(pid, () -> {
-                    //managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
-                    repository.delete(pid, !isCollection, true);
+                    // managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
+                    if (readableAndParsableRef.get()) {
+                        repository.delete(pid, !isCollection, true);
+                    } else {
+                        //TODO: if object is corrupted, streams are not accessible -> cannot be deleted
+                        repository.delete(pid, false, true);
+                    }
                     repository.pi().commit();
                     return null;
                 });
@@ -288,21 +312,36 @@ public class DeleteTreeProcess {
         LOGGER.info(String.format("deleting %s from search index", pid));
         if (!DRY_RUN) {
             ifPDFDeleteVirtualPages(pid,indexerAccess);
-
             LOGGER.info(String.format("deleting %s from search index", pid));
             indexerAccess.deleteById(pid);
         }
     }
+
+    private static boolean isReadableAndParsable(String pid, AkubraRepository repository, boolean ignoreIncosistencies) {
+        boolean readableAndParsable = false;
+        try {
+            // readable and parsable
+            repository.get(pid).asDom(false);
+            readableAndParsable = true;
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, e.getMessage(), e);
+            if (!ignoreIncosistencies) {
+                throw new RuntimeException(e);
+            }
+        }
+        return readableAndParsable;
+    }
+
     private static void ifPDFDeleteVirtualPages(String pid, SolrIndexAccess indexerAccess)throws IOException, SolrServerException{
         SolrDocument doc = indexerAccess.getObjectByPid(pid);
-            if (doc.containsKey("ds.img_full.mime")) {
-                String valString = (String) doc.getFieldValue("ds.img_full.mime");
-                LOGGER.info(String.format("ValString: %s", valString));
-                if (valString.equals("application/pdf")) {//Also delete virtual pages
-                    LOGGER.info(String.format("deleting %s from search index by root ID", pid));
-                    indexerAccess.deleteByParentRootPid(pid);
-                }
+        if (doc != null && doc.containsKey("ds.img_full.mime")) {
+            String valString = (String) doc.getFieldValue("ds.img_full.mime");
+            LOGGER.info(String.format("ValString: %s", valString));
+            if (valString.equals("application/pdf")) {//Also delete virtual pages
+                LOGGER.info(String.format("deleting %s from search index by root ID", pid));
+                indexerAccess.deleteByParentRootPid(pid);
             }
+        }
     }
 
     public static void deleteFileFromIIP(String tilesUrl, String imageTilesUrlPrefix, String imageDir) throws MalformedURLException {
@@ -386,7 +425,5 @@ public class DeleteTreeProcess {
             }
             return relsExtNeedsToBeUpdated;
         });
-
     }
-
 }
