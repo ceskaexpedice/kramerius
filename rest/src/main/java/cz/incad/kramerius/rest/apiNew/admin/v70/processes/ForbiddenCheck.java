@@ -32,8 +32,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -65,11 +66,26 @@ public class ForbiddenCheck {
     }
 
     public static void checkByProfileAndParamsPids(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
-                                                   String profileId, JSONObject params, SolrAccess solrAccess) {
+                                                   String profileId, JSONObject payload, JSONArray scheduledProfiles, SolrAccess solrAccess) {
+        Set<String> profilesToCheck = new HashSet<>();
+        profilesToCheck.add(profileId);
+        if(scheduledProfiles != null){
+            for( int i = 0; i < scheduledProfiles.length(); i++ ){
+                profilesToCheck.add(scheduledProfiles.getString(i));
+            }
+        }
+        for (String profile: profilesToCheck) {
+            checkByProfileAndParamsPidsHelper(user, rightsResolver, definitionManager, profile, payload, solrAccess);
+        }
+    }
+
+    public static void checkByProfileAndParamsPidsHelper(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
+                                                   String profileId, JSONObject payload, SolrAccess solrAccess) {
         LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(profileId);
 
         AtomicBoolean pidPermitted = new AtomicBoolean(false);
-        checkParamsPids(user, rightsResolver, definitionManager, profileId, params, flag -> {
+        checkParamsPids(user, rightsResolver, definitionManager, profileId, payload, flag -> {
+            // TODO pepo is this logic correct? from several pids just one pid is sufficient to pass security?
             if (flag) pidPermitted.getAndSet(true);
         }, solrAccess);
 
@@ -85,10 +101,11 @@ public class ForbiddenCheck {
     }
 
     private static void checkParamsPids(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
-                                        String profileId, JSONObject params, Consumer<Boolean> consumer, SolrAccess solrAccess) {
+                                        String profileId, JSONObject payload, Consumer<Boolean> consumer, SolrAccess solrAccess) {
+        // TODO pepo hardcoded logic based on specific profile, need to be carefully checked
         switch (profileId) {
             case "set_policy": {
-                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String pid = extractMandatoryParamWithValuePrefixed(payload, "pid", "uuid:");
                 try {
                     ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
                     LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("set_policy");
@@ -100,8 +117,8 @@ public class ForbiddenCheck {
                 }
             }
             case "remove_policy": {
-                String pid = extractOptionalParamString(params, "pid", null);
-                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                String pid = extractOptionalParamString(payload, "pid", null);
+                List<String> pidlist = extractOptionalParamStringList(payload, "pidlist", null);
                 if (pid != null) {
                     try {
                         ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
@@ -139,8 +156,8 @@ public class ForbiddenCheck {
             }
             case "add_license":
             case "remove_license": {
-                String pid = extractOptionalParamString(params, "pid", null);
-                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                String pid = extractOptionalParamString(payload, "pid", null);
+                List<String> pidlist = extractOptionalParamStringList(payload, "pidlist", null);
                 if (pid != null) {
                     try {
                         ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
@@ -180,7 +197,7 @@ public class ForbiddenCheck {
                 consumer.accept(permit);
             }
             case "backup-collections": {
-                List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
+                List<String> pidlist = extractOptionalParamStringList(payload, "pidlist", null);
                 if (pidlist != null) {
                     pidlist.forEach(p -> {
                         try {
@@ -210,7 +227,7 @@ public class ForbiddenCheck {
                 consumer.accept(permit);
             }
             case "delete_tree": {
-                String pid = extractMandatoryParamWithValuePrefixed(params, "pid", "uuid:");
+                String pid = extractMandatoryParamWithValuePrefixed(payload, "pid", "uuid:");
                 try {
                     ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
                     LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("delete_tree");

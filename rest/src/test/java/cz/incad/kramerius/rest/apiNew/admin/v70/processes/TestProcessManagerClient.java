@@ -47,6 +47,8 @@ import static org.mockito.Mockito.*;
  */
 public class TestProcessManagerClient {
     public static final String SCHEDULED_PROCESS_ID = "ed25ce29-2149-439d-85c4";
+    public static final String PROFILE_ID = "testPlugin1-big";
+    public static final String PLUGIN_ID = "testPlugin1";
 
     private static final String MANAGER_BASE_URL = "http://localhost:9998/process-manager/api/";
 
@@ -56,7 +58,8 @@ public class TestProcessManagerClient {
 
     @Before
     public void setUp() throws Exception {
-        final ResourceConfig rc = new ResourceConfig(ProcessManagerProcessEndpoint.class);
+        final ResourceConfig rc = new ResourceConfig(ProcessManagerProcessEndpoint.class,
+                ProcessManagerProfileEndpoint.class, ProcessManagerPluginEndpoint.class);
         server = GrizzlyHttpServerFactory.createHttpServer(URI.create(MANAGER_BASE_URL), rc);
         server.start();
 
@@ -105,6 +108,18 @@ public class TestProcessManagerClient {
         JSONObject process = processManagerClient.getProcess(SCHEDULED_PROCESS_ID);
         JSONObject processInBatch = ProcessManagerMapper.mapProcess(process);
         Assertions.assertEquals(SCHEDULED_PROCESS_ID, processInBatch.getJSONObject("process").getString("id"));
+    }
+
+    @Test
+    public void testGetProfile() {
+        JSONObject profile = processManagerClient.getProfile(PROFILE_ID);
+        Assertions.assertEquals(PROFILE_ID, profile.getString("profileId"));
+    }
+
+    @Test
+    public void testGetPlugin() {
+        JSONObject profile = processManagerClient.getPlugin(PLUGIN_ID);
+        Assertions.assertEquals(PLUGIN_ID, profile.getString("pluginId"));
     }
 
     @Test

@@ -235,4 +235,43 @@ public class ProcessManagerClient {
         }
     }
 
+    public JSONObject getProfile(String profileId) {
+        String url = baseUrl + "profile/" + profileId;
+        HttpGet get = new HttpGet(url);
+
+        try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+            int code = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
+            if (code == 200) {
+                return new JSONObject(body);
+            } else if (code == 404) {
+                return null;
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch profile. HTTP code" + ": " + code);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
+    public JSONObject getPlugin(String pluginId) {
+        String url = baseUrl + "plugin/" + pluginId;
+        HttpGet get = new HttpGet(url);
+
+        try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+            int code = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
+            if (code == 200) {
+                return new JSONObject(body);
+            } else if (code == 404) {
+                return null;
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch plugin. HTTP code" + ": " + code);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
 }

@@ -307,11 +307,17 @@ public class ProcessResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
         try {
-            String profileId = null; // TODO pepo
-            ForbiddenCheck.checkByProfileAndParamsPids(userProvider.get(), rightsResolver, definitionManager,
-                    profileId, processDefinition, solrAccess);
-            JSONObject pcpSchedule = ProcessManagerMapper.mapScheduleMainProcess(processDefinition, userProvider.get().getLoginname());
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONObject pcpSchedule = ProcessManagerMapper.mapScheduleMainProcess(processDefinition, userProvider.get().getLoginname());
+            String profileId = pcpSchedule.getString(ProcessManagerMapper.PCP_PROFILE_ID);
+            JSONObject profile = processManagerClient.getProfile(profileId);
+            JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
+            JSONArray scheduledProfiles = null;
+            if(!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)){
+                scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
+            }
+            ForbiddenCheck.checkByProfileAndParamsPids(userProvider.get(), rightsResolver, definitionManager,
+                    profileId, processDefinition.getJSONObject(ProcessManagerMapper.PCP_PAYLOAD), scheduledProfiles, solrAccess);
             String processId = processManagerClient.scheduleProcess(pcpSchedule);
             JSONObject result = new JSONObject();
             result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);

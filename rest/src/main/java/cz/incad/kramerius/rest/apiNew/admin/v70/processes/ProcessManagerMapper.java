@@ -38,7 +38,9 @@ final class ProcessManagerMapper {
 
     static final String PCP_STATUS = "status";
     static final String PCP_DESCRIPTION = "description";
+    static final String PCP_PLUGIN_ID = "pluginId";
     static final String PCP_PROFILE_ID = "profileId";
+    static final String PCP_SCHEDULED_PROFILES = "scheduledProfiles";
     static final String PCP_PROCESS_ID = "processId";
     static final String PCP_PAYLOAD = "payload";
     static final String PCP_TOTAL_SIZE = "totalSize";
