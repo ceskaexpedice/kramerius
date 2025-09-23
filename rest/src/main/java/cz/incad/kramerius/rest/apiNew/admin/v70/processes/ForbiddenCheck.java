@@ -40,17 +40,17 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ForbiddenCheck {
+class ForbiddenCheck {
     private static Logger LOGGER = Logger.getLogger(ForbiddenCheck.class.getName());
 
-    public static void checkGeneral(User user, RightsResolver rightsResolver) {
+    static void checkGeneral(User user, RightsResolver rightsResolver) {
         boolean permitted = SecurityProcessUtils.permitManager(rightsResolver, user) || SecurityProcessUtils.permitReader(rightsResolver, user);
         if (!permitted) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            throwForbidden(user);
         }
     }
 
-    public static void checkByProfile(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
+    static void checkByProfile(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
                                       String profileId, boolean checkReader) {
         boolean permitted = false;
         if(checkReader){
@@ -61,11 +61,11 @@ public class ForbiddenCheck {
                     SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, SecurityProcessUtils.processDefinition(definitionManager, profileId));
         }
         if (!permitted) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing action '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            throwForbidden(user);
         }
     }
 
-    public static void checkByProfileAndParamsPids(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
+    static void checkByProfileAndParamsPids(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
                                                    String profileId, JSONObject payload, JSONArray scheduledProfiles, SolrAccess solrAccess) {
         Set<String> profilesToCheck = new HashSet<>();
         profilesToCheck.add(profileId);
@@ -79,7 +79,7 @@ public class ForbiddenCheck {
         }
     }
 
-    public static void checkByProfileAndParamsPidsHelper(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
+    private static void checkByProfileAndParamsPidsHelper(User user, RightsResolver rightsResolver, DefinitionManager definitionManager,
                                                    String profileId, JSONObject payload, SolrAccess solrAccess) {
         LRProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(profileId);
 
@@ -93,7 +93,7 @@ public class ForbiddenCheck {
                 SecurityProcessUtils.permitProcessByDefinedAction(rightsResolver, user, definition) || pidPermitted.get();
 
         if (!permitted) {
-            throw new ForbiddenException("user '%s' is not allowed to manage processes (missing role '%s', '%s')", user.getLoginname(), SecuredActions.A_PROCESS_EDIT.name(), SecuredActions.A_PROCESS_READ.name()); //403
+            throwForbidden(user);
         }
         // getProfile podle defid
         // getPlugin podle profile.pluginId
@@ -275,5 +275,8 @@ public class ForbiddenCheck {
         return params.has(paramName) ? params.getString(paramName) : defaultValue;
     }
 
+    private static void throwForbidden(User user){
+        throw new ForbiddenException("user '%s' is not allowed to operate processes", user.getLoginname());
+    }
 
 }

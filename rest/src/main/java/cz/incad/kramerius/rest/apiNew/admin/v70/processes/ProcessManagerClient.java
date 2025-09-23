@@ -46,8 +46,7 @@ import java.util.logging.Logger;
  * ProcessManagerClient
  * @author ppodsednik
  */
-// TODO pepo
-public class ProcessManagerClient {
+class ProcessManagerClient {
 
     private static final Logger LOGGER = Logger.getLogger(ProcessManagerClient.class.getName());
 
@@ -60,7 +59,7 @@ public class ProcessManagerClient {
         baseUrl = KConfiguration.getInstance().getProcessManagerURL();
     }
 
-    public String scheduleProcess(JSONObject scheduleMainProcess) {
+    String scheduleProcess(JSONObject scheduleMainProcess) {
         String url = baseUrl + "process";
         HttpPost post = new HttpPost(url);
         StringEntity entity = new StringEntity(scheduleMainProcess.toString(), ContentType.APPLICATION_JSON);
@@ -79,7 +78,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public JSONObject getOwners() {
+    JSONObject getOwners() {
         String url = baseUrl + "process/owner";
         HttpGet get = new HttpGet(url);
 
@@ -97,7 +96,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public JSONObject getProcess(String processId) {
+    JSONObject getProcess(String processId) {
         String url = baseUrl + "process/" + processId;
         HttpGet get = new HttpGet(url);
 
@@ -117,7 +116,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public JSONObject getBatches(String offset, String limit, String owner, String from, String to, String state) {
+    JSONObject getBatches(String offset, String limit, String owner, String from, String to, String state) {
         String url = baseUrl + "process/batch";
         try {
             URIBuilder uriBuilder = new URIBuilder(url);
@@ -147,7 +146,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public InputStream getProcessLog(String processId, boolean err) {
+    InputStream getProcessLog(String processId, boolean err) {
         String suffix = err ? "err" : "out";
         String url = baseUrl + "process/" + processId + "/log/" + suffix;
         HttpGet get = new HttpGet(url);
@@ -167,7 +166,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public JSONObject getProcessLogLines(String processId, String offset, String limit, boolean err) {
+    JSONObject getProcessLogLines(String processId, String offset, String limit, boolean err) {
         String suffix = err ? "err" : "out";
         String url = baseUrl + "process/" + processId + "/log/" + suffix + "/lines";
         try {
@@ -193,7 +192,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public int deleteBatch(String mainProcessId) {
+    int deleteBatch(String mainProcessId) {
         String url = baseUrl + "process/batch/" + mainProcessId;
         HttpDelete httpDelete = new HttpDelete(url);
         try (CloseableHttpResponse response = closeableHttpClient.execute(httpDelete)) {
@@ -214,7 +213,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public int killBatch(String mainProcessId) {
+    int killBatch(String mainProcessId) {
         String url = baseUrl + "process/batch/" + mainProcessId + "/execution";
         HttpDelete httpDelete = new HttpDelete(url);
         try (CloseableHttpResponse response = closeableHttpClient.execute(httpDelete)) {
@@ -235,7 +234,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public JSONObject getProfile(String profileId) {
+    JSONObject getProfile(String profileId) {
         String url = baseUrl + "profile/" + profileId;
         HttpGet get = new HttpGet(url);
 
@@ -255,7 +254,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public JSONObject getPlugin(String pluginId) {
+    JSONObject getPlugin(String pluginId) {
         String url = baseUrl + "plugin/" + pluginId;
         HttpGet get = new HttpGet(url);
 

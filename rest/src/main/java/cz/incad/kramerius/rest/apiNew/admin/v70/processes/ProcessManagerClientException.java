@@ -20,23 +20,23 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
  * ProcessManagerClientException
  * @author ppodsednik
  */
-public class ProcessManagerClientException extends RuntimeException {
+class ProcessManagerClientException extends RuntimeException {
     private ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 
-    public ProcessManagerClientException(String message, ErrorCode errorCode) {
+    ProcessManagerClientException(String message, ErrorCode errorCode) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public ErrorCode getErrorCode() {
+    ErrorCode getErrorCode() {
         return errorCode;
     }
 
-    public ProcessManagerClientException(String message, Throwable cause) {
+    ProcessManagerClientException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ProcessManagerClientException(String message) {
+    ProcessManagerClientException(String message) {
         super(message);
     }
 

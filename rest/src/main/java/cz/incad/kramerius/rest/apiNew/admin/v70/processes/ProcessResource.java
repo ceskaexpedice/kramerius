@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 @Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
-    public static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
+    private static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
 
     @Inject
     LRProcessManager lrProcessManager;

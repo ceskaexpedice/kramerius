@@ -20,7 +20,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
  * ErrorCode
  * @author ppodsednik
  */
-public enum ErrorCode {
+enum ErrorCode {
     NOT_FOUND,
     INVALID_INPUT,
     INTERNAL_SERVER_ERROR,
