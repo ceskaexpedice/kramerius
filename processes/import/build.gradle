@@ -1,5 +1,21 @@
-description "Import library" 
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.0'
+}
 
+/** Process definition */
+processPlugin {
+    pluginName = "import"
+    profiles = [
+            [
+                    profileId: "import-big",
+                    description: "Big profile",
+                    jvmArgs: ["-Xms1g","-Xmx32g","-Dname=big"]
+            ]
+    ]
+}
+
+description "Import library"
 
 dependencies {
     api project(':shared:common')

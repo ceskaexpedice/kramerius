@@ -1,0 +1,11 @@
+[
+  {
+    "profileId": "import",
+    "description": "Import",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx16g"
+    ]
+  }
+]
+
