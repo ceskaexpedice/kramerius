@@ -108,7 +108,7 @@ public class Import {
     @ProcessMethod
     public static void importMain(
             @ParameterName("importDir") String importDirFromArgs,
-            @ParameterName("startIndexer") boolean startIndexerFromArgs,
+            @ParameterName("startIndexer") Boolean startIndexerFromArgs,
             @ParameterName("license") String license,
             @ParameterName("addCollection") String addCollection,
             @ParameterName("scheduleStrategy") String scheduleStrategyS
