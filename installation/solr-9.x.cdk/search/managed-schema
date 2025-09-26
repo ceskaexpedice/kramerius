@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyTPeQsC2A
+-->
+<schema name="kramerius" version="1.4">
+    <types>
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
+        <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
+
+        <fieldtype name="binary" class="solr.BinaryField"/>
+
+        <!-- Deprecated type
+		<fieldType name="int" class="solr.TrieIntField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+		-->
+		<fieldType name="int" class="solr.IntPointField" docValues="true" sortMissingLast="true"/>
+
+		<!-- Deprecated type 
+        <fieldType name="float" class="solr.TrieFloatField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+		-->
+		<fieldType name="float" class="solr.FloatPointField" docValues="true" sortMissingLast="true"/>
+
+		<!-- Deprecated type 
+        <fieldType name="long" class="solr.TrieLongField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+		-->
+		<fieldType name="long" class="solr.LongPointField" docValues="true" sortMissingLast="true"/>
+        
+		<!-- Deprecated type 
+		<fieldType name="double" class="solr.TrieDoubleField" sortMissingLast="true" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+		-->
+		<fieldType name="double" class="solr.DoublePointField" docValues="true" sortMissingLast="true"/>
+		<!-- Deprecated type 
+        <fieldType name="tint" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
+		-->
+		<fieldType name="tint" class="solr.IntPointField" docValues="true"/>
+		
+		<!--
+        <fieldType name="tfloat" class="solr.TrieFloatField" docValues="true" precisionStep="8"
+                   positionIncrementGap="0"/>
+		-->
+		<fieldType name="tfloat" class="solr.FloatPointField" docValues="true"/>
+
+        <!-- Deprecated
+		<fieldType name="tlong" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
+		-->
+		<fieldType name="tlong" class="solr.LongPointField" docValues="true"/> 
+		
+        <!-- Deprecated
+		<fieldType name="tdouble" class="solr.TrieDoubleField" docValues="true" precisionStep="8"
+                   positionIncrementGap="0"/>
+		-->
+
+		<fieldType name="tdouble" class="solr.DoublePointField" docValues="true"/>
+
+		<!--
+        <fieldType name="tints" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0"
+                   multiValued="true"/>
+				   -->
+		<fieldType name="tints" class="solr.IntPointField" docValues="true" multiValued="true"/>				   
+		<!--		   
+        <fieldType name="tfloats" class="solr.TrieFloatField" docValues="true" precisionStep="8"
+                   positionIncrementGap="0" multiValued="true"/>
+		-->
+		<fieldType name="tfloats" class="solr.FloatPointField" docValues="true" multiValued="true"/>
+        
+		<!--
+		<fieldType name="tlongs" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0"
+                   multiValued="true"/>
+		-->
+		<fieldType name="tlongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
+
+		<!--
+        <fieldType name="tdoubles" class="solr.TrieDoubleField" docValues="true" precisionStep="8"
+                   positionIncrementGap="0" multiValued="true"/>
+		-->
+		
+		<fieldType name="tdoubles" class="solr.DoublePointField" docValues="true" multiValued="true"/>
+
+		<!--
+        <fieldType name="tdate" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"/>
+		-->
+		<fieldType name="tdate" class="solr.DatePointField" docValues="true"/>
+		<!--
+        <fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"
+                   multiValued="true"/>
+	   -->
+		<fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>				   
+		
+		<!--		
+        <fieldType name="date" class="solr.TrieDateField" sortMissingLast="true" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
+		-->
+		<fieldType name="date" class="solr.DatePointField" docValues="true" sortMissingLast="true"/>
+
+        <fieldType name="random" class="solr.RandomSortField" indexed="true"/>
+
+        <!-- A text field that only splits on whitespace for exact matching of words -->
+        <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            </analyzer>
+        </fieldType>
+
+
+
+		<!-- remove all characters which are not a-z or 0-9  -->	
+		<fieldType name="cut-character"  class="solr.TextField" positionIncrementGap="100">
+			<analyzer>
+				<charFilter class="solr.PatternReplaceCharFilterFactory"
+				  pattern="([^a-z0-9])"
+				  replacement=""/>
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			</analyzer>
+		</fieldType>
+
+
+	
+		<!-- pid analyzer -->
+		<fieldType name="cut-pid"  class="solr.TextField" positionIncrementGap="100">
+			<analyzer type="index">
+				<tokenizer class="solr.KeywordTokenizerFactory"/>
+				<filter class="solr.PatternCaptureGroupFilterFactory" pattern="((uuid):([A-Za-z0-9\-]+))" preserve_original="false"/>
+				<filter class="solr.LowerCaseFilterFactory"/>
+				<filter class="solr.RemoveDuplicatesTokenFilterFactory"/>			
+			</analyzer>
+			<analyzer type="query">
+				<tokenizer class="solr.KeywordTokenizerFactory"/>
+			</analyzer>
+		</fieldType>
+
+
+		
+
+        <!-- general not lemmatized text with czech stop words  -->
+        <fieldType name="text_general_ascii_folded_not_lemmatized" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.ASCIIFoldingFilterFactory"/>
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+            </analyzer>
+
+        </fieldType>
+
+        <!-- A general text field that has reasonable, generic
+             cross-language defaults: it tokenizes with StandardTokenizer,
+         removes stop words from case-insensitive "stopwords.txt"
+         (empty by default), and down cases.  At query time only, it
+         also applies synonyms. -->
+        <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+                <!-- in this example, we will only use synonyms at query time
+                <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+                -->
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <!-- A text field with defaults appropriate for English: it
+             tokenizes with StandardTokenizer, removes English stop words
+             (stopwords_en.txt), down cases, protects words from protwords.txt, and
+             finally applies Porter's stemming.  The query time analyzer
+             also applies synonyms from synonyms.txt. -->
+        <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <!-- in this example, we will only use synonyms at query time
+                <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+                -->
+                <!-- Case insensitive stop word removal.
+                  add enablePositionIncrements=true in both the index and query
+                  analyzers to leave a 'gap' for more accurate phrase queries.
+                -->
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="stopwords_en.txt"
+                />
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.EnglishPossessiveFilterFactory"/>
+                <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+                <!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
+                    <filter class="solr.EnglishMinimalStemFilterFactory"/>
+                -->
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="stopwords_en.txt"
+                />
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.EnglishPossessiveFilterFactory"/>
+                <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+                <!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
+                    <filter class="solr.EnglishMinimalStemFilterFactory"/>
+                -->
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <!-- A text field with defaults appropriate for English, plus
+         aggressive word-splitting and autophrase features enabled.
+         This field is just like text_en, except it adds
+         WordDelimiterFilter to enable splitting and matching of
+         words on case-change, alpha numeric boundaries, and
+         non-alphanumeric chars.  This means certain compound word
+         cases will work, for example query "wi fi" will match
+         document "WiFi" or "wi-fi".  However, other cases will still
+         not match, for example if the query is "wifi" and the
+         document is "wi fi" or if the query is "wi-fi" and the
+         document is "wifi".
+            -->
+        <fieldType name="text_en_splitting" class="solr.TextField" positionIncrementGap="100"
+                   autoGeneratePhraseQueries="true">
+            <analyzer type="index">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <!-- in this example, we will only use synonyms at query time
+                <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+                -->
+                <!-- Case insensitive stop word removal.
+                  add enablePositionIncrements=true in both the index and query
+                  analyzers to leave a 'gap' for more accurate phrase queries.
+                -->
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="stopwords_en.txt"
+                />
+                <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1"
+                        catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="stopwords_en.txt"
+                />
+                <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1"
+                        catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <!-- Less flexible matching, but less false matches.  Probably not ideal for product names,
+             but may be good for SKUs.  Can insert dashes in the wrong place and still match. -->
+        <fieldType name="text_en_splitting_tight" class="solr.TextField" positionIncrementGap="100"
+                   autoGeneratePhraseQueries="true">
+            <analyzer>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords_en.txt"/>
+                <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0"
+                        catenateWords="1" catenateNumbers="1" catenateAll="0"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+                <filter class="solr.EnglishMinimalStemFilterFactory"/>
+                <!-- this filter can remove any duplicate tokens that appear at the same position - sometimes
+                     possible with WordDelimiterFilter in conjuncton with stemming. -->
+                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <!-- Just like text_general except it reverses the characters of
+         each token, to enable more efficient leading wildcard queries. -->
+        <fieldType name="text_general_rev" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true"
+                        maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+                <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <!-- charFilter + WhitespaceTokenizer  -->
+        <!--
+        <fieldType name="text_char_norm" class="solr.TextField" positionIncrementGap="100" >
+          <analyzer>
+            <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+          </analyzer>
+        </fieldType>
+        -->
+
+        <!-- This is an example of using the KeywordTokenizer along
+             With various TokenFilterFactories to produce a sortable field
+             that does not include some properties of the source text
+          -->
+        <fieldType name="alphaOnlySort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+            <analyzer>
+                <!-- KeywordTokenizer does no actual tokenizing, so the entire
+                     input string is preserved as a single token
+                  -->
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+                <!-- The LowerCase TokenFilter does what you expect, which can be
+                     when you want your sorting to be case insensitive
+                  -->
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <!-- The TrimFilter removes any leading or trailing whitespace -->
+                <filter class="solr.TrimFilterFactory"/>
+                <!-- The PatternReplaceFilter gives you the flexibility to use
+                     Java Regular expression to replace any sequence of characters
+                     matching a pattern with an arbitrary replacement string,
+                     which may include back references to portions of the original
+                     string matched by the pattern.
+
+                     See the Java Regular Expression documentation for more
+                     information on pattern and replacement string syntax.
+
+                     http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/package-summary.html
+                  -->
+                <filter class="solr.PatternReplaceFilterFactory"
+                        pattern="([^a-z])" replacement="" replace="all"
+                />
+            </analyzer>
+        </fieldType>
+
+        <fieldtype name="phonetic" stored="false" indexed="true" class="solr.TextField">
+            <analyzer>
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.DoubleMetaphoneFilterFactory" inject="false"/>
+            </analyzer>
+        </fieldtype>
+
+        <fieldtype name="payloads" stored="false" indexed="true" class="solr.TextField">
+            <analyzer>
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <!--
+                The DelimitedPayloadTokenFilter can put payloads on tokens... for example,
+                a token of "foo|1.4"  would be indexed as "foo" with a payload of 1.4f
+                Attributes of the DelimitedPayloadTokenFilterFactory :
+                 "delimiter" - a one character delimiter. Default is | (pipe)
+             "encoder" - how to encode the following value into a playload
+                float -> org.apache.lucene.analysis.payloads.FloatEncoder,
+                integer -> o.a.l.a.p.IntegerEncoder
+                identity -> o.a.l.a.p.IdentityEncoder
+                    Fully Qualified class name implementing PayloadEncoder, Encoder must have a no arg constructor.
+                 -->
+                <filter class="solr.DelimitedPayloadTokenFilterFactory" encoder="float"/>
+            </analyzer>
+        </fieldtype>
+
+        <!-- lowercases the entire field value, keeping it as a single token.  -->
+        <fieldType name="lowercase" class="solr.TextField" positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <!--proc?
+        Opravdu to potrebujeme takto? Tj. dotaz fl=model_path="monograph" vrati i veci, co maji v model_path "monograph/page"
+        https://lucene.apache.org/core/4_4_0/analyzers-common/org/apache/lucene/analysis/path/PathHierarchyTokenizerFactory.html
+        http://localhost:8983/solr/search/select?fl=n_model_path%2CPID&q=n_model_path%3A%22monograph%22&rows=100
+        https://lucene.apache.org/solr/guide/7_7/tokenizers.html
+        -->
+        <fieldType name="text_path" class="solr.TextField" positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <fieldType name="pid_path" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+            </analyzer>
+        </fieldType>
+
+
+        <!-- A text field that only splits on whitespace for exact matching of words -->
+        <fieldType name="string_lower" class="solr.TextField" sortMissingLast="true" omitNorms="true"
+                   positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.KeywordTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.TrimFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+        <!-- A text field that only splits on whitespace for exact matching of words -->
+        <fieldType name="text_fgs" class="solr.TextField" positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+
+
+		<!-- Field for exact matching --> 
+        <fieldType name="text_exact_match" class="solr.TextField" positionIncrementGap="100">
+            <analyzer>
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+            </analyzer>
+        </fieldType>
+		
+
+        <!-- since fields of this type are by default not stored or indexed,
+             any data added to them will be ignored outright.  -->
+        <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField"/>
+
+        <!-- This point type indexes the coordinates as separate fields (subFields)
+          If subFieldType is defined, it references a type, and a dynamic field
+          definition is created matching *___<typename>.  Alternately, if
+          subFieldSuffix is defined, that is used to create the subFields.
+          Example: if subFieldType="double", then the coordinates would be
+            indexed in fields myloc_0___double,myloc_1___double.
+          Example: if subFieldSuffix="_d" then the coordinates would be indexed
+            in fields myloc_0_d,myloc_1_d
+          The subFields are an implementation detail of the fieldType, and end
+          users normally should not need to know about them.
+         -->
+        <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
+
+        <!-- Location RPT field -->
+        <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType"
+                   geo="true" distErrPct="0.025" maxDistErr="0.000009"/>
+
+        <!-- box field -->
+        <fieldType name="bbox" class="solr.BBoxField" geo="true" numberType="_bbox_coord" storeSubFields="false" stored="true"/>
+        <fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="true" stored="false"/>
+
+
+
+
+    </types>
+
+
+    <fields>
+        <!--_version_ field must exist in schema and be searchable (indexed or docValues) and retrievable(stored or docValues) and not multiValued (_version_ does not exist)-->
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <!--version of indexer, increments with change of implementation, typically some conversions input_data_(MODS) -> data_in_SOLR -->
+        <field name="indexer_version" type="int" indexed="true" stored="true" multiValued="false"/>
+        <!--temporary field used for indexation processes, after (full) indexation is sucessfully finished, this field is cleared-->
+        <field name="full_indexation_in_progress" type="boolean" indexed="true" stored="true"/>
+
+        <field name="pid" type="string" indexed="true" stored="true" required="true" docValues="true"/>
+        <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+
+        <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="indexed" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
+
+        <!--keywords-->
+        <field name="keywords.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="keywords.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--geographic names-->
+        <field name="geographic_names.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="geographic_names.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--genres-->
+        <field name="genres.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="genres.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--publishers-->
+        <field name="publishers.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="publishers.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--publication place-->
+        <field name="publication_places.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="publication_places.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--vsichni autori (vcetne hlavnich, ti se nerozlisuji), 'authors' muze obsahovat datum-->
+        <field name="authors" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="authors.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		<!-- Authors search exact -->
+        <field name="authors.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
+		
+		<!-- authors facets -->
+        <field name="authors.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--hlavni nazev-->
+        <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--hlavni nazev (bez hodnoty nonSort)-->
+        <field name="title.sort" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <!--vsechny nazvy (vcetne hlavniho)-->
+        <field name="titles.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		<!-- Titles search exact -->
+        <field name="titles.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
+
+		<!-- localized collection titles -->
+        <dynamicField name="title.search_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		<!-- localized collection desc -->
+		<dynamicField name="collection.desc_*" type="text_general_ascii_folded_not_lemmatized" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
+
+        <!--root, parent, paths-->
+        <!--root-->
+        <field name="root.pid" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="root.model" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="root.title" type="string" indexed="true" stored="true"/>
+        <field name="root.title.sort" type="string" indexed="true" stored="true"/>
+
+        <!--own parent-->
+        <field name="own_parent.pid" type="string" indexed="true" stored="true" multiValued="false"  docValues="true"/>
+        <field name="own_parent.model" type="string" indexed="true" stored="true"  docValues="true"/>
+        <field name="own_parent.title" type="string" indexed="true" stored="true"/>
+
+        <!--own pid/model path-->
+        <field name="own_pid_path" type="string" indexed="true" stored="true" multiValued="false"  docValues="true"/>
+        <field name="own_model_path" type="string" indexed="true" stored="true" multiValued="false"  docValues="true"/>
+        <!--position of this object within it's own parent's children-->
+        <field name="rels_ext_index.sort" type="int" indexed="true" stored="true"/>
+
+        <!--foster parents-->
+        <field name="foster_parents.pids" type="string" indexed="true" stored="true" multiValued="true"  docValues="true"/>
+        <!--TODO: foster ancestors somehow for search withing articles and internalParts, or maybe do it like in collections-->
+
+        <!--foster ancestors(own, foster, mixed) that are model:collection-->
+        <field name="in_collections" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="in_collections.direct" type="string" indexed="true" stored="true" multiValued="true"/>
+
+        <!--level (vertical position in own tree starting with 0 for root) -->
+        <field name="level" type="int" indexed="true" stored="true"/>
+        <!--path from own parent to this + paths from all foster parents to this-->
+        <field name="pid_paths" type="string" indexed="true" stored="true" multiValued="true"/>
+
+        <!--children (own, foster)-->
+        <!--<field name="own_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="foster_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>-->
+
+        <!--DATES -->
+
+        <!--interval, ktery urcite obsahuje dany objekt, i kdyz jej muze presahovat (napr. pro 12.1919-3.1920 to je 1919-01-12T00:00:00.001Z - 1952-03-31T23:59:59.999Z)-->
+        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
+        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
+
+        <!--presne hodnoty datumu, pokud je datum zapsano jako jedna hodota (ac treba zapis "6. 2012" take znamena rozsah, zde jde o zapis, je to tedy instant)-->
+        <!--zruseno, namisto toho bude uvedeno oboji date_range_start.* i date_range_end.*-->
+        <!--
+        <field name="date_instant.year" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_instant.month" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_instant.day" type="int" indexed="true" stored="true" multiValued="false"/>
+        -->
+
+        <!--presne hodnoty pocatecniho datumu, napr. pro "9uu" nebude vyplneno date_range_start_year a pro 17.x.1926 nebude date_range_start_month ani date_range_start_day-->
+        <field name="date_range_start.year" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_start.month" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_start.day" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!--presne hodnoty konecneho datumu, napr. pro "9uu" nebude vyplneno date_range_end_year a pro 17.x.1926 nebude date_range_end_month ani date_range_end_day-->
+        <field name="date_range_end.year" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_end.month" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_end.day" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!--text pro zobrazeni, napr. "1947", "1947 - 1948", "19?? - 198?", "3. 7. 1947",  "3. - 12.2.1952" apod.-->
+        <field name="date.str" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+
+        <!--hodnota z mods/titleInfo/partName, pouziva se pro volume, issue, monographunit, supplement-->
+        <field name="part.name" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <!--used in monograph-unit, volume, issue, supplement-->
+        <!--pro model:volume muze obsahovat treba: "1923","1923-1924"-->
+        <!--pro model:issue muze obsahovat treba: "16.04.1948", "06.2013", "1947"-->
+        <!--pro model:monographunit muze obsahovat treba: "2", "2x"-->
+        <field name="part.number.str" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!--monograph unit specific-->
+
+        <!--periodical volume specific-->
+
+        <!--periodical issue specific-->
+        <!--
+        pro sekundární řazení (date_min/date_max + issue.type_sort), hodnoty na základe DMF periodika 1.8 (https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42)
+        0: normal, 1: morning, 2: afternoon, 3: evening, 4: corrected, 5: special, 6: supplement, 10+X: sequence_X
+        -->
+        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <!--kód typu, pro zobrazení v náhledech/seznamech; možné hodnoty: normal, morning, afternoon, evening, corrected, special, supplement, sequence_X-->
+        <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <!--page-->
+        <!--NormalPage, TitlePage, etc.-->
+        <field name="page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--1, [1a], etc.-->
+        <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--0, 1, 2, ...-->
+        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--left, right, single-->
+        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+        <!--track-->
+        <!--delka audia v sekundach (zaokrouhleno nahoru)-->
+        <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+        <!--identifiers-->
+        <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_uuid" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_oclc" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_sysno" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_barcode" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_isbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_issn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_ismn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <!--value in id_other is prefixed with type (if found in mods:identifier/@type) and colon, e.g. "sici:84987580"-->
+        <field name="id_other" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <!--possible other identifiers for special field: sici, coden-->
+		
+		<!-- all identifiers in one field -->
+        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		
+		
+		<copyField source="id_urnnbn" dest="id_all"/>
+		<copyField source="id_ccnb" dest="id_all"/>
+		<copyField source="id_uuid" dest="id_all"/>
+		<copyField source="id_oclc" dest="id_all"/>
+		<copyField source="id_sysno" dest="id_all"/>
+		<copyField source="id_barcode" dest="id_all"/>
+		<copyField source="id_isbn" dest="id_all"/>
+		<copyField source="id_issn" dest="id_all"/>
+		<copyField source="id_ismn" dest="id_all"/>
+		<copyField source="id_other" dest="id_all"/>
+
+        <!--pocty potomku (pro zobrazeni)-->
+        <field name="count_page" type="int" indexed="true" stored="true"/>
+        <field name="count_track" type="int" indexed="true" stored="true"/>
+
+        <!-- geo coordinates -->
+        <!-- bounding box -->
+        <field name="coords.bbox" type="bbox"/>
+        <!-- center of the bounding box -->
+        <field name="coords.bbox.center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+        <!--south west corner of the bounding box-->
+        <field name="coords.bbox.corner_sw" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+        <!--north east corner of the bounding box-->
+        <field name="coords.bbox.corner_ne" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+
+        <!--languages
+        facetové pole, ale bude se užívat i pro vyhledávání, jelikož je to jednoslovný kód, neměl by být problém s rozsekáním na slova,
+        tudíž není potřeba další pole-->
+        <field name="languages.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--physical locations-->
+        <field name="physical_locations.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+		<!-- Issue #865 -->		
+        <field name="physical_locations.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
+        <!--shelf locators-->
+        <field name="shelf_locators" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--accessiblity-->
+        <field name="accessibility" type="string" indexed="true" stored="true"/>
+
+        <!--whether there is tiles-url in rels-ext-->
+        <field name="has_tiles" type="boolean" indexed="true" stored="true"/>
+        <!--MIME type of IMG_FULL datastream-->
+        <field name="ds.img_full.mime" type="string" indexed="true" stored="true"/>
+
+        <!--kratky popis sbirky-->
+        <field name="collection.desc" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="collection.is_standalone" type="boolean" indexed="true" stored="true"/>
+
+        <!--OTHER-->
+
+        <field name="mdt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="ddt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="donator" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
+        <!-- text ocr -->
+        <field name="text_ocr" type="text_general_ascii_folded_not_lemmatized" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
+		
+		<!-- exact match field -->
+		<field name="text_ocr.exact" type="text_exact_match" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
+
+		<!--
+        <field name="text_ocr.lemmatized" type="text_general_lemmatized" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
+        <field name="text_ocr.lemmatized_ascii" type="text_general_lemmatized_ascii" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
+        <field name="text_ocr.lemmatized_nostopwords" type="text_general_lemmatized_no_stopwords" indexed="true" stored="false"
+               storeOffsetsWithPositions="true"/>
+		-->
+
+        <!-- licenses (formerly dnnt labels)-->
+        <field name="licenses" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+        <!-- contains licenses (formerly dnnt labels) -->
+        <field name="contains_licenses" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+        <!-- licences belonging to (own) ancestors-->
+        <field name="licenses_of_ancestors" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+		<!-- licenses facet field; contains data from licenenses, contains_licenses, licenses_of_ancestors -->
+        <field name="licenses.facet" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+		
+		<!-- copy authors -->
+		<copyField source="authors" dest="authors.search.exact" />
+
+		<!-- copy titles -->
+		<copyField source="titles.search" dest="titles.search.exact" />
+		
+		<!-- copy to licenses -->
+		<copyField source="licenses_of_ancestors" dest="licenses.facet"/>
+        <copyField source="contains_licenses" dest="licenses.facet"/>
+        <copyField source="licenses" dest="licenses.facet"/>
+
+		<!-- copy to text_ocr -->
+        <copyField source="text_ocr" dest="text_ocr.exact"/>
+		
+		<copyField source="physical_locations.facet" dest="physical_locations.search" />
+
+		<!-- composite field for solr cloud -->	
+        <field name="compositeId" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
+
+
+		<!-- cdk fields --> 
+        <field name="cdk.collection" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+        <field name="cdk.leader" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
+		<field name="cdk.contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>
+		<field name="cdk.k5.license.translated" type="string" docValues="true" multiValued="true" stored="true"/>
+		<field name="cdk.k5.marked_for_contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>
+		<field name="cdk.licenses" type="string" docValues="true" multiValued="true" stored="true"/>
+		<field name="cdk.licenses_of_ancestors" type="string" docValues="true" multiValued="true" stored="true"/>
+
+    </fields>
+
+
+    <uniqueKey>compositeId</uniqueKey>
+</schema>
