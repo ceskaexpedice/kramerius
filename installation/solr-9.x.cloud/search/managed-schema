@@ -474,8 +474,11 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--temporary field used for indexation processes, after (full) indexation is sucessfully finished, this field is cleared-->
         <field name="full_indexation_in_progress" type="boolean" indexed="true" stored="true"/>
 
-        <field name="compositeId" type="string" indexed="true" stored="true" required="true"/>
-        <field name="pid" type="string" indexed="true" stored="true" required="true"/>
+		<!-- Uncompatible changes; please check schema -->
+        <field name="compositeId" type="string" indexed="true" stored="true" required="true" docValues="true"/>
+		<!-- Uncompatible changes; please check schema -->
+
+        <field name="pid" type="string" indexed="true" stored="true" required="true" docValues="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -519,18 +522,18 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <!--root, parent, paths-->
         <!--root-->
-        <field name="root.pid" type="string" indexed="true" stored="true"/>
-        <field name="root.model" type="string" indexed="true" stored="true"/>
+        <field name="root.pid" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="root.model" type="string" indexed="true" stored="true" docValues="true"/>
         <field name="root.title" type="string" indexed="true" stored="true"/>
-        <field name="root.title.sort" type="string" indexed="true" stored="true"/>
+        <field name="root.title.sort" type="string" indexed="true" stored="true" docValues="true"/>
 
         <!--own parent-->
         <field name="own_parent.pid" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="own_parent.model" type="string" indexed="true" stored="true"/>
+        <field name="own_parent.model" type="string" indexed="true" stored="true" docValues="true"/>
         <field name="own_parent.title" type="string" indexed="true" stored="true"/>
         <!--own pid/model path-->
-        <field name="own_pid_path" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="own_model_path" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="own_pid_path" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="own_model_path" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--position of this object within it's own parent's children-->
         <field name="rels_ext_index.sort" type="int" indexed="true" stored="true"/>
 
@@ -554,8 +557,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--DATES -->
 
         <!--interval, ktery urcite obsahuje dany objekt, i kdyz jej muze presahovat (napr. pro 12.1919-3.1920 to je 1919-01-12T00:00:00.001Z - 1952-03-31T23:59:59.999Z)-->
-        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
-        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
+        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="true"/>
+        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="true"/>
 
         <!--presne hodnoty datumu, pokud je datum zapsano jako jedna hodota (ac treba zapis "6. 2012" take znamena rozsah, zde jde o zapis, je to tedy instant)-->
         <!--zruseno, namisto toho bude uvedeno oboji date_range_start.* i date_range_end.*-->
@@ -566,14 +569,14 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         -->
 
         <!--presne hodnoty pocatecniho datumu, napr. pro "9uu" nebude vyplneno date_range_start_year a pro 17.x.1926 nebude date_range_start_month ani date_range_start_day-->
-        <field name="date_range_start.year" type="int" indexed="true" stored="true" multiValued="false"/>
-        <field name="date_range_start.month" type="int" indexed="true" stored="true" multiValued="false"/>
-        <field name="date_range_start.day" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_start.year" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="date_range_start.month" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="date_range_start.day" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--presne hodnoty konecneho datumu, napr. pro "9uu" nebude vyplneno date_range_end_year a pro 17.x.1926 nebude date_range_end_month ani date_range_end_day-->
-        <field name="date_range_end.year" type="int" indexed="true" stored="true" multiValued="false"/>
-        <field name="date_range_end.month" type="int" indexed="true" stored="true" multiValued="false"/>
-        <field name="date_range_end.day" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_end.year" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="date_range_end.month" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="date_range_end.day" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--text pro zobrazeni, napr. "1947", "1947 - 1948", "19?? - 198?", "3. 7. 1947",  "3. - 12.2.1952" apod.-->
         <field name="date.str" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
@@ -587,7 +590,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--pro model:issue muze obsahovat treba: "16.04.1948", "06.2013", "1947"-->
         <!--pro model:monographunit muze obsahovat treba: "2", "2x"-->
         <field name="part.number.str" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--monograph unit specific-->
 
@@ -598,7 +601,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         pro sekundární řazení (date_min/date_max + issue.type_sort), hodnoty na základe DMF periodika 1.8 (https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42)
         0: normal, 1: morning, 2: afternoon, 3: evening, 4: corrected, 5: special, 6: supplement, 10+X: sequence_X
         -->
-        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--kód typu, pro zobrazení v náhledech/seznamech; možné hodnoty: normal, morning, afternoon, evening, corrected, special, supplement, sequence_X-->
         <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
 
@@ -608,9 +611,9 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--1, [1a], etc.-->
         <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
         <!--0, 1, 2, ...-->
-        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--left, right, single-->
-        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--track-->
         <!--delka audia v sekundach (zaokrouhleno nahoru)-->
