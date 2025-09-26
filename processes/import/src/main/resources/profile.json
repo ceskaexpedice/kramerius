@@ -4,7 +4,8 @@
     "description": "Import",
     "jvmArgs": [
       "-Xms1g",
-      "-Xmx16g"
+      "-Xmx16g",
+      "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=58001"
     ]
   }
 ]
