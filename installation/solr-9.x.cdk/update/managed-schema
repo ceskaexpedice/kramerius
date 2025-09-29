@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Solr managed schema - automatically generated - DO NOT EDIT -->
+<schema name="processing-schema" version="1.6">
+  <fieldType name="ancestor_path" class="solr.TextField">
+    <analyzer type="index">
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.PathHierarchyTokenizerFactory" delimiter="/"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="descendent_path" class="solr.TextField">
+   <analyzer type="index">
+     <tokenizer class="solr.PathHierarchyTokenizerFactory" delimiter="/" />
+   </analyzer>
+   <analyzer type="query">
+     <tokenizer class="solr.KeywordTokenizerFactory" />
+   </analyzer>
+ </fieldType>
+
+
+
+
+  <fieldType name="text_general_ngram" class="solr.TextField" positionIncrementGap="100">
+   <analyzer type="index">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+      <filter class="solr.NGramFilterFactory" minGramSize="2" maxGramSize="7"/>
+   </analyzer>
+   <analyzer type="query">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+   </analyzer>
+  </fieldType>
+
+  <fieldType name="text_general_edge_ngram" class="solr.TextField" positionIncrementGap="100">
+   <analyzer type="index">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+      <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="7"/>
+   </analyzer>
+   <analyzer type="query">
+      <tokenizer class="solr.LowerCaseTokenizerFactory"/>
+   </analyzer>
+  </fieldType>
+
+  <fieldType name="pid_edge_ngram" class="solr.TextField" positionIncrementGap="100">
+   <analyzer type="index">
+	   <tokenizer class="solr.KeywordTokenizerFactory" />
+	   <filter class="solr.EdgeNGramFilterFactory" minGramSize="5" maxGramSize="35"/>
+   </analyzer>
+   <analyzer type="query">
+   	<tokenizer class="solr.KeywordTokenizerFactory" />
+   </analyzer>
+  </fieldType>
+
+
+
+
+
+
+  <fieldType name="binary" class="solr.BinaryField"/>
+  <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+  <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
+  <fieldType name="date" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="dates" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+ <fieldType name="double" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="doubles" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="float" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="floats" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="ignored" class="solr.StrField" indexed="false" stored="false" docValues="false" multiValued="true"/>
+  <fieldType name="int" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="ints" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="long" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" precisionStep="0"/>
+  <fieldType name="longs" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="0"/>
+  <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
+  <fieldType name="strings" class="solr.StrField" sortMissingLast="true" docValues="true" multiValued="true"/>
+  <fieldType name="tdate" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" precisionStep="6"/>
+  <fieldType name="tdates" class="solr.TrieDateField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="6"/>
+  <fieldType name="tdouble" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tdoubles" class="solr.TrieDoubleField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+  <fieldType name="text_cz" class="solr.TextField" positionIncrementGap="100">
+    <analyzer>
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" words="stopwords_cz.txt" ignoreCase="true"/>
+      <filter class="solr.CzechStemFilterFactory"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="tfloat" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tfloats" class="solr.TrieFloatField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+  <fieldType name="tint" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tints" class="solr.TrieIntField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+  <fieldType name="tlong" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" precisionStep="8"/>
+  <fieldType name="tlongs" class="solr.TrieLongField" positionIncrementGap="0" docValues="true" multiValued="true" precisionStep="8"/>
+
+
+
+
+	<!--
+			jsonObject.put("id", this.id);
+		jsonObject.put("name", this.name);
+		jsonObject.put("date", this.date);
+		jsonObject.put("indexed", this.indexed);
+		jsonObject.put("updated", this.updated);
+		jsonObject.put("batches", this.batches);
+			jsonObject.put("workers", this.workers);
+-->
+
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+
+
+  <field name="id" type="string" indexed="true" stored="true"/>
+  <field name="name" type="string" indexed="true" stored="true"/>
+  <field name="indexed" type="long" indexed="true" stored="true"/>
+  <field name="updated" type="long" indexed="true" stored="true"/>
+  <field name="batches" type="long" indexed="true" stored="true"/>
+  <field name="workers" type="long" indexed="true" stored="true"/>
+  <field name="date" type="date" indexed="true" stored="true"/>
+
+  <uniqueKey>id</uniqueKey>
+
+
+</schema>
