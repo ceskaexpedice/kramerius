@@ -44,9 +44,6 @@ public abstract class AdminApiResource extends ApiResource {
     RightsResolver rightsResolver;
 
     @Inject
-    ProcessSchedulingHelper processSchedulingHelper;
-
-    @Inject
     SearchIndexHelper searchIndexHelper;
 
     @Inject
@@ -191,6 +188,7 @@ public abstract class AdminApiResource extends ApiResource {
         }
     }
 
+    /* TODO pepo
     protected void scheduleReindexationInBatch(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
         List<String> paramsList = new ArrayList<>();
         paramsList.add(indexationType);
@@ -204,9 +202,14 @@ public abstract class AdminApiResource extends ApiResource {
         processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken, processName);
     }
 
+     */
+
+    /* TODO pepo
     protected void scheduleReindexation(String objectPid, String userid, String username, String indexationType, boolean ignoreInconsistentObjects, String title) {
         scheduleReindexationInBatch(objectPid, userid, username, indexationType, UUID.randomUUID().toString(), ignoreInconsistentObjects, title);
     }
+
+     */
 
     protected void deleteFromSearchIndex(String pid) throws IOException {
         this.searchIndexHelper.deleteFromIndex(pid);

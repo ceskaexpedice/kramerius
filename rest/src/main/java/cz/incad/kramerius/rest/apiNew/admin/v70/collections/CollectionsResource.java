@@ -130,7 +130,7 @@ public class CollectionsResource extends AdminApiResource {
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
             akubraRepository.ingest(Dom4jUtils.foxmlDocToDigitalObject(foxml, akubraRepository));
             //schedule reindexation - new collection (only object)
-            scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
+            // TODO pepo scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
             return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -374,7 +374,7 @@ public class CollectionsResource extends AdminApiResource {
                     bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.re().update(pid, bis);
                     //schedule reindexation - (only collection object)
-                    scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+                    // TODO pepo scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
                 }
                 return null;
             });
@@ -476,7 +476,7 @@ public class CollectionsResource extends AdminApiResource {
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                // TODO pepo scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
             }
 
             //LOGGER.info("addItemToCollection end, Thread " + Thread.currentThread().getName());
@@ -578,7 +578,7 @@ public class CollectionsResource extends AdminApiResource {
                         } else {
                             for (String itemPid : pidsAdded) {
                                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                                scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                                // TODO pepo scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
                             }
                         }
 
@@ -705,8 +705,8 @@ public class CollectionsResource extends AdminApiResource {
                 // trees), 2. no need to re-index collection
                 // TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS
                 // (neimplementovana)
-                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES",
-                        false, itemPid);
+                // TODO pepo scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES",
+                  //      false, itemPid);
 
             });
 
@@ -778,7 +778,7 @@ public class CollectionsResource extends AdminApiResource {
             });
             //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
             //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+            // TODO pepo scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
             return Response.status(Response.Status.OK).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -844,11 +844,11 @@ public class CollectionsResource extends AdminApiResource {
             });
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
             String batchToken = UUID.randomUUID().toString();
-            scheduleReindexationInBatch(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", batchToken, false, "sbírka " + pid);
+            // TODO pepo scheduleReindexationInBatch(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", batchToken, false, "sbírka " + pid);
 
             for (String childPid : childrenPids) {
                 //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                scheduleReindexationInBatch(childPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
+                // TODO pepo scheduleReindexationInBatch(childPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
             }
             return Response.ok().build();
         } catch (WebApplicationException e) {

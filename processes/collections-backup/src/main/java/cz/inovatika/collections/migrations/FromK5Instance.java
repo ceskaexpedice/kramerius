@@ -451,12 +451,13 @@ public class FromK5Instance {
         SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
 
         try {
+            /* TODO pepo
             Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
                     KConfiguration.getInstance().getProperty("ingest.url"),
                     KConfiguration.getInstance().getProperty("ingest.user"),
                     KConfiguration.getInstance().getProperty("ingest.password"),
                     exportRoot, startIndexer, authToken, null, ScheduleStrategy.indexRoots);
-
+*/
             Restore.LOGGER.info(String.format("Deleting directory %s", exportRoot));
             File exportFolder = new File(exportRoot);
             FileUtils.deleteDirectory(exportFolder);

@@ -36,7 +36,6 @@ import org.json.JSONObject;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
@@ -154,6 +153,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             }
             // from process authentication
         } else if (httpServletRequest.getHeader("parent-process-auth-token") != null) {
+            /* TODO pepo
             String parentProcessAuthToken = httpServletRequest.getHeader("parent-process-auth-token");
             LOGGER.info(String.format("Authentication by parent-process-auth-token: %s", parentProcessAuthToken));
             ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
@@ -170,6 +170,8 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
             } else {
                 LOGGER.warning("No parent process found");
             }
+
+             */
         }
     }
 

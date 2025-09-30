@@ -33,7 +33,6 @@ import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.DefinitionManager;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.security.User;
@@ -47,7 +46,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
             .getLogger(AbstractLRProcessImpl.class.getName());
 
     private LRProcessDefinition definition;
-    private LRProcessManager manager;
     private KConfiguration configuration = KConfiguration.getInstance();
 
     private String pid;
@@ -82,11 +80,9 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     private String ownerName;
 
     
-    public AbstractLRProcessImpl(LRProcessDefinition definition,
-            LRProcessManager manager) {
+    public AbstractLRProcessImpl(LRProcessDefinition definition) {
         super();
         this.definition = definition;
-        this.manager = manager;
         this.uuid = UUID.randomUUID().toString();
     }
 
@@ -108,143 +104,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     @Override
     public void setParameters(List<String> params) {
         this.parameters = new ArrayList<String>(params);
-    }
-
-    @Override
-    public boolean canBeStopped() {
-        return getPid() != null && getProcessState().equals(States.RUNNING);
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public Integer planMe(Properties paramsMapping, String ipAddress) {
-        this.state = States.PLANNED;
-        this.ipAddress = ipAddress;
-        this.setPlannedTime(System.currentTimeMillis());
-        
-        return manager.registerLongRunningProcess(this, getLoggedUserKey(),
-                paramsMapping);
-    }
-
-    @Override
-    public void startMe(boolean wait, String krameriusAppLib,
-            String... additionalJarFiles) {
-        try {
-            File processWorkingDir = processWorkingDirectory();
-
-            // "java -D"+ProcessStarter.MAIN_CLASS_KEY+"="+mainClass
-            // create command
-            List<String> command = new ArrayList<String>();
-            command.add("java");
-
-            List<String> javaProcessParameters = this.definition
-                    .getJavaProcessParameters();
-            for (String jpParam : javaProcessParameters) {
-                command.add(jpParam);
-            }
-
-
-            command.add("-Duser.home=" + System.getProperty("user.home"));
-            command.add("-Dfile.encoding=UTF-8" );
-
-            command.add("-D" + ProcessStarter.MAIN_CLASS_KEY + "="
-                    + this.definition.getMainClass());
-
-            command.add("-D" + IPAddressUtils.X_IP_FORWARD + "="
-                    + this.ipAddress);
-
-            command.add("-D" + ProcessStarter.UUID_KEY + "=" + this.uuid);
-            command.add("-D" + ProcessStarter.TOKEN_KEY + "="
-                    + this.getGroupToken());
-            command.add("-D" + ProcessStarter.AUTH_TOKEN_KEY + "="
-                    + this.getAuthToken());
-            command.add("-D" + ProcessStarter.SHOULD_CHECK_ERROR_STREAM + "="
-                    + this.definition.isCheckedErrorStream());
-
-            File standardStreamFile = standardOutFile(processWorkingDir);
-            File errStreamFile = errorOutFile(processWorkingDir);
-
-            command.add("-D" + ProcessStarter.SOUT_FILE + "="
-                    + standardStreamFile.getAbsolutePath());
-            command.add("-D" + ProcessStarter.SERR_FILE + "="
-                    + errStreamFile.getAbsolutePath());
-
-            Set<Object> keySet = this.parametersMapping.keySet();
-            for (Object key : keySet) {
-                command.add("-D" + key + "="
-                        + this.parametersMapping.getProperty(key.toString()));
-            }
-
-            command.add(ProcessStarter.class.getName());
-
-            List<String> params = this.definition.getParameters();
-            for (String par : params) {
-                command.add(par);
-            }
-
-            List<String> runtimeParams = this.getParameters();
-            for (String par : runtimeParams) {
-                command.add(par);
-            }
-
-            // create CLASSPATH
-            StringBuffer buffer = new StringBuffer();
-            String libsDirPath = this.definition.getLibsDir();
-            if (libsDirPath == null) {
-                libsDirPath = krameriusAppLib;
-            }
-
-            File libsDir = new File(libsDirPath);
-            File[] listFiles = libsDir.listFiles();
-            if (listFiles != null) {
-                for (File file : listFiles) {
-                    buffer.append(file.getAbsolutePath());
-                    buffer.append(File.pathSeparator);
-                }
-            }
-            // TODO: co delat pri zmene definice?
-            for (String string : additionalJarFiles) {
-                buffer.append(new File(string).getAbsolutePath());
-                buffer.append(File.pathSeparator);
-            }
-
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            processBuilder = processBuilder.directory(processWorkingDir);
-
-            processBuilder.environment().put(ProcessStarter.CLASSPATH_NAME,
-                    buffer.toString());
-            this.setStartTime(System.currentTimeMillis());
-            this.state = States.RUNNING;
-
-            manager.updateLongRunningProcessState(this);
-
-            manager.updateLongRunningProcessStartedDate(this);
-
-            LOGGER.fine("" + command);
-            LOGGER.fine(buffer.toString());
-
-            Process process = processBuilder.start();
-
-            // pokracuje dal.. rozhoduje se, jestli pocka na vysledek procesu
-            if (wait) {
-                int val = process.waitFor();
-                if (val != 0) {
-                    InputStream errorStream = process.getErrorStream();
-                    String s = IOUtils.toString(errorStream, "UTF-8");
-                    LOGGER.info(s);
-                }
-                LOGGER.info("return value exiting process '" + val + "'");
-            }
-
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
     }
 
     public Properties getParametersMapping() {
@@ -292,25 +151,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
         return fldr;
     }
 
-    @Override
-    public void stopMe() {
-        if (this.getProcessState() == States.PLANNED) {
-            this.setProcessState(States.KILLED);
-            this.manager.updateLongRunningProcessState(this);
-        } else {
-            if (this.pid == null) {
-                throw new IllegalStateException(
-                        "cannot stop this process! No PID associated");
-            }
-
-            this.setProcessState(States.KILLED);
-            this.manager.updateLongRunningProcessState(this);
-
-            this.stopMeOsDependent();
-        }
-        this.setFinishedTime(System.currentTimeMillis());
-    }
-
     protected abstract void stopMeOsDependent();
 
     public String getPid() {
@@ -351,21 +191,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     }
 
     @Override
-    public States getProcessState() {
-        return this.state;
-    }
-
-    @Override
-    public BatchStates getBatchState() {
-        return this.batchState;
-    }
-
-    @Override
-    public void setBatchState(BatchStates st) {
-        this.batchState = st;
-    }
-
-    @Override
     public String getProcessName() {
         return this.name;
     }
@@ -376,42 +201,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     }
 
     // public File processWorkingDirectory() {
-
-    @Override
-    public InputStream getErrorProcessOutputStream()
-            throws FileNotFoundException {
-        return new FileInputStream(errorOutFile(processWorkingDirectory()));
-    }
-
-    @Override
-    public InputStream getStandardProcessOutputStream()
-            throws FileNotFoundException {
-        return new FileInputStream(standardOutFile(processWorkingDirectory()));
-    }
-
-    @Override
-    public RandomAccessFile getErrorProcessRAFile()
-            throws FileNotFoundException {
-        File errStreamFile = errorOutFile(processWorkingDirectory());
-        return new RandomAccessFile(errStreamFile, "r");
-    }
-
-    @Override
-    public RandomAccessFile getStandardProcessRAFile()
-            throws FileNotFoundException {
-        File standardStreamFile = standardOutFile(processWorkingDirectory());
-        return new RandomAccessFile(standardStreamFile, "r");
-    }
-
-    @Override
-    public File getProcessErrorFile() {
-        return standardOutFile(processWorkingDirectory());
-    }
-
-    @Override
-    public File getProcessOutputFile() {
-        return  errorOutFile(processWorkingDirectory());
-    }
 
     public long getPlannedTime() {
         return plannedTime;
@@ -492,16 +281,6 @@ public abstract class AbstractLRProcessImpl implements LRProcess {
     @Override
     public void setMasterProcess(boolean flag) {
         this.masterProcess = flag;
-    }
-
-    @Override
-    public long getFinishedTime() {
-        return this.finishedTime;
-    }
-
-    @Override
-    public void setFinishedTime(long finishedtime) {
-        this.finishedTime = finishedtime;
     }
 
     @Override

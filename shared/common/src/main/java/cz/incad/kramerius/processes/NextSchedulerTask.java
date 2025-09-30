@@ -17,13 +17,11 @@ public class NextSchedulerTask extends TimerTask {
             .getLogger(NextSchedulerTask.class.getName());
 
     private ProcessScheduler processScheduler;
-    private LRProcessManager lrProcessManager;
     private DefinitionManager definitionManager;
 
-    public NextSchedulerTask(LRProcessManager lrProcessManager, DefinitionManager definitionManager,
+    public NextSchedulerTask(DefinitionManager definitionManager,
             ProcessScheduler processScheduler, long interval) {
         super();
-        this.lrProcessManager = lrProcessManager;
         this.definitionManager = definitionManager;
         this.processScheduler = processScheduler;
     }
@@ -31,10 +29,12 @@ public class NextSchedulerTask extends TimerTask {
     @Override
     public void run() {
         try {
+            // TODO pepo - get profiles, compare with lp.xml, update jvm args on pcp
             LOGGER.fine("Scheduling next task");
             definitionManager.load();
+            /*
             List<LRProcess> plannedProcess = lrProcessManager.getPlannedProcess(allowRunningProcesses());
-            if (!plannedProcess.isEmpty() && this.processScheduler.getApplicationLib() != null /* initalized */) {
+            if (!plannedProcess.isEmpty() && this.processScheduler.getApplicationLib() != null ) {
                 List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(States.RUNNING);
                 if (longRunningProcesses.size() < allowRunningProcesses()) {
                     LRProcess lrProcess = plannedProcess.get(0);
@@ -50,6 +50,7 @@ public class NextSchedulerTask extends TimerTask {
                     LOGGER.fine("No planned process found");
                 }
             }
+            */
             this.processScheduler.scheduleNextTask();
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

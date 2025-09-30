@@ -34,7 +34,6 @@ import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -43,13 +42,11 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
     public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(LRProcessDefinitionManagerImpl.class.getName());
     private KConfiguration configuration = KConfiguration.getInstance();
-    private LRProcessManager processManager;
 
     @Inject
-    public LRProcessDefinitionManagerImpl(LRProcessManager processManager, @Named("LIBS") String defaultLibsdir// ,
+    public LRProcessDefinitionManagerImpl(@Named("LIBS") String defaultLibsdir// ,
     /* String configFile */) {
         super();
-        this.processManager = processManager;
         LOGGER.fine("loading configuration ...");
         this.load();
 
@@ -122,7 +119,7 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
         for (int i = 0, ll = childNodes.getLength(); i < ll; i++) {
             Node item = childNodes.item(i);
             if (item.getNodeType() == Node.ELEMENT_NODE) {
-                LRProcessDefinitionImpl def = new LRProcessDefinitionImpl(this.processManager);
+                LRProcessDefinitionImpl def = new LRProcessDefinitionImpl();
                 def.loadFromXml((Element) item);
                 this.definitions.put(def.getId(), def);
             }
@@ -132,14 +129,6 @@ public class LRProcessDefinitionManagerImpl implements DefinitionManager {
     @Override
     public List<LRProcessDefinition> getLongRunningProcessDefinitions() {
         return new ArrayList<LRProcessDefinition>(definitions.values());
-    }
-
-    public LRProcessManager getProcessManager() {
-        return processManager;
-    }
-
-    public void setProcessManager(LRProcessManager processManager) {
-        this.processManager = processManager;
     }
 
 }

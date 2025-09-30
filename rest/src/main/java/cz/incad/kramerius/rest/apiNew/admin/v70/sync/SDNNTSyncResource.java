@@ -5,11 +5,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.new_api.ProcessInBatch;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
-import cz.incad.kramerius.rest.apiNew.admin.v70.ProcessSchedulingHelper;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -98,16 +93,7 @@ public class SDNNTSyncResource {
     public static final int DEFAULT_ROWS = 15;
 
     @Inject
-    ProcessSchedulingHelper processSchedulingHelper;
-
-    @Inject
     Provider<User> userProvider;
-
-    @Inject
-    LRProcessManager lrProcessManager;
-
-    @Inject
-    ProcessManager processManager;
 
     @Inject
     DefinitionManager definitionManager;
@@ -226,10 +212,13 @@ public class SDNNTSyncResource {
                             }
                             
 
+                            /* TODO pepo
                             LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, paramsList,
                                     user.getLoginname(), user.getLoginname(), batchToken, name);
                             ProcessInBatch batch = this.processManager
                                     .getProcessInBatchByProcessUUid(newProcess.getUUID());
+
+                             */
 
                             String sdnntHost = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
                             
@@ -245,13 +234,13 @@ public class SDNNTSyncResource {
                                 Element processId = add.createElement("field");
                                 processId.setAttribute("name", "process_id");
                                 processId.setAttribute("update", "add-distinct");
-                                processId.setTextContent(batch.processId);
+                                // TODO pepo processId.setTextContent(batch.processId);
                                 doc.appendChild(processId);
                                 
                                 Element processUuid = add.createElement("field");
                                 processUuid.setAttribute("name", "process_uuid");
                                 processUuid.setAttribute("update", "add-distinct");
-                                processUuid.setTextContent(batch.processUuid);
+                                // TODO pepo processUuid.setTextContent(batch.processUuid);
                                 doc.appendChild(processUuid);
                                 
                                 add.getDocumentElement().appendChild(doc);
@@ -266,8 +255,8 @@ public class SDNNTSyncResource {
                             }
 
                             JSONObject retobject = new JSONObject();
-                            retobject.put("processId", batch.processId);
-                            retobject.put("processUuid", batch.processUuid);
+                            // TODO pepo retobject.put("processId", batch.processId);
+                            // TODO pepo retobject.put("processUuid", batch.processUuid);
                             retobject.put("sync_actions", action.name());
                             retobject.put("defid", defid);
                             retobject.put("license", license);

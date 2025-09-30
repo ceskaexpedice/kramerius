@@ -101,7 +101,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
         ctx.setCreators((jsonObject != null && (jsonObject.containsKey("creators"))) ? jsonToArray(jsonObject.getJSONArray("creators")): new String[0]);
         ctx.setLrProcess(lrProcess);
         ctx.setBundle(BundleTemplateUtils.resourceBundleMap(this.resourceBundleService.getResourceBundle("labels", localesProvider.get())));
-        setPhasesFlags(ctx, lrProcess.processWorkingDirectory());
+       // TODO pepo  setPhasesFlags(ctx, lrProcess.processWorkingDirectory());
         setErrorFlagAndMessage(lrProcess, ctx);
 
         try {
@@ -150,6 +150,7 @@ public class OutputTemplate implements ProcessOutputTemplate {
     }
     
     public void setErrorFlagAndMessage(LRProcess lrProcess, OutputContext ctx) {
+        /* TODO pepo
         ctx.setErrorOccured(lrProcess.getProcessState() != States.FINISHED && lrProcess.getBatchState() != BatchStates.BATCH_FINISHED);
         if (ctx.isErrorOccured()) {
             try {
@@ -160,6 +161,8 @@ public class OutputTemplate implements ProcessOutputTemplate {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
             }
         }
+
+         */
     }
 
     static class _Filter implements FileFilter {
@@ -197,7 +200,8 @@ public class OutputTemplate implements ProcessOutputTemplate {
     }
 
     JSONObject description(LRProcess lrProcess) throws IOException, FileNotFoundException {
-        File descriptionFile = new File(lrProcess.processWorkingDirectory(),AbstractPhase.DESCRIPTION_FILE);
+        // TODO pepo File descriptionFile = new File(lrProcess.processWorkingDirectory(),AbstractPhase.DESCRIPTION_FILE);
+        File descriptionFile = null;
         if ((descriptionFile != null) && (descriptionFile.canRead())) {
             String stringInput = IOUtils.readAsString(new FileInputStream(descriptionFile), Charset.forName("UTF-8"), true);
             try {

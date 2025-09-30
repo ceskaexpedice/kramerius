@@ -36,7 +36,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;
@@ -68,10 +67,6 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     Provider<HttpServletRequest> requeProvider;
     
     
-    @Inject
-    LRProcessManager lrProcessManager;
-    
-
     @Override
     public synchronized String registerLoggedUser(User user) {
         return registerLoggedUser(user, this.requeProvider.get());
@@ -105,7 +100,8 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     
     @Override
     public synchronized void deregisterLoggedUser(String key) {
-        boolean isSessionKeyAssociatedWithProcess = lrProcessManager.isSessionKeyAssociatedWithProcess(key);
+// TODO pepo        boolean isSessionKeyAssociatedWithProcess = lrProcessManager.isSessionKeyAssociatedWithProcess(key);
+        boolean isSessionKeyAssociatedWithProcess = false;
 
         Connection con = null;
         try {

@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.NextSchedulerTask;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -32,7 +31,6 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 
 	public static final Logger LOGGER = Logger.getLogger(ProcessScheduler.class.getName());
 	
-	private LRProcessManager lrProcessManager;
 	private DefinitionManager definitionManager;
 	
 	private int interval;
@@ -43,10 +41,8 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	
 	
 	@Inject
-	public ProcessSchedulerImpl(LRProcessManager lrProcessManager,
-			DefinitionManager definitionManager) {
+	public ProcessSchedulerImpl(DefinitionManager definitionManager) {
 		super();
-		this.lrProcessManager = lrProcessManager;
 		this.definitionManager = definitionManager;
 		this.timer = new Timer(ProcessSchedulerImpl.class.getName()+"-thread",true);
 		
@@ -72,7 +68,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	@Override
 	public void scheduleNextTask() {
 		this.timer.purge();
-		NextSchedulerTask schedulerTsk = new NextSchedulerTask(this.lrProcessManager, this.definitionManager,this, this.interval);
+		NextSchedulerTask schedulerTsk = new NextSchedulerTask(this.definitionManager,this, this.interval);
 		this.timer.schedule(schedulerTsk, this.interval);
 	}
 

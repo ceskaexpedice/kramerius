@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.rest.api.processes.LRResource;
 
 public class DateConvert implements Convert {
 
@@ -30,12 +29,15 @@ public class DateConvert implements Convert {
     
     @Override
     public Object convert(String str) {
+        /* TODO pepo
         try {
             Date parsed = LRResource.FORMAT.parse(str);
             return new Timestamp(parsed.getTime());
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
+
+         */
         return str;
     }
 

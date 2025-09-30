@@ -14,15 +14,12 @@ public class SchedulersLifeCycleHook implements LifeCycleHook {
     @Inject
     ProcessScheduler processScheduler;
 
-    @Inject
-    GCScheduler gcScheduler;
 
     @Override
     public void shutdownNotification() {
         boolean enabled  = KConfiguration.getInstance().getConfiguration().getBoolean("processQueue.enabled",true);
         if (enabled) {
             LOGGER.info("shutting down process schedulers");
-            this.gcScheduler.shutdown();
             this.processScheduler.shutdown();
         }
     }
@@ -32,7 +29,6 @@ public class SchedulersLifeCycleHook implements LifeCycleHook {
         boolean enabled  = KConfiguration.getInstance().getConfiguration().getBoolean("processQueue.enabled",true);
         if (enabled) {
             LOGGER.info("starting process schedulers");
-            this.gcScheduler.scheduleFindGCCandidates();
             this.processScheduler.scheduleNextTask();
         }
     }

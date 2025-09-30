@@ -40,11 +40,9 @@ import javax.ws.rs.core.StreamingOutput;
 
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.processes.*;
 
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.statistics.filters.*;
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
@@ -91,9 +89,6 @@ public class StatisticsResource {
 
     @Inject
     Set<StatisticsReportFormatter> reportFormatters;
-
-    @Inject
-    LRProcessManager lrProcessManager;
 
     @Inject
     LoggedUsersSingleton loggedUsersSingleton;
@@ -509,7 +504,8 @@ public class StatisticsResource {
 
     boolean permit(SecuredActions action) {
         User user = null;
-        String authToken = this.requestProvider.get().getHeader(LRResource.AUTH_TOKEN_HEADER_KEY);
+       // String authToken = this.requestProvider.get().getHeader(LRResource.AUTH_TOKEN_HEADER_KEY);
+/* TODO pepo
         if (authToken != null && !lrProcessManager.isAuthTokenClosed(authToken)) {
             String sessionKey = lrProcessManager.getSessionKey(authToken);
             if (sessionKey != null) {
@@ -520,6 +516,8 @@ public class StatisticsResource {
         } else {
             user = this.userProvider.get();
         }
+
+ */
         return permit(user,action);
     }
 

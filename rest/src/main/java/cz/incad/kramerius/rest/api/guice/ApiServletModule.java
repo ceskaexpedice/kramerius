@@ -70,11 +70,8 @@ import cz.incad.kramerius.timestamps.impl.SolrTimestampStore;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.folders.db.FolderDatabase;
 import cz.inovatika.folders.jersey.EndpointFolders;
-//import cz.incad.kramerius.rest.api.k5.client.virtualcollection.ClientVirtualCollections;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.impl.SolrMemoizationImpl;
-import cz.incad.kramerius.rest.api.processes.LRResource;
-//import cz.incad.kramerius.rest.api.replication.CDKReplicationsResource;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyReader;
 import cz.incad.kramerius.rest.api.serialization.SimpleJSONMessageBodyWriter;
@@ -98,10 +95,7 @@ public class ApiServletModule extends JerseyServletModule {
         // API Remote 4.6 Resources
         bind(ReplicationsResource.class);
         //bind(CDKReplicationsResource.class);
-        bind(LRResource.class);
 
-        // API Client 5.0 Resources - TODO: disable
-        
 		boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
 		if (cdkServerMode) {
 			bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ClientUserResource.class);

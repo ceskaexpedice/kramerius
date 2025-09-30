@@ -14,11 +14,9 @@ import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.impl.*;
-import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.CDKCacheConnectionProvider;
 import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
-import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
@@ -95,7 +93,6 @@ public class BaseModule extends AbstractModule {
         bind(Locale.class).toProvider(LocalesProvider.class);
 
         bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
-        bind(GCScheduler.class).to(GCSchedulerImpl.class).in(Scopes.SINGLETON);
 
         // TODO: MOVE
         bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);

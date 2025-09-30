@@ -101,6 +101,7 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
     }
 
     public void setErrorFlagAndMessage(LRProcess lrProcess, DataMigrationOutputTemplate.OutputContext ctx) {
+        /* TODO pepo
         ctx.setErrorOccured(lrProcess.getProcessState() != States.FINISHED && lrProcess.getBatchState() != BatchStates.BATCH_FINISHED);
         if (ctx.isErrorOccured()) {
             try {
@@ -111,9 +112,12 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
+
+         */
     }
 
     JSONObject description(LRProcess lrProcess) throws IOException, FileNotFoundException {
+        /* TODO pepo
         File descriptionFile = new File(lrProcess.processWorkingDirectory(), AbstractPhase.DESCRIPTION_FILE);
         if ((descriptionFile != null) && (descriptionFile.canRead())) {
             String stringInput = IOUtils.readAsString(new FileInputStream(descriptionFile), Charset.forName("UTF-8"), true);
@@ -123,7 +127,7 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return null;
             }
-        } else return null;
+        } else*/ return null;
     }
 
     @Override
@@ -222,11 +226,12 @@ public class DataMigrationOutputTemplate implements ProcessOutputTemplate {
         }
 
         public File phraseFile(String  phrase) {
+            /* TODO pepo
             if (new File(lrProcess.processWorkingDirectory(),phrase+".failed").exists()) {
                 return new File( lrProcess.processWorkingDirectory(), phrase+".failed");
             } else if (new File(lrProcess.processWorkingDirectory(),phrase+".completed").exists()) {
                 return new File(lrProcess.processWorkingDirectory(),phrase+".completed");
-            } else return null;
+            } else */return null;
         }
 
 

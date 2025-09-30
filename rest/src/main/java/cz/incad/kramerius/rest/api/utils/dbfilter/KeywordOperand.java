@@ -19,8 +19,6 @@ package cz.incad.kramerius.rest.api.utils.dbfilter;
 import java.util.HashMap;
 import java.util.Map;
 
-import cz.incad.kramerius.rest.api.processes.filter.BatchStateConvert;
-import cz.incad.kramerius.rest.api.processes.filter.StateConvert;
 
 public class KeywordOperand extends Operand{
 
@@ -39,8 +37,8 @@ public class KeywordOperand extends Operand{
     }
     
     private static Map<String,Convert> MAPPING_CONVERTS = new HashMap<String, Convert>(); static {
-        MAPPING_CONVERTS.put("state", new StateConvert());
-        MAPPING_CONVERTS.put("batchState", new BatchStateConvert());
+        // TODO pepo MAPPING_CONVERTS.put("state", new StateConvert());
+        //MAPPING_CONVERTS.put("batchState", new BatchStateConvert());
         MAPPING_CONVERTS.put("finished", new DateConvert());
         MAPPING_CONVERTS.put("started", new DateConvert());
         MAPPING_CONVERTS.put("planned", new DateConvert());

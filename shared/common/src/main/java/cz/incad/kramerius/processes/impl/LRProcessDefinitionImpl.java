@@ -1,9 +1,6 @@
 package cz.incad.kramerius.processes.impl;
 
 import cz.incad.kramerius.processes.*;
-import cz.incad.kramerius.processes.os.impl.windows.WindowsLRProcessImpl;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.lang3.SystemUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -31,7 +28,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
     private String inputTemplateClz = null;
     private List<String> outputTemplateClzs = new ArrayList<String>();
 
-    private LRProcessManager pm;
     private String securedAction;
 
     private List<LRDefinitionAction> actions = new ArrayList<LRDefinitionAction>();
@@ -39,9 +35,8 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
     private boolean shouldCheckErrorStream = true;
 
 
-    public LRProcessDefinitionImpl(LRProcessManager pm ) {
+    public LRProcessDefinitionImpl() {
         super();
-        this.pm = pm;
 
     }
 
@@ -211,37 +206,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
 
     }
 
-    @Override
-    public LRProcess createNewProcess(String authToken, String grpToken) {
-        LRProcess process = createProcessInternal();
-        process.setGroupToken(grpToken != null ? grpToken : UUID.randomUUID().toString());
-        process.setAuthToken(authToken != null ? authToken : UUID.randomUUID().toString());
-        return process;
-    }
-
-    private AbstractLRProcessImpl createProcessInternal() {
-        if (SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX) {
-            return new cz.incad.kramerius.processes.os.impl.unix.UnixLRProcessImpl(this, this.pm);
-        } else if (SystemUtils.IS_OS_WINDOWS) {
-            return new WindowsLRProcessImpl(this, this.pm);
-        } else throw new UnsupportedOperationException("unsupported OS");
-    }
-
-
-    @Override
-    public LRProcess loadProcess(String uuid, String pid, long planned, States state, BatchStates bstate, String name) {
-        AbstractLRProcessImpl abs = createProcessInternal();
-        abs.setUuid(uuid);
-        abs.setDefinition(this);
-        abs.setPlannedTime(planned);
-        abs.setPid(pid);
-        abs.setProcessState(state);
-        abs.setBatchState(bstate);
-        abs.setProcessName(name);
-
-        return abs;
-    }
-
 
     public String getId() {
         return id;
@@ -255,14 +219,6 @@ public class LRProcessDefinitionImpl implements LRProcessDefinition {
     @Override
     public String getDescription() {
         return this.description;
-    }
-
-    public LRProcessManager getPm() {
-        return pm;
-    }
-
-    public void setPm(LRProcessManager pm) {
-        this.pm = pm;
     }
 
     public String getStandardStreamFolder() {

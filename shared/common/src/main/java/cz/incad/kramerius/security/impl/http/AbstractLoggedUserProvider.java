@@ -35,7 +35,6 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
@@ -73,11 +72,7 @@ public abstract class AbstractLoggedUserProvider implements Provider<User>{
     @Inject
     TextsService textsService;
     
-    
-    @Inject
-    ProcessManager processManager;
 
-    
     @Override
     public User get() {
         try {
