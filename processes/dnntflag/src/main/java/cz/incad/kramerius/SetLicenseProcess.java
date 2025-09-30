@@ -8,7 +8,6 @@ import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -107,7 +106,7 @@ public class SetLicenseProcess {
         try {
             switch (action) {
                 case ADD:
-                    ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
+                    // TODO pepo ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
                     for (String pid : extractPids(target)) {
                         try {
                             addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
@@ -127,7 +126,7 @@ public class SetLicenseProcess {
                     }
                     break;
                 case REMOVE:
-                    ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
+                    // TODO pepo ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
                     for (String pid : extractPids(target)) {
                         try {
                             removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess, authToken);

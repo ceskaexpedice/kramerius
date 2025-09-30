@@ -13,8 +13,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
-import cz.incad.kramerius.processes.starter.*;
-import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -206,7 +204,7 @@ public class ExportServiceImpl implements ExportService {
                         inst.exportParents(args[i]);
                     }
                 } else {
-                    ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
+                    // TODO pepo ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
                     if (exportParents == true) {
                         inst.exportParents(args[i]);
                     }

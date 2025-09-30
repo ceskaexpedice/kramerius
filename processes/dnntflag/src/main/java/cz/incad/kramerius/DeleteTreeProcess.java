@@ -9,7 +9,6 @@ import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
 import cz.incad.kramerius.processes.WarningException;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -76,10 +75,13 @@ public class DeleteTreeProcess {
         String pid = args[argsIndex++];
         String title = ProcessHelper.shortenIfTooLong(ProcessHelper.mergeArraysEnd(args, argsIndex++), 256);
         //String scopeDesc = scope == SetPolicyProcess.Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
+        /* TODO pepo
         ProcessStarter.updateName(title != null
                 ? String.format("Smazání stromu %s (%s)", title, pid)
                 : String.format("Smazání stromu %s", pid)
         );
+
+         */
 
         boolean ignoreIncosistencies = false;
 

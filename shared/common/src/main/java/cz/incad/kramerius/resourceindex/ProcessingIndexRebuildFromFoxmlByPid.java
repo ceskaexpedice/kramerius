@@ -3,15 +3,12 @@ package cz.incad.kramerius.resourceindex;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputField;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexQueryParameters;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
@@ -69,9 +66,9 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
         if (pids.size() > 4) {
             List<String> titleList = new ArrayList<>(pids.subList(0,4));
             titleList.add("...");
-            ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", titleList)));
+            // TODO pepo ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", titleList)));
         } else {
-            ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", pids)));
+            // TODO pepo ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", pids)));
         }
 
         boolean commitAfterRecord = KConfiguration.getInstance().getConfiguration().getBoolean("processing.index.afterRecordCommit",false);

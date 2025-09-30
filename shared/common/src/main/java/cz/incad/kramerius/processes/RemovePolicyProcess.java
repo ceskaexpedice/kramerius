@@ -5,7 +5,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 
@@ -72,17 +71,21 @@ public class RemovePolicyProcess {
         String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
         String scopeDesc = scope == Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
         if (pidArg.startsWith("pidlist_file")) {
+            /* TODO pepo
             ProcessStarter.updateName(title != null
                     ? String.format("Odebrání příznaku viditelnosti %s (%s,  %s)", title, pidArg.substring(PIDLIST_FILE_PREFIX.length()),  scopeDesc)
                     : String.format("Odebrání příznaku viditelnosti %s (%s)", pidArg.substring(PIDLIST_FILE_PREFIX.length()), scopeDesc)
             );
+
+             */
             
         } else {
+            /* TODO pepo
             ProcessStarter.updateName(title != null
                     ? String.format("Odebrání příznaku viditelnosti %s (%s,  %s)", title, shortenIfTooLong(pids.toString(),256),  scopeDesc)
                     : String.format("Odebrání příznaku viditelnosti %s (%s)", shortenIfTooLong(pids.toString(),256), scopeDesc)
             );
-            
+            */
         }
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository repository = injector.getInstance(Key.get(AkubraRepository.class));

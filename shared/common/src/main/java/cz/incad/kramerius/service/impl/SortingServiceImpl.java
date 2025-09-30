@@ -11,7 +11,6 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
@@ -71,7 +70,7 @@ public class SortingServiceImpl implements SortingService {
             //TODO: I18n
             if (startIndexer) {
                 try {
-                    ProcessStarter.updateName("Sort relations (" + pid + ")");
+                    // TODO pepo ProcessStarter.updateName("Sort relations (" + pid + ")");
                 } catch (Exception ex) {
                 }
             }

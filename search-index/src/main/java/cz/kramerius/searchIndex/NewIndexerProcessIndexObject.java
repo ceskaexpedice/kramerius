@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -71,16 +70,20 @@ public class NewIndexerProcessIndexObject {
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
 
         if (argument.startsWith("pidlist_file")) {
+            /* TODO pepo
             ProcessStarter.updateName(title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, argument.substring(ProcessUtils.PIDLIST_FILE_PREFIX.length()), type)
                     : String.format("Indexace %s (typ %s)",argument.substring(ProcessUtils.PIDLIST_FILE_PREFIX.length()), type)
             );
-            
+            */
         } else {
+            /* TODO pepo
             ProcessStarter.updateName(title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, pids.toString(), type)
                     : String.format("Indexace %s (typ %s)", pids.toString(), type)
             );
+
+             */
             
         }
 

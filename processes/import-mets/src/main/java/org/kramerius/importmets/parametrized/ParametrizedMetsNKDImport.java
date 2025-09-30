@@ -25,7 +25,6 @@ import org.kramerius.importmets.MetsConvertor;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.File;
 import org.apache.commons.configuration.Configuration;
@@ -74,6 +73,7 @@ public class ParametrizedMetsNKDImport {
             }
         }
 
+        /* TODO pepo
         try {
             //TODO: I18N
             ProcessStarter.updateName("Parametrizovany import NDK METS z '"+convertDirectory.getAbsolutePath()+"'");
@@ -81,6 +81,8 @@ public class ParametrizedMetsNKDImport {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+         */
         
     }
 }

@@ -30,7 +30,6 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 
 public class ParametrizedConvert {
 
@@ -51,13 +50,15 @@ public class ParametrizedConvert {
         System.setProperty("convert.defaultRights", defaultRights.toString());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
         System.setProperty("ingest.skip", ingestSkip.toString());
-            
+         /* TODO pepo
         try {
             //TODO: I18N
             ProcessStarter.updateName("Parametrizovany import z K3 formatu z '"+convertDirectory.getAbsolutePath()+"'");
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }
+
+          */
         
         /** Standard convert process */
         Convert.main(new String[0]);

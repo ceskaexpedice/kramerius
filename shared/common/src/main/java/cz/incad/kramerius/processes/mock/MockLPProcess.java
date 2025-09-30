@@ -3,7 +3,6 @@ package cz.incad.kramerius.processes.mock;
 import java.io.IOException;
 import java.util.Arrays;
 
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 
 public class MockLPProcess {
 
@@ -16,7 +15,7 @@ public class MockLPProcess {
 	public static void main(String[] args) throws IOException {
 		LOGGER.info("args:"+Arrays.asList(args));
 		if (!SA_FLAG) {
-	        ProcessStarter.updateName("Jmeno procesu mock..");
+	        // TODO pepo ProcessStarter.updateName("Jmeno procesu mock..");
 		}
 
 		   

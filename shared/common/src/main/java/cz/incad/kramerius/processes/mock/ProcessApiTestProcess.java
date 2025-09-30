@@ -5,7 +5,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.processes.WarningException;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.processes.utils.Utils;
 import net.sf.json.JSONObject;
@@ -54,7 +53,7 @@ public class ProcessApiTestProcess {
         FinalState finalState = FinalState.valueOf(args[argsIndex++]);
 
         //zmena nazvu
-        ProcessStarter.updateName(String.format("Proces pro testování správy procesů (duration=%ds, processesInBatch=%s, finalState=%s)", durationInSeconds, processesInBatch, finalState));
+        // TODO pepo ProcessStarter.updateName(String.format("Proces pro testování správy procesů (duration=%ds, processesInBatch=%s, finalState=%s)", durationInSeconds, processesInBatch, finalState));
 
         //cekani n sekund
         try {

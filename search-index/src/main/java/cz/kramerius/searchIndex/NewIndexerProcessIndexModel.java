@@ -7,7 +7,6 @@ import com.google.inject.name.Names;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -77,14 +76,14 @@ public class NewIndexerProcessIndexModel {
 
         if (!modelPid.startsWith("model:")) {
             LOGGER.severe("Špatný formát pidu modelu:" + modelPid);
-            ProcessStarter.updateStatus(States.FAILED);
+            // TODO pepo ProcessStarter.updateStatus(States.FAILED);
             return;
         }
         String model = modelPid.substring("model:".length());
         if (args.length>8 && !Boolean.valueOf(args[8])){
             LOGGER.info(String.format("Indexace %s (typ %s)", modelPid, type));
         }else {
-            ProcessStarter.updateName(String.format("Indexace %s (typ %s)", modelPid, type));
+            // TODO pepo ProcessStarter.updateName(String.format("Indexace %s (typ %s)", modelPid, type));
         }
         if (filters.indexNone()) {
             LOGGER.info("Podle kombinace filtrů není co indexovat, končím");

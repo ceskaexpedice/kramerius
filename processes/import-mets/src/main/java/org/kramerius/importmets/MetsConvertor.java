@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -126,11 +125,14 @@ public class MetsConvertor {
             ScheduleStrategy strategy = ScheduleStrategy.indexRoots;
             strategy = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : ScheduleStrategy.indexRoots;
 
+            /* TODO pepo
             try {
                 ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
+
+             */
 
             new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken, license,addToCollections, strategy);
         }

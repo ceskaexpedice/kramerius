@@ -33,7 +33,6 @@ import net.sf.json.JSONObject;
 import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import com.sun.jersey.api.client.Client;
@@ -206,12 +205,17 @@ public class DeleteProcesses {
     }
     
     static String authToken() {
-        return System.getProperty(ProcessStarter.AUTH_TOKEN_KEY);
+        // TODO pepo return System.getProperty(ProcessStarter.AUTH_TOKEN_KEY);
+        return null;
     }
     
     static String groupToken() {
+        /* TODO pepo
         String grpToken = System.getProperty(ProcessStarter.TOKEN_KEY);
         return grpToken;
+
+         */
+        return null;
     }
 }
 

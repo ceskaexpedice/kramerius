@@ -31,7 +31,6 @@ import org.kramerius.Download;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 
 /**
  * Parametrized replication process
@@ -60,12 +59,15 @@ public class ParametrizedReplication {
             LOGGER.log(Level.SEVERE,e1.getMessage(), e1);
         }
         
+        /* TODO pepo
         try {
             //TODO: I18N
             ProcessStarter.updateName("Parametrizovana replikace z K3 pres '"+migrationDirectory.getAbsolutePath()+"'");
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(), e);
         }
+
+         */
 
     
         LOGGER.info("replicatetype "+replicateType);

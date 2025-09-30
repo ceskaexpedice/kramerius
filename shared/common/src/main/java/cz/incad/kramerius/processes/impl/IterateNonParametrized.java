@@ -46,7 +46,7 @@ public class IterateNonParametrized {
                     for (int j = 0; j < subProcsArgs.length; j++) {
                         subProcsArgs[j] = template(subProcsArgs[j], p, "" + i, m);
                     }
-                    ProcessUtils.startProcess(def, subProcsArgs);
+                    // TODO pepo ProcessUtils.startProcess(def, subProcsArgs);
                 }
             }
         }

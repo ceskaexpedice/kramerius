@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.params.ParamsLexer;
 import cz.incad.kramerius.utils.params.ParamsParser;
@@ -36,7 +35,7 @@ public class ProcessAggregator {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessAggregator.class.getName());
     
     public static void main(String[] args) throws Exception {
-        String uuid = System.getProperty(ProcessStarter.UUID_KEY);
+       // String uuid = System.getProperty(ProcessStarter.UUID_KEY);
 
         String def = args[0];
         String[] processDefsParams = Arrays.copyOfRange(args, 1, args.length);  
@@ -47,10 +46,10 @@ public class ProcessAggregator {
             List<Object> paramsList = parser.params();
             LOGGER.info("starting process ("+def+" with params "+paramsList);
             List<String> paramsStringList = paramsList.stream().map(Object::toString).collect(Collectors.toList());
-            ProcessUtils.startProcess(def, paramsStringList.toArray(new String[paramsStringList.size()]));
+            // TODO pepo ProcessUtils.startProcess(def, paramsStringList.toArray(new String[paramsStringList.size()]));
         }
         
-        //TODO: I18N
-        ProcessStarter.updateName("Davkove spusteny process ["+def+"]");
+        //TODO: pepo
+        //ProcessStarter.updateName("Davkove spusteny process ["+def+"]");
     }
 }

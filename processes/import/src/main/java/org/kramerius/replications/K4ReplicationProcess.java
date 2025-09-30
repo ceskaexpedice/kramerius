@@ -25,7 +25,6 @@ import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.annotations.ParameterName;
 import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
@@ -111,7 +110,7 @@ public class K4ReplicationProcess {
     
     public static void start(String url, String userName, String pswd, String replicateCollections,String replicateImages,Phase[] phases) throws IOException {
         try {
-            ProcessStarter.updateName("Replikace '"+url+"'");
+            // TODO pepo ProcessStarter.updateName("Replikace '"+url+"'");
             for (Phase ph : phases) {
                 LOGGER.info("STARTING PHASE '"+ph.getClass().getName()+"'");
                 ph.start(url, userName, pswd, replicateCollections, replicateImages);

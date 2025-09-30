@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
-import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.starter.ProcessUpdatingChannel;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -85,6 +83,7 @@ public class ProcessUtils {
      * @param nparams nparams parameter
      * @throws Exception Any Error has been occured
      */
+    /* TODO pepo
     public static void startProcess(String processDef, String nparams) throws Exception{
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();
@@ -97,11 +96,14 @@ public class ProcessUtils {
         }
     }
 
+     */
+
     /**
      * Start new process
      * @param processDef Process definition
      * @param params Process parameters
      */
+    /* TODO pepo
     public static void startProcess(String processDef, String[] params) throws UnsupportedEncodingException {
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();
@@ -112,6 +114,8 @@ public class ProcessUtils {
             LOGGER.severe("Error spawning indexer for "+processDef+":"+e);
         }
     }
+
+     */
 
     /**
      * Close auth token
@@ -167,7 +171,7 @@ public class ProcessUtils {
             URL url = new URL(restURL);
             URLConnection connection = url.openConnection();
             // authentication token -> identify user
-            connection.addRequestProperty("auth-token",System.getProperty(ProcessStarter.AUTH_TOKEN_KEY));
+            // TODO pepo connection.addRequestProperty("auth-token",System.getProperty(ProcessStarter.AUTH_TOKEN_KEY));
             connection.addRequestProperty(IPAddressUtils.X_IP_FORWARD, System.getProperty(IPAddressUtils.X_IP_FORWARD));
             InputStream inputStream = connection.getInputStream();
             byte[] buffer = new byte[1 << 12];
@@ -179,7 +183,7 @@ public class ProcessUtils {
 
             return buffer;
         } catch (Exception ex) {
-            ProcessUpdatingChannel.LOGGER.severe("Problem connecting to REST URL: " + restURL + " - " + ex);
+            // TODO pepo ProcessUpdatingChannel.LOGGER.severe("Problem connecting to REST URL: " + restURL + " - " + ex);
             throw new RuntimeException(ex);
         }
     }
