@@ -7,8 +7,6 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
-import cz.incad.kramerius.processes.WarningException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -107,7 +105,7 @@ public class DeleteTreeProcess {
         try {
             boolean noErrors = deleteTree(pid, true, akubraRepository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
             if (!noErrors) {
-                throw new WarningException("failed to delete some objects");
+                // TODO pepo throw new WarningException("failed to delete some objects");
             }
         }finally {
             akubraRepository.shutdown();

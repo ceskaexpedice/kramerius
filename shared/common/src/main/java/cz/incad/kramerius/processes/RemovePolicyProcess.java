@@ -110,7 +110,7 @@ public class RemovePolicyProcess {
         Optional<Boolean> findAny = errors.stream().filter(b-> {return !b; }).findAny();
         
         if (findAny.isPresent()) {
-            throw new WarningException("failed to set policy for some objects");
+            // TODO pepo throw new WarningException("failed to set policy for some objects");
         }
     }
 

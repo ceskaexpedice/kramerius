@@ -30,7 +30,6 @@ import javax.ws.rs.core.MediaType;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import com.sun.jersey.api.client.Client;
@@ -177,6 +176,7 @@ public class DeleteProcesses {
         for (JSONObject jsonObject : processesToDelete) {
             if (jsonObject.containsKey("uuid")) {
                 String jsonState = jsonObject.getString("state");
+                /* TODO pepo
                 if (!States.valueOf(jsonState).equals(States.RUNNING) && (!States.valueOf(jsonState).equals(States.PLANNED))) {
                     WebResource r = c.resource(getHostURL()+"/" + jsonObject.getString("uuid"));
                     LOGGER.info("deleting process '"+jsonObject.getString("uuid")+"'");
@@ -185,6 +185,8 @@ public class DeleteProcesses {
                 } else {
                     LOGGER.info("\t skipped process  '"+jsonObject.getString("uuid")+"'");
                 }
+
+                 */
             }
         }
     }

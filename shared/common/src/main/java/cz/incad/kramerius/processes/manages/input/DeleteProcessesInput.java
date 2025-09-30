@@ -34,9 +34,7 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import cz.incad.kramerius.processes.BatchStates;
 import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.States;
 import cz.incad.kramerius.processes.template.ProcessInputTemplate;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -63,11 +61,14 @@ public class DeleteProcessesInput implements ProcessInputTemplate{
         StringTemplateGroup processManages = new StringTemplateGroup(new InputStreamReader(iStream,"UTF-8"), DefaultTemplateLexer.class);
         StringTemplate template = processManages.getInstanceOf("form");
 
+       /* TODO pepo
         States[] sts = new States[] {States.NOT_RUNNING, States.FINISHED,States.FAILED, States.KILLED };
         template.setAttribute("states",sts);
         template.setAttribute("batchStates", BatchStates.values());
         ResourceBundle resbundle = resourceBundleService.getResourceBundle("labels", localesProvider.get());
         template.setAttribute("bundle", ResourceBundleUtils.resourceBundleMap(resbundle));
         writer.write(template.toString());
+
+        */
     }
 }
