@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import org.apache.commons.lang3.tuple.Pair;
@@ -76,7 +75,7 @@ public class SetPolicyProcess {
         }
         boolean includingDescendants = scope == Scope.TREE;
         boolean noErrors = setPolicy(policy, pid, includingDescendants, repository);
-        ProcessScheduler.scheduleIndexation(pid, title, includingDescendants, authToken);
+        // TODO pepo ProcessScheduler.scheduleIndexation(pid, title, includingDescendants, authToken);
 
         if (!noErrors) {
             // TODO pepo throw new WarningException("failed to set policy for some objects");

@@ -6,8 +6,6 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -354,7 +352,7 @@ public class SetLicenseProcess {
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
-            ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
+            // TODO pepo ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
         //commit changes in index
         try {

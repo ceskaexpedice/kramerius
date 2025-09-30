@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 
@@ -101,10 +100,10 @@ public class RemovePolicyProcess {
             errors.add(noErrors);
         }
         if (pidArg != null && pidArg.startsWith(PIDLIST_FILE_PREFIX)) {
-            ProcessScheduler.scheduleIndexation(new File(pidArg.substring(PIDLIST_FILE_PREFIX.length())), title, true, authToken);
+            // TODO pepo ProcessScheduler.scheduleIndexation(new File(pidArg.substring(PIDLIST_FILE_PREFIX.length())), title, true, authToken);
             
         } else {
-            ProcessScheduler.scheduleIndexation(pids, title, true, authToken);
+            // TODO pepo ProcessScheduler.scheduleIndexation(pids, title, true, authToken);
         }
         
         Optional<Boolean> findAny = errors.stream().filter(b-> {return !b; }).findAny();

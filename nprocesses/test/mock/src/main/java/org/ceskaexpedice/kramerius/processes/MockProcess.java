@@ -17,7 +17,6 @@
 package org.ceskaexpedice.kramerius.processes;
 
 
-import cz.incad.kramerius.processes.mock.MockLPProcess;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 
 import java.io.IOException;
@@ -26,6 +25,6 @@ public class MockProcess {
 
     @ProcessMethod
     public static void test() throws IOException {
-        MockLPProcess.main(new String[]{});
+        // TODO pepo MockLPProcess.main(new String[]{});
     }
 }
