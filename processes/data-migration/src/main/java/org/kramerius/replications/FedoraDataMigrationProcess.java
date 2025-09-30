@@ -2,8 +2,6 @@ package org.kramerius.replications;
 
 import static org.kramerius.replications.K4ReplicationProcess.*;
 
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +21,7 @@ public class FedoraDataMigrationProcess {
     };
 
 
+    /* TODO pepo
     @Process
     public static void replications(@ParameterName("url") String url,
                                     @ParameterName("username") String userName,
@@ -30,8 +29,13 @@ public class FedoraDataMigrationProcess {
                                     @ParameterName("replicateCollections")String replicateCollections,
                                     @ParameterName("replicateImages")String replicateImages,
                                     @ParameterName("previousProcess")String previousProcessUUID) throws IOException {
-
-
+*/
+    public static void replications( String url,
+                                    String userName,
+                                    String pswd,
+                                    String replicateCollections,
+                                    String replicateImages,
+                                    String previousProcessUUID) throws IOException {
         if ((previousProcessUUID != null) && (!previousProcessUUID.equals(""))) {
             LOGGER.info("restarting ..");
             String muserDir = System.getProperty("user.dir");

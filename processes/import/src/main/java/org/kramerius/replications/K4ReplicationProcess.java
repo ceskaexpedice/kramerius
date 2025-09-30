@@ -23,11 +23,11 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 
 /**
  * K4 replication process 
@@ -48,7 +48,7 @@ public class K4ReplicationProcess {
         new ThirdPhase()
     };
     
-    @Process
+    @ProcessMethod
     public static void replications(@ParameterName("url") String url, @ParameterName("username") String userName, @ParameterName("pswd") String pswd,
                                     @ParameterName("replicateCollections") String replicateCollections,
                                     @ParameterName("replicateImages") String replicateImages,

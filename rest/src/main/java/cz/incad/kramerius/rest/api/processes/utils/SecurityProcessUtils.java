@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcess;
 import cz.incad.kramerius.processes.LRProcessDefinition;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
 import cz.incad.kramerius.security.RightsResolver;
@@ -30,15 +29,6 @@ public class SecurityProcessUtils {
         return permited;
     }
     
-    public static boolean permitProcessOwner(RightsResolver rightsResolver, User user, LRProcess lrProcess) {
-        boolean ownerAllowed = user != null ? rightsResolver.isActionAllowed(user,SecuredActions.A_OWNER_PROCESS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() : false;
-        if (ownerAllowed) {
-            String lName = lrProcess.getLoginname();
-            return lName != null &&  user.getLoginname().equals(lName);
-        }
-        return false;
-    }
-
     public static boolean permitProcessByDefinedAction(RightsResolver rightsResolver, User user,  LRProcessDefinition def) {
         SecuredActions action = securedAction(def.getId(), def);
         boolean permited = user!= null? (rightsResolver.isActionAllowed(user,SecuredActions.A_PROCESS_EDIT.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null , ObjectPidsPath.REPOSITORY_PATH).flag() ||

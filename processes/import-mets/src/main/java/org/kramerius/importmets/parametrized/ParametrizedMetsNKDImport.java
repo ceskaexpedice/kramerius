@@ -23,8 +23,6 @@ import java.io.File;
 
 import org.kramerius.importmets.MetsConvertor;
 
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import java.io.File;
 import org.apache.commons.configuration.Configuration;
@@ -41,6 +39,7 @@ public class ParametrizedMetsNKDImport {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedMetsNKDImport.class.getName());
     
+    /* TODO pepo
     @Process
     public static void process(
                 @ParameterName("convertDirectory")File convertDirectory, 
@@ -53,6 +52,17 @@ public class ParametrizedMetsNKDImport {
                 @ParameterName("imageServerDirectory")String isDirectory
     ) {
 
+     */
+    public static void process(
+            File convertDirectory,
+            File targetDirectory,
+            Boolean ingestSkip,
+            Boolean startIndexer,
+            Boolean defaultRights,
+            String isTilesPrefix,
+            String isImagesPrefix,
+            String isDirectory
+    ) {
         System.setProperty("convert.defaultRights", defaultRights.toString());
         System.setProperty("ingest.startIndexer", startIndexer.toString());
         System.setProperty("ingest.skip", ingestSkip.toString());

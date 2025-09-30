@@ -31,8 +31,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import com.sun.jersey.api.client.Client;
@@ -163,8 +161,11 @@ public class DeleteProcesses {
         }
     }
 
+    /* TODO pepo
     @Process
     public static void  deleteProcesses(@ParameterName("from")String from, @ParameterName("to")String to, @ParameterName("state")String state, @ParameterName("batchState")String batchState) throws ParseException {
+*/
+    public static void  deleteProcesses(String from, String to, String state, String batchState) throws ParseException {
         LOGGER.info("from :"+from);
         LOGGER.info("to :"+to);
         LOGGER.info("state :"+state);

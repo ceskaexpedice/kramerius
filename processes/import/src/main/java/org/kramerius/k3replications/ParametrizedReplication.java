@@ -26,11 +26,11 @@ import java.io.StringReader;
 import java.util.logging.Level;
 
 import org.apache.commons.codec.binary.Base64;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.kramerius.Download;
 
 
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
 
 /**
  * Parametrized replication process
@@ -40,8 +40,8 @@ public class ParametrizedReplication {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedReplication.class.getName());
     
-    @Process
-    public static void replications(@ParameterName("replicatetype") String replicateType, 
+    @ProcessMethod
+    public static void replications(@ParameterName("replicatetype") String replicateType,
                                     @ParameterName("idlist") String idList, 
                                     @ParameterName("migrationDirectory")File migrationDirectory,
                                     @ParameterName("targetDirectory")File targetDirectory, 

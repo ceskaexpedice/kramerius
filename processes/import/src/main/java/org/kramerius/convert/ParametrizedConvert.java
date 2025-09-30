@@ -28,13 +28,11 @@ import org.xml.sax.SAXException;
 
 import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
 
 public class ParametrizedConvert {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ParametrizedConvert.class.getName());
-    
+    /* TODO pepo
     @Process
     public static void process(
             @ParameterName("convertDirectory") File convertDirectory, 
@@ -42,9 +40,15 @@ public class ParametrizedConvert {
             @ParameterName("ingestSkip") Boolean ingestSkip,
             @ParameterName("startIndexer")Boolean startIndexer, 
             @ParameterName("defaultRights")Boolean defaultRights) throws IOException, InterruptedException, JAXBException, SAXException, ServiceException, SolrServerException {
-        
+        */
+    public static void process(
+            File convertDirectory,
+            File convertTargetDirectory,
+            Boolean ingestSkip,
+           Boolean startIndexer,
+           Boolean defaultRights) throws IOException, InterruptedException, JAXBException, SAXException, ServiceException, SolrServerException {
 
-        
+
         System.setProperty("convert.target.directory", convertTargetDirectory.getAbsolutePath());
         System.setProperty("convert.directory", convertDirectory.getAbsolutePath());
         System.setProperty("convert.defaultRights", defaultRights.toString());
