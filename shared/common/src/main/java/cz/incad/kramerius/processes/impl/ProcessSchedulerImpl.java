@@ -17,13 +17,11 @@
 package cz.incad.kramerius.processes.impl;
 
 import java.util.Timer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
 
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.NextSchedulerTask;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
@@ -34,9 +32,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	private DefinitionManager definitionManager;
 	
 	private int interval;
-	private String applicationLib;
-	private String[]jarFiles;
-	
+
 	private Timer timer;
 	
 	
@@ -49,20 +45,9 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	}
 
 	@Override
-	public String getApplicationLib() {
-		return this.applicationLib;
-	}
-
-
-	
-	@Override
-	public void init(String applicationLib, String... jarFiles) {
-		// Jak to vyresit ??? 
-		this.applicationLib = applicationLib;
-		this.jarFiles = jarFiles;
+	public void init() {
 		String sinterval  = KConfiguration.getInstance().getProperty("processQueue.checkInterval","10000");
 		this.interval =  Integer.parseInt(sinterval);
-		//this.scheduleNextTask();
 	}
 
 	@Override
@@ -71,11 +56,6 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		NextSchedulerTask schedulerTsk = new NextSchedulerTask(this.definitionManager,this, this.interval);
 		this.timer.schedule(schedulerTsk, this.interval);
 	}
-
-    @Override
-    public String[] getAdditionalJarFiles() {
-        return this.jarFiles;
-    }
 
 	@Override
 	public void shutdown() {

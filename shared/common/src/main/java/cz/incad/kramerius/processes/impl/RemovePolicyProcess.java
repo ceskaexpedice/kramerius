@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.processes.impl;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

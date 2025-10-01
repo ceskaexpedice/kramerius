@@ -238,7 +238,7 @@
     <process>
         <id>set_policy</id>
         <description>nastavení viditelnosti (POLICY) objektu, případně i potomků, na public/private</description>
-        <mainClass>cz.incad.kramerius.processes.SetPolicyProcess</mainClass>
+        <mainClass>cz.incad.kramerius.processes.impl.SetPolicyProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>
@@ -250,7 +250,7 @@
     <process>
         <id>remove_policy</id>
         <description>Remove policy </description>
-        <mainClass>cz.incad.kramerius.processes.RemovePolicyProcess</mainClass>
+        <mainClass>cz.incad.kramerius.processes.impl.RemovePolicyProcess</mainClass>
         <standardOs>lrOut</standardOs>
         <errOs>lrErr</errOs>
         <javaProcessParameters>-Xmx1024m -Xms256m</javaProcessParameters>

@@ -2,7 +2,7 @@ package cz.incad.kramerius.processes;
 
 import java.util.List;
 
-import cz.incad.kramerius.processes.template.ProcessInputTemplate;
+import cz.incad.kramerius.processes.impl.LRDefinitionAction;
 
 /**
  * This is process definition

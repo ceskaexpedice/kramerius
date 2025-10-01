@@ -1,5 +1,6 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.processes.impl;
 
+import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.log4j.Logger;
 

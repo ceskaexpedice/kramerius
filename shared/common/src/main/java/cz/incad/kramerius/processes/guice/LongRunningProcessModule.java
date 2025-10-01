@@ -5,7 +5,7 @@ import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.SchedulersLifeCycleHook;
+import cz.incad.kramerius.processes.impl.SchedulersLifeCycleHook;
 import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
 import cz.incad.kramerius.processes.cdk.KeycloakCDKCycleHook;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;

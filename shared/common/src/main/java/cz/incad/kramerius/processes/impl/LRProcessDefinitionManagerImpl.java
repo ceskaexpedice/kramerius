@@ -1,24 +1,10 @@
 package cz.incad.kramerius.processes.impl;
 
-import static cz.incad.kramerius.utils.IOUtils.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.LRProcessDefinition;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.w3c.dom.Document;
@@ -27,15 +13,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import cz.incad.kramerius.Constants;
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessDefinition;
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
 
 public class LRProcessDefinitionManagerImpl implements DefinitionManager {
 

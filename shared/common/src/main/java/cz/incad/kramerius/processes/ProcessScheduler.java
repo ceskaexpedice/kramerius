@@ -12,20 +12,8 @@ public interface ProcessScheduler {
      */
 	public void scheduleNextTask();
 
-	/**
-	 * Initialize process scheduler
-	 * @param applicationLib
-	 */
-	public void init(String applicationLib, String... additionalJarFiles);
-	
-	/**
-	 * Returns application libs for creating CLASSPATH
-	 * @return
-	 */
-	public String getApplicationLib();
-	
-	public String[] getAdditionalJarFiles();
-	
+	public void init();
+
 	/**
 	 * Shutdown scheduler
 	 */

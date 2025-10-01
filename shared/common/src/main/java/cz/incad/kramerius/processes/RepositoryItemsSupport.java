@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes.impl;
+package cz.incad.kramerius.processes;
 
 import java.util.List;
 

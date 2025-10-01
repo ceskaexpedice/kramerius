@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.processes.impl;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

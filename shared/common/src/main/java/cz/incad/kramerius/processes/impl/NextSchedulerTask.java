@@ -1,9 +1,10 @@
-package cz.incad.kramerius.processes;
+package cz.incad.kramerius.processes.impl;
 
-import java.util.List;
 import java.util.TimerTask;
 import java.util.logging.Level;
 
+import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**

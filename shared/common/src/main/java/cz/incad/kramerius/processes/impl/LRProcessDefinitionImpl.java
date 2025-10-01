@@ -8,7 +8,6 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.UUID;
 
 public class LRProcessDefinitionImpl implements LRProcessDefinition {
 
