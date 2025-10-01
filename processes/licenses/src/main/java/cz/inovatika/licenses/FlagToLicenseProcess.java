@@ -1,7 +1,6 @@
 package cz.inovatika.licenses;
 
 import com.sun.jersey.api.client.Client;
-import cz.incad.kramerius.processes.impl.SetPolicyProcess.Scope;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
 import cz.incad.kramerius.utils.IterationUtils;
 import cz.incad.kramerius.utils.IterationUtils.Endpoint;
@@ -236,7 +235,7 @@ public class FlagToLicenseProcess {
             
             parameters.put("pidlist_file", pidlistFile(pids.subList(start, end)).getAbsoluteFile());
 
-            parameters.put("scope", Scope.TREE.name());
+            // TODO pepo parameters.put("scope", Scope.TREE.name());
             json.put("params", parameters);
 
             // TODO pepo ProcessScheduler.schedule(json.toString(), parentAuthToken);

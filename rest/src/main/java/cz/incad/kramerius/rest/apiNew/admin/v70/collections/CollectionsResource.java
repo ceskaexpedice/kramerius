@@ -706,7 +706,8 @@ public class CollectionsResource extends AdminApiResource {
                 // TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS
                 // (neimplementovana)
                 // TODO pepo scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES",
-                  //      false, itemPid);
+                // TODO pepo nebude se planovat reindexace tady, ale admin klientem, ktery dostane jen zpravu
+                //      false, itemPid);
 
             });
 
