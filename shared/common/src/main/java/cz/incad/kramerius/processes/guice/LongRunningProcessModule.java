@@ -9,8 +9,6 @@ import cz.incad.kramerius.processes.impl.SchedulersLifeCycleHook;
 import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
 import cz.incad.kramerius.processes.cdk.KeycloakCDKCycleHook;
 import cz.incad.kramerius.processes.impl.LRProcessDefinitionManagerImpl;
-import cz.incad.kramerius.processes.template.InputTemplateFactory;
-import cz.incad.kramerius.processes.template.impl.InputTemplateFactoryImpl;
 import cz.incad.kramerius.service.LifeCycleHook;
 
 /**
@@ -27,7 +25,6 @@ public class LongRunningProcessModule extends AbstractModule {
         // long running process modul
         bind(DefinitionManager.class).to(LRProcessDefinitionManagerImpl.class).in(Scopes.SINGLETON);
         bind(String.class).annotatedWith(Names.named("LIBS")).toInstance(System.getProperty(DEFAULT_LIBS_KEY));
-        bind(InputTemplateFactory.class).to(InputTemplateFactoryImpl.class).in(Scopes.SINGLETON);
 
         Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
         lfhooks.addBinding().to(SchedulersLifeCycleHook.class);
