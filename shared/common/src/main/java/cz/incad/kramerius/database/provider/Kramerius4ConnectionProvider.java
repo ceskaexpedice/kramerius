@@ -1,4 +1,4 @@
-package cz.incad.kramerius.processes.database;
+package cz.incad.kramerius.database.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -7,7 +7,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
 
 /**

@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes.database;
+package cz.incad.kramerius.database;
 
 import static cz.incad.kramerius.database.cond.ConditionsInterpretHelper.versionCondition;
-import static cz.incad.kramerius.processes.database.MostDesirableDatabaseUtils.createTable;
+import static cz.incad.kramerius.database.utils.MostDesirableDatabaseUtils.createTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.utils.DatabaseUtils;
 
 public class MostDesirableDbInitializer {

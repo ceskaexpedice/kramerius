@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.processes.database;
+package cz.incad.kramerius.database.provider;
 
 import com.google.inject.Provider;
 import com.zaxxer.hikari.HikariDataSource;
