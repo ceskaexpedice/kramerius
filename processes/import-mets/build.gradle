@@ -16,11 +16,6 @@ dependencies {
 //    api project(':processes:import-jaxb')
     api project(':processes:import-jaxb-periodical')
     api project(':processes:import-jaxb-monograph')
-    api project(':processes:import-jaxb-srwdc')
-    api project(':processes:import-jaxb-alto')
-    api project(':processes:import-jaxb-mets')
-    api project(':processes:import-jaxb-mods')
-    api project(':processes:import-jaxb-dc')
 
     api 'org.jsoup:jsoup:1.16.1'
 

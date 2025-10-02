@@ -9,8 +9,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;

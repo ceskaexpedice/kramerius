@@ -24,8 +24,6 @@ import com.google.inject.Provider;
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.ApplicationURL;
