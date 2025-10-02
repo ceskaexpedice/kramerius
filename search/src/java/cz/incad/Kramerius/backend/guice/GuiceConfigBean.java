@@ -30,7 +30,7 @@ import cz.incad.kramerius.imaging.guice.ImageModule;
 import cz.incad.kramerius.workmode.guice.WorkModeModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
-import cz.incad.kramerius.processes.guice.LongRunningProcessModule;
+import cz.incad.kramerius.processes.guice.ProcessModule;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.rest.api.guice.IiifServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
@@ -57,7 +57,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         String defaultProcesses = KConfiguration.getInstance().getProperty(".kramerius.deafult_processes_libs_dir");
         // check if it is null or not
         if (realPath != null || defaultProcesses != null) {
-            System.setProperty(LongRunningProcessModule.DEFAULT_LIBS_KEY, realPath != null ? realPath : defaultProcesses);
+            System.setProperty(ProcessModule.DEFAULT_LIBS_KEY, realPath != null ? realPath : defaultProcesses);
         } else {
             LOGGER.warning("cannot resolve path to WEB-INF/lib - couldn't to start processes");
         }
@@ -85,7 +85,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new DocumentServiceModule(),
                 new GuiceSecurityModule(), 
                 new GuiceSecurityHTTPModule(),
-                new LongRunningProcessModule(), // for long running processes
+                new ProcessModule(), // for long running processes
 
                 new PrintModule(), // printing
                 new DatabaseVersionGuiceModule(), // db versions

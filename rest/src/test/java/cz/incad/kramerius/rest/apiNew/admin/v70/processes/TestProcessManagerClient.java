@@ -14,6 +14,7 @@
  */
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -31,11 +32,7 @@ import org.mockito.MockedStatic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessManagerProcessEndpoint.OUT_LOG_PART;
 import static org.mockito.Mockito.*;

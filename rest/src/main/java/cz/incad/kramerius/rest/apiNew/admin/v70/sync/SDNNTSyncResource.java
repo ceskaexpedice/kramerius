@@ -4,7 +4,7 @@ import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -96,7 +96,7 @@ public class SDNNTSyncResource {
     Provider<User> userProvider;
 
     @Inject
-    DefinitionManager definitionManager;
+    ProcessDefinitionManager definitionManager;
     
     /**
      * Basic inforamtion endpoints

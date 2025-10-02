@@ -2,7 +2,10 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.processes.DefinitionManager;
+import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
+import cz.incad.kramerius.processes.client.ErrorCode;
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
+import cz.incad.kramerius.processes.client.ProcessManagerClientException;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -29,7 +32,7 @@ public class ProcessResource extends AdminApiResource {
     private static Logger LOGGER = Logger.getLogger(ProcessResource.class.getName());
 
     @Inject
-    DefinitionManager definitionManager;
+    ProcessDefinitionManager definitionManager;
 
     @javax.inject.Inject
     Provider<User> userProvider;
