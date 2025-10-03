@@ -53,7 +53,7 @@ public class SecurityProcessUtils {
     public static ProcessDefinition processDefinition(ProcessDefinitionManager definitionManager, String def) {
         try {
             definitionManager.load();
-            ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(def);
+            ProcessDefinition definition = definitionManager.getProcessDefinition(def);
             return definition;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

@@ -81,7 +81,7 @@ class ForbiddenCheck {
 
     private static void checkByProfileAndParamsPidsHelper(User user, RightsResolver rightsResolver, ProcessDefinitionManager definitionManager,
                                                    String profileId, JSONObject payload, SolrAccess solrAccess) {
-        ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition(profileId);
+        ProcessDefinition definition = definitionManager.getProcessDefinition(profileId);
 
         AtomicBoolean pidPermitted = new AtomicBoolean(false);
         checkParamsPids(user, rightsResolver, definitionManager, profileId, payload, flag -> {
@@ -108,7 +108,7 @@ class ForbiddenCheck {
                 String pid = extractMandatoryParamWithValuePrefixed(payload, "pid", "uuid:");
                 try {
                     ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
-                    ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("set_policy");
+                    ProcessDefinition definition = definitionManager.getProcessDefinition("set_policy");
                     boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
                     consumer.accept(permit);
                 } catch (IOException e) {
@@ -122,7 +122,7 @@ class ForbiddenCheck {
                 if (pid != null) {
                     try {
                         ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
-                        ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("set_policy");
+                        ProcessDefinition definition = definitionManager.getProcessDefinition("set_policy");
                         boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
                         consumer.accept(permit);
                     } catch (IOException e) {
@@ -133,7 +133,7 @@ class ForbiddenCheck {
                     pidlist.stream().forEach(p -> {
                         try {
                             ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(p);
-                            ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("set_policy");
+                            ProcessDefinition definition = definitionManager.getProcessDefinition("set_policy");
                             boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
                             consumer.accept(permit);
                         } catch (IOException e) {
@@ -144,7 +144,7 @@ class ForbiddenCheck {
                 } else {
                     // musi mit prava pro cely repozitar
                     ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
-                    ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                    ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                     boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                     consumer.accept(permit);
                 }
@@ -161,7 +161,7 @@ class ForbiddenCheck {
                 if (pid != null) {
                     try {
                         ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
-                        ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                        ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                         boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
                         consumer.accept(permit);
                     } catch (IOException e) {
@@ -172,7 +172,7 @@ class ForbiddenCheck {
                     pidlist.forEach(p -> {
                         try {
                             ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(p);
-                            ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                            ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                             boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
                             consumer.accept(permit);
                         } catch (IOException e) {
@@ -184,14 +184,14 @@ class ForbiddenCheck {
                 } else {
                     // musi mit prava pro cely repozitar
                     ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
-                    ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                    ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                     boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                     consumer.accept(permit);
                 }
             }
             case "flag_to_license": {
                 ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
-                ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                 boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(),
                         pidPaths);
                 consumer.accept(permit);
@@ -202,7 +202,7 @@ class ForbiddenCheck {
                     pidlist.forEach(p -> {
                         try {
                             ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(p);
-                            ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                            ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                             boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
                             consumer.accept(permit);
                         } catch (IOException e) {
@@ -216,13 +216,13 @@ class ForbiddenCheck {
                 ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
                         ObjectPidsPath.REPOSITORY_PATH
                 };
-                ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                 boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                 consumer.accept(permit);
             }
             case "migrate-collections-from-k5": {
                 ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
-                ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("add_license");
+                ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
                 boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                 consumer.accept(permit);
             }
@@ -230,7 +230,7 @@ class ForbiddenCheck {
                 String pid = extractMandatoryParamWithValuePrefixed(payload, "pid", "uuid:");
                 try {
                     ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
-                    ProcessDefinition definition = definitionManager.getLongRunningProcessDefinition("delete_tree");
+                    ProcessDefinition definition = definitionManager.getProcessDefinition("delete_tree");
                     boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, pid, pidPaths);
                     consumer.accept(permit);
                 } catch (IOException e) {

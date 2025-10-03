@@ -6,7 +6,7 @@ import java.util.List;
 import cz.incad.kramerius.Constants;
 
 /**
- * Long running process definitions
+ * Process definitions
  * @author pavels
  */
 public interface ProcessDefinitionManager {
@@ -24,13 +24,13 @@ public interface ProcessDefinitionManager {
 	 * @param id ID of lr process definition
 	 * @return
 	 */
-	public ProcessDefinition getLongRunningProcessDefinition(String id);
+	public ProcessDefinition getProcessDefinition(String id);
 
 	/**
 	 * Returns all definitions
 	 * @return
 	 */
-	public List<ProcessDefinition> getLongRunningProcessDefinitions();
+	public List<ProcessDefinition> getProcessDefinitions();
 
 	
 }

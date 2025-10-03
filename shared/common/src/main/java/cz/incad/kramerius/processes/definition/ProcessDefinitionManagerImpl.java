@@ -20,26 +20,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ProcessDefinitionManagerImpl implements ProcessDefinitionManager {
 
-    public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(ProcessDefinitionManagerImpl.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(ProcessDefinitionManagerImpl.class.getName());
     private KConfiguration configuration = KConfiguration.getInstance();
 
     @Inject
-    public ProcessDefinitionManagerImpl(@Named("LIBS") String defaultLibsdir// ,
-    /* String configFile */) {
+    public ProcessDefinitionManagerImpl() {
         super();
         LOGGER.fine("loading configuration ...");
         this.load();
-
     }
 
     private HashMap<String, ProcessDefinition> definitions = new HashMap<String, ProcessDefinition>();
 
     @Override
-    public ProcessDefinition getLongRunningProcessDefinition(String id) {
+    public ProcessDefinition getProcessDefinition(String id) {
         return definitions.get(id);
     }
 
@@ -75,19 +73,12 @@ public class ProcessDefinitionManagerImpl implements ProcessDefinitionManager {
                         fis.close();
                 }
             }
-
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
-    private String defaultLPXML() throws Exception {
+    private String defaultLPXML() {
         StringTemplateGroup grp = new StringTemplateGroup("m");
         StringTemplate template = grp.getInstanceOf("cz/incad/kramerius/processes/res/lp");
         template.setAttribute("user_home", System.getProperties().getProperty("user.home"));
@@ -111,7 +102,7 @@ public class ProcessDefinitionManagerImpl implements ProcessDefinitionManager {
     }
 
     @Override
-    public List<ProcessDefinition> getLongRunningProcessDefinitions() {
+    public List<ProcessDefinition> getProcessDefinitions() {
         return new ArrayList<ProcessDefinition>(definitions.values());
     }
 

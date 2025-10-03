@@ -53,14 +53,6 @@ public class GuiceConfigBean extends GuiceServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        String realPath = servletContextEvent.getServletContext().getRealPath("/WEB-INF/lib");
-        String defaultProcesses = KConfiguration.getInstance().getProperty(".kramerius.deafult_processes_libs_dir");
-        // check if it is null or not
-        if (realPath != null || defaultProcesses != null) {
-            System.setProperty(ProcessModule.DEFAULT_LIBS_KEY, realPath != null ? realPath : defaultProcesses);
-        } else {
-            LOGGER.warning("cannot resolve path to WEB-INF/lib - couldn't to start processes");
-        }
         super.contextInitialized(servletContextEvent);
     }
 

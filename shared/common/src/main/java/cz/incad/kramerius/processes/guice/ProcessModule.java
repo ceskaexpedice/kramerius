@@ -18,20 +18,14 @@ import cz.incad.kramerius.service.LifeCycleHook;
  */
 public class ProcessModule extends AbstractModule {
 
-    public static final String DEFAULT_LIBS_KEY = "LIBS";
-
     @Override
     protected void configure() {
-        // long running process modul
         bind(ProcessDefinitionManager.class).to(ProcessDefinitionManagerImpl.class).in(Scopes.SINGLETON);
-        bind(String.class).annotatedWith(Names.named("LIBS")).toInstance(System.getProperty(DEFAULT_LIBS_KEY));
-
         Multibinder<LifeCycleHook> lfhooks = Multibinder.newSetBinder(binder(), LifeCycleHook.class);
         lfhooks.addBinding().to(SchedulersLifeCycleHook.class);
         // Move to keycloak cdk module
         lfhooks.addBinding().to(KeycloakCDKCycleHook.class);
         bind(KeycloakCDKCache.class).in(Scopes.SINGLETON);
-        
     }
 
 }
