@@ -12,9 +12,8 @@
  * information or reproduction of this material is strictly forbidden unless
  * prior written permission is obtained from Accenture and/or its affiliates.
  */
-package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
+package cz.incad.kramerius.rest.apiNew.admin.v70.processes.client;
 
-import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -34,7 +33,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import static cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessManagerProcessEndpoint.OUT_LOG_PART;
+import static cz.incad.kramerius.rest.apiNew.admin.v70.processes.client.ProcessManagerProcessEndpoint.OUT_LOG_PART;
 import static org.mockito.Mockito.*;
 
 /**
@@ -96,15 +95,13 @@ public class TestProcessManagerClient {
     @Test
     public void testGetOwners() {
         JSONObject owners = processManagerClient.getOwners();
-        JSONObject ownersKr = ProcessManagerMapper.mapOwners(owners);
-        Assertions.assertEquals(2, ownersKr.getJSONArray("owners").length());
+        Assertions.assertEquals(2, owners.getJSONArray("owners").length());
     }
 
     @Test
     public void testGetProcess() {
         JSONObject process = processManagerClient.getProcess(SCHEDULED_PROCESS_ID);
-        JSONObject processInBatch = ProcessManagerMapper.mapProcess(process);
-        Assertions.assertEquals(SCHEDULED_PROCESS_ID, processInBatch.getJSONObject("process").getString("id"));
+        Assertions.assertEquals(SCHEDULED_PROCESS_ID, process.getString("processId"));
     }
 
     @Test
@@ -127,7 +124,6 @@ public class TestProcessManagerClient {
         Assertions.assertEquals(2, jsonArray.length());
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject pcpBatch = jsonArray.getJSONObject(i);
-            JSONObject krBatch = ProcessManagerMapper.mapBatchWithProcesses(pcpBatch); // just to be sure mapping works
         }
     }
 
