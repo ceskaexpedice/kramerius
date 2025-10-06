@@ -1,6 +1,6 @@
 package cz.incad.migration;
 
-import cz.incad.kramerius.resourceindex.ProcessingIndexRebuild;
+import cz.incad.kramerius.processingindex.ProcessingIndexRebuild;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.NewIndexerProcessIndexModel;
 

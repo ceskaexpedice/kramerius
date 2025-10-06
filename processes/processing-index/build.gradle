@@ -1,0 +1,7 @@
+description "Processing index"
+
+
+dependencies {
+    implementation project(':shared:common')
+}
+

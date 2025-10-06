@@ -1,4 +1,4 @@
-package cz.incad.kramerius.resourceindex;
+package cz.incad.kramerius.processingindex;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

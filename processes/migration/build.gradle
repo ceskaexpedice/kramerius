@@ -5,6 +5,7 @@ apply plugin: 'application'
 dependencies {
     api project(':shared:common')
     api project(':processes:search-index')
+    api project(':processes:processing-index')
 }
 
 
