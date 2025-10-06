@@ -120,7 +120,10 @@ public class Import {
 
         String license = null;
         String addCollection = null;
-        ScheduleStrategy indexationType = ScheduleStrategy.indexRoots;
+
+        String  configuredIndexType = System.getProperties().getProperty("ingest.indexerType",ScheduleStrategy.indexRoots.name());
+        ScheduleStrategy indexationType =   ScheduleStrategy.fromArg(configuredIndexType);
+
         if (startIndexerFromArgs != null && startIndexerFromArgs) {
             license = args.length > argsIndex ? args[argsIndex++] : null;
             addCollection = args.length > argsIndex ? args[argsIndex++] : null;
