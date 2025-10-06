@@ -38,6 +38,7 @@ include 'processes:dnntflag'
 include	'processes:search-index'
 include	'processes:processing-index'
 include	'processes:imaging'
+include	'processes:service'
 // statistics resources
 include 'processes:nkp-logs'
 include 'processes:statistics'

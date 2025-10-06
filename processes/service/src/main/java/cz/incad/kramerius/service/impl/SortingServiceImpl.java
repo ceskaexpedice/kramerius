@@ -6,11 +6,10 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Logger;
 
+import cz.incad.kramerius.service.guice.SortingModule;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
