@@ -1,6 +1,7 @@
 package cz.kramerius.searchIndex.indexer;
 
 import cz.incad.kramerius.utils.IterationUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.shared.Dom4jUtils;
 import org.apache.http.auth.AuthScope;
@@ -55,11 +56,34 @@ public class SolrIndexAccess {
         this.collection = config.collection;
     }
 
+    /*
+        int maxConnections = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.max_connections", MAX_CONNECTIONS_IN);
+        int maxRoute = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.max_per_route", MAX_PER_ROUTE);
+        int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.connect_timeout", CONNECT_TIMEOUT);
+        int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.response_timeout", RESPONSE_TIMEOUT);
+        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+        connManager.setMaxTotal(maxConnections);
+        connManager.setDefaultMaxPerRoute(maxRoute);
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
+                .setResponseTimeout(Timeout.ofSeconds(responseTimeout))
+                .build();
+        this.closeableHttpClient = HttpClients.custom()
+                .setConnectionManager(connManager)
+                .disableAuthCaching()
+                .disableCookieManagement()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
+     */
 
     private HttpSolrClient buildHttpSolrClientWithoutAuth(String baseUrl, String collection, boolean useHttps) {
+        int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.connect_timeout", CONNECTION_TIMEOUT);
+        int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("solr.apache.client.response_timeout", SOCKET_TIMEOUT);
+
         return new HttpSolrClient.Builder(buildUrl(baseUrl, collection, useHttps))
-                .withConnectionTimeout(CONNECTION_TIMEOUT)
-                .withSocketTimeout(SOCKET_TIMEOUT)
+                .withConnectionTimeout(connectTimeout)
+                .withSocketTimeout(responseTimeout)
                 .build();
     }
 
