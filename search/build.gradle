@@ -49,6 +49,7 @@ dependencies {
     //api project(':processes:mw-process')
     //api project(':processes:indexer')
     api project(':processes:import')
+    api project(':processes:imaging')
 
     api project(':processes:import-mets')
     api project(':processes:solr-migration')     //TODO: Delete
