@@ -4,7 +4,7 @@ description "SDNNT check process"
 dependencies {
     
 	api project(':shared:common')
-    api project(':search-index')
+    api project(':processes:search-index')
     api "org.apache.commons:commons-csv:1.6"
 	
 }

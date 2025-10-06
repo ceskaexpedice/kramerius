@@ -35,7 +35,7 @@ include 'processes:solr-migration'
 include 'processes:data-migration'
 include 'processes:migration'
 include 'processes:dnntflag'
-include	'search-index'
+include	'processes:search-index'
 // statistics resources
 include 'processes:nkp-logs'
 include 'processes:statistics'

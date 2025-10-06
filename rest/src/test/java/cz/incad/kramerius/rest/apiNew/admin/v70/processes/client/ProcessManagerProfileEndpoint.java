@@ -19,6 +19,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes.client;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * ProfileEndpoint
@@ -41,8 +42,48 @@ public class ProcessManagerProfileEndpoint {
         return jsonPayload(profile);
     }
 
+    @GET
+    public Response getProfiles() {
+        String profiles = "[" +
+                "    {" +
+                "        \"profileId\": \"import\"," +
+                "            \"description\": \"Import\"," +
+                "            \"pluginId\": \"import\"," +
+                "            \"jvmArgs\": [" +
+                "        \"-Xms1g\"," +
+                "                \"-Xmx16g\"," +
+                "                \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=58001\"" +
+                "    ]" +
+                "    }," +
+                "    {" +
+                "        \"profileId\": \"testPlugin1-big\"," +
+                "            \"description\": \"Big profile\"," +
+                "            \"pluginId\": \"testPlugin1\"," +
+                "            \"jvmArgs\": [" +
+                "        \"-Xms1g\"," +
+                "                \"-Xmx32g\"" +
+                "    ]" +
+                "    }," +
+                "    {" +
+                "        \"profileId\": \"testPlugin1-small\"," +
+                "            \"description\": \"Small profile\"," +
+                "            \"pluginId\": \"testPlugin1\"," +
+                "            \"jvmArgs\": [" +
+                "        \"-Xms1g\"," +
+                "                \"-Xmx4g\"" +
+                "    ]" +
+                "    }," +
+                "    {" +
+                "        \"profileId\": \"testPlugin2\"," +
+                "            \"description\": \"testPlugin2\"," +
+                "            \"pluginId\": \"testPlugin2\"," +
+                "            \"jvmArgs\": []" +
+                "    }" +
+                "]";
+        return jsonPayload(profiles);
+    }
+
     private static Response jsonPayload(String jsonPayload) {
         return Response.ok(jsonPayload, MediaType.APPLICATION_JSON).build();
     }
-
 }

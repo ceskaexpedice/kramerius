@@ -19,10 +19,12 @@ package cz.incad.kramerius.processes.scheduler;
 import java.util.Timer;
 import java.util.logging.Logger;
 
-import com.google.inject.Inject;
-
 import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 public class ProcessSchedulerImpl implements ProcessScheduler {
 
@@ -33,8 +35,12 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	private int interval;
 
 	private Timer timer;
-	
-	
+
+    // TODO pepo
+    @Inject
+    @Named("forward-client")
+    private CloseableHttpClient apacheClient;
+
 	@Inject
 	public ProcessSchedulerImpl(ProcessDefinitionManager definitionManager) {
 		super();
@@ -52,7 +58,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 	@Override
 	public void scheduleNextTask() {
 		this.timer.purge();
-		NextSchedulerTask schedulerTsk = new NextSchedulerTask(this.definitionManager,this, this.interval);
+		NextSchedulerTask schedulerTsk = new NextSchedulerTask(this.definitionManager,this, this.interval, apacheClient);
 		this.timer.schedule(schedulerTsk, this.interval);
 	}
 
@@ -61,4 +67,5 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		LOGGER.info("Canceling process scheduler");
 		this.timer.cancel();
 	}
+
 }

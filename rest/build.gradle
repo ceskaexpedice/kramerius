@@ -5,7 +5,7 @@ dependencies {
 
     api project(':shared:common')
     api project(':security:oauth')
-	api project(':search-index')
+	api project(':processes:search-index')
 	
     api project(':folders')
 	
@@ -47,11 +47,6 @@ configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->
     conf.exclude group: "net.sf.json-lib", module: "json-lib"
 }
 
-// TODO pepo
-/*
-test {
-    useJUnitPlatform()
-}*/
 
 
 

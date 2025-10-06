@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.apiNew.admin.v70.processes.client;
+package cz.incad.kramerius.processes.client;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
@@ -27,6 +27,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
@@ -239,6 +240,24 @@ public class ProcessManagerClient {
                 return null;
             } else {
                 throw new ProcessManagerClientException("Failed to fetch profile. HTTP code" + ": " + code);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
+    public JSONArray getProfiles() {
+        String url = baseUrl + "profile";
+        HttpGet get = new HttpGet(url);
+
+        try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+            int code = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
+            if (code == 200) {
+                return new JSONArray(body);
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch profiles. HTTP code" + ": " + code);
             }
         } catch (Exception e) {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);

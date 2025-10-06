@@ -14,30 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.apiNew.admin.v70.processes.client;
+package cz.incad.kramerius.processes.client;
 
 /**
- * ProcessManagerClientException
+ * ErrorCode
  * @author ppodsednik
  */
-public class ProcessManagerClientException extends RuntimeException {
-    private ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
-
-    public ProcessManagerClientException(String message, ErrorCode errorCode) {
-        super(message);
-        this.errorCode = errorCode;
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
-
-    public ProcessManagerClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ProcessManagerClientException(String message) {
-        super(message);
-    }
-
+public enum ErrorCode {
+    NOT_FOUND,
+    INVALID_INPUT,
+    INTERNAL_SERVER_ERROR,
 }

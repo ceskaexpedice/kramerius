@@ -14,6 +14,7 @@
  */
 package cz.incad.kramerius.rest.apiNew.admin.v70.processes.client;
 
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -108,6 +109,12 @@ public class TestProcessManagerClient {
     public void testGetProfile() {
         JSONObject profile = processManagerClient.getProfile(PROFILE_ID);
         Assertions.assertEquals(PROFILE_ID, profile.getString("profileId"));
+    }
+
+    @Test
+    public void testGetProfiles() {
+        JSONArray profiles = processManagerClient.getProfiles();
+        Assertions.assertEquals(4, profiles.length());
     }
 
     @Test
