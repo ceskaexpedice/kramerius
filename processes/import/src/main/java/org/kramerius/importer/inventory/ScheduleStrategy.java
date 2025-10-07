@@ -1,9 +1,12 @@
 package org.kramerius.importer.inventory;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Defines various strategies for scheduling items for indexation from an {@link ImportInventory}.
@@ -16,6 +19,7 @@ import java.util.Set;
  * actual indexing process.
  */
 public enum ScheduleStrategy {
+
 
         /**
          * Schedules only the root items (top-level objects) of each discovered hierarchy
@@ -73,14 +77,24 @@ public enum ScheduleStrategy {
         public abstract List<ImportInventoryItem> scheduleItems(ImportInventory plan);
 
         public static ScheduleStrategy fromArg(String strategy) {
+            LOGGER.fine("Resolving strategy: " + strategy);
             if (strategy == null) {
-                return indexRoots;
+                String  configuredIndexType = KConfiguration.getInstance().getProperty("ingest.indexType",ScheduleStrategy.indexRoots.name());
+                LOGGER.fine("Returning default strategy "+ScheduleStrategy.valueOf(configuredIndexType).name());
+                return ScheduleStrategy.valueOf(configuredIndexType);
             }
             for (ScheduleStrategy plan : ScheduleStrategy.values()) {
                 if (plan.name().equalsIgnoreCase(strategy)) {
                     return plan;
                 }
             }
-            return indexRoots;
+
+            String  configuredIndexType = KConfiguration.getInstance().getProperty("ingest.indexType",ScheduleStrategy.indexRoots.name());
+            LOGGER.fine("Returning default strategy "+ScheduleStrategy.valueOf(configuredIndexType).name());
+            return ScheduleStrategy.valueOf(configuredIndexType);
+            //return indexRoots;
         }
-    }
+
+
+    public static final Logger LOGGER = Logger.getLogger(ScheduleStrategy.class.getName());
+}
