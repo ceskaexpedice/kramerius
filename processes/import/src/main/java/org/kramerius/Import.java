@@ -121,7 +121,7 @@ public class Import {
         String license = null;
         String addCollection = null;
 
-        String  configuredIndexType = System.getProperties().getProperty("ingest.indexerType",ScheduleStrategy.indexRoots.name());
+        String  configuredIndexType = KConfiguration.getInstance().getProperty("ingest.indexType",ScheduleStrategy.indexRoots.name());
         ScheduleStrategy indexationType =   ScheduleStrategy.fromArg(configuredIndexType);
 
         if (startIndexerFromArgs != null && startIndexerFromArgs) {
