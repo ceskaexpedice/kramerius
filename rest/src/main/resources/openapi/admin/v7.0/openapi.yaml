@@ -3335,8 +3335,8 @@ paths:
                   - **license**: Typ licence pro import.
                   - **collections**: UUID kolekcí, do kterých budou data importována.  
                   - **pathtype**: Typ cesty, možné hodnoty **absolute** nebo **relative**
-
-                value: {"defid":"import","params":{"inputDataDir":"/d28b2a1a-508e-419e-9d3b-12ed4560138e","startIndexer":true,"license":"dnnto","collections":"uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02", "pathtype":"relative"}}
+                  - **indexationType**: Typ indexace po importu možné hodnoty **indexNewImported** (Spustí plnou indexaci nově importovaných částí a částečnou předků) nebo **indexRoots** (Najde všechny kořenové tituly a spustí jejich kompletní indexaci)
+                value: {"defid":"import","params":{"inputDataDir":"/d28b2a1a-508e-419e-9d3b-12ed4560138e","startIndexer":true,"license":"dnnto","collections":"uuid:bcc986fc-7ec8-47eb-b585-121e48f7bd02", "pathtype":"relative","indexationType":"indexRoots"}}
               importndk:
                 summary: Plánování procesu import/NDK-METS
                 description: |
@@ -3349,9 +3349,8 @@ paths:
                   - **useIIPServer**: Use IIP server.
                   - **license**: Typ licence pro import.
                   - **collections**: UUID kolekcí, do kterých budou data importována.
-                  - **pathtype**: Typ cesty, možné hodnoty **absolute** nebo **relative**
-
-                value: {"defid":"convert_and_import","params":{"policy":"PRIVATE","inputDataDir":"/1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","startIndexer":true,"useIIPServer":true,"license":"dnnto","collections":"uuid:28b00683-977d-4743-ad4b-ff8135f5e263", "pathtype":"relative"}}
+                  - **indexationType**: Typ indexace po importu možné hodnoty **indexNewImported** - Spustí plnou indexaci nově importovaných částí a částečnou předků  nebo **indexRoots** - Najde všechny kořenové tituly a spustí jejich kompletní indexaci
+                value: {"defid":"convert_and_import","params":{"policy":"PRIVATE","inputDataDir":"/1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","startIndexer":true,"useIIPServer":true,"license":"dnnto","collections":"uuid:28b00683-977d-4743-ad4b-ff8135f5e263", "pathtype":"relative", "indexationType":"indexRoots"}}
               index_object:
                 summary: Plánování indexace objektu
                 description: |

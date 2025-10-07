@@ -106,6 +106,13 @@ public class Import {
      * args[2] - start indexer, optional
      */
     public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
+        LOGGER.info("Parameters:"+Arrays.asList(args));
+        // normalize arguments
+        args = Arrays.stream(args).map(arg -> {
+            if (arg.trim().equals("null")) return null;
+            else return arg.trim();
+        }).toArray(String[]::new);
+
         if (args.length < 1) {
             throw new RuntimeException("Not enough arguments.");
         }
@@ -122,12 +129,12 @@ public class Import {
         String addCollection = null;
 
         String  configuredIndexType = KConfiguration.getInstance().getProperty("ingest.indexType",ScheduleStrategy.indexRoots.name());
-        ScheduleStrategy indexationType =   ScheduleStrategy.fromArg(configuredIndexType);
+        ScheduleStrategy indexationType =   null;
 
         if (startIndexerFromArgs != null && startIndexerFromArgs) {
             license = args.length > argsIndex ? args[argsIndex++] : null;
             addCollection = args.length > argsIndex ? args[argsIndex++] : null;
-            indexationType = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : null;
+            indexationType = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : ScheduleStrategy.fromArg(configuredIndexType);
         }
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
@@ -172,6 +179,7 @@ public class Import {
                 log.info("import dir: " + licensesImportFile);
                 log.info("start indexer: " + startIndexer);
                 log.info("license : " + license);
+                log.info("IndexationType: " + indexationType);
 
                 Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection, indexationType);
 
@@ -182,6 +190,8 @@ public class Import {
                 ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
                 log.info("import dir: " + importDirectory);
                 log.info("start indexer: " + startIndexer);
+                log.info("IndexationType: " + indexationType);
+
 
                 Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection, indexationType);
             }

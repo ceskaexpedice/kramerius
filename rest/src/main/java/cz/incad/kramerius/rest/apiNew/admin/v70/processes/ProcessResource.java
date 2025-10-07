@@ -1487,7 +1487,7 @@ public class ProcessResource extends AdminApiResource {
     }
 
     private String extractOptionalParamString(JSONObject params, String paramName, String defaultValue) {
-        return params.has(paramName) ? params.getString(paramName) : defaultValue;
+        return params.has(paramName) ? params.get(paramName).toString() : defaultValue;
     }
 
     private Boolean extractOptionalParamBoolean(JSONObject params, String paramName, boolean defaultValue) {
