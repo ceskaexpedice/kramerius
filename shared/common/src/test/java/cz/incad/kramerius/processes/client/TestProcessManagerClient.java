@@ -12,9 +12,8 @@
  * information or reproduction of this material is strictly forbidden unless
  * prior written permission is obtained from Accenture and/or its affiliates.
  */
-package cz.incad.kramerius.rest.apiNew.admin.v70.processes.client;
+package cz.incad.kramerius.processes.client;
 
-import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -25,7 +24,9 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.MockedStatic;
 
@@ -34,7 +35,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import static cz.incad.kramerius.rest.apiNew.admin.v70.processes.client.ProcessManagerProcessEndpoint.OUT_LOG_PART;
+import static cz.incad.kramerius.processes.client.ProcessManagerProcessEndpoint.OUT_LOG_PART;
 import static org.mockito.Mockito.*;
 
 /**

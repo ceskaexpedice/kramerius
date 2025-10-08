@@ -14,12 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.apiNew.admin.v70.processes.client;
+package cz.incad.kramerius.processes.client;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * ProfileEndpoint
