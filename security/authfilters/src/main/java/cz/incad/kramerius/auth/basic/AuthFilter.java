@@ -72,8 +72,6 @@ public class AuthFilter  implements Filter {
         try {
             HttpServletRequest request = (HttpServletRequest) arg0;
             HttpServletResponse response = (HttpServletResponse) arg1;
-            String authToken = request.getHeader(AUTH_TOKEN_HEADER_KEY);
-// TODO pepo            boolean authTokenDefined = (authToken != null && (!this.lrProcessManager.isAuthTokenClosed(authToken)));
             boolean authTokenDefined = false;
             if (authTokenDefined) {
                 // authtoken - forward 

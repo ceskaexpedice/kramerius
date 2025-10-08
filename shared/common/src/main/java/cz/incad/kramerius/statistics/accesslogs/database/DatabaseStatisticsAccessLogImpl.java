@@ -129,7 +129,7 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         try {
             connection = connectionProvider.get();
             if (connection == null) {
-               // TODO pepo throw new NotReadyException("connection not ready");
+               throw new IllegalStateException("connection not ready");
             }
 
             List<JDBCCommand> commands = new ArrayList<>();

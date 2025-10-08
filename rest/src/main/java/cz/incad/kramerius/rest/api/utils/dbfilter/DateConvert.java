@@ -26,18 +26,16 @@ import java.util.logging.Level;
 public class DateConvert implements Convert {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DateConvert.class.getName());
-    
+    public static SimpleDateFormat FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
+
     @Override
     public Object convert(String str) {
-        /* TODO pepo
         try {
-            Date parsed = LRResource.FORMAT.parse(str);
+            Date parsed = FORMAT.parse(str);
             return new Timestamp(parsed.getTime());
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
         }
-
-         */
         return str;
     }
 

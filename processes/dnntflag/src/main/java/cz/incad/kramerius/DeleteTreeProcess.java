@@ -22,6 +22,7 @@ import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.processplatform.common.WarningException;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -105,7 +106,7 @@ public class DeleteTreeProcess {
         try {
             boolean noErrors = deleteTree(pid, true, akubraRepository, akubraRepository, indexerAccess, searchIndex, ignoreIncosistencies);
             if (!noErrors) {
-                // TODO pepo throw new WarningException("failed to delete some objects");
+                throw new WarningException("failed to delete some objects");
             }
         }finally {
             akubraRepository.shutdown();

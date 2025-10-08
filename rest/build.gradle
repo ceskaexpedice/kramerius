@@ -33,8 +33,6 @@ dependencies {
     implementation 'jaxen:jaxen:1.2.0'
     implementation 'org.dom4j:dom4j:2.1.1'
 
-   // TODO pepo testImplementation platform('org.junit:junit-bom:5.10.0')
-   // testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.39'
     testImplementation 'org.glassfish.jersey.inject:jersey-hk2:2.39'
     testImplementation 'org.mockito:mockito-core:5.14.2'

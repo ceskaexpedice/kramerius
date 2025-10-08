@@ -152,26 +152,6 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 }
             }
             // from process authentication
-        } else if (httpServletRequest.getHeader("parent-process-auth-token") != null) {
-            /* TODO pepo
-            String parentProcessAuthToken = httpServletRequest.getHeader("parent-process-auth-token");
-            LOGGER.info(String.format("Authentication by parent-process-auth-token: %s", parentProcessAuthToken));
-            ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
-            if (parentProcess != null) {
-                String userId = parentProcess.getOwnerId();
-                User foundUser = this.userManager.findUserByLoginName(userId);
-                LOGGER.info(String.format("Found user: %s", foundUser.getLoginname()));
-                if (foundUser != null) {
-                    UserUtils.associateGroups(foundUser, userManager);
-                    UserUtils.associateCommonGroup(foundUser, userManager);
-                    storeLoggedUser(foundUser,  new HashMap<String, Object>(){{
-                    }});
-                }
-            } else {
-                LOGGER.warning("No parent process found");
-            }
-
-             */
         }
     }
 

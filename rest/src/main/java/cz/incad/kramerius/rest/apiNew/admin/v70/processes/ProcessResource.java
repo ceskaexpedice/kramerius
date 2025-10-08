@@ -23,6 +23,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,7 +71,6 @@ public class ProcessResource extends AdminApiResource {
     @Path("by_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getProcessByProcessId(@PathParam("process_id") String processId) {
-        // TODO pepo lrProcessManager.getSynchronizingLock().lock();
         try {
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
             JSONObject pcpProcess = processManagerClient.getProcess(processId);
@@ -85,8 +86,6 @@ public class ProcessResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
-        } finally {
-           // lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -160,15 +159,10 @@ public class ProcessResource extends AdminApiResource {
     }
 
     private Response getProcessLogsLinesByProcessUuid(String processUuid, boolean err, String offsetStr, String limitStr) {
-        // TODO pepo lrProcessManager.getSynchronizingLock().lock();
-        try {
-            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-            JSONObject processLogLines = processManagerClient.getProcessLogLines(processUuid, offsetStr, limitStr, err);
-            processLogLines = ProcessManagerMapper.mapLogLines(processLogLines);
-            return Response.ok().entity(processLogLines.toString()).build();
-        } finally {
-            //lrProcessManager.getSynchronizingLock().unlock();
-        }
+        ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+        JSONObject processLogLines = processManagerClient.getProcessLogLines(processUuid, offsetStr, limitStr, err);
+        processLogLines = ProcessManagerMapper.mapLogLines(processLogLines);
+        return Response.ok().entity(processLogLines.toString()).build();
     }
 
     /**
@@ -193,7 +187,6 @@ public class ProcessResource extends AdminApiResource {
             @QueryParam("until") String filterUntil,
             @QueryParam("state") String filterState
     ) {
-        // TODO pepo lrProcessManager.getSynchronizingLock().lock();
         try {
             ForbiddenCheck.checkGeneral(userProvider.get(), rightsResolver);
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
@@ -216,17 +209,15 @@ public class ProcessResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (ProcessManagerClientException e) {
-            if(e.getErrorCode() == ErrorCode.INVALID_INPUT){
+            if (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
                 throw new BadRequestException(e.getMessage());
-            }else{
+            } else {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new InternalErrorException(e.getMessage());
             }
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
-        } finally {
-            //lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -234,7 +225,6 @@ public class ProcessResource extends AdminApiResource {
     @Path("batches/by_first_process_id/{process_id}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response deleteBatch(@PathParam("process_id") String processId) {
-        // TODO pepo lrProcessManager.getSynchronizingLock().lock();
         try {
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
             JSONObject pcpProcess = processManagerClient.getProcess(processId);
@@ -247,24 +237,22 @@ public class ProcessResource extends AdminApiResource {
             int deleted = processManagerClient.deleteBatch(processId);
             JSONObject result = new JSONObject();
             result.put(ProcessManagerMapper.KR_BATCH_ID, processId);
-            result.put(ProcessManagerMapper.KR_BATCH_TOKEN_1, "-"); // TODO pepo
+            result.put(ProcessManagerMapper.KR_BATCH_TOKEN_1, "-");
             result.put(ProcessManagerMapper.KR_PROCESSES_DELETED, deleted);
 
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (ProcessManagerClientException e) {
-            if(e.getErrorCode() == ErrorCode.NOT_FOUND){
+            if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
                 throw new NotFoundException(e.getMessage());
-            }else{
+            } else {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new InternalErrorException(e.getMessage());
             }
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
-        } finally {
-            //lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -272,7 +260,6 @@ public class ProcessResource extends AdminApiResource {
     @Path("batches/by_first_process_id/{process_id}/execution")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response killBatch(@PathParam("process_id") String processId) {
-        // TODO pepo lrProcessManager.getSynchronizingLock().lock();
         try {
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
             JSONObject pcpProcess = processManagerClient.getProcess(processId);
@@ -287,17 +274,15 @@ public class ProcessResource extends AdminApiResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (ProcessManagerClientException e) {
-            if(e.getErrorCode() == ErrorCode.NOT_FOUND){
+            if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
                 throw new NotFoundException(e.getMessage());
-            }else{
+            } else {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new InternalErrorException(e.getMessage());
             }
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
-        } finally {
-            //lrProcessManager.getSynchronizingLock().unlock();
         }
     }
 
@@ -312,7 +297,7 @@ public class ProcessResource extends AdminApiResource {
             JSONObject profile = processManagerClient.getProfile(profileId);
             JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
             JSONArray scheduledProfiles = null;
-            if(!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)){
+            if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
                 scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
             }
             ForbiddenCheck.checkByProfileAndParamsPids(userProvider.get(), rightsResolver, definitionManager,

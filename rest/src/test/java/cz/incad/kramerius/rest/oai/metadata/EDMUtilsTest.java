@@ -42,7 +42,6 @@ import java.util.Arrays;
 
 public class EDMUtilsTest {
 
-    // TODO pepo
     @Ignore
     @Test
     public void testGenericCase() throws ParserConfigurationException, IOException, SAXException, TransformerException {

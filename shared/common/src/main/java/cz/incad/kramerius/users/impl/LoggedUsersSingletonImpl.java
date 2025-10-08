@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2010 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -51,8 +51,9 @@ import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
 public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(LoggedUsersSingletonImpl.class.getName());
-    
+
     public static StringTemplateGroup stGroup;
+
     static {
         InputStream is = LoggedUserDbHelper.class.getResourceAsStream("res/database.stg");
         stGroup = new StringTemplateGroup(new InputStreamReader(is), DefaultTemplateLexer.class);
@@ -62,11 +63,11 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     @Inject
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
-    
+
     @Inject
     Provider<HttpServletRequest> requeProvider;
-    
-    
+
+
     @Override
     public synchronized String registerLoggedUser(User user) {
         return registerLoggedUser(user, this.requeProvider.get());
@@ -83,7 +84,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
             return randomUUID;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e.getMessage());
         } finally {
             DatabaseUtils.tryClose(con);
@@ -91,28 +92,21 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     }
 
 
-    public void sessionKeyId(Connection con, Integer activeUserId, String loggedUserKey, HttpServletRequest req ) throws SQLException {
+    public void sessionKeyId(Connection con, Integer activeUserId, String loggedUserKey, HttpServletRequest req) throws SQLException {
         StringTemplate tmpl = stGroup.getInstanceOf("registerSessionKey");
-        JDBCUpdateTemplate update = new JDBCUpdateTemplate(con,false);
+        JDBCUpdateTemplate update = new JDBCUpdateTemplate(con, false);
         //HttpServletRequest req = this.requeProvider.get();
-        update.executeUpdate(tmpl.toString(), loggedUserKey,activeUserId, req.getRemoteAddr());
+        update.executeUpdate(tmpl.toString(), loggedUserKey, activeUserId, req.getRemoteAddr());
     }
-    
+
     @Override
     public synchronized void deregisterLoggedUser(String key) {
-// TODO pepo        boolean isSessionKeyAssociatedWithProcess = lrProcessManager.isSessionKeyAssociatedWithProcess(key);
-        boolean isSessionKeyAssociatedWithProcess = false;
-
         Connection con = null;
         try {
             con = this.connectionProvider.get();
-            if (!isSessionKeyAssociatedWithProcess) {
-                deleteSessionKey(key, con);
-            } else {
-                deregisterLoggedUser(key, con);
-            }
+            deleteSessionKey(key, con);
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             DatabaseUtils.tryClose(con);
         }
@@ -121,12 +115,12 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
 
     public void deleteSessionKey(String key, Connection con) throws SQLException {
         StringTemplate deregisterTemplate = stGroup.getInstanceOf("deleteSessionKey");
-        new JDBCUpdateTemplate(con,false).executeUpdate(deregisterTemplate.toString(), key);
+        new JDBCUpdateTemplate(con, false).executeUpdate(deregisterTemplate.toString(), key);
     }
-    
+
     public void deregisterLoggedUser(String key, Connection con) throws SQLException {
         StringTemplate deregisterTemplate = stGroup.getInstanceOf("deregisterSessionKey");
-        new JDBCUpdateTemplate(con,false).executeUpdate(deregisterTemplate.toString(), key);
+        new JDBCUpdateTemplate(con, false).executeUpdate(deregisterTemplate.toString(), key);
     }
 
     @Override
@@ -136,11 +130,11 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
             con = this.connectionProvider.get();
             return loggedUser(key, con) > -1;
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return false;
         }
     }
-    
+
 
     public int getSessionKeyId(String key) {
         Connection con = null;
@@ -148,11 +142,11 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
             con = this.connectionProvider.get();
             return sessionKey(key, con);
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return -1;
         }
     }
-    
+
     public int sessionKey(String key, Connection con) throws SQLException {
         StringTemplate islogged = stGroup.getInstanceOf("user");
         List<Integer> list = new JDBCQueryTemplate<Integer>(con) {
@@ -162,7 +156,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                 returnsList.add(rs.getInt("session_keys_id"));
                 return false;
             }
-            
+
         }.executeQuery(islogged.toString(), key);
         return !list.isEmpty() ? list.get(0) : -1;
     }
@@ -176,7 +170,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                 returnsList.add(rs.getInt("active_users_id"));
                 return false;
             }
-            
+
         }.executeQuery(islogged.toString(), key);
         return !list.isEmpty() ? list.get(0) : -1;
     }
@@ -190,7 +184,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                 returnsList.add(rs.getInt("active_users_id"));
                 return false;
             }
-            
+
         }.executeQuery(islogged.toString(), key);
         return !list.isEmpty() ? list.get(0) : -1;
     }
@@ -198,10 +192,10 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     @Override
     public synchronized boolean isLoggedUser(Provider<HttpServletRequest> provider) {
         HttpSession session = provider.get().getSession(true);
-        boolean thirdPartyUser  = session.getAttribute(UserUtils.THIRD_PARTY_USER) != null ? Boolean.parseBoolean(session.getAttribute(UserUtils.THIRD_PARTY_USER).toString()) : false;
+        boolean thirdPartyUser = session.getAttribute(UserUtils.THIRD_PARTY_USER) != null ? Boolean.parseBoolean(session.getAttribute(UserUtils.THIRD_PARTY_USER).toString()) : false;
         if (thirdPartyUser) {
             return true;
-        }  else {
+        } else {
             String userKey = (String) session.getAttribute(UserUtils.LOGGED_USER_KEY_PARAM);
             return userKey != null ? isLoggedUser(userKey) : false;
         }
@@ -211,7 +205,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     public User getUser(String key) {
         try {
             if (key == null) return null;
-            int activeUserId =  user(key, this.connectionProvider.get());
+            int activeUserId = user(key, this.connectionProvider.get());
             if (activeUserId > -1) {
                 Connection connection = this.connectionProvider.get();
                 return getUser(activeUserId, connection);
@@ -219,7 +213,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                 return null;
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return null;
         }
     }
@@ -228,7 +222,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
     @Override
     public User getLoggedUser(String key) {
         try {
-            int activeUserId =  loggedUser(key, this.connectionProvider.get());
+            int activeUserId = loggedUser(key, this.connectionProvider.get());
             if (activeUserId > -1) {
                 Connection connection = this.connectionProvider.get();
                 return getUser(activeUserId, connection);
@@ -236,7 +230,7 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                 return null;
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return null;
         }
     }
@@ -251,8 +245,8 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                     String loginname = rs.getString("loginname");
                     String firstname = rs.getString("firstname");
                     String surname = rs.getString("surname");
-        
-                    user = new UserImpl(-1, firstname, surname, loginname,-1);
+
+                    user = new UserImpl(-1, firstname, surname, loginname, -1);
                     returnsList.add(user);
                 } else {
                     user = returnsList.get(0);
@@ -262,16 +256,16 @@ public class LoggedUsersSingletonImpl implements LoggedUsersSingleton {
                 String gname = rs.getString("gname");
                 int personaladm = rs.getInt("personal_admin_id");
                 Role role = new RoleImpl(group_id, gname, personaladm);
-                
+
                 Role[] roles = user.getGroups() != null ? user.getGroups() : new Role[0];
-                Role[] nroles = new Role[roles.length+1];
+                Role[] nroles = new Role[roles.length + 1];
                 System.arraycopy(roles, 0, nroles, 0, roles.length);
                 nroles[roles.length] = role;
-                ((UserImpl)user).setGroups(nroles);
-                
+                ((UserImpl) user).setGroups(nroles);
+
                 return true;
             }
-            
+
         }.executeQuery(users.toString(), activeUserId);
         return list.get(0);
     }

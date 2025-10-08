@@ -179,16 +179,11 @@ public class MetsConvertor {
         }
 
         try {
-            /* TODO pepo
             Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
                     KConfiguration.getInstance().getProperty("ingest.url"),
                     KConfiguration.getInstance().getProperty("ingest.user"),
                     KConfiguration.getInstance().getProperty("ingest.password"),
-                    exportRoot, startIndexer, authToken,addToCollections, strategy);
-
-             */
-
-
+                    exportRoot, startIndexer, addToCollections, strategy);
             if (deleteContractSubfolder()) {
                 File exportFolder = new File(exportRoot);
                 FileUtils.deleteDirectory(exportFolder);

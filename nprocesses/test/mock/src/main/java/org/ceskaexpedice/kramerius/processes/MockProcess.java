@@ -25,6 +25,6 @@ public class MockProcess {
 
     @ProcessMethod
     public static void test() throws IOException {
-        // TODO pepo MockLPProcess.main(new String[]{});
+        // MockLPProcess.main(new String[]{});
     }
 }

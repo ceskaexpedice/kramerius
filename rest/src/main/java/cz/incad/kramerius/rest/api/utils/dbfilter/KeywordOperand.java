@@ -37,8 +37,6 @@ public class KeywordOperand extends Operand{
     }
     
     private static Map<String,Convert> MAPPING_CONVERTS = new HashMap<String, Convert>(); static {
-        // TODO pepo MAPPING_CONVERTS.put("state", new StateConvert());
-        //MAPPING_CONVERTS.put("batchState", new BatchStateConvert());
         MAPPING_CONVERTS.put("finished", new DateConvert());
         MAPPING_CONVERTS.put("started", new DateConvert());
         MAPPING_CONVERTS.put("planned", new DateConvert());

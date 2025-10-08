@@ -164,20 +164,6 @@ final class ProcessManagerMapper {
     }
 
     static JSONObject mapScheduleMainProcess(JSONObject krSchedule, String owner) {
-        /* TODO pepo
-        boolean justTemp = true;
-        if(justTemp){
-            String scheduleMainProcess = "            {" +
-                    "              \"profileId\" : \"testPlugin1-small\"," +
-                    "              \"payload\" : {" +
-                    "                \"surname\" : \"Po\"," +
-                    "                \"name\" : \"Pe\"" +
-                    "              }," +
-                    "              \"ownerId\" : \"PePo\"" +
-                    "            }";
-            return new JSONObject(scheduleMainProcess);
-        }
-*/
         JSONObject result = new JSONObject();
         if (krSchedule.has(KR_PROFILE_ID)) {
             result.put(PCP_PROFILE_ID, krSchedule.getString(KR_PROFILE_ID));
