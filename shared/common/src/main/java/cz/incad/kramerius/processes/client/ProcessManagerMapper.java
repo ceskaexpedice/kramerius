@@ -14,63 +14,67 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
+package cz.incad.kramerius.processes.client;
 
-import cz.incad.kramerius.rest.apiNew.admin.v70.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * ProcessManagerMapper
  * @author ppodsednik
  */
-final class ProcessManagerMapper {
+public final class ProcessManagerMapper {
     // general
-    static final String PLANNED = "planned";
-    static final String STARTED = "started";
-    static final String FINISHED = "finished";
-    static final String PROCESSES = "processes";
-    static final String PROCESS = "process";
-    static final String BATCH = "batch";
-    static final String BATCHES = "batches";
-    static final String OFFSET = "offset";
-    static final String LIMIT = "limit";
+    public static final String PLANNED = "planned";
+    public static final String STARTED = "started";
+    public static final String FINISHED = "finished";
+    public static final String PROCESSES = "processes";
+    public static final String PROCESS = "process";
+    public static final String BATCH = "batch";
+    public static final String BATCHES = "batches";
+    public static final String OFFSET = "offset";
+    public static final String LIMIT = "limit";
 
-    static final String PCP_STATUS = "status";
-    static final String PCP_DESCRIPTION = "description";
-    static final String PCP_PLUGIN_ID = "pluginId";
-    static final String PCP_PROFILE_ID = "profileId";
-    static final String PCP_SCHEDULED_PROFILES = "scheduledProfiles";
-    static final String PCP_PROCESS_ID = "processId";
-    static final String PCP_PAYLOAD = "payload";
-    static final String PCP_TOTAL_SIZE = "totalSize";
-    static final String PCP_OWNERS = "owners";
-    static final String PCP_OWNER_ID = "owner";
-    static final String PCP_OWNER_ID_SCH = "ownerID";
-    static final String PCP_OWNER_NAME = "owner";
-    static final String PCP_MAIN_PROCESS_ID = "mainProcessId";
-    static final String PCP_BATCH_ID = "batchId";
+    public static final String PCP_STATUS = "status";
+    public static final String PCP_DESCRIPTION = "description";
+    public static final String PCP_PLUGIN_ID = "pluginId";
+    public static final String PCP_PROFILE_ID = "profileId";
+    public static final String PCP_JVM_ARGS = "jvmArgs";
+    public static final String PCP_SCHEDULED_PROFILES = "scheduledProfiles";
+    public static final String PCP_PROCESS_ID = "processId";
+    public static final String PCP_PAYLOAD = "payload";
+    public static final String PCP_TOTAL_SIZE = "totalSize";
+    public static final String PCP_OWNERS = "owners";
+    public static final String PCP_OWNER_ID = "owner";
+    public static final String PCP_OWNER_ID_SCH = "ownerID";
+    public static final String PCP_OWNER_NAME = "owner";
+    public static final String PCP_MAIN_PROCESS_ID = "mainProcessId";
+    public static final String PCP_BATCH_ID = "batchId";
 
-    static final String KR_PROCESS_UUID = "uuid";
-    static final String KR_PROFILE_ID = "defid";
-    static final String KR_ID = "id";
-    static final String KR_STATUS = "state";
-    static final String KR_DESCRIPTION = "name";
-    static final String KR_PAYLOAD = "params";
-    static final String KR_TOTAL_SIZE = "total_size";
-    static final String KR_OWNERS = "owners";
-    static final String KR_OWNER_NAME = "name";
-    static final String KR_BATCH_ID = "batch_id";
-    static final String KR_BATCH_TOKEN = "token";
-    static final String KR_BATCH_TOKEN_1 = "batch_token";
-    static final String KR_BATCH_OWNER_ID = "owner_id";
-    static final String KR_BATCH_OWNER_NAME = "owner_name";
-    static final String KR_PROCESSES_DELETED = "processes_deleted";
+    public static final String KR_PROCESS_UUID = "uuid";
+    public static final String KR_PROFILE_ID = "defid";
+    public static final String KR_ID = "id";
+    public static final String KR_STATUS = "state";
+    public static final String KR_DESCRIPTION = "name";
+    public static final String KR_PAYLOAD = "params";
+    public static final String KR_TOTAL_SIZE = "total_size";
+    public static final String KR_OWNERS = "owners";
+    public static final String KR_OWNER_NAME = "name";
+    public static final String KR_BATCH_ID = "batch_id";
+    public static final String KR_BATCH_TOKEN = "token";
+    public static final String KR_BATCH_TOKEN_1 = "batch_token";
+    public static final String KR_BATCH_OWNER_ID = "owner_id";
+    public static final String KR_BATCH_OWNER_NAME = "owner_name";
+    public static final String KR_PROCESSES_DELETED = "processes_deleted";
 
     private ProcessManagerMapper() {
     }
 
-    static JSONObject mapOwners(JSONObject pcpOwners) {
+    public static JSONObject mapOwners(JSONObject pcpOwners) {
         if (pcpOwners == null) {
             return null;
         }
@@ -88,7 +92,7 @@ final class ProcessManagerMapper {
         return result;
     }
 
-    static JSONObject mapBatchWithProcesses(JSONObject pcpBatchWithProcesses) {
+    public static JSONObject mapBatchWithProcesses(JSONObject pcpBatchWithProcesses) {
         JSONObject json = new JSONObject();
         //batch
         JSONObject batch = new JSONObject();
@@ -134,7 +138,7 @@ final class ProcessManagerMapper {
         return json;
     }
 
-    static JSONObject mapProcess(JSONObject pcpProcess) {
+    public static JSONObject mapProcess(JSONObject pcpProcess) {
         JSONObject json = new JSONObject();
         //batch
         JSONObject batchJson = new JSONObject();
@@ -163,7 +167,7 @@ final class ProcessManagerMapper {
         return result;
     }
 
-    static JSONObject mapScheduleMainProcess(JSONObject krSchedule, String owner) {
+    public static JSONObject mapScheduleMainProcess(JSONObject krSchedule, String owner) {
         JSONObject result = new JSONObject();
         if (krSchedule.has(KR_PROFILE_ID)) {
             result.put(PCP_PROFILE_ID, krSchedule.getString(KR_PROFILE_ID));
@@ -175,7 +179,7 @@ final class ProcessManagerMapper {
         return result;
     }
 
-    static JSONObject mapLogLines(JSONObject pcpLogLines) {
+    public static JSONObject mapLogLines(JSONObject pcpLogLines) {
         if (pcpLogLines.has(PCP_TOTAL_SIZE)) {
             Object value = pcpLogLines.remove(PCP_TOTAL_SIZE);
             pcpLogLines.put(KR_TOTAL_SIZE, value);
@@ -184,6 +188,17 @@ final class ProcessManagerMapper {
     }
 
     private static String toFormattedStringOrNull(long timeMillis) {
-        return Utils.toFormattedStringOrNull(timeMillis / 1000);
+        LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(timeMillis / 1000, 0, ZoneOffset.UTC);
+        return toFormattedStringOrNull(localDateTime);
     }
+
+
+    private static String toFormattedStringOrNull(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        } else {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime);
+        }
+    }
+
 }

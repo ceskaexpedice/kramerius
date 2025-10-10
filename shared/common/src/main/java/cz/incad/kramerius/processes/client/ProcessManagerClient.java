@@ -20,6 +20,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -31,6 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
@@ -283,4 +287,21 @@ public class ProcessManagerClient {
             throw new ProcessManagerClientException("I/O error while calling " + url, e);
         }
     }
+
+    public void updateProfile(String profileId, JSONObject profile) {
+        String url = baseUrl + "profile/" + profileId;
+        HttpPut put = new HttpPut(url);
+        StringEntity entity = new StringEntity(profile.toString(), ContentType.APPLICATION_JSON);
+        put.setEntity(entity);
+
+        try (CloseableHttpResponse response = closeableHttpClient.execute(put)) {
+            int statusCode = response.getCode();
+            if (statusCode != 200 && statusCode != 204) {
+                throw new ProcessManagerClientException("Failed to update profile. HTTP code" + ": " + statusCode);
+            }
+        } catch (IOException e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+        }
+    }
+
 }

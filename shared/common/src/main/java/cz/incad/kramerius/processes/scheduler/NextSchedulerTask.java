@@ -1,17 +1,20 @@
 package cz.incad.kramerius.processes.scheduler;
 
-import java.util.TimerTask;
+import java.util.*;
 import java.util.logging.Level;
 
 import cz.incad.kramerius.processes.client.ProcessManagerClient;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
+import cz.incad.kramerius.processes.definition.ProcessDefinition;
 import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
  * Scheduler is able to start new process
- * 
+ *
  * @author pavels
  */
 public class NextSchedulerTask extends TimerTask {
@@ -34,30 +37,28 @@ public class NextSchedulerTask extends TimerTask {
     @Override
     public void run() {
         try {
-            // TODO pepo - get profiles, compare with lp.xml, update jvm args on pcp
             LOGGER.fine("Scheduling next task");
             definitionManager.load();
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-            JSONObject owners = processManagerClient.getOwners();
-            /*
-            List<LRProcess> plannedProcess = lrProcessManager.getPlannedProcess(allowRunningProcesses());
-            if (!plannedProcess.isEmpty() && this.processScheduler.getApplicationLib() != null ) {
-                List<LRProcess> longRunningProcesses = lrProcessManager.getLongRunningProcesses(States.RUNNING);
-                if (longRunningProcesses.size() < allowRunningProcesses()) {
-                    LRProcess lrProcess = plannedProcess.get(0);
-                    lrProcess.startMe(false, this.processScheduler.getApplicationLib(),
-                            this.processScheduler.getAdditionalJarFiles());
-                } else {
-                    LOGGER.fine("The maximum number of running processes is reached");
+            JSONArray profiles = processManagerClient.getProfiles();
+            for (int i = 0; i < profiles.length(); i++) {
+                JSONObject profile = profiles.getJSONObject(i);
+                String profileId = profile.getString(ProcessManagerMapper.PCP_PROFILE_ID);
+                ProcessDefinition processDefinition = definitionManager.getProcessDefinition(profileId);
+                if (processDefinition == null) {
+                    LOGGER.warning("No process definition with id " + profileId);
+                    continue;
                 }
-            } else {
-                if (this.processScheduler.getApplicationLib() == null) {
-                    LOGGER.fine("Scheduler is not initialized");
-                } else {
-                    LOGGER.fine("No planned process found");
+                List<String> jvmArgsLocal = processDefinition.getJavaProcessParameters();
+                JSONArray jvmArgs = profile.getJSONArray(ProcessManagerMapper.PCP_JVM_ARGS);
+                if (!areEqualIgnoreOrder(jvmArgsLocal, jvmArgs)) {
+                    if(jvmArgsLocal == null) {
+                        jvmArgsLocal = new ArrayList<>();
+                    }
+                    profile.put(ProcessManagerMapper.PCP_JVM_ARGS, new JSONArray(jvmArgsLocal));
+                    processManagerClient.updateProfile(profileId, profile);
                 }
             }
-            */
             this.processScheduler.scheduleNextTask();
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -65,8 +66,21 @@ public class NextSchedulerTask extends TimerTask {
 
     }
 
-    private int allowRunningProcesses() {
-        String aProcess = KConfiguration.getInstance().getProperty("processQueue.activeProcess", "1");
-        return Integer.parseInt(aProcess);
+    private static boolean areEqualIgnoreOrder(List<String> list, JSONArray jsonArray) {
+        if ((list == null || list.isEmpty()) && (jsonArray == null || (jsonArray.length() == 0))) {
+            return true;
+        }
+        if (list == null || jsonArray == null) {
+            return false;
+        }
+        if (list.size() != jsonArray.length()) {
+            return false;
+        }
+        Set<String> listSet = new HashSet<>(list);
+        Set<String> jsonSet = new HashSet<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            jsonSet.add(jsonArray.optString(i, null)); // optString avoids exceptions
+        }
+        return listSet.equals(jsonSet);
     }
 }

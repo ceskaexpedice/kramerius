@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.processes;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
 import cz.incad.kramerius.processes.client.ErrorCode;
 import cz.incad.kramerius.processes.client.ProcessManagerClient;
@@ -23,8 +24,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

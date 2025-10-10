@@ -82,6 +82,12 @@ public class ProcessManagerProfileEndpoint {
         return jsonPayload(profiles);
     }
 
+    @PUT
+    @Path("/{profileId}")
+    public Response updateProfile(@PathParam("profileId") String profileId, String profile) {
+        return jsonPayload(profile);
+    }
+
     private static Response jsonPayload(String jsonPayload) {
         return Response.ok(jsonPayload, MediaType.APPLICATION_JSON).build();
     }

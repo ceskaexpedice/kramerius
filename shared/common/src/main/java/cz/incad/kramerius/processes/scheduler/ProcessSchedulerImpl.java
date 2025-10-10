@@ -46,7 +46,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 		super();
 		this.definitionManager = definitionManager;
 		this.timer = new Timer(ProcessSchedulerImpl.class.getName()+"-thread",true);
-		
+		init();
 	}
 
 	@Override

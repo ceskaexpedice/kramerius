@@ -119,6 +119,20 @@ public class TestProcessManagerClient {
     }
 
     @Test
+    public void testUpdateProfile() {
+        JSONArray jvmArgs = new JSONArray();
+        jvmArgs.put("-Xms1g");
+        jvmArgs.put("-Xmx16g");
+        jvmArgs.put("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=58001");
+
+        JSONObject json = new JSONObject();
+        json.put("jvmArgs", jvmArgs);
+        json.put("profileId", PROFILE_ID);
+
+        processManagerClient.updateProfile(PROFILE_ID, json);
+    }
+
+    @Test
     public void testGetPlugin() {
         JSONObject profile = processManagerClient.getPlugin(PLUGIN_ID);
         Assertions.assertEquals(PLUGIN_ID, profile.getString("pluginId"));
