@@ -12,6 +12,10 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexQueryParameters;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
@@ -50,25 +54,19 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
      * args[0] - authToken
      * args[1] - pid ; pidslist
      */
-    public static void main(String[] args) throws IOException, SolrServerException {
-        if (args.length < 2) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-        //pid: , pidlist:
-        int argsIndex = 0;
-        //token for keeping possible following processes in same batch
-        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //process params
-        String argument = args[argsIndex];
-
-        List<String> pids = extractPids(argument); // pid muze byt pidslist  pid1;pid2;pid3;pid4
+    @ProcessMethod
+    public static void setLicenseMain(
+            @ParameterName("pids") String pidsP
+    ) {
+        PluginContext pluginContext = PluginContextHolder.getContext();
+        List<String> pids = extractPids(pidsP); // pid muze byt pidslist  pid1;pid2;pid3;pid4
         LOGGER.log(Level.INFO, String.format("Number of processing pids %d", pids.size()));
         if (pids.size() > 4) {
             List<String> titleList = new ArrayList<>(pids.subList(0,4));
             titleList.add("...");
-            // TODO pepo ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", titleList)));
+            pluginContext.updateProcessName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", titleList)));
         } else {
-            // TODO pepo ProcessStarter.updateName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", pids)));
+            pluginContext.updateProcessName(String.format("Aktualizace Processing indexu z FOXML pro objekty %s", String.join(", ", pids)));
         }
 
         boolean commitAfterRecord = KConfiguration.getInstance().getConfiguration().getBoolean("processing.index.afterRecordCommit",false);

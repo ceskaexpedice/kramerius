@@ -17,6 +17,10 @@ import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -65,46 +69,28 @@ public class SetLicenseProcess {
 
     /**
      * args[0] - action (ADD/REMOVE), from lp.st process/parameters
-     * args[1] - authToken
      * args[2] - target (pid:uuid:123, or pidlist:uuid:123;uuid:345;uuid:789, or pidlist_file:/home/kramerius/.kramerius/import-dnnt/grafiky.txt
      * In case of pidlist pids must be separated with ';'. Convenient separator ',' won't work due to way how params are stored in database and transferred to process.
      * <p>
      * args[3] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
      */
-    public static void main(String[] args) throws IOException, SolrServerException {
-        //args
-        /*LOGGER.info("args: " + Arrays.asList(args));
-        for (String arg : args) {
-            System.out.println(arg);
-        }*/
-        if (args.length < 4) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-        int argsIndex = 0;
-        //params from lp.st
-        Action action = Action.valueOf(args[argsIndex++]);
-        //token for keeping possible following processes in same batch
-        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //process params
-        String license = args[argsIndex++];
-        String target = args[argsIndex++];
-
-
+    @ProcessMethod
+    public static void setLicenseMain(
+            @ParameterName("action") String actionP,
+            @ParameterName("license") String license,
+            @ParameterName("target") String target
+    ) {
+        Action action = Action.valueOf(actionP);
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));
-
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
-
-        // IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
-        //ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
-
+        PluginContext pluginContext = PluginContextHolder.getContext();
         List<String> brokenPids = new ArrayList<>();
         try {
             switch (action) {
                 case ADD:
-                    // TODO pepo ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
+                    pluginContext.updateProcessName(String.format("Přidání licence '%s' pro %s", license, target));
                     for (String pid : extractPids(target)) {
                         try {
                             addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
@@ -124,10 +110,10 @@ public class SetLicenseProcess {
                     }
                     break;
                 case REMOVE:
-                    // TODO pepo ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
+                    pluginContext.updateProcessName(String.format("Odebrání licence '%s' pro %s", license, target));
                     for (String pid : extractPids(target)) {
                         try {
-                            removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess, authToken);
+                            removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
                         } catch (DistributedLocksException ex) {
                             if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
                                 brokenPids.add(pid);
@@ -293,7 +279,7 @@ public class SetLicenseProcess {
         });
     }
 
-    private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException {
+    private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException {
         LOGGER.info(String.format("Removing license '%s' from %s", license, targetPid));
 
         //1. Z rels-ext ciloveho objektu se odebere license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)

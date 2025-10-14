@@ -22,6 +22,10 @@ import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.ceskaexpedice.processplatform.common.WarningException;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -60,35 +64,17 @@ public class DeleteTreeProcess {
      */
 
 
-    public static void main(String[] args) throws IOException, SolrServerException {
-
-        if (args.length < 2) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-        LOGGER.log(Level.INFO, "Process parameters {0}", Arrays.asList(args));
-
-        int argsIndex = 0;
-        //token for keeping possible following processes in same batch
-        String authToken = args[argsIndex++]; //auth token always first, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //process params
-        String pid = args[argsIndex++];
-        String title = ProcessHelper.shortenIfTooLong(ProcessHelper.mergeArraysEnd(args, argsIndex++), 256);
-        //String scopeDesc = scope == SetPolicyProcess.Scope.OBJECT ? "jen objekt" : "objekt včetně potomků";
-        /* TODO pepo
-        ProcessStarter.updateName(title != null
+    @ProcessMethod
+    public static void deleteMain(
+            @ParameterName("pid") String pid,
+            @ParameterName("title") String titleP,
+            @ParameterName("ignoreIncosistencies") Boolean ignoreIncosistencies
+    ) throws IOException, SolrServerException {
+        String title = ProcessHelper.shortenIfTooLong(titleP, 256);
+        PluginContext pluginContext = PluginContextHolder.getContext();
+        pluginContext.updateProcessName(title != null
                 ? String.format("Smazání stromu %s (%s)", title, pid)
-                : String.format("Smazání stromu %s", pid)
-        );
-
-         */
-
-        boolean ignoreIncosistencies = false;
-
-        if (args.length > 3) {
-            ignoreIncosistencies = Boolean.parseBoolean(args[argsIndex++]);
-        }
-
-
+                : String.format("Smazání stromu %s", pid));
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 

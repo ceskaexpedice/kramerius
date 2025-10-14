@@ -8,6 +8,10 @@ import cz.incad.kramerius.service.impl.MailerImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.json.JSONObject;
 
 import javax.mail.Message;
@@ -103,19 +107,18 @@ public class NKPLogProcess {
         Transport.send(msg);
     }
 
-    public static void process(String from,
-                               String to,
-                               String folder,
-                               String institution,
-                               String visibility,
+    @ProcessMethod
+    public static void process(@ParameterName("from") String from,
+                               @ParameterName("to") String to,
+                               @ParameterName("folder") String folder,
+                               @ParameterName("institution") String institution,
+                               @ParameterName("visibility") String visibility,
                                List<Object> anonymization
                               
     ) throws ParseException, IOException, NoSuchAlgorithmException {
         List<String> logs = new ArrayList<>();
-        
-        //TODO: I18N
-        // TODO pepo ProcessStarter.updateName(String.format("Generování NKP logů pro období %s - %s", from, to));
-
+        PluginContext pluginContext = PluginContextHolder.getContext();
+        pluginContext.updateProcessName(String.format("Generování NKP logů pro období %s - %s", from, to));
         // folder, institution, visibility from configuration
         LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to, folder, institution, visibility, anonymization));
         

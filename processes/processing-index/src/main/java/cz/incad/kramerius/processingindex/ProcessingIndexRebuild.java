@@ -11,6 +11,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -42,11 +46,15 @@ public class ProcessingIndexRebuild {
     private volatile static long counter = 0;
 
 
-    public static void main(String[] args) throws IOException, SolrServerException {
-        if (args.length>=1 && "REBUILDPROCESSING".equalsIgnoreCase(args[0])){
+    @ProcessMethod
+    public static void rebuildMain(
+            @ParameterName("action") String action
+    ) throws IOException {
+        PluginContext pluginContext = PluginContextHolder.getContext();
+        if ("REBUILDPROCESSING".equalsIgnoreCase(action)){
             LOGGER.info("Přebudování Processing indexu");
         } else {
-            // TODO pepo ProcessStarter.updateName("Přebudování Processing indexu");
+            pluginContext.updateProcessName("Přebudování Processing indexu");
         }
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         final AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));

@@ -22,6 +22,10 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -122,10 +126,17 @@ public class DeleteServiceImpl implements DeleteService {
      *
      * @throws IOException
      */
-    public static void main(final String[] args) throws IOException, RepositoryException, SolrServerException {
-        LOGGER.info("DeleteService: " + Arrays.toString(args));
+    @ProcessMethod
+    public static void deleteServiceMain(
+            @ParameterName("pids") String pids,
+            @ParameterName("pidPath") String pidPath,
+            @ParameterName("deleteEmptyParents") Boolean deleteEmptyParents,
+            @ParameterName("spawnIndexer") Boolean spawnIndexer
+    ) throws IOException {
+        LOGGER.info("DeleteService: " + pids);
         DeleteServiceImpl inst = new DeleteServiceImpl();
         SolrAccess solrAccess = new SolrAccessImplNewIndex();
+        PluginContext pluginContext = PluginContextHolder.getContext();
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
@@ -133,15 +144,15 @@ public class DeleteServiceImpl implements DeleteService {
         inst.predicates = Lists.transform(KConfiguration.getInstance().getConfiguration().getList("fedora.treePredicates"), Functions.toStringFunction());
         inst.solrAccess = solrAccess;
 
-        Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.akubraRepository, solrAccess, Arrays.asList(args[0]));
-        List<DCConent> list = dcs.get(args[0]);
+        Map<String, List<DCConent>> dcs = DCContentUtils.getDCS(inst.akubraRepository, solrAccess, Arrays.asList(pids));
+        List<DCConent> list = dcs.get(pids);
         DCConent dcConent = DCConent.collectFirstWin(list);
-        // TODO pepo ProcessStarter.updateName("Mazání objektu '" + (dcConent != null ? dcConent.getTitle() : "bez názvu") + "'");
+        pluginContext.updateProcessName("Mazání objektu '" + (dcConent != null ? dcConent.getTitle() : "bez názvu") + "'");
 
         try {
             akubraRepository.pi().doWithCommit(() -> {
                 try {
-                    inst.deleteTree(akubraRepository, args[0], args[1], "Marked as deleted", args.length > 2 ? Boolean.parseBoolean(args[2]) : false, args.length > 3 ? Boolean.parseBoolean(args[3]) : true);
+                    inst.deleteTree(akubraRepository, pids, pidPath, "Marked as deleted", deleteEmptyParents, spawnIndexer);
                 } catch (IOException e) {
                     throw new RepositoryException(e);
                 } catch (SolrServerException e) {
