@@ -14,6 +14,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.utils.pid.PIDParser;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -171,21 +175,15 @@ public class ExportServiceImpl implements ExportService {
      *
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException, TransformerException, SAXException, ParserConfigurationException {
-        LOGGER.info("Export service: " + Arrays.toString(args));
-
+    @ProcessMethod
+    public static void exportServiceMain(
+            @ParameterName("exportParents") Boolean exportParents
+    ) {
+        //LOGGER.info("Export service: " + Arrays.toString(args));
+        PluginContext pluginContext = PluginContextHolder.getContext();
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(new cz.incad.kramerius.solr.SolrModule(), new cz.incad.kramerius.fedora.RepoModule(), new cz.incad.kramerius.statistics.NullStatisticsModule());
         SecuredAkubraRepository akubraRepository = injector.getInstance(com.google.inject.Key.get(SecuredAkubraRepository.class));
-        Boolean exportParents = null;
-        if (args.length > 1) {
-            if (args[args.length - 1].equals("true")) {
-                exportParents = true;
-            }
-            if (args[args.length - 1].equals("false")) {
-                exportParents = false;
-            }
-        }
-        
+        /* TODO pepo refactor
         if (exportParents != null) {
             args = restArgs(args, 1);
         }
@@ -215,6 +213,8 @@ public class ExportServiceImpl implements ExportService {
         }finally {
             akubraRepository.shutdown();
         }
+
+         */
     }
     
     static String[] restArgs(String[] args, int i) {

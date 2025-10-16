@@ -105,7 +105,7 @@ public class Main {
         REBUILDPROCESSING {
             @Override
             public void doCommand(String[] args) throws Exception {
-                ProcessingIndexRebuild.main(args);
+                // TODO pepo ProcessingIndexRebuild.main(args);
             }
 
             @Override
@@ -122,7 +122,7 @@ public class Main {
         REBUILDSEARCH {
             @Override
             public void doCommand(String[] args) throws Exception {
-                NewIndexerProcessIndexModel.main(new String[]{"xxxtoken", "TREE_AND_FOSTER_TREES", args[1],"true","true","true","true", "true", "false"});
+                // TODO pepo NewIndexerProcessIndexModel.main(new String[]{"xxxtoken", "TREE_AND_FOSTER_TREES", args[1],"true","true","true","true", "true", "false"});
             }
 
             @Override

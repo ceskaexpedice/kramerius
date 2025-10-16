@@ -19,6 +19,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.pid.LexerException;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.kramerius.Import;
 import org.kramerius.ImportModule;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
@@ -74,7 +76,7 @@ public class MetsConvertor {
         }*/
 
         log.info(String.format("Arguments :%s", Arrays.asList(args).toString()));
-        
+        PluginContext pluginContext = PluginContextHolder.getContext();
 
         if (args.length < 2 || args[0].equalsIgnoreCase("true") || args[0].equalsIgnoreCase("false")) { //through CLI with 0-3 args
             System.out.println("ANL METS to FOXML conversion tool.\n");
@@ -125,14 +127,11 @@ public class MetsConvertor {
             ScheduleStrategy strategy = ScheduleStrategy.indexRoots;
             strategy = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : ScheduleStrategy.indexRoots;
 
-            /* TODO pepo
             try {
-                ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
+                pluginContext.updateProcessName(String.format("Import NDK METS z %s ", importRoot));
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
-
-             */
 
             new MetsConvertor().run(importRoot, exportRoot, policyPublic, startIndexer, authToken, license,addToCollections, strategy);
         }

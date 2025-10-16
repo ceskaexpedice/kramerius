@@ -13,6 +13,10 @@ import cz.incad.kramerius.service.guice.SortingModule;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaceContext;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.w3c.dom.Document;
 
 import com.google.common.collect.Ordering;
@@ -55,21 +59,24 @@ public class SortingServiceImpl implements SortingService {
         initSortingConfigMap();
     }
 
-    public static void main(String[] args) throws IOException {
-        LOGGER.info("SortRelations service: " + Arrays.toString(args));
+    @ProcessMethod
+    public static void sortingServiceMain(
+            @ParameterName("pid") String pid
+    ) {
+        LOGGER.info("SortRelations service: " + pid);
         Injector injector = Guice.createInjector(new SortingModule());
         SortingService inst = injector.getInstance(SortingService.class);
-        inst.sortRelations(args[0], true);
+        inst.sortRelations(pid, true);
         LOGGER.info("SortRelations finished.");
     }
 
     @Override
     public void sortRelations(String pid, boolean startIndexer) {
         try {
-            //TODO: I18n
+            PluginContext pluginContext = PluginContextHolder.getContext();
             if (startIndexer) {
                 try {
-                    // TODO pepo ProcessStarter.updateName("Sort relations (" + pid + ")");
+                    pluginContext.updateProcessName("Sort relations (" + pid + ")");
                 } catch (Exception ex) {
                 }
             }

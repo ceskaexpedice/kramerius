@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.workmode.ReadOnlyWorkModeException;
 import cz.incad.kramerius.workmode.WorkMode;
 import cz.incad.kramerius.workmode.WorkModeReason;
@@ -14,6 +15,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import org.ceskaexpedice.akubra.DistributedLocksException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,9 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 public abstract class AdminApiResource extends ApiResource {
@@ -49,83 +49,6 @@ public abstract class AdminApiResource extends ApiResource {
     @Inject
     @Named("dbWorkMode")
     WorkModeService workModeService;
-
-    //TODO: cleanup
-
-    //private static final AuthenticatedUser ANONYMOUS = new AuthenticatedUser("anonymous", "anonymous", new ArrayList<>());
-
-//    public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
-//        KeycloakAccount keycloakAccount = null;
-//        try {
-//            keycloakAccount = (KeycloakAccount) requestProvider.get().getAttribute(KeycloakAccount.class.getName());
-//        }catch (Throwable th){
-//            LOGGER.log(Level.INFO,"Error retrieving KeycloakAccount", th);
-//        }
-//        if (keycloakAccount == null){
-//            return  ANONYMOUS;
-//        }
-//        return new AuthenticatedUser(keycloakAccount.getPrincipal().getName(), keycloakAccount.getPrincipal().getName(), new ArrayList<>(keycloakAccount.getRoles()));
-//    }
-
-    /*public final AuthenticatedUser getAuthenticatedUserByOauth() throws ProxyAuthenticationRequiredException {
-        ClientAuthHeaders authHeaders = extractClientAuthHeaders();
-        //System.out.println(authHeaders);
-        try {
-            URL url = new URL(AUTH_URL);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("GET");
-            con.setInstanceFollowRedirects(false);
-            con.setConnectTimeout(1000);
-            con.setReadTimeout(1000);
-            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_CLIENT, authHeaders.getClient());
-            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_UID, authHeaders.getUid());
-            con.setRequestProperty(ClientAuthHeaders.AUTH_HEADER_ACCESS_TOKEN, authHeaders.getAccessToken());
-            int status = con.getResponseCode();
-
-            //error with not 200
-            if (status != 200) {
-                String message = "response status " + status;
-                String body = inputstreamToString(con.getErrorStream());
-                System.err.println(body);
-                if (!body.isEmpty()) {
-                    JSONObject bodyJson = new JSONObject(body);
-                    if (bodyJson.has("errors")) {
-                        JSONArray errors = bodyJson.getJSONArray("errors");
-                        if (errors.length() > 0) {
-                            message = errors.getString(0);
-                        }
-                    }
-                }
-                throw new InternalErrorException("error communicating with authentication service: %s", message);
-            }
-            String body = inputstreamToString(con.getInputStream());
-            JSONObject bodyJson = new JSONObject(body);
-
-            //error with 200 but not success
-            if (!bodyJson.getBoolean("success")) {
-                String message = "";
-                if (bodyJson.has("errors")) {
-                    JSONArray errors = bodyJson.getJSONArray("errors");
-                    if (errors.length() > 0) {
-                        message = errors.getString(0);
-                    }
-                }
-                throw new InternalErrorException("error communicating with authentication service: %s", message);
-            }
-
-            //success
-            JSONObject data = bodyJson.getJSONObject("data");
-            String id = data.getString("uid");
-            String name = data.getString("name");
-            List<String> roles = Collections.emptyList();
-            if (data.has("roles") && data.get("roles") != null && !data.isNull("roles")) {
-                roles = commaSeparatedItemsToList(data.getString("roles"));
-            }
-            return new AuthenticatedUser(id, name, roles);
-        } catch (IOException e) {
-            throw new InternalErrorException("error communicating with authentication service: %s ", e.getMessage());
-        }
-    }*/
 
     protected final void checkReadOnlyWorkMode() {
         WorkMode workMode = workModeService.getWorkMode();
@@ -188,35 +111,29 @@ public abstract class AdminApiResource extends ApiResource {
         }
     }
 
-    /* TODO pepo
-    protected void scheduleReindexationInBatch(String objectPid, String userid, String username, String indexationType, String batchToken, boolean ignoreInconsistentObjects, String title) {
-        List<String> paramsList = new ArrayList<>();
-        paramsList.add(indexationType);
-        paramsList.add(objectPid);
-        paramsList.add(Boolean.toString(ignoreInconsistentObjects));
-        paramsList.add(title);
-
+    protected JSONObject getScheduleReindexationPar(String objectPid, String userid, String indexationType, boolean ignoreInconsistentObjects, String title) {
         String processName = title != null
                 ? String.format("Reindexace %s (%s, typ %s)", title, objectPid, indexationType)
                 : String.format("Reindexace %s (typ %s)", objectPid, indexationType);
-        processSchedulingHelper.scheduleProcess("new_indexer_index_object", paramsList, userid, username, batchToken, processName);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("pid", objectPid);
+        payload.put("title", processName);
+        payload.put("type", indexationType);
+        payload.put("ignoreInconsistentObjects", Boolean.toString(ignoreInconsistentObjects));
+        JSONObject scheduleMainProcess = createScheduleProcess("new_indexer_index_object", payload, userid);
+        return scheduleMainProcess;
     }
 
-     */
-
-    /* TODO pepo
-    protected void scheduleReindexation(String objectPid, String userid, String username, String indexationType, boolean ignoreInconsistentObjects, String title) {
-        scheduleReindexationInBatch(objectPid, userid, username, indexationType, UUID.randomUUID().toString(), ignoreInconsistentObjects, title);
+    private static JSONObject createScheduleProcess(String profileId, Map<String, String> payload, String ownerId) {
+        JSONObject json = new JSONObject();
+        json.put(ProcessManagerMapper.PCP_PROFILE_ID, profileId);
+        json.put(ProcessManagerMapper.PCP_PAYLOAD, new JSONObject(payload));
+        json.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, ownerId);
+        return json;
     }
-
-     */
 
     protected void deleteFromSearchIndex(String pid) throws IOException {
         this.searchIndexHelper.deleteFromIndex(pid);
-    }
-
-    protected void deleteFromSearchIndex(List<String> pids) throws IOException {
-        this.searchIndexHelper.deleteFromIndex(pids);
     }
 
     protected void handleWorkMode(DistributedLocksException dle) {

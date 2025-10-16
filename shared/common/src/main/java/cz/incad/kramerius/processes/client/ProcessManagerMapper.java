@@ -45,6 +45,7 @@ public final class ProcessManagerMapper {
     public static final String PCP_PROFILE_ID = "profileId";
     public static final String PCP_JVM_ARGS = "jvmArgs";
     public static final String PCP_SCHEDULED_PROFILES = "scheduledProfiles";
+    public static final String PCP_SCHEDULE_MAIN_PROCESS = "scheduleMainProcess";
     public static final String PCP_PROCESS_ID = "processId";
     public static final String PCP_PAYLOAD = "payload";
     public static final String PCP_TOTAL_SIZE = "totalSize";

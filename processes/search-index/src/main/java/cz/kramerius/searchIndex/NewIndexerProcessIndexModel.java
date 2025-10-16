@@ -17,6 +17,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -46,42 +50,39 @@ public class NewIndexerProcessIndexModel {
      * args[7] - index objects that indexed with current version of indexer
      * args[8]  - optional - if false, do not update Process name, just log (for running as standalone process)
      */
-    public static void main(String[] args) throws IOException, SolrServerException {
-        //args
-       /* LOGGER.info("args: " + Arrays.asList(args));
-        for (String arg : args) {
-            System.out.println(arg);
-        }*/
-        if (args.length < 8) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-        int argsIndex = 0;
-        //token for keeping possible following processes in same batch
-        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
+    @ProcessMethod
+    public static void setLicenseMain(
+            @ParameterName("indexationType") String indexationType,
+            @ParameterName("modelPid") String modelPid,
+            @ParameterName("indexNotIndexed") Boolean indexNotIndexed,
+            @ParameterName("indexRunningOrError") Boolean indexRunningOrError,
+            @ParameterName("indexIndexedOutdated") Boolean indexIndexedOutdated,
+            @ParameterName("indexIndexed") Boolean indexIndexed,
+            @ParameterName("ignoreInconsistentObjects") Boolean ignoreInconsistentObjects,
+            @ParameterName("updateProcessName") Boolean updateProcessName
+    ) throws IOException {
+        PluginContext pluginContext = PluginContextHolder.getContext();
         //process params
-        IndexationType type = IndexationType.valueOf(args[argsIndex++]);
+        IndexationType type = IndexationType.valueOf(indexationType);
         report("type: " + type);
-        String modelPid = args[argsIndex++];
         report(modelPid);
-        Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //what to index
         Filters filters = new Filters();
-        filters.indexNotIndexed = Boolean.valueOf(args[argsIndex++]);
-        filters.indexRunningOrError = Boolean.valueOf(args[argsIndex++]);
-        filters.indexIndexedOutdated = Boolean.valueOf(args[argsIndex++]);
-        filters.indexIndexed = Boolean.valueOf(args[argsIndex++]);
+        filters.indexNotIndexed = indexNotIndexed;
+        filters.indexRunningOrError = indexRunningOrError;
+        filters.indexIndexedOutdated = indexIndexedOutdated;
+        filters.indexIndexed = indexIndexed;
         report(filters.toString());
 
         if (!modelPid.startsWith("model:")) {
             LOGGER.severe("Špatný formát pidu modelu:" + modelPid);
-            // TODO pepo ProcessStarter.updateStatus(States.FAILED);
-            return;
+            throw new IllegalArgumentException("Špatný formát pidu modelu:" + modelPid);
         }
         String model = modelPid.substring("model:".length());
-        if (args.length>8 && !Boolean.valueOf(args[8])){
+        if (updateProcessName != null && updateProcessName){
             LOGGER.info(String.format("Indexace %s (typ %s)", modelPid, type));
         }else {
-            // TODO pepo ProcessStarter.updateName(String.format("Indexace %s (typ %s)", modelPid, type));
+            pluginContext.updateProcessName(String.format("Indexace %s (typ %s)", modelPid, type));
         }
         if (filters.indexNone()) {
             LOGGER.info("Podle kombinace filtrů není co indexovat, končím");
