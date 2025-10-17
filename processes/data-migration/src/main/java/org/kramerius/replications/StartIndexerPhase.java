@@ -1,6 +1,5 @@
 package org.kramerius.replications;
 
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import java.io.File;
@@ -23,7 +22,7 @@ public class StartIndexerPhase extends  AbstractPhase{
             Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
             List<String> models = models();
-            IndexerProcessStarter.spawnIndexerForModel(models.toArray(new String[models.size()]));
+            // TODO pepo IndexerProcessStarter.spawnIndexerForModel(models.toArray(new String[models.size()]));
             LOGGER.info("OBJECT SCHEDULED FOR INDEXING.");
         } catch (InterruptedException e) {
             throw new PhaseException(this,e);
@@ -39,7 +38,7 @@ public class StartIndexerPhase extends  AbstractPhase{
     @Override
     public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd, String replicationCollections, String replicateImages) throws PhaseException {
         List<String> models = models();
-        IndexerProcessStarter.spawnIndexerForModel(models.toArray(new String[models.size()]));
+        // TODO pepo IndexerProcessStarter.spawnIndexerForModel(models.toArray(new String[models.size()]));
         LOGGER.info("OBJECT SCHEDULED FOR INDEXING.");
    }
 }

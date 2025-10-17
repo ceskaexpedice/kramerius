@@ -44,7 +44,6 @@ import antlr.TokenStreamException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.pid.LexerException;
 
@@ -78,7 +77,7 @@ public class ThirdPhase extends AbstractPhase {
             LOGGER.info("Waiting for soft commit :"+waitIndexerProperty+" s");
             Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
-            IndexerProcessStarter.spawnIndexer(true, title, rootPid);
+            // TODO pepo IndexerProcessStarter.spawnIndexer(true, title, rootPid);
             LOGGER.info("OBJECT SCHEDULED FOR INDEXING.");
         } catch (FileNotFoundException e) {
             throw new PhaseException(this,e);

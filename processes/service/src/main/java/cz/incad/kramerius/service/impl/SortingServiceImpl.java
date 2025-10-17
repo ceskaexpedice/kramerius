@@ -106,7 +106,7 @@ public class SortingServiceImpl implements SortingService {
             if (currTime.equals(lastTime)) {
                 relationService.save(pid, model);
                 if (startIndexer) {
-                    IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
+                    // TODO pepo IndexerProcessStarter.spawnIndexer(true, "Reindexing sorted relations", pid);
                 }
             } else {
                 LOGGER.warning("Cannot save sorted relations, object " + pid + " was modified.");

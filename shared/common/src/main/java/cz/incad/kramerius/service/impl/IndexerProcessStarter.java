@@ -1,6 +1,5 @@
 package cz.incad.kramerius.service.impl;
 
-import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.BasicAuthenticationFilter;
 import cz.incad.kramerius.utils.IPAddressUtils;
 
@@ -21,7 +20,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.ClientFilter;
 
-//TODO: replace with cz.incad.kramerius.processes.new_api.IndexationScheduler
+//TODO: pepo
 @Deprecated
 public class IndexerProcessStarter {
 
@@ -65,7 +64,7 @@ public class IndexerProcessStarter {
     
     public static String planIndexProcess(String...args) {
         Client c = Client.create();
-        WebResource r = c.resource(ProcessUtils.getOldApiEndpointProcesses()+"?def=reindex");
+        WebResource r =  null; //c.resource(ProcessUtils.getOldApiEndpointProcesses()+"?def=reindex");
         r.addFilter(new TokensFilter());
 
         JSONObject object = new JSONObject();
@@ -91,7 +90,7 @@ public class IndexerProcessStarter {
     
     public static void spawnIndexer(boolean incremental, String title, String uuid) throws UnsupportedEncodingException {
         log.info("Spawn indexer: title: "+title+" pid: "+uuid);
-        String base = ProcessUtils.getLrServlet();
+        String base = null; //ProcessUtils.getLrServlet();
         if (base == null || uuid == null){
             log.severe("Cannot start indexer, invalid arguments: base:"+base+" pid:"+uuid);
             return;
@@ -107,7 +106,7 @@ public class IndexerProcessStarter {
 
     public static void spawnIndexerForModel(String ... models) {
         log.info("Spawn indexer: model: "+Arrays.toString(models));
-        String base = ProcessUtils.getLrServlet();
+        String base = null;// ProcessUtils.getLrServlet();
         for (String model :  models) {
             planIndexProcess("krameriusModel",model, model);
         }
@@ -115,7 +114,7 @@ public class IndexerProcessStarter {
 
     public static void spawnIndexRemover( String uuid) {
         log.info("spawnIndexRemower:  pid: "+uuid);
-        String base = ProcessUtils.getLrServlet();
+        String base = null; //ProcessUtils.getLrServlet();
         if (base == null ||  uuid == null){
             log.severe("Cannot start indexer, invalid arguments: base:"+base+" pid:"+uuid);
             return;

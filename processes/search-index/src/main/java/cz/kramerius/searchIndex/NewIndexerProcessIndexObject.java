@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -15,9 +14,14 @@ import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -36,6 +40,7 @@ public class NewIndexerProcessIndexObject {
      * args[3] - ignore inconsistent objects - if indexer should continue, or fail when meeting object that is inconsistent in repository
      * args[4...] - optional title
      */
+    // TODO pepo
     public static void main(String[] args) throws IOException {
         LOGGER.info("Process parameters "+Arrays.asList(args));
         //args
@@ -56,7 +61,7 @@ public class NewIndexerProcessIndexObject {
         // TODO: Support one pid or list of pids
         String argument = args[argsIndex++];
         LOGGER.info("Extracting argument");
-        List<String> pids = ProcessUtils.extractPids(argument);
+        List<String> pids = extractPids(argument);
         
         Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
@@ -156,5 +161,38 @@ public class NewIndexerProcessIndexObject {
             return string.substring(0, maxLength - suffix.length()) + suffix;
         }
     }
+    public static final String PIDLIST_FILE_PREFIX = "pidlist_file:";
+    public static List<String> extractPids(String argument) {
+        if (argument.startsWith("pid:")) {
+            String pid = argument.substring("pid:".length());
+            List<String> result = new ArrayList<>();
+            result.add(pid);
+            return result;
+        } else if (argument.startsWith("pidlist:")) {
+            List<String> pids = Arrays.stream(argument.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+            return pids;
+        } else if (argument.startsWith(PIDLIST_FILE_PREFIX)) {
+            String filePath  = argument.substring(PIDLIST_FILE_PREFIX.length());
+            File file = new File(filePath);
+            if (file.exists()) {
+                try {
+                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
+                } catch (IOException e) {
+                    throw new RuntimeException("IOException " + e.getMessage());
+                }
+            } else {
+                throw new RuntimeException("file " + file.getAbsolutePath()+" doesnt exist ");
+            }
+        } else {
+            // expecting list of pids tokenized by ;
+            List<String> tokens = new ArrayList<>();
+            StringTokenizer tokenizer = new StringTokenizer(argument,";");
+            while(tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken();
+                tokens.add(token);
+            }
+            return tokens;
+        }
 
+    }
 }

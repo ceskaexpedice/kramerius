@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 import static cz.incad.kramerius.processingindex.ProcessingIndexRebuild.rebuildProcessingIndex;
 
-import static cz.incad.kramerius.processes.utils.ProcessUtils.extractPids;
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (processing_rebuild_for_object)
@@ -59,7 +58,8 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
             @ParameterName("pids") String pidsP
     ) {
         PluginContext pluginContext = PluginContextHolder.getContext();
-        List<String> pids = extractPids(pidsP); // pid muze byt pidslist  pid1;pid2;pid3;pid4
+        // TODO pepo List<String> pids = extractPids(pidsP); // pid muze byt pidslist  pid1;pid2;pid3;pid4
+        List<String> pids = null;
         LOGGER.log(Level.INFO, String.format("Number of processing pids %d", pids.size()));
         if (pids.size() > 4) {
             List<String> titleList = new ArrayList<>(pids.subList(0,4));

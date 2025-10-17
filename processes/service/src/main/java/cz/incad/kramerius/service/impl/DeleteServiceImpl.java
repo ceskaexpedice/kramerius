@@ -111,11 +111,11 @@ public class DeleteServiceImpl implements DeleteService {
     }
 
     void spawnIndexer(String pid, String parentPid) throws UnsupportedEncodingException {
-        IndexerProcessStarter.spawnIndexer(true, "Reindex parent after delete " + pid, parentPid.replace(INFO, ""));
+        // TODO pepo IndexerProcessStarter.spawnIndexer(true, "Reindex parent after delete " + pid, parentPid.replace(INFO, ""));
     }
 
     void spawnIndexRemover(String pid) {
-        IndexerProcessStarter.spawnIndexRemover(pid);
+        // TODO pepo IndexerProcessStarter.spawnIndexRemover(pid);
     }
 
 
