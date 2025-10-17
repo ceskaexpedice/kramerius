@@ -706,8 +706,8 @@ public class CollectionsResource extends AdminApiResource {
             reindexCollection.forEach(itemPid -> {
                 // schedule reindexations - 1. item that was removed (whole tree and foster
                 // trees), 2. no need to re-index collection
-                getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
-                scheduleMainProcesses.put(itemPid);
+                JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                scheduleMainProcesses.put(scheduleReindexationPar);
             });
 
         } catch (WebApplicationException e) {
@@ -721,7 +721,7 @@ public class CollectionsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
         JSONObject result = new JSONObject();
-        result.put("scheduleMainProcess", scheduleMainProcesses);
+        result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleMainProcesses);
         return Response.status(Response.Status.OK).entity(result.toString()).build();
     }
 
@@ -779,7 +779,7 @@ public class CollectionsResource extends AdminApiResource {
             //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
             JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
             JSONObject result = new JSONObject();
-            result.put("scheduleMainProcess", scheduleReindexationPar);
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
             return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -850,10 +850,10 @@ public class CollectionsResource extends AdminApiResource {
 
             for (String childPid : childrenPids) {
                 JSONObject scheduleReindexationPar1 = getScheduleReindexationPar(childPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, childPid);
-                scheduleMainProcesses.put(scheduleReindexationPar);
+                scheduleMainProcesses.put(scheduleReindexationPar1);
             }
             JSONObject result = new JSONObject();
-            result.put("scheduleMainProcess", scheduleMainProcesses);
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleMainProcesses);
             return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
