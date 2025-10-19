@@ -61,9 +61,12 @@ public class FlagToLicenseProcess {
             "graphic",
             "archive",
             "convolute");
-    
-    
-    
+    public enum Scope {
+        OBJECT, TREE
+    }
+
+
+
     /**
      * Iterates over search index and add public or onsite licenses according accessibility flag 
      * 
@@ -235,10 +238,10 @@ public class FlagToLicenseProcess {
             
             parameters.put("pidlist_file", pidlistFile(pids.subList(start, end)).getAbsoluteFile());
 
-            // TODO pepo parameters.put("scope", Scope.TREE.name());
+            parameters.put("scope", Scope.TREE.name());
             json.put("params", parameters);
 
-            // TODO pepo ProcessScheduler.schedule(json.toString(), parentAuthToken);
+            // TODO pepo scheduleSub ProcessScheduler.schedule(json.toString(), parentAuthToken);
             
         }
     }
@@ -264,7 +267,7 @@ public class FlagToLicenseProcess {
             parameters.put("pidlist_file", pidlistFile(pids.subList(start, end)).getAbsoluteFile());
             json.put("params", parameters);
 
-            // TODO pepo ProcessScheduler.schedule(json.toString(), parentAuthToken);
+            // TODO pepo scheduleSub ProcessScheduler.schedule(json.toString(), parentAuthToken);
             
         }
     }

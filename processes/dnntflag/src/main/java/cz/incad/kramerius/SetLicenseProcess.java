@@ -6,6 +6,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -91,7 +92,7 @@ public class SetLicenseProcess {
             switch (action) {
                 case ADD:
                     pluginContext.updateProcessName(String.format("Přidání licence '%s' pro %s", license, target));
-                    for (String pid : extractPids(target)) {
+                    for (String pid : ProcessUtils.extractPids(target)) {
                         try {
                             addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
                         } catch (DistributedLocksException ex) {
@@ -111,7 +112,7 @@ public class SetLicenseProcess {
                     break;
                 case REMOVE:
                     pluginContext.updateProcessName(String.format("Odebrání licence '%s' pro %s", license, target));
-                    for (String pid : extractPids(target)) {
+                    for (String pid : ProcessUtils.extractPids(target)) {
                         try {
                             removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
                         } catch (DistributedLocksException ex) {
@@ -138,32 +139,6 @@ public class SetLicenseProcess {
             throw new RuntimeException("All problematic pids:" + brokenPids);
         }
 
-    }
-
-    private static List<String> extractPids(String target) {
-        if (target.startsWith("pid:")) {
-            String pid = target.substring("pid:".length());
-            List<String> result = new ArrayList<>();
-            result.add(pid);
-            return result;
-        } else if (target.startsWith("pidlist:")) {
-            List<String> pids = Arrays.stream(target.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
-            return pids;
-        } else if (target.startsWith("pidlist_file:")) {
-            String filePath = target.substring("pidlist_file:".length());
-            File file = new File(filePath);
-            if (file.exists()) {
-                try {
-                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
-                } catch (IOException e) {
-                    throw new RuntimeException("IOException " + e.getMessage());
-                }
-            } else {
-                throw new RuntimeException("file " + file.getAbsolutePath() + " doesnt exist ");
-            }
-        } else {
-            throw new RuntimeException("invalid target " + target);
-        }
     }
 
     private static void addLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws IOException {
@@ -338,7 +313,7 @@ public class SetLicenseProcess {
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
-            // TODO pepo ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
+            // TODO pepo scheduleSub ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
         //commit changes in index
         try {

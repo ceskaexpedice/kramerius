@@ -35,7 +35,7 @@ public class GenerateDeepZoomCache {
             boolean spawnRELSEXTFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
             if (spawnRELSEXTFlag) {
                 String[] processArgs = {GenerateDeepZoomFlag.Action.SET.name(),args[0],"kramerius4://deepZoomCache"};
-                // TODO pepo ProcessUtils.startProcess("generateDeepZoomFlag", processArgs);
+                // TODO pepo scheduleSub ProcessUtils.startProcess("generateDeepZoomFlag", processArgs);
             } else {
                 LOGGER.warning("no subprocess for generating flag in rels-ext");
             }
@@ -44,7 +44,7 @@ public class GenerateDeepZoomCache {
             boolean spawnGeneratethumb = Boolean.getBoolean(GenerateThumbnail.class.getName());
             if (spawnGeneratethumb) {
                 String[] processArgs = {args[0]};
-                // TODO pepo ProcessUtils.startProcess("generateFullThumb", processArgs);
+                // TODO pepo scheduleSub ProcessUtils.startProcess("generateFullThumb", processArgs);
             } else {
                 LOGGER.warning("no subprocess for generating thumbs");
             }

@@ -77,7 +77,7 @@ public class ThirdPhase extends AbstractPhase {
             LOGGER.info("Waiting for soft commit :"+waitIndexerProperty+" s");
             Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
-            // TODO pepo IndexerProcessStarter.spawnIndexer(true, title, rootPid);
+            // TODO pepo scheduleSub IndexerProcessStarter.spawnIndexer(true, title, rootPid);
             LOGGER.info("OBJECT SCHEDULED FOR INDEXING.");
         } catch (FileNotFoundException e) {
             throw new PhaseException(this,e);

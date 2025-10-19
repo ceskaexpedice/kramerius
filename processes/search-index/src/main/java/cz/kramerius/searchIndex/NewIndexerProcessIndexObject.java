@@ -13,6 +13,10 @@ import cz.kramerius.searchIndex.indexer.execution.Indexer;
 import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +29,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static cz.incad.kramerius.processes.utils.ProcessUtils.extractPids;
+
 
 /**
  * Deklarace procesu je v shared/common/src/main/java/cz/incad/kramerius/processes/res/lp.st (new_indexer_index_object)
@@ -32,6 +38,7 @@ import java.util.stream.Collectors;
 public class NewIndexerProcessIndexObject {
 
     public static final Logger LOGGER = Logger.getLogger(NewIndexerProcessIndexObject.class.getName());
+    public static final String PIDLIST_FILE_PREFIX = "pidlist_file:";
 
     /**
      * args[0] - authToken
@@ -40,56 +47,37 @@ public class NewIndexerProcessIndexObject {
      * args[3] - ignore inconsistent objects - if indexer should continue, or fail when meeting object that is inconsistent in repository
      * args[4...] - optional title
      */
-    // TODO pepo
-    public static void main(String[] args) throws IOException {
-        LOGGER.info("Process parameters "+Arrays.asList(args));
-        //args
-        /*LOGGER.info("args: " + Arrays.asList(args));
-        for (String arg : args) {
-            System.out.println(arg);
-        }*/
-        if (args.length < 4) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-        int argsIndex = 0;
-        //token for keeping possible following processes in same batch
-        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //process params
-        String type = args[argsIndex++];
+    @ProcessMethod
+    public static void indexerMain(
+            @ParameterName("type") String type,
+            @ParameterName("argument") String argument,
+            @ParameterName("ignoreInconsistentObjects") Boolean ignoreInconsistentObjects,
+            @ParameterName("title") String title
+    ) {
         LOGGER.info(String.format("Type of indexation %s",type));
-        
-        // TODO: Support one pid or list of pids
-        String argument = args[argsIndex++];
+        PluginContext pluginContext = PluginContextHolder.getContext();
+
         LOGGER.info("Extracting argument");
         List<String> pids = extractPids(argument);
         
-        Boolean ignoreInconsistentObjects = Boolean.valueOf(args[argsIndex++]);
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
         //napr.
         //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor, op. 51, no. 2. Andante moderato"] se pri registraci procesu ulozi a po jeho spusteni nacte jako:
         //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor", " op. 51", " no. 2. Andante moderato"]
         //proto nazev, co muze obsahovat carku, pouzivam jako posledni argument
-        String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
+        //String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
 
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
 
         if (argument.startsWith("pidlist_file")) {
-            /* TODO pepo
-            ProcessStarter.updateName(title != null
-                    ? String.format("Indexace %s (%s, typ %s)", title, argument.substring(ProcessUtils.PIDLIST_FILE_PREFIX.length()), type)
-                    : String.format("Indexace %s (typ %s)",argument.substring(ProcessUtils.PIDLIST_FILE_PREFIX.length()), type)
-            );
-            */
+            pluginContext.updateProcessName(title != null
+                    ? String.format("Indexace %s (%s, typ %s)", title, argument.substring(PIDLIST_FILE_PREFIX.length()), type)
+                    : String.format("Indexace %s (typ %s)",argument.substring(PIDLIST_FILE_PREFIX.length()), type));
         } else {
-            /* TODO pepo
-            ProcessStarter.updateName(title != null
+            pluginContext.updateProcessName(title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, pids.toString(), type)
-                    : String.format("Indexace %s (typ %s)", pids.toString(), type)
-            );
-
-             */
-            
+                    : String.format("Indexace %s (typ %s)", pids.toString(), type));
         }
 
         
@@ -160,39 +148,5 @@ public class NewIndexerProcessIndexObject {
             String suffix = "...";
             return string.substring(0, maxLength - suffix.length()) + suffix;
         }
-    }
-    public static final String PIDLIST_FILE_PREFIX = "pidlist_file:";
-    public static List<String> extractPids(String argument) {
-        if (argument.startsWith("pid:")) {
-            String pid = argument.substring("pid:".length());
-            List<String> result = new ArrayList<>();
-            result.add(pid);
-            return result;
-        } else if (argument.startsWith("pidlist:")) {
-            List<String> pids = Arrays.stream(argument.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
-            return pids;
-        } else if (argument.startsWith(PIDLIST_FILE_PREFIX)) {
-            String filePath  = argument.substring(PIDLIST_FILE_PREFIX.length());
-            File file = new File(filePath);
-            if (file.exists()) {
-                try {
-                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
-                } catch (IOException e) {
-                    throw new RuntimeException("IOException " + e.getMessage());
-                }
-            } else {
-                throw new RuntimeException("file " + file.getAbsolutePath()+" doesnt exist ");
-            }
-        } else {
-            // expecting list of pids tokenized by ;
-            List<String> tokens = new ArrayList<>();
-            StringTokenizer tokenizer = new StringTokenizer(argument,";");
-            while(tokenizer.hasMoreTokens()) {
-                String token = tokenizer.nextToken();
-                tokens.add(token);
-            }
-            return tokens;
-        }
-
     }
 }

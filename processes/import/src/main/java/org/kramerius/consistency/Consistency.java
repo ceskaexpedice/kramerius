@@ -195,7 +195,6 @@ public class Consistency {
      * @throws IOException
      * @throws LexerException
      */
-    // TODO pepo @Process
     public static void process(String pid, Boolean flag) throws IOException, LexerException {
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         Consistency consistency = new Consistency();

@@ -85,7 +85,7 @@ class ForbiddenCheck {
 
         AtomicBoolean pidPermitted = new AtomicBoolean(false);
         checkParamsPids(user, rightsResolver, definitionManager, profileId, payload, flag -> {
-            // TODO pepo is this logic correct? from several pids just one pid is sufficient to pass security?
+            // TODO pepo pavel is this logic correct? from several pids just one pid is sufficient to pass security?
             if (flag) pidPermitted.getAndSet(true);
         }, solrAccess);
 
@@ -102,7 +102,7 @@ class ForbiddenCheck {
 
     private static void checkParamsPids(User user, RightsResolver rightsResolver, ProcessDefinitionManager definitionManager,
                                         String profileId, JSONObject payload, Consumer<Boolean> consumer, SolrAccess solrAccess) {
-        // TODO pepo hardcoded logic based on specific profile, need to be carefully checked
+        // TODO pepo pavel hardcoded logic based on specific profile, need to be carefully checked
         switch (profileId) {
             case "set_policy": {
                 String pid = extractMandatoryParamWithValuePrefixed(payload, "pid", "uuid:");

@@ -19,9 +19,12 @@ public class ResourceBundleServiceImpl implements ResourceBundleService {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(ResourceBundleServiceImpl.class.getName());
 
+    @Inject(optional = true)
+    @Named("workingDir")
+    private String workingDir;
+
     @Override
     public File bundlesFolder() {
-        String workingDir = null; // TODO pepo
         String dirName = Constants.WORKING_DIR + File.separator + "bundles";
         if (workingDir != null)
             dirName = workingDir + File.separator + "bundles";

@@ -1114,21 +1114,7 @@ public class StatisticsResource {
     }
 
     boolean permit(SecuredActions action) {
-        User user = null;
-        /* TODO pepo
-        String authToken = this.requestProvider.get().getHeader(LRResource.AUTH_TOKEN_HEADER_KEY);
-        if (authToken != null && !lrProcessManager.isAuthTokenClosed(authToken)) {
-            String sessionKey = lrProcessManager.getSessionKey(authToken);
-            if (sessionKey != null) {
-                user = this.userProvider.get();
-            } else {
-                user = this.userProvider.get();
-            }
-        } else {
-            user = this.userProvider.get();
-        }
-
-         */
+        User user = this.userProvider.get();
         return permit(user,action);
     }
 

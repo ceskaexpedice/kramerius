@@ -60,8 +60,6 @@ public class IndexerProcessStarter {
         }
     }
     
-    
-    
     public static String planIndexProcess(String...args) {
         Client c = Client.create();
         WebResource r =  null; //c.resource(ProcessUtils.getOldApiEndpointProcesses()+"?def=reindex");

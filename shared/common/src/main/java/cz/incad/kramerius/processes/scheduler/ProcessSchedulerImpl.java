@@ -36,7 +36,7 @@ public class ProcessSchedulerImpl implements ProcessScheduler {
 
 	private Timer timer;
 
-    // TODO pepo
+    // TODO pepo pavel apacheClient
     @Inject
     @Named("forward-client")
     private CloseableHttpClient apacheClient;

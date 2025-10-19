@@ -198,7 +198,7 @@ public class Download {
         int uuidStart = processedPath.indexOf("\tpid=")+5;
         if (uuidStart > -1){
             String uuid = processedPath.substring(uuidStart);
-            // TODO pepo IndexerProcessStarter.spawnIndexer(false, title, uuid);
+            // TODO pepo scheduleSub IndexerProcessStarter.spawnIndexer(false, title, uuid);
         }
     }
 

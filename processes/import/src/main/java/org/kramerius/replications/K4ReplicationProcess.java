@@ -110,7 +110,6 @@ public class K4ReplicationProcess {
     
     public static void start(String url, String userName, String pswd, String replicateCollections,String replicateImages,Phase[] phases) throws IOException {
         try {
-            // TODO pepo ProcessStarter.updateName("Replikace '"+url+"'");
             for (Phase ph : phases) {
                 LOGGER.info("STARTING PHASE '"+ph.getClass().getName()+"'");
                 ph.start(url, userName, pswd, replicateCollections, replicateImages);

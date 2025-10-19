@@ -65,7 +65,7 @@ public class DeleteGeneratedDeepZoomCache {
             boolean spawnFlag = Boolean.getBoolean(GenerateDeepZoomFlag.class.getName());
             if (spawnFlag) {
                 String[] processArgs = {GenerateDeepZoomFlag.Action.DELETE.name(),args[0]};
-                // TODO pepo ProcessUtils.startProcess("generateDeepZoomFlag", processArgs);
+                // TODO pepo scheduleSub ProcessUtils.startProcess("generateDeepZoomFlag", processArgs);
             }
         }
     }

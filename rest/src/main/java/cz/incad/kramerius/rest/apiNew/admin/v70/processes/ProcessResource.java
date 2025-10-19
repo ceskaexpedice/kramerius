@@ -45,7 +45,7 @@ public class ProcessResource extends AdminApiResource {
     @Inject
     RightsResolver rightsResolver;
 
-    // TODO pepo
+    // TODO pepo pavel apacheClient
     @Inject
     @javax.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;

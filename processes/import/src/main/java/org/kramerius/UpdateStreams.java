@@ -133,7 +133,7 @@ public class UpdateStreams {
             if (startIndexer) {
                 for (ImportInventoryItem scheduleItem :  ScheduleStrategy.indexRoots.scheduleItems(importInventory)) {
                     ImportInventoryItem.TypeOfSchedule schedule = scheduleItem.getIndexationPlanType();
-                    // TODO pepo ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
+                    // TODO pepo scheduleSub ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
                 }
             }
         }

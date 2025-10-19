@@ -212,7 +212,7 @@ public class SDNNTSyncResource {
                             }
                             
 
-                            /* TODO pepo
+                            /* TODO pepo scheduleSub
                             LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, paramsList,
                                     user.getLoginname(), user.getLoginname(), batchToken, name);
                             ProcessInBatch batch = this.processManager
@@ -234,13 +234,13 @@ public class SDNNTSyncResource {
                                 Element processId = add.createElement("field");
                                 processId.setAttribute("name", "process_id");
                                 processId.setAttribute("update", "add-distinct");
-                                // TODO pepo processId.setTextContent(batch.processId);
+                                // TODO pepo batch processId.setTextContent(batch.processId);
                                 doc.appendChild(processId);
                                 
                                 Element processUuid = add.createElement("field");
                                 processUuid.setAttribute("name", "process_uuid");
                                 processUuid.setAttribute("update", "add-distinct");
-                                // TODO pepo processUuid.setTextContent(batch.processUuid);
+                                // TODO pepo batch processUuid.setTextContent(batch.processUuid);
                                 doc.appendChild(processUuid);
                                 
                                 add.getDocumentElement().appendChild(doc);
@@ -255,8 +255,8 @@ public class SDNNTSyncResource {
                             }
 
                             JSONObject retobject = new JSONObject();
-                            // TODO pepo retobject.put("processId", batch.processId);
-                            // TODO pepo retobject.put("processUuid", batch.processUuid);
+                            // TODO pepo batch retobject.put("processId", batch.processId);
+                            // TODO pepo batch retobject.put("processUuid", batch.processUuid);
                             retobject.put("sync_actions", action.name());
                             retobject.put("defid", defid);
                             retobject.put("license", license);

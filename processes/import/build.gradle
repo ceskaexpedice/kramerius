@@ -24,6 +24,5 @@ dependencies {
     api project(':processes:service')
     api 'commons-codec:commons-codec:1.5'
 	implementation 'org.ceskaexpedice:process-api:1.0-dev'
-	
 }
 

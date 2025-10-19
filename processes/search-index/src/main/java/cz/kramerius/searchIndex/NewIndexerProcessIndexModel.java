@@ -51,7 +51,7 @@ public class NewIndexerProcessIndexModel {
      * args[8]  - optional - if false, do not update Process name, just log (for running as standalone process)
      */
     @ProcessMethod
-    public static void setLicenseMain(
+    public static void indexMain(
             @ParameterName("indexationType") String indexationType,
             @ParameterName("modelPid") String modelPid,
             @ParameterName("indexNotIndexed") Boolean indexNotIndexed,
