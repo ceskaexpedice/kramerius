@@ -202,7 +202,7 @@ public class ExportServiceImpl implements ExportService {
                         inst.exportParents(args[i]);
                     }
                 } else {
-                    // TODO pepo ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
+                    ProcessStarter.updateName("Export FOXML, příznak pro export rodičů: " + exportParents + ", pro titul " + args[i]);
                     if (exportParents == true) {
                         inst.exportParents(args[i]);
                     }

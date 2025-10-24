@@ -50,7 +50,7 @@ public class NewIndexerProcessIndexObject {
     @ProcessMethod
     public static void indexerMain(
             @ParameterName("type") String type,
-            @ParameterName("argument") String argument,
+            @ParameterName("pids") String pidsP,
             @ParameterName("ignoreInconsistentObjects") Boolean ignoreInconsistentObjects,
             @ParameterName("title") String title
     ) {
@@ -58,7 +58,7 @@ public class NewIndexerProcessIndexObject {
         PluginContext pluginContext = PluginContextHolder.getContext();
 
         LOGGER.info("Extracting argument");
-        List<String> pids = extractPids(argument);
+        List<String> pids = extractPids(pidsP);
         
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
         //napr.
@@ -70,17 +70,15 @@ public class NewIndexerProcessIndexObject {
         //zmena nazvu
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
 
-        if (argument.startsWith("pidlist_file")) {
+        if (pidsP.startsWith("pidlist_file")) {
             pluginContext.updateProcessName(title != null
-                    ? String.format("Indexace %s (%s, typ %s)", title, argument.substring(PIDLIST_FILE_PREFIX.length()), type)
-                    : String.format("Indexace %s (typ %s)",argument.substring(PIDLIST_FILE_PREFIX.length()), type));
+                    ? String.format("Indexace %s (%s, typ %s)", title, pidsP.substring(PIDLIST_FILE_PREFIX.length()), type)
+                    : String.format("Indexace %s (typ %s)",pidsP.substring(PIDLIST_FILE_PREFIX.length()), type));
         } else {
             pluginContext.updateProcessName(title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, pids.toString(), type)
                     : String.format("Indexace %s (typ %s)", pids.toString(), type));
         }
-
-        
 
         SolrConfig solrConfig = new SolrConfig();
 

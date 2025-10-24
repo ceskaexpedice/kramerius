@@ -1,7 +1,0 @@
-description "Imaging"
-
-
-dependencies {
-    implementation project(':shared:common')
-}
-

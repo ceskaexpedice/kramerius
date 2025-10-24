@@ -25,14 +25,9 @@ public class ServicesModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(DeleteService.class).to(DeleteServiceImpl.class).in(Scopes.SINGLETON);
         bind(ExportService.class).to(ExportServiceImpl.class).in(Scopes.SINGLETON);
         bind(XSLService.class).to(XSLServiceImpl.class).in(Scopes.SINGLETON);
-
         bind(ReplicationService.class).to(ReplicationServiceImpl.class).in(Scopes.SINGLETON);
-
-        bind(SortingService.class).to(SortingServiceImpl.class).in(Scopes.SINGLETON);
-        
         bind(LifeCycleHookRegistry.class);
     }
 

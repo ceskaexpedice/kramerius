@@ -656,7 +656,7 @@ public class SolrInputBuilder {
         return solrInput;
     }
     public static String decodeXml(String encodedXml) {
-        return StringEscapeUtils.unescapeHtml4​(StringEscapeUtils.unescapeXml(encodedXml));
+        return StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeXml(encodedXml));
     }
     private Integer extractLeadingNumber(String stringPossiblyStartingWithNumber) {
         if (stringPossiblyStartingWithNumber != null && !stringPossiblyStartingWithNumber.isEmpty()) {

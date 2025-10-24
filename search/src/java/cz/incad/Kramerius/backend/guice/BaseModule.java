@@ -29,7 +29,6 @@ import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
-import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
@@ -79,8 +78,6 @@ public class BaseModule extends AbstractModule {
 
         
         //bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
-
-        bind(METSService.class).to(METSServiceImpl.class);
 
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
 
