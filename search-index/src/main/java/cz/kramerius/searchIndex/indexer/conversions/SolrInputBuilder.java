@@ -352,6 +352,36 @@ public class SolrInputBuilder {
             solrInput.addField("geographic_names.facet", geoName);
         }
 
+        //subject names - personal
+        List<Node> subjectNamesPersonal = Dom4jUtils.buildXpath("mods/subject/name[@type='personal']").selectNodes(modsRootEl);
+        for (Node subjectNamePersonal : subjectNamesPersonal) {
+            //only values form namPart without type
+            String name = Dom4jUtils.stringOrNullFromFirstElementByXpath((Element) subjectNamePersonal, "namePart[not(@type)]");
+            if (name != null) {
+                solrInput.addField("subject_names_personal.search", name);
+                solrInput.addField("subject_names_personal.facet", withFirstLetterInUpperCase(name));
+            }
+        }
+
+        //subject names - corporate
+        List<Node> subjectNamesCorporate = Dom4jUtils.buildXpath("mods/subject/name[@type='corporate']").selectNodes(modsRootEl);
+        for (Node subjectNameCorporate : subjectNamesCorporate) {
+            //only values form namPart without type
+            String name = Dom4jUtils.stringOrNullFromFirstElementByXpath((Element) subjectNameCorporate, "namePart[not(@type)]");
+            if (name != null) {
+                solrInput.addField("subject_names_corporate.search", name);
+                solrInput.addField("subject_names_corporate.facet", withFirstLetterInUpperCase(name));
+            }
+        }
+
+        //subject temporals
+        List<Node> subjectTemporalEls = Dom4jUtils.buildXpath("mods/subject/temporal").selectNodes(modsRootEl);
+        for (Node subjectTemporalEl : subjectTemporalEls) {
+            String temporal = toStringOrNull(subjectTemporalEl);
+            solrInput.addField("subject_temporals.search", temporal);
+            solrInput.addField("subject_temporals.facet", temporal);
+        }
+
         //physicalLocations
         List<Node> physicalLocationEls = Dom4jUtils.buildXpath("mods/location/physicalLocation").selectNodes(modsRootEl);
         for (Node physicalLocationEl : physicalLocationEls) {

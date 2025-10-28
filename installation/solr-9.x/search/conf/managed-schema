@@ -492,6 +492,16 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="geographic_names.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="geographic_names.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
+        <!--subject names (personal/corporate)-->
+        <field name="subject_names_personal.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_names_personal.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="subject_names_corporate.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_names_corporate.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--subject temporals-->
+        <field name="subject_temporals.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_temporals.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
         <!--genres-->
         <field name="genres.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="genres.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
