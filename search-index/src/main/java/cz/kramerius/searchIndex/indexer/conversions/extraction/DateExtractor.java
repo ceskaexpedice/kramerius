@@ -36,7 +36,8 @@ public class DateExtractor {
     private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
     private static final String REGEXP_MONTH_YEAR_RANGE3 = "\\[(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]";  //[MM.-MM.RRRR]
 
-    private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //''1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938'
+    private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902?]', '1900-1902?', '[1881]-1938'
+    private static final String REGEXP_YEAR_RANGE_DOUBLE_DOTS = "\\[?(\\d{1,4})\\]?\\s*\\.\\.\\s*(\\d{1,4})\\??\\]?"; //'1900..1902', '1900 .. 1903', '[1900..1902]', '[1900..1902?]', '1900..1902?', '[1881]..1938'
     private static final String REGEXP_YEAR_RANGE_VERBAL1 = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
     private static final String REGEXP_YEAR_RANGE_VERBAL2 = "\\[?mezi\\s(\\d{4})\\??-(\\d{4})\\??\\]?"; //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]'
     private static final String REGEXP_YEAR_RANGE_VERBAL3 = "\\[?(\\d{4})\\??\\snebo\\s(\\d{4})\\??\\]?"; //'[1897 nebo 1898]', '[1897 nebo 1898?]', '[1897? nebo 1898]', '[1897 nebo 1898', '1897 nebo 1898]'
@@ -267,6 +268,16 @@ public class DateExtractor {
             }
         } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE)) {//'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938
             List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE);
+            if (numbers != null) {
+                result.rangeStartYear = numbers.get(0);
+                result.rangeEndYear = numbers.get(1);
+                result.valueStart = result.rangeStartYear.toString();
+                result.valueEnd = result.rangeEndYear.toString();
+                result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
+                result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
+            }
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_DOUBLE_DOTS)) {//'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE_DOUBLE_DOTS);
             if (numbers != null) {
                 result.rangeStartYear = numbers.get(0);
                 result.rangeEndYear = numbers.get(1);

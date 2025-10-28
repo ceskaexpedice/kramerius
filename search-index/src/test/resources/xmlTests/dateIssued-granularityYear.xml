@@ -584,6 +584,104 @@
         </out>
     </test>
 
+    <test name="1993..1994">
+        <desc>Datum jako rozsah let s ".." namísto "-"
+            (https://kramerius.lib.cas.cz/uuid/uuid:335bf8c2-539a-11e1-1287-001143e3f55c)
+        </desc>
+        <in>
+            <originInfo>
+                <dateIssued>1993..1994</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1994-12-31T23:59:59.999Z</field>
+            <field name="date.min">1993-01-01T00:00:00.001Z</field>
+            <field name="date.str">1993..1994</field>
+            <field name="date_range_end.year">1994</field>
+            <field name="date_range_start.year">1993</field>
+        </out>
+    </test>
+
+    <test name="1993 .. 1994">
+        <desc>Datum jako rozsah let s ".." namísto "-", plus mezery</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1993 .. 1994</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1994-12-31T23:59:59.999Z</field>
+            <field name="date.min">1993-01-01T00:00:00.001Z</field>
+            <field name="date.str">1993 .. 1994</field>
+            <field name="date_range_end.year">1994</field>
+            <field name="date_range_start.year">1993</field>
+        </out>
+    </test>
+
+    <test name="[1993..1994]">
+        <desc>Datum jako rozsah let s ".." namísto "-", plus hranaté závorky</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1993..1994]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1994-12-31T23:59:59.999Z</field>
+            <field name="date.min">1993-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1993..1994]</field>
+            <field name="date_range_end.year">1994</field>
+            <field name="date_range_start.year">1993</field>
+        </out>
+    </test>
+
+    <test name="[1993..1994?]">
+        <desc>Datum jako rozsah let s ".." namísto "-", plus hranaté závorky a otazník u druhého roku</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1993..1994?]</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1994-12-31T23:59:59.999Z</field>
+            <field name="date.min">1993-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1993..1994?]</field>
+            <field name="date_range_end.year">1994</field>
+            <field name="date_range_start.year">1993</field>
+        </out>
+    </test>
+
+    <test name="1993..1994?">
+        <desc>Datum jako rozsah let s ".." namísto "-", plus otazník u druhého roku</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1993..1994?</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1994-12-31T23:59:59.999Z</field>
+            <field name="date.min">1993-01-01T00:00:00.001Z</field>
+            <field name="date.str">1993..1994?</field>
+            <field name="date_range_end.year">1994</field>
+            <field name="date_range_start.year">1993</field>
+        </out>
+    </test>
+
+    <test name="[1993]..1994">
+        <desc>Datum jako rozsah let s ".." namísto "-", plus první rok v hranatých závorkách</desc>
+        <in>
+            <originInfo>
+                <dateIssued>[1993]..1994</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1994-12-31T23:59:59.999Z</field>
+            <field name="date.min">1993-01-01T00:00:00.001Z</field>
+            <field name="date.str">[1993]..1994</field>
+            <field name="date_range_end.year">1994</field>
+            <field name="date_range_start.year">1993</field>
+        </out>
+    </test>
+
     <test name="1947-">
         <desc>Datum jako rozsah let (jen point=start)</desc>
         <in>
