@@ -7,6 +7,20 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Extractor of coordinates from MODS metadata.
+ * <p>
+ * Input format is either (with example of Africa, which hits both equator and prime meridian):
+ * 1. Czech         - degrees, minutes, seconds:        (25°25´00" z.d.--63°30´00" v.d./37°32´00" s.š.--34°51´15" j.š.)
+ * 2. International - degrees, minutes, seconds:        (W 25°25'00"--E 63°30'00"/N 37°32'00"--S 34°51'15")
+ * 3. International - degrees in floating point:        (W 25.4167° -- E 63.5000° / N 37.5333° -- S 34.8542°)
+ * 4. International - minLon, minLat, maxLon, maxLat:   (-25.4167, -34.8542, 63.5000, 37.5333)
+ * <p>
+ * So in the formats 1-3, the meaing is always (LONGITUDE_RANGE/LATITUDE_RANGE), where:
+ * - LONGITUDE_RANGE is (MOST_WESTERN_LONGITUDE -- MOST_EASTERN_LONGITUDE)
+ * - LATITUDE_RANGE is (MOST_NORTHERN_LATITUDE -- MOST_SOUTHERN_LATITUDE)
+ * In the format 4, the meaning is (MIN_LONGITUDE, MIN_LATITUDE, MAX_LONGITUDE, MAX_LATITUDE)
+ */
 public class CoordinatesExtractor {
 
     public void extract(Node coordinatesEl, SolrInput solrInput, String pid) {
@@ -44,21 +58,38 @@ public class CoordinatesExtractor {
     }
 
     private BoundingBox extractBoundingBox(String coordinatesStr, String pid) {
-        BoundingBox bbIn = parseBoundingBoxInternational(coordinatesStr);
-        if (bbIn != null) {
-            return bbIn;
-        } else {
-            BoundingBox bbCz = parseBoundingBoxCzech(coordinatesStr);
-            if (bbCz != null) {
-                return bbCz;
-            } else {
-                System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat souřadnice: %s", pid, coordinatesStr));
-                return null;
-            }
-        }
+        //(-25.4167, -34.8542, 63.5000, 37.5333)
+        BoundingBox bb = parseBoundingBoxInternationalBasic(coordinatesStr);
+        if (bb != null) return bb;
+
+        //(W 25.4167° -- E 63.5000° / N 37.5333° -- S 34.8542°)
+        bb = parseBoundingBoxInternationalDf(coordinatesStr);
+        if (bb != null) return bb;
+
+        //(W 25°25'00"--E 63°30'00"/N 37°32'00"--S 34°51'15")
+        bb = parseBoundingBoxInternationalDms(coordinatesStr);
+        if (bb != null) return bb;
+
+        //(25°25´00" z.d.--63°30´00" v.d./37°32´00" s.š.--34°51´15" j.š.)
+        bb = parseBoundingBoxCzech(coordinatesStr);
+        if (bb != null) return bb;
+
+        //zadny z formatu se nechytl
+        System.err.println(String.format("Chyba v datech objektu %s: nelze parsovat souřadnice: %s", pid, coordinatesStr));
+        return null;
     }
 
-    private BoundingBox parseBoundingBoxInternational(String coordinatesStr) {
+    private BoundingBox parseBoundingBoxInternationalBasic(String coordinatesStr) {
+        //TODO: implement first format
+        return null;
+    }
+
+    private BoundingBox parseBoundingBoxInternationalDf(String coordinatesStr) {
+        //TODO: implement
+        return null;
+    }
+
+    private BoundingBox parseBoundingBoxInternationalDms(String coordinatesStr) {
         //(E 12°02'00"--E 19°11'00"/N 51°03'00"--N 48°31'00")
         coordinatesStr = coordinatesStr.replaceAll("''", "\""); //E 12°02'00''
         Pattern pattern = Pattern.compile("^\\(?" +

@@ -338,7 +338,6 @@ public class SolrInputBuilder {
         }
 
         //keywords
-        System.err.println("processing keywords for " + pid);
         for (String keyword : repositoryNode.getKeywords()) {
             solrInput.addField("keywords.search", keyword);
             solrInput.addField("keywords.facet", withFirstLetterInUpperCase(keyword));
