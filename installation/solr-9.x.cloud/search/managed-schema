@@ -636,6 +636,12 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--pocty potomku (pro zobrazeni)-->
         <field name="count_page" type="int" indexed="true" stored="true"/>
         <field name="count_track" type="int" indexed="true" stored="true"/>
+        <field name="count_monograph_unit" type="int" indexed="true" stored="true"/>
+        <field name="count_sound_unit" type="int" indexed="true" stored="true"/>
+        <field name="count_issue" type="int" indexed="true" stored="true"/>
+        <field name="count_volume" type="int" indexed="true" stored="true"/>
+        <field name="count_internal_part" type="int" indexed="true" stored="true"/>
+
 
         <!-- geo coordinates -->
         <!-- bounding box -->

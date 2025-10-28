@@ -332,6 +332,7 @@ public class SolrInputBuilder {
         }
 
         //keywords
+        System.err.println("processing keywords for " + pid);
         for (String keyword : repositoryNode.getKeywords()) {
             solrInput.addField("keywords.search", keyword);
             solrInput.addField("keywords.facet", withFirstLetterInUpperCase(keyword));
@@ -638,13 +639,33 @@ public class SolrInputBuilder {
         new IdentifiersExtractor().extract(modsRootEl, solrInput);
 
         //counters
-        int countPage = Dom4jUtils.buildXpath("Description/hasPage").selectNodes(relsExtRootEl).size();
+        int countPage = Dom4jUtils.buildXpath("Description/hasPage|Description/isOnPage").selectNodes(relsExtRootEl).size();
         if (countPage > 0) {
             addSolrField(solrInput, "count_page", Integer.toString(countPage));
         }
         int countTrack = Dom4jUtils.buildXpath("Description/hasTrack|Description/containsTrack").selectNodes(relsExtRootEl).size();
         if (countTrack > 0) {
             addSolrField(solrInput, "count_track", Integer.toString(countTrack));
+        }
+        int countMonographUnit = Dom4jUtils.buildXpath("Description/hasUnit").selectNodes(relsExtRootEl).size();
+        if (countMonographUnit > 0) {
+            addSolrField(solrInput, "count_monograph_unit", Integer.toString(countMonographUnit));
+        }
+        int countSoundUnit = Dom4jUtils.buildXpath("Description/hasSoundUnit").selectNodes(relsExtRootEl).size();
+        if (countSoundUnit > 0) {
+            addSolrField(solrInput, "count_sound_unit", Integer.toString(countSoundUnit));
+        }
+        int countIssue = Dom4jUtils.buildXpath("Description/hasItem").selectNodes(relsExtRootEl).size();
+        if (countIssue > 0) {
+            addSolrField(solrInput, "count_issue", Integer.toString(countIssue));
+        }
+        int countVolume = Dom4jUtils.buildXpath("Description/hasVolume").selectNodes(relsExtRootEl).size();
+        if (countVolume > 0) {
+            addSolrField(solrInput, "count_volume", Integer.toString(countVolume));
+        }
+        int countIntCompPart = Dom4jUtils.buildXpath("Description/hasIntCompPart").selectNodes(relsExtRootEl).size();
+        if (countIntCompPart > 0) {
+            addSolrField(solrInput, "count_internal_part", Integer.toString(countIntCompPart));
         }
 
         //OCR text
