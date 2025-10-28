@@ -27,22 +27,22 @@ public class DateExtractor {
     private static final String REGEXP_DECADE = "\\[?(\\d{3})-\\??\\]?"; //'[183-]', '[183-?]', '183-?', '183-?]', '183-'
     private static final String REGEXP_YEAR_AND_COPYRIGHT_YEAR = "\\[?[p,c]?(\\d{4})\\??\\]?(?:,?\\s?c\\d{4})?"; //'1920, c1910', '[1920, c1910]', '[1920?], c1920?]'
 
-    private static final String REGEXP_DAY_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM.RRRR-DD.MM.RRRR
-    private static final String REGEXP_DAY_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM-DD.MM.RRRR
-    private static final String REGEXP_DAY_MONTH_YEAR_RANGE3 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.-DD.MM.RRRR
-    private static final String REGEXP_DAY_MONTH_YEAR_RANGE4 = "\\[(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]"; //[DD.-DD.MM.RRRR];
+    private static final String REGEXP_DAY_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM.RRRR-DD.MM.RRRR
+    private static final String REGEXP_DAY_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.MM-DD.MM.RRRR
+    private static final String REGEXP_DAY_MONTH_YEAR_RANGE3 = "(\\d{1,2})\\.?\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})"; //DD.-DD.MM.RRRR
+    private static final String REGEXP_DAY_MONTH_YEAR_RANGE4 = "\\[(\\d{1,2})\\.?\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,2})\\.\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]"; //[DD.-DD.MM.RRRR];
 
-    private static final String REGEXP_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,4})\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.RRRR-MM.RRRR
-    private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
-    private static final String REGEXP_MONTH_YEAR_RANGE3 = "\\[(\\d{1,2})\\.?\\s*-\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]";  //[MM.-MM.RRRR]
+    private static final String REGEXP_MONTH_YEAR_RANGE1 = "(\\d{1,2})\\.\\s*(\\d{1,4})\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.RRRR-MM.RRRR
+    private static final String REGEXP_MONTH_YEAR_RANGE2 = "(\\d{1,2})\\.?\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,2})\\.\\s*(\\d{1,4})";  //MM.-MM.RRRR
+    private static final String REGEXP_MONTH_YEAR_RANGE3 = "\\[(\\d{1,2})\\.?\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,2})\\.\\s*(\\d{1,4})\\]";  //[MM.-MM.RRRR]
 
-    private static final String REGEXP_YEAR_RANGE = "\\[?(\\d{1,4})\\]?\\s*-\\s*(\\d{1,4})\\??\\]?"; //'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902?]', '1900-1902?', '[1881]-1938'
-    private static final String REGEXP_YEAR_RANGE_DOUBLE_DOTS = "\\[?(\\d{1,4})\\]?\\s*\\.\\.\\s*(\\d{1,4})\\??\\]?"; //'1900..1902', '1900 .. 1903', '[1900..1902]', '[1900..1902?]', '1900..1902?', '[1881]..1938'
+    private static final String REGEXP_YEAR_RANGE_SEPARATOR_DASH_PUNCTUATION = "\\[?(\\d{1,4})\\]?\\s*(?:[\\p{Pd}]|\\u2212)\\s*(\\d{1,4})\\??\\]?"; //'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902?]', '1900-1902?', '[1881]-1938' (různé druhy pomlček mezi roky)
+    private static final String REGEXP_YEAR_RANGE_SEPARATOR_DOUBLE_DOTS = "\\[?(\\d{1,4})\\]?\\s*\\.\\.\\s*(\\d{1,4})\\??\\]?"; //'1900..1902', '1900 .. 1903', '[1900..1902]', '[1900..1902?]', '1900..1902?', '[1881]..1938'
     private static final String REGEXP_YEAR_RANGE_VERBAL1 = "\\[?mezi\\s(\\d{4})\\??\\sa\\s(\\d{4})\\??\\]?"; //'[mezi 1695 a 1730]', 'mezi 1620 a 1630', 'mezi 1680 a 1730]', '[mezi 1739? a 1750?]'
-    private static final String REGEXP_YEAR_RANGE_VERBAL2 = "\\[?mezi\\s(\\d{4})\\??-(\\d{4})\\??\\]?"; //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]'
+    private static final String REGEXP_YEAR_RANGE_VERBAL2 = "\\[?mezi\\s(\\d{4})\\??(?:[\\p{Pd}]|\\u2212)(\\d{4})\\??\\]?"; //'[mezi 1897-1908]', '[mezi 1898-1914?]', '[mezi 1898?-1914]', '[mezi 1895-1919', 'mezi 1895-1919]' (různé druhy pomlček mezi roky)
     private static final String REGEXP_YEAR_RANGE_VERBAL3 = "\\[?(\\d{4})\\??\\snebo\\s(\\d{4})\\??\\]?"; //'[1897 nebo 1898]', '[1897 nebo 1898?]', '[1897? nebo 1898]', '[1897 nebo 1898', '1897 nebo 1898]'
-    private static final String REGEXP_YEAR_RANGE_PARTIAL1 = "\\[[0-9]{1}[0-9ux-]{0,3}\\]\\s*-\\s*\\[?[0-9]{1}[0-9ux-]{0,3}\\]?"; //'[18--]-1891', '[18--]-[189-]', '[18uu]-[189x]'
-    private static final String REGEXP_YEAR_RANGE_PARTIAL2 = "[0-9]{1}[0-9ux]{0,3}\\s*-\\s*\\[?[0-9]{1}[0-9ux]{0,3}"; //'192u-19uu', NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty)
+    private static final String REGEXP_YEAR_RANGE_PARTIAL1 = "\\[[0-9]{1}[0-9ux-]{0,3}\\]\\s*(?:[\\p{Pd}]|\\u2212)\\s*\\[?[0-9]{1}[0-9ux-]{0,3}\\]?"; //'[18--]-1891', '[18--]-[189-]', '[18uu]-[189x]' (různé druhy pomlček mezi roky)
+    private static final String REGEXP_YEAR_RANGE_PARTIAL2 = "[0-9]{1}[0-9ux]{0,3}\\s*(?:[\\p{Pd}]|\\u2212)\\s*\\[?[0-9]{1}[0-9ux]{0,3}"; //'192u-19uu', NOT '18uu-195-' (combination of range and '-' for uknown value are not supported due to uncertainty) (různé druhy pomlček mezi roky)
 
     // indexing both years for searching purposes
     private static final String REGEXP_CORRECT_INCORRECT_YEAR1 = "(\\d{4}),?\\s\\[i\\.e\\.\\sc?(\\d{4})\\]"; //'1997 [i.e. 1998]', '1997, [i.e. 1998]', '1997, [i.e. c1998]'
@@ -266,8 +266,8 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toYearStart(year);
                 result.dateMax = MyDateTimeUtils.toYearEnd(year);
             }
-        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE)) {//'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938
-            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE);
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_SEPARATOR_DASH_PUNCTUATION)) {//'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE_SEPARATOR_DASH_PUNCTUATION);
             if (numbers != null) {
                 result.rangeStartYear = numbers.get(0);
                 result.rangeEndYear = numbers.get(1);
@@ -276,8 +276,8 @@ public class DateExtractor {
                 result.dateMin = MyDateTimeUtils.toYearStart(result.rangeStartYear);
                 result.dateMax = MyDateTimeUtils.toYearEnd(result.rangeEndYear);
             }
-        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_DOUBLE_DOTS)) {//'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938
-            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE_DOUBLE_DOTS);
+        } else if (matchesRegexp(result.value, REGEXP_YEAR_RANGE_SEPARATOR_DOUBLE_DOTS)) {//'1900-1902', '1900 - 1903', '[1900-1902]', '[1900-1902]?', '1900-1902?', '[1881]-1938
+            List<Integer> numbers = extractNumbers(result.value, REGEXP_YEAR_RANGE_SEPARATOR_DOUBLE_DOTS);
             if (numbers != null) {
                 result.rangeStartYear = numbers.get(0);
                 result.rangeEndYear = numbers.get(1);

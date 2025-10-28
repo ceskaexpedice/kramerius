@@ -682,6 +682,134 @@
         </out>
     </test>
 
+    <test name="1947-1952 (hyphen-minus)">
+        <desc>Datum jako rozsah let: oddělovač U+002D (hyphen-minus)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947-1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947-1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947‐1952 (hyphen)">
+        <desc>Datum jako rozsah let: oddělovač U+2010 (hyphen)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947‐1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947‐1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947-1952 (non-breaking hyphen)">
+        <desc>Datum jako rozsah let: oddělovač U+2011 (non-breaking hyphen)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947-1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947-1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947‒1952 (figure dash)">
+        <desc>Datum jako rozsah let: oddělovač U+2012 (figure dash)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947‒1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947‒1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947–1952 (en dash)">
+        <desc>Datum jako rozsah let: oddělovač U+2013 (en dash)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947–1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947–1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947—1952 (em dash)">
+        <desc>Datum jako rozsah let: oddělovač U+2014 (em dash)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947—1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947—1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947―1952 (horizontal bar)">
+        <desc>Datum jako rozsah let: oddělovač U+2015 (horizontal bar)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947―1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947―1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
+    <test name="1947−1952 (matematické mínus)">
+        <desc>Datum jako rozsah let: oddělovač U+2212 (matematické mínus)</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1947−1952</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1947-01-01T00:00:00.001Z</field>
+            <field name="date.str">1947−1952</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1947</field>
+        </out>
+    </test>
+
     <test name="1947-">
         <desc>Datum jako rozsah let (jen point=start)</desc>
         <in>
