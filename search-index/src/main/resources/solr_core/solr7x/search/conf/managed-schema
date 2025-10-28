@@ -476,6 +476,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <field name="pid" type="string" indexed="true" stored="true" required="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="subtype" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>

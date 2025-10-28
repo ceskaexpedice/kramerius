@@ -199,6 +199,12 @@ public class SolrInputBuilder {
         }
         solrInput.addField("model", model);
 
+        //subtype
+        String genreWithAuthorityKdccv = Dom4jUtils.stringOrNullFromFirstElementByXpath(modsRootEl, "mods/genre[@authority='kdccv']");
+        if (genreWithAuthorityKdccv != null) {
+            solrInput.addField("subtype", genreWithAuthorityKdccv);
+        }
+
         //created_date
         addSolrField(solrInput, "created", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/model#createdDate"));
 
@@ -361,8 +367,9 @@ public class SolrInputBuilder {
         //genres
         List<Node> genreEls = Dom4jUtils.buildXpath("mods/genre").selectNodes(modsRootEl);
         for (Node genreEl : genreEls) {
+            String authority = Dom4jUtils.stringOrNullFromAttributeByName((Element) genreEl, "authority");
             String genre = toStringOrNull(genreEl);
-            if (genre != null && !genreStopWords.contains(genre.toLowerCase())) {
+            if (genre != null && !"kdccv".equals(authority) && !genreStopWords.contains(genre.toLowerCase())) {
                 solrInput.addField("genres.search", genre);
                 solrInput.addField("genres.facet", withFirstLetterInUpperCase(genre));
             }

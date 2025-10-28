@@ -480,6 +480,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <field name="pid" type="string" indexed="true" stored="true" required="true" docValues="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="subtype" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -641,7 +642,6 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="count_issue" type="int" indexed="true" stored="true"/>
         <field name="count_volume" type="int" indexed="true" stored="true"/>
         <field name="count_internal_part" type="int" indexed="true" stored="true"/>
-
 
         <!-- geo coordinates -->
         <!-- bounding box -->
