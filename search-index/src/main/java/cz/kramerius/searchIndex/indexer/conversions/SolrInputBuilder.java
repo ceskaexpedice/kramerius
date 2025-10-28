@@ -200,9 +200,9 @@ public class SolrInputBuilder {
         solrInput.addField("model", model);
 
         //subtype
-        String genreWithAuthorityKdccv = Dom4jUtils.stringOrNullFromFirstElementByXpath(modsRootEl, "mods/genre[@authority='kdccv']");
-        if (genreWithAuthorityKdccv != null) {
-            solrInput.addField("subtype", genreWithAuthorityKdccv);
+        String subtype = repositoryNode.getSubtype();
+        if (subtype != null) {
+            solrInput.addField("subtype", subtype);
         }
 
         //created_date

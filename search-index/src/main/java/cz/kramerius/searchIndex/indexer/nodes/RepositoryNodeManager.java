@@ -3,6 +3,7 @@ package cz.kramerius.searchIndex.indexer.nodes;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
+import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
@@ -133,6 +134,7 @@ public class RepositoryNodeManager {
             List<String> myLicences = extractLicenses(model, relsExtDoc);
             List<String> licencesOfOwnAncestors = getLicensesFromAllAncestors(ownParent, fosterParents);
             List<String> keywords = mergeKeywords(ownParent, fosterParents, extractKeywordFromMods(model, modsDoc));
+            String subtype = mergeSubtype(ownParent, extractSubtypeFromMods(modsDoc));
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -185,12 +187,13 @@ public class RepositoryNodeManager {
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,
                     ownChildren, fosterChildren,
                     languages, primaryAuthors, otherAuthors, dateInfo,
-                    myLicences, licencesOfOwnAncestors, keywords
+                    myLicences, licencesOfOwnAncestors, keywords, subtype
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     private DateInfo mergeDateInfos(RepositoryNode ownParent, DateInfo myDateInfo) {
         //no actual merging, just using this object's dateInfo or if empty, then parent's
@@ -285,6 +288,16 @@ public class RepositoryNodeManager {
         return keywords.stream().distinct().collect(Collectors.toList());
     }
 
+    private String mergeSubtype(RepositoryNode ownParent, String mySubtype) {
+        if (mySubtype != null) { //prefer this object's subtype
+            return mySubtype;
+        } else if (ownParent != null) { //but use parent's if there isn't any subtype of this object
+            return ownParent.getSubtype();
+        } else {
+            return null;
+        }
+    }
+
     private Integer extractPositionInParent(String childPid, RepositoryNode parent) {
         if (parent == null) {
             return null;
@@ -349,6 +362,10 @@ public class RepositoryNodeManager {
         KeywordsExtractor extractor = new KeywordsExtractor();
         List<String> keywords = extractor.extractKeywords(modsDoc.getRootElement(), model);
         return keywords;
+    }
+
+    private String extractSubtypeFromMods(Document modsDoc) {
+        return Dom4jUtils.stringOrNullFromFirstElementByXpath(modsDoc.getRootElement(), "mods/genre[@authority='kdccv']");
     }
 
 }
