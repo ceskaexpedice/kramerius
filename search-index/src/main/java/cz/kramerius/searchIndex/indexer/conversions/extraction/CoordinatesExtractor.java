@@ -85,8 +85,23 @@ public class CoordinatesExtractor {
     }
 
     private BoundingBox parseBbFormatEnDegFloat(String coordinatesStr) {
-        //TODO: implement
-        return null;
+        //(W 25.4167° -- E 63.5000° / N 37.5333° -- S 34.8542°)
+        Pattern pattern = Pattern.compile("^\\(?\\s*" +
+                "([EeWw])\\s*(\\d{1,3}(?:\\.\\d+)?)°?\\s*-{1,2}\\s*([EeWw])\\s*(\\d{1,3}(?:\\.\\d+)?)°?" +
+                "\\s*/\\s*" +
+                "([NnSs])\\s*(\\d{1,3}(?:\\.\\d+)?)°?\\s*-{1,2}\\s*([NnSs])\\s*(\\d{1,3}(?:\\.\\d+)?)°?" +
+                "\\s*\\)?$");
+        Matcher m = pattern.matcher(coordinatesStr);
+        if (m.find()) {
+            BoundingBox result = new BoundingBox();
+            result.w = normalizeCoordEn(m.group(1), Double.parseDouble(m.group(2)));
+            result.e = normalizeCoordEn(m.group(3), Double.parseDouble(m.group(4)));
+            result.n = normalizeCoordEn(m.group(5), Double.parseDouble(m.group(6)));
+            result.s = normalizeCoordEn(m.group(7), Double.parseDouble(m.group(8)));
+            return result;
+        } else {
+            return null;
+        }
     }
 
     private BoundingBox parseBbFormatEnDegMinSec(String coordinatesStr) {
@@ -100,10 +115,10 @@ public class CoordinatesExtractor {
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.find()) {
             BoundingBox result = new BoundingBox();
-            result.w = coordinateEn(m.group(1), m.group(2), m.group(3), m.group(4));
-            result.e = coordinateEn(m.group(5), m.group(6), m.group(7), m.group(8));
-            result.n = coordinateEn(m.group(9), m.group(10), m.group(11), m.group(12));
-            result.s = coordinateEn(m.group(13), m.group(14), m.group(15), m.group(16));
+            result.w = normalizeCoordEn(m.group(1), m.group(2), m.group(3), m.group(4));
+            result.e = normalizeCoordEn(m.group(5), m.group(6), m.group(7), m.group(8));
+            result.n = normalizeCoordEn(m.group(9), m.group(10), m.group(11), m.group(12));
+            result.s = normalizeCoordEn(m.group(13), m.group(14), m.group(15), m.group(16));
             return result;
         } else {
             return null;
@@ -124,10 +139,10 @@ public class CoordinatesExtractor {
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.matches()) {
             BoundingBox result = new BoundingBox();
-            result.w = coordinateCz(m.group(4), m.group(1), m.group(2), m.group(3));
-            result.e = coordinateCz(m.group(8), m.group(5), m.group(6), m.group(7));
-            result.n = coordinateCz(m.group(12), m.group(9), m.group(10), m.group(11));
-            result.s = coordinateCz(m.group(16), m.group(13), m.group(14), m.group(15));
+            result.w = normalizeCoordCz(m.group(4), m.group(1), m.group(2), m.group(3));
+            result.e = normalizeCoordCz(m.group(8), m.group(5), m.group(6), m.group(7));
+            result.n = normalizeCoordCz(m.group(12), m.group(9), m.group(10), m.group(11));
+            result.s = normalizeCoordCz(m.group(16), m.group(13), m.group(14), m.group(15));
             return result;
         } else {
             return null;
@@ -138,26 +153,34 @@ public class CoordinatesExtractor {
         return ExtractorUtils.toStringOrNull(node);
     }
 
-    private double coordinateCz(String xStr, String d, String m, String s) {
-        double c = calcCoordinate(Integer.parseInt(d), Integer.parseInt(m), Integer.parseInt(s));
-        char x = xStr.charAt(0);
-        if (x == 'z' || x == 'Z' || x == 'j' || x == 'J') { //západ, jih
-            c = -1d * c; // western or southern hemisphere is stored as negative value
+    private double normalizeCoordCz(String hemi, String deg, String min, String sec) {
+        double coord = convertCoordsDMStoDF(Integer.parseInt(deg), Integer.parseInt(min), Integer.parseInt(sec));
+        char h = hemi.charAt(0);
+        if (h == 'z' || h == 'Z' || h == 'j' || h == 'J') { //západ, jih
+            coord = -1d * coord; // western or southern hemisphere is stored as negative value
         }
-        return c;
+        return coord;
     }
 
-    private double coordinateEn(String xStr, String d, String m, String s) {
-        double c = calcCoordinate(Integer.parseInt(d), Integer.parseInt(m), Integer.parseInt(s));
-        char x = xStr.charAt(0);
-        if (x == 'W' || x == 'w' || x == 'S' || x == 's') { //west, south
-            c = -1d * c; // western or southern hemisphere is stored as negative value
+    private double normalizeCoordEn(String hemi, String deg, String min, String sec) {
+        double coord = convertCoordsDMStoDF(Integer.parseInt(deg), Integer.parseInt(min), Integer.parseInt(sec));
+        char h = hemi.charAt(0);
+        if (h == 'W' || h == 'w' || h == 'S' || h == 's') { //west, south
+            coord = -1d * coord; // western or southern hemisphere is stored as negative value
         }
-        return c;
+        return coord;
     }
 
-    private double calcCoordinate(int d, int m, int s) {
-        return d + m / 60d + s / 3600d;
+    private double normalizeCoordEn(String hemi, double coord) {
+        char h = hemi.charAt(0);
+        if (h == 'W' || h == 'w' || h == 'S' || h == 's') { //west, south
+            coord = -1d * coord; // western or southern hemisphere is stored as negative value
+        }
+        return coord;
+    }
+
+    private double convertCoordsDMStoDF(int deg, int min, int sec) {
+        return deg + min / 60d + sec / 3600d;
     }
 
     static class BoundingBox {

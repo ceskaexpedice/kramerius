@@ -1,7 +1,9 @@
 <testSuite testType="mods" model="map">
 
-    <test name="Mezinárodní zápis">
-        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba</desc>
+    <test name="Anglický zápis (stupeň/minuta/sekunda)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba
+        </desc>
         <in>
             <subject>
                 <cartographics>
@@ -17,8 +19,30 @@
         </out>
     </test>
 
-    <test name="Český zápis">
-        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:ba4934d1-0a1e-4a01-a89d-c948477ca833?page=uuid:d22baf06-7fb6-4488-bc6f-995b644fd085</desc>
+    <test name="Anglický zápis (stupeň s desetinými místy)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba
+        </desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 12.033333°--E 19.183333°/N 51.050000°--N 48.516667°)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(12.033333,19.183333,51.050000,48.516667)</field>
+            <field name="coords.bbox.center">49.783334,15.608333</field>
+            <field name="coords.bbox.corner_ne">51.050000,19.183333</field>
+            <field name="coords.bbox.corner_sw">48.516667,12.033333</field>
+        </out>
+    </test>
+
+
+    <test name="Český zápis (stupeň/minuta/sekunda)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:ba4934d1-0a1e-4a01-a89d-c948477ca833?page=uuid:d22baf06-7fb6-4488-bc6f-995b644fd085
+        </desc>
         <in>
             <subject>
                 <cartographics>
