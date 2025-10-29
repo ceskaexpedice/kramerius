@@ -476,6 +476,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
         <field name="pid" type="string" indexed="true" stored="true" required="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="subtype" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -488,6 +489,16 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--geographic names-->
         <field name="geographic_names.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="geographic_names.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--subject names (personal/corporate)-->
+        <field name="subject_names_personal.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_names_personal.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="subject_names_corporate.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_names_corporate.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--subject temporals-->
+        <field name="subject_temporals.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_temporals.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
         <!--genres-->
         <field name="genres.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
@@ -633,6 +644,11 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <!--pocty potomku (pro zobrazeni)-->
         <field name="count_page" type="int" indexed="true" stored="true"/>
         <field name="count_track" type="int" indexed="true" stored="true"/>
+        <field name="count_monograph_unit" type="int" indexed="true" stored="true"/>
+        <field name="count_sound_unit" type="int" indexed="true" stored="true"/>
+        <field name="count_issue" type="int" indexed="true" stored="true"/>
+        <field name="count_volume" type="int" indexed="true" stored="true"/>
+        <field name="count_internal_part" type="int" indexed="true" stored="true"/>
 
         <!-- geo coordinates -->
         <!-- bounding box -->
@@ -643,6 +659,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="coords.bbox.corner_sw" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
         <!--north east corner of the bounding box-->
         <field name="coords.bbox.corner_ne" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+        <-- if the coordinates represent a single point -->
+        <field name="coords.is_point" type="boolean" indexed="true" stored="true"/>
 
         <!--languages
         facetové pole, ale bude se užívat i pro vyhledávání, jelikož je to jednoslovný kód, neměl by být problém s rozsekáním na slova,

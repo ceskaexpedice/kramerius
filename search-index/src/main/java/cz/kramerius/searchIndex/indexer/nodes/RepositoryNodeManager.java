@@ -3,6 +3,7 @@ package cz.kramerius.searchIndex.indexer.nodes;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
+import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
@@ -27,7 +28,6 @@ public class RepositoryNodeManager {
     private final AkubraRepository akubraRepository;
     private final LRUCache<String, RepositoryNode> nodesByPid = new LRUCache<>(1024);
     private final boolean surviveInconsistentObjects;
-
 
 
     public RepositoryNodeManager(AkubraRepository akubraRepository, boolean surviveInconsistentObjects) {
@@ -108,10 +108,10 @@ public class RepositoryNodeManager {
             List<String> fosterChildren = new ArrayList<>();
             if (!"page".equals(model) && !"track".equals(model)) { //just optimization, pages and tracks never have children
                 OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
-                for(ProcessingIndexItem processingIndexItem: children.own()){
+                for (ProcessingIndexItem processingIndexItem : children.own()) {
                     ownChildren.add(processingIndexItem.targetPid());
                 }
-                for(ProcessingIndexItem processingIndexItem: children.foster()){
+                for (ProcessingIndexItem processingIndexItem : children.foster()) {
                     fosterChildren.add(processingIndexItem.targetPid());
                 }
             }
@@ -133,6 +133,8 @@ public class RepositoryNodeManager {
             List<AuthorInfo> otherAuthors = mergeOtherAuthors(ownParent, fosterParents, myOtherAuthors);
             List<String> myLicences = extractLicenses(model, relsExtDoc);
             List<String> licencesOfOwnAncestors = getLicensesFromAllAncestors(ownParent, fosterParents);
+            List<String> keywords = mergeKeywords(ownParent, fosterParents, extractKeywordFromMods(model, modsDoc));
+            String subtype = mergeSubtype(ownParent, extractSubtypeFromMods(modsDoc));
 
             //pids of all foster parents
             List<String> fosterParentsPids = toPidList(fosterParents);
@@ -185,12 +187,13 @@ public class RepositoryNodeManager {
                     fosterParentsPids, fosterParentsOfTypeCollectionPids, anyAncestorsOfTypeCollectionPids,
                     ownChildren, fosterChildren,
                     languages, primaryAuthors, otherAuthors, dateInfo,
-                    myLicences, licencesOfOwnAncestors
+                    myLicences, licencesOfOwnAncestors, keywords, subtype
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     private DateInfo mergeDateInfos(RepositoryNode ownParent, DateInfo myDateInfo) {
         //no actual merging, just using this object's dateInfo or if empty, then parent's
@@ -212,7 +215,7 @@ public class RepositoryNodeManager {
             set.addAll(fosterParent.getLanguages());
         }
         set.addAll(myLanguages);
-        //return list
+        //return as a list
         List<String> list = new ArrayList<>();
         list.addAll(set);
         return list;
@@ -221,7 +224,7 @@ public class RepositoryNodeManager {
     //from both own and foster ancestors
     private List<String> getLicensesFromAllAncestors(RepositoryNode ownParent, List<RepositoryNode> fosterParents) {
         //fill set
-        Set<java.lang.String> set = new HashSet<>();
+        Set<String> set = new HashSet<>();
         if (ownParent != null) {
             set.addAll(ownParent.getLicenses());
             set.addAll(ownParent.getLicensesOfAncestors());
@@ -230,7 +233,7 @@ public class RepositoryNodeManager {
             set.addAll(fosterParent.getLicenses());
             set.addAll(fosterParent.getLicensesOfAncestors());
         }
-        //return list
+        //return as a list
         List<java.lang.String> list = new ArrayList<>();
         list.addAll(set);
         return list;
@@ -247,12 +250,12 @@ public class RepositoryNodeManager {
         for (RepositoryNode fosterParent : fosterParents) { //also use authors of all foster parents (typically articles)
             authors.addAll(fosterParent.getPrimaryAuthors());
         }
-        //return list without duplicates
+        //return as a list without duplicates
         return authors.stream().distinct().collect(Collectors.toList());
     }
 
     private List<AuthorInfo> mergeOtherAuthors(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<AuthorInfo> myOtherAuthors) {
-        //fill set
+        //fill list
         List<AuthorInfo> authors = new ArrayList<>();
         if (!myOtherAuthors.isEmpty()) { //prefer this object' authors
             authors.addAll(myOtherAuthors);
@@ -262,8 +265,37 @@ public class RepositoryNodeManager {
         for (RepositoryNode fosterParent : fosterParents) { //also use authors of all foster parents (typically articles)
             authors.addAll(fosterParent.getOtherAuthors());
         }
-        //return list without duplicates
+        //return as a list without duplicates
         return authors.stream().distinct().collect(Collectors.toList());
+    }
+
+    private List<String> mergeKeywords(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<String> myKeywords) {
+        //fill list
+        Set<String> keywords = new HashSet<>();
+        if (!myKeywords.isEmpty()) { //prefer this object' keywords
+            keywords.addAll(myKeywords);
+        } else { //but use parent's if there aren't any keywords of this object
+            if (ownParent != null) {
+                keywords.addAll(ownParent.getKeywords());
+            }
+        }
+        for (RepositoryNode fosterParent : fosterParents) { //also add keywords of foster parents, unless they are collections
+            if (!"collection".equals(fosterParent.getModel())) {
+                keywords.addAll(fosterParent.getKeywords());
+            }
+        }
+        //return as a list without duplicates
+        return keywords.stream().distinct().collect(Collectors.toList());
+    }
+
+    private String mergeSubtype(RepositoryNode ownParent, String mySubtype) {
+        if (mySubtype != null) { //prefer this object's subtype
+            return mySubtype;
+        } else if (ownParent != null) { //but use parent's if there isn't any subtype of this object
+            return ownParent.getSubtype();
+        } else {
+            return null;
+        }
     }
 
     private Integer extractPositionInParent(String childPid, RepositoryNode parent) {
@@ -324,6 +356,16 @@ public class RepositoryNodeManager {
         DateExtractor dateExtractor = new DateExtractor();
         DateInfo dateInfo = dateExtractor.extractDateInfoFromMultipleSources(modsDoc.getRootElement(), pid);
         return dateInfo;
+    }
+
+    private List<String> extractKeywordFromMods(String model, Document modsDoc) {
+        KeywordsExtractor extractor = new KeywordsExtractor();
+        List<String> keywords = extractor.extractKeywords(modsDoc.getRootElement(), model);
+        return keywords;
+    }
+
+    private String extractSubtypeFromMods(Document modsDoc) {
+        return Dom4jUtils.stringOrNullFromFirstElementByXpath(modsDoc.getRootElement(), "mods/genre[@authority='kdccv']");
     }
 
 }
