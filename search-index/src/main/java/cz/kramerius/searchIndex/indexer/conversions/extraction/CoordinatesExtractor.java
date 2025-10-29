@@ -11,15 +11,15 @@ import java.util.regex.Pattern;
  * Extractor of coordinates from MODS metadata.
  * <p>
  * Input format is either (with example of Africa, which hits both equator and prime meridian):
- * 1. Czech         - degrees, minutes, seconds:        (25°25´00" z.d.--63°30´00" v.d./37°32´00" s.š.--34°51´15" j.š.)
- * 2. International - degrees, minutes, seconds:        (W 25°25'00"--E 63°30'00"/N 37°32'00"--S 34°51'15")
- * 3. International - degrees in floating point:        (W 25.4167° -- E 63.5000° / N 37.5333° -- S 34.8542°)
- * 4. International - minLon, minLat, maxLon, maxLat:   (-25.4167, -34.8542, 63.5000, 37.5333)
+ * 1. Czech   - degrees, minutes, seconds:        (25°25´00" z.d.--63°30´00" v.d./37°32´00" s.š.--34°51´15" j.š.)
+ * 2. English - degrees, minutes, seconds:        (W 25°25'00"--E 63°30'00"/N 37°32'00"--S 34°51'15")
+ * 3. English - degrees in floating point:        (W 25.4167° -- E 63.5000° / N 37.5333° -- S 34.8542°)
+ * 4. English - minLon, minLat, maxLon, maxLat:   (-25.4167, -34.8542, 63.5000, 37.5333)
  * <p>
- * So in the formats 1-3, the meaing is always (LONGITUDE_RANGE/LATITUDE_RANGE), where:
+ * So in the formats 1-3, the meaning is always (LONGITUDE_RANGE/LATITUDE_RANGE), where:
  * - LONGITUDE_RANGE is (MOST_WESTERN_LONGITUDE -- MOST_EASTERN_LONGITUDE)
  * - LATITUDE_RANGE is (MOST_NORTHERN_LATITUDE -- MOST_SOUTHERN_LATITUDE)
- * In the format 4, the meaning is (MIN_LONGITUDE, MIN_LATITUDE, MAX_LONGITUDE, MAX_LATITUDE)
+ * In the format 4, the meaning is (MIN_LONGITUDE, MIN_LATITUDE, MAX_LONGITUDE, MAX_LATITUDE) without hemisphere letters but with negative values for west/south.
  */
 public class CoordinatesExtractor {
 
@@ -59,19 +59,19 @@ public class CoordinatesExtractor {
 
     private BoundingBox extractBoundingBox(String coordinatesStr, String pid) {
         //(-25.4167, -34.8542, 63.5000, 37.5333)
-        BoundingBox bb = parseBoundingBoxInternationalBasic(coordinatesStr);
+        BoundingBox bb = parseBbFormatEnBasic(coordinatesStr);
         if (bb != null) return bb;
 
         //(W 25.4167° -- E 63.5000° / N 37.5333° -- S 34.8542°)
-        bb = parseBoundingBoxInternationalDf(coordinatesStr);
+        bb = parseBbFormatEnDegFloat(coordinatesStr);
         if (bb != null) return bb;
 
         //(W 25°25'00"--E 63°30'00"/N 37°32'00"--S 34°51'15")
-        bb = parseBoundingBoxInternationalDms(coordinatesStr);
+        bb = parseBbFormatEnDegMinSec(coordinatesStr);
         if (bb != null) return bb;
 
         //(25°25´00" z.d.--63°30´00" v.d./37°32´00" s.š.--34°51´15" j.š.)
-        bb = parseBoundingBoxCzech(coordinatesStr);
+        bb = parseBbFormatCzDegMinSec(coordinatesStr);
         if (bb != null) return bb;
 
         //zadny z formatu se nechytl
@@ -79,55 +79,55 @@ public class CoordinatesExtractor {
         return null;
     }
 
-    private BoundingBox parseBoundingBoxInternationalBasic(String coordinatesStr) {
-        //TODO: implement first format
-        return null;
-    }
-
-    private BoundingBox parseBoundingBoxInternationalDf(String coordinatesStr) {
+    private BoundingBox parseBbFormatEnBasic(String coordinatesStr) {
         //TODO: implement
         return null;
     }
 
-    private BoundingBox parseBoundingBoxInternationalDms(String coordinatesStr) {
+    private BoundingBox parseBbFormatEnDegFloat(String coordinatesStr) {
+        //TODO: implement
+        return null;
+    }
+
+    private BoundingBox parseBbFormatEnDegMinSec(String coordinatesStr) {
         //(E 12°02'00"--E 19°11'00"/N 51°03'00"--N 48°31'00")
         coordinatesStr = coordinatesStr.replaceAll("''", "\""); //E 12°02'00''
         Pattern pattern = Pattern.compile("^\\(?\\s*" +
-                "([E,W])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"\\s*-{1,2}\\s*([E,W])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
+                "([EeWw])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"\\s*-{1,2}\\s*([EeWw])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
                 "\\s*/\\s*" +
-                "([N,S])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"\\s*-{1,2}\\s*([N,S])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
+                "([NnSs])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"\\s*-{1,2}\\s*([NnSs])\\s*(\\d{1,3})°(\\d{1,2})'(\\d{1,2})\"" +
                 "\\s*\\)?$");
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.find()) {
             BoundingBox result = new BoundingBox();
-            result.w = coordinate(m.group(1), m.group(2), m.group(3), m.group(4));
-            result.e = coordinate(m.group(5), m.group(6), m.group(7), m.group(8));
-            result.n = coordinate(m.group(9), m.group(10), m.group(11), m.group(12));
-            result.s = coordinate(m.group(13), m.group(14), m.group(15), m.group(16));
+            result.w = coordinateEn(m.group(1), m.group(2), m.group(3), m.group(4));
+            result.e = coordinateEn(m.group(5), m.group(6), m.group(7), m.group(8));
+            result.n = coordinateEn(m.group(9), m.group(10), m.group(11), m.group(12));
+            result.s = coordinateEn(m.group(13), m.group(14), m.group(15), m.group(16));
             return result;
         } else {
             return null;
         }
     }
 
-    private BoundingBox parseBoundingBoxCzech(String coordinatesStr) {
+    private BoundingBox parseBbFormatCzDegMinSec(String coordinatesStr) {
         //(16°33´47" v.d.--16°39´07" v.d./49°14´06" s.š.--49°10´18" s.š.)
         coordinatesStr = coordinatesStr.replaceAll("''", "\""); //012°57´53'' v.d.
         if (coordinatesStr.endsWith("].")) { //(014°02´08" v.d.--014°48´09" v.d./050°15´16" s.š.--049°55´22" s.š.)].
             coordinatesStr = coordinatesStr.substring(0, coordinatesStr.length() - "].".length());
         }
         Pattern pattern = Pattern.compile("^\\(?\\s*" +
-                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([v,z])\\.d\\.\\s*-{1,2}\\s*(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([v,z])\\.d\\." +
+                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([vVzZ])\\.[dD]\\.\\s*-{1,2}\\s*(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([vVzZ])\\.[dD]\\." +
                 "\\s*/\\s*" +
-                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([s,j])\\.š\\.\\s*-{1,2}\\s*(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([s,j])\\.š\\." +
+                "(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([sSjJ])\\.[šŠ]\\.\\s*-{1,2}\\s*(\\d{1,3})°(\\d{1,2})[´'](\\d{1,2})\"\\s*([sSjJ])\\.[šŠ]\\." +
                 "\\s*\\)?$");
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.matches()) {
             BoundingBox result = new BoundingBox();
-            result.w = coordinate(m.group(4), m.group(1), m.group(2), m.group(3));
-            result.e = coordinate(m.group(8), m.group(5), m.group(6), m.group(7));
-            result.n = coordinate(m.group(12), m.group(9), m.group(10), m.group(11));
-            result.s = coordinate(m.group(16), m.group(13), m.group(14), m.group(15));
+            result.w = coordinateCz(m.group(4), m.group(1), m.group(2), m.group(3));
+            result.e = coordinateCz(m.group(8), m.group(5), m.group(6), m.group(7));
+            result.n = coordinateCz(m.group(12), m.group(9), m.group(10), m.group(11));
+            result.s = coordinateCz(m.group(16), m.group(13), m.group(14), m.group(15));
             return result;
         } else {
             return null;
@@ -138,11 +138,20 @@ public class CoordinatesExtractor {
         return ExtractorUtils.toStringOrNull(node);
     }
 
-    private double coordinate(String xStr, String d, String m, String s) {
-        double c = calcCoordinate(Integer.valueOf(d), Integer.valueOf(m), Integer.valueOf(s));
+    private double coordinateCz(String xStr, String d, String m, String s) {
+        double c = calcCoordinate(Integer.parseInt(d), Integer.parseInt(m), Integer.parseInt(s));
         char x = xStr.charAt(0);
-        if (x == 'W' || x == 'z' || x == 'S' || x == 'j') {
-            c = -1d * c;
+        if (x == 'z' || x == 'Z' || x == 'j' || x == 'J') { //západ, jih
+            c = -1d * c; // western or southern hemisphere is stored as negative value
+        }
+        return c;
+    }
+
+    private double coordinateEn(String xStr, String d, String m, String s) {
+        double c = calcCoordinate(Integer.parseInt(d), Integer.parseInt(m), Integer.parseInt(s));
+        char x = xStr.charAt(0);
+        if (x == 'W' || x == 'w' || x == 'S' || x == 's') { //west, south
+            c = -1d * c; // western or southern hemisphere is stored as negative value
         }
         return c;
     }
