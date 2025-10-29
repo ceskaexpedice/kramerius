@@ -38,6 +38,24 @@
         </out>
     </test>
 
+    <test name="Anglický zápis (přímo bounding box)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba
+        </desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(-25.4167, -34.8542, 63.5000, 37.5333)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(-25.416700,-34.854200,63.500000,37.533300)</field>
+            <field name="coords.bbox.center">50.516650,-30.135450</field>
+            <field name="coords.bbox.corner_ne">63.500000,-34.854200</field>
+            <field name="coords.bbox.corner_sw">37.533300,-25.416700</field>
+        </out>
+    </test>
 
     <test name="Český zápis (stupeň/minuta/sekunda)">
         <desc>
