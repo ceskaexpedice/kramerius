@@ -19,11 +19,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -423,7 +419,16 @@ public class SolrInputBuilder {
         //geolocation
         Node coordinatesEl = Dom4jUtils.buildXpath("mods/subject/cartographics/coordinates").selectSingleNode(modsRootEl);
         if (coordinatesEl != null) {
-            new CoordinatesExtractor().extract(coordinatesEl, solrInput, pid);
+            CoordinatesExtractor.BoundingBox bb = new CoordinatesExtractor().extract(coordinatesEl, solrInput, pid);
+            if (bb != null) {
+                Locale locale = new Locale("en", "US");
+                //ENVELOPE(minX, maxX, maxY, minY)
+                solrInput.addField("coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
+                solrInput.addField("coords.bbox.center", String.format(locale, "%.6f,%.6f", (bb.n + bb.s) / 2, (bb.w + bb.e) / 2));
+                solrInput.addField("coords.bbox.corner_sw", String.format(locale, "%.6f,%.6f", bb.s, bb.w));
+                solrInput.addField("coords.bbox.corner_ne", String.format(locale, "%.6f,%.6f", bb.n, bb.e));
+                solrInput.addField("coords.is_point", bb.isPoint() ? "true" : "false");
+            }
         }
 
         //dates

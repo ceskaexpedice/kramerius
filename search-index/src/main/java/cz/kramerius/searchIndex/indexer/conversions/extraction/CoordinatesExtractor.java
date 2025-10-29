@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 public class CoordinatesExtractor {
 
-    public void extract(Node coordinatesEl, SolrInput solrInput, String pid) {
+    public BoundingBox extract(Node coordinatesEl, SolrInput solrInput, String pid) {
         String coordinatesStr = toStringOrNull(coordinatesEl);
         if (coordinatesStr != null) {
             BoundingBox bb = extractBoundingBox(coordinatesStr, pid);
@@ -46,14 +46,9 @@ public class CoordinatesExtractor {
                     bb = null;
                 }*/
             }
-            if (bb != null) {
-                Locale locale = new Locale("en", "US");
-                //ENVELOPE(minX, maxX, maxY, minY)
-                solrInput.addField("coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
-                solrInput.addField("coords.bbox.center", String.format(locale, "%.6f,%.6f", (bb.n + bb.s) / 2, (bb.w + bb.e) / 2));
-                solrInput.addField("coords.bbox.corner_sw", String.format(locale, "%.6f,%.6f", bb.s, bb.w));
-                solrInput.addField("coords.bbox.corner_ne", String.format(locale, "%.6f,%.6f", bb.n, bb.e));
-            }
+            return bb;
+        } else {
+            return null;
         }
     }
 
@@ -90,12 +85,11 @@ public class CoordinatesExtractor {
         );
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.find()) {
-            BoundingBox result = new BoundingBox();
-            result.w = Double.parseDouble(m.group(1));
-            result.e = Double.parseDouble(m.group(2));
-            result.n = Double.parseDouble(m.group(3));
-            result.s = Double.parseDouble(m.group(4));
-            return result;
+            double w = Double.parseDouble(m.group(1));
+            double e = Double.parseDouble(m.group(2));
+            double n = Double.parseDouble(m.group(3));
+            double s = Double.parseDouble(m.group(4));
+            return new BoundingBox(w, e, n, s);
         } else {
             return null;
         }
@@ -110,12 +104,11 @@ public class CoordinatesExtractor {
                 "\\s*\\)?$");
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.find()) {
-            BoundingBox result = new BoundingBox();
-            result.w = normalizeCoordEn(m.group(1), Double.parseDouble(m.group(2)));
-            result.e = normalizeCoordEn(m.group(3), Double.parseDouble(m.group(4)));
-            result.n = normalizeCoordEn(m.group(5), Double.parseDouble(m.group(6)));
-            result.s = normalizeCoordEn(m.group(7), Double.parseDouble(m.group(8)));
-            return result;
+            double w = normalizeCoordEn(m.group(1), Double.parseDouble(m.group(2)));
+            double e = normalizeCoordEn(m.group(3), Double.parseDouble(m.group(4)));
+            double n = normalizeCoordEn(m.group(5), Double.parseDouble(m.group(6)));
+            double s = normalizeCoordEn(m.group(7), Double.parseDouble(m.group(8)));
+            return new BoundingBox(w, e, n, s);
         } else {
             return null;
         }
@@ -131,12 +124,11 @@ public class CoordinatesExtractor {
                 "\\s*\\)?$");
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.find()) {
-            BoundingBox result = new BoundingBox();
-            result.w = normalizeCoordEn(m.group(1), m.group(2), m.group(3), m.group(4));
-            result.e = normalizeCoordEn(m.group(5), m.group(6), m.group(7), m.group(8));
-            result.n = normalizeCoordEn(m.group(9), m.group(10), m.group(11), m.group(12));
-            result.s = normalizeCoordEn(m.group(13), m.group(14), m.group(15), m.group(16));
-            return result;
+            double w = normalizeCoordEn(m.group(1), m.group(2), m.group(3), m.group(4));
+            double e = normalizeCoordEn(m.group(5), m.group(6), m.group(7), m.group(8));
+            double n = normalizeCoordEn(m.group(9), m.group(10), m.group(11), m.group(12));
+            double s = normalizeCoordEn(m.group(13), m.group(14), m.group(15), m.group(16));
+            return new BoundingBox(w, e, n, s);
         } else {
             return null;
         }
@@ -155,12 +147,11 @@ public class CoordinatesExtractor {
                 "\\s*\\)?$");
         Matcher m = pattern.matcher(coordinatesStr);
         if (m.matches()) {
-            BoundingBox result = new BoundingBox();
-            result.w = normalizeCoordCz(m.group(4), m.group(1), m.group(2), m.group(3));
-            result.e = normalizeCoordCz(m.group(8), m.group(5), m.group(6), m.group(7));
-            result.n = normalizeCoordCz(m.group(12), m.group(9), m.group(10), m.group(11));
-            result.s = normalizeCoordCz(m.group(16), m.group(13), m.group(14), m.group(15));
-            return result;
+            double w = normalizeCoordCz(m.group(4), m.group(1), m.group(2), m.group(3));
+            double e = normalizeCoordCz(m.group(8), m.group(5), m.group(6), m.group(7));
+            double n = normalizeCoordCz(m.group(12), m.group(9), m.group(10), m.group(11));
+            double s = normalizeCoordCz(m.group(16), m.group(13), m.group(14), m.group(15));
+            return new BoundingBox(w, e, n, s);
         } else {
             return null;
         }
@@ -200,10 +191,22 @@ public class CoordinatesExtractor {
         return deg + min / 60d + sec / 3600d;
     }
 
-    static class BoundingBox {
-        double w;
-        double e;
-        double n;
-        double s;
+    public static class BoundingBox {
+
+        public BoundingBox(double w, double e, double n, double s) {
+            this.w = w;
+            this.e = e;
+            this.n = n;
+            this.s = s;
+        }
+
+        public final double w;
+        public final double e;
+        public final double n;
+        public final double s;
+
+        public boolean isPoint() {
+            return this.w == this.e && this.n == this.s;
+        }
     }
 }

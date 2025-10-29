@@ -655,6 +655,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="coords.bbox.corner_sw" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
         <!--north east corner of the bounding box-->
         <field name="coords.bbox.corner_ne" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+        <-- if the coordinates represent a single point -->
+        <field name="coords.is_point" type="boolean" indexed="true" stored="true"/>
 
         <!--languages
         facetové pole, ale bude se užívat i pro vyhledávání, jelikož je to jednoslovný kód, neměl by být problém s rozsekáním na slova,
