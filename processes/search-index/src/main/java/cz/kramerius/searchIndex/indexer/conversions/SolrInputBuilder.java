@@ -13,16 +13,13 @@ import cz.kramerius.shared.Title;
 import org.dom4j.*;
 
 import org.apache.commons.text.StringEscapeUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,8 +79,8 @@ public class SolrInputBuilder {
 
         addSolrField(solrInput, "own_pid_path", parentNode.getPidPath() + "/" + pid);
         addSolrField(solrInput, "own_model_path", parentNode.getModelPath() + "/" + model);
-        
-        
+
+
         addSolrField(solrInput, "rels_ext_index.sort", pageNumber);
         if (parentNode.getTitle() != null) {
             addSolrField(solrInput, "own_parent.title", parentNode.getTitle().toString());
@@ -143,7 +140,7 @@ public class SolrInputBuilder {
         //addSolrField(solrInput, "page.type", "NormalPage");
         //addSolrField(solrInput, "page.placement", "single");
 
-        
+
         //optional support for compositeId in SOLR Cloud
         ensureCompositeId(solrInput, parentNode, pid);
 
@@ -197,6 +194,12 @@ public class SolrInputBuilder {
             }
         }
         solrInput.addField("model", model);
+
+        //subtype
+        String subtype = repositoryNode.getSubtype();
+        if (subtype != null) {
+            solrInput.addField("subtype", subtype);
+        }
 
         //created_date
         addSolrField(solrInput, "created", extractProperty(foxmlDoc, "info:fedora/fedora-system:def/model#createdDate"));
@@ -318,22 +321,20 @@ public class SolrInputBuilder {
         for (Title title : allTitles) {
             solrInput.addField("titles.search", title.toString());
         }
-        
+
         // collection, titles in different languages
         if ("collection".equals(model)) {
             Map<String, List<String>> localizedTitles = titlesExtractor.extractLocalizedTitles(modsRootEl, model);
-            localizedTitles.keySet().forEach(lang-> {
+            localizedTitles.keySet().forEach(lang -> {
                 List<String> titles = localizedTitles.get(lang);
-                titles.forEach(title-> {
-                    solrInput.addField("title.search_"+lang, title);
+                titles.forEach(title -> {
+                    solrInput.addField("title.search_" + lang, title);
                 });
             });
         }
 
         //keywords
-        List<Node> topicEls = Dom4jUtils.buildXpath("mods/subject/topic").selectNodes(modsRootEl);
-        for (Node topicEl : topicEls) {
-            String keyword = toStringOrNull(topicEl);
+        for (String keyword : repositoryNode.getKeywords()) {
             solrInput.addField("keywords.search", keyword);
             solrInput.addField("keywords.facet", withFirstLetterInUpperCase(keyword));
         }
@@ -344,6 +345,36 @@ public class SolrInputBuilder {
             String geoName = toStringOrNull(geoNameEl);
             solrInput.addField("geographic_names.search", geoName);
             solrInput.addField("geographic_names.facet", geoName);
+        }
+
+        //subject names - personal
+        List<Node> subjectNamesPersonal = Dom4jUtils.buildXpath("mods/subject/name[@type='personal']").selectNodes(modsRootEl);
+        for (Node subjectNamePersonal : subjectNamesPersonal) {
+            //only values form namPart without type
+            String name = Dom4jUtils.stringOrNullFromFirstElementByXpath((Element) subjectNamePersonal, "namePart[not(@type)]");
+            if (name != null) {
+                solrInput.addField("subject_names_personal.search", name);
+                solrInput.addField("subject_names_personal.facet", withFirstLetterInUpperCase(name));
+            }
+        }
+
+        //subject names - corporate
+        List<Node> subjectNamesCorporate = Dom4jUtils.buildXpath("mods/subject/name[@type='corporate']").selectNodes(modsRootEl);
+        for (Node subjectNameCorporate : subjectNamesCorporate) {
+            //only values form namPart without type
+            String name = Dom4jUtils.stringOrNullFromFirstElementByXpath((Element) subjectNameCorporate, "namePart[not(@type)]");
+            if (name != null) {
+                solrInput.addField("subject_names_corporate.search", name);
+                solrInput.addField("subject_names_corporate.facet", withFirstLetterInUpperCase(name));
+            }
+        }
+
+        //subject temporals
+        List<Node> subjectTemporalEls = Dom4jUtils.buildXpath("mods/subject/temporal").selectNodes(modsRootEl);
+        for (Node subjectTemporalEl : subjectTemporalEls) {
+            String temporal = toStringOrNull(subjectTemporalEl);
+            solrInput.addField("subject_temporals.search", temporal);
+            solrInput.addField("subject_temporals.facet", temporal);
         }
 
         //physicalLocations
@@ -361,8 +392,9 @@ public class SolrInputBuilder {
         //genres
         List<Node> genreEls = Dom4jUtils.buildXpath("mods/genre").selectNodes(modsRootEl);
         for (Node genreEl : genreEls) {
+            String authority = Dom4jUtils.stringOrNullFromAttributeByName((Element) genreEl, "authority");
             String genre = toStringOrNull(genreEl);
-            if (genre != null && !genreStopWords.contains(genre.toLowerCase())) {
+            if (genre != null && !"kdccv".equals(authority) && !genreStopWords.contains(genre.toLowerCase())) {
                 solrInput.addField("genres.search", genre);
                 solrInput.addField("genres.facet", withFirstLetterInUpperCase(genre));
             }
@@ -387,7 +419,16 @@ public class SolrInputBuilder {
         //geolocation
         Node coordinatesEl = Dom4jUtils.buildXpath("mods/subject/cartographics/coordinates").selectSingleNode(modsRootEl);
         if (coordinatesEl != null) {
-            new CoordinatesExtractor().extract(coordinatesEl, solrInput, pid);
+            CoordinatesExtractor.BoundingBox bb = new CoordinatesExtractor().extract(coordinatesEl, solrInput, pid);
+            if (bb != null) {
+                Locale locale = new Locale("en", "US");
+                //ENVELOPE(minX, maxX, maxY, minY)
+                solrInput.addField("coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
+                solrInput.addField("coords.bbox.center", String.format(locale, "%.6f,%.6f", (bb.n + bb.s) / 2, (bb.w + bb.e) / 2));
+                solrInput.addField("coords.bbox.corner_sw", String.format(locale, "%.6f,%.6f", bb.s, bb.w));
+                solrInput.addField("coords.bbox.corner_ne", String.format(locale, "%.6f,%.6f", bb.n, bb.e));
+                solrInput.addField("coords.is_point", bb.isPoint() ? "true" : "false");
+            }
         }
 
         //dates
@@ -554,13 +595,13 @@ public class SolrInputBuilder {
         }
 
         if ("collection".equals(model)) {
-            for (Node node : Dom4jUtils.buildXpath("mods/abstract[@lang]").selectNodes(modsRootEl))  {
+            for (Node node : Dom4jUtils.buildXpath("mods/abstract[@lang]").selectNodes(modsRootEl)) {
                 Element nodeElm = (Element) node;
                 Attribute attribute = nodeElm.attribute("lang");
                 if (attribute != null) {
                     String desc = toStringOrNull(nodeElm);
-                    addSolrField(solrInput, "collection.desc_"+attribute.getValue(),desc);
-                    addSolrField(solrInput, "collection.desc",desc);
+                    addSolrField(solrInput, "collection.desc_" + attribute.getValue(), desc);
+                    addSolrField(solrInput, "collection.desc", desc);
                 }
             }
             for (Node node : Dom4jUtils.buildXpath("mods/note[@lang]").selectNodes(modsRootEl)) {
@@ -568,8 +609,8 @@ public class SolrInputBuilder {
                 Attribute attribute = nodeElm.attribute("lang");
                 if (attribute != null) {
                     String desc = decodeXml(toStringOrNull(nodeElm));
-                    addSolrField(solrInput, "collection.desc_"+attribute.getValue(),desc);
-                    addSolrField(solrInput, "collection.desc",desc);
+                    addSolrField(solrInput, "collection.desc_" + attribute.getValue(), desc);
+                    addSolrField(solrInput, "collection.desc", desc);
                 }
             }
             String abstractFromTitleInfoNoLang = toStringOrNull(Dom4jUtils.buildXpath("mods/abstract[not(@lang)]").selectSingleNode(modsRootEl));
@@ -577,11 +618,11 @@ public class SolrInputBuilder {
                 addSolrField(solrInput, "collection.desc", abstractFromTitleInfoNoLang);
             }
             String noteFromTitleInfoNoLang = toStringOrNull(Dom4jUtils.buildXpath("mods/note[not(@lang)]").selectSingleNode(modsRootEl));
-            if(noteFromTitleInfoNoLang != null) {
+            if (noteFromTitleInfoNoLang != null) {
                 addSolrField(solrInput, "collection.desc", decodeXml(noteFromTitleInfoNoLang));
             }
 
-            
+
             //collection.is_standalone
             String standaloneStr = toStringOrNull(Dom4jUtils.buildXpath("Description/standalone").selectSingleNode(relsExtRootEl));
             addSolrField(solrInput, "collection.is_standalone", Boolean.valueOf(standaloneStr));
@@ -639,13 +680,33 @@ public class SolrInputBuilder {
         new IdentifiersExtractor().extract(modsRootEl, solrInput);
 
         //counters
-        int countPage = Dom4jUtils.buildXpath("Description/hasPage").selectNodes(relsExtRootEl).size();
+        int countPage = Dom4jUtils.buildXpath("Description/hasPage|Description/isOnPage").selectNodes(relsExtRootEl).size();
         if (countPage > 0) {
             addSolrField(solrInput, "count_page", Integer.toString(countPage));
         }
         int countTrack = Dom4jUtils.buildXpath("Description/hasTrack|Description/containsTrack").selectNodes(relsExtRootEl).size();
         if (countTrack > 0) {
             addSolrField(solrInput, "count_track", Integer.toString(countTrack));
+        }
+        int countMonographUnit = Dom4jUtils.buildXpath("Description/hasUnit").selectNodes(relsExtRootEl).size();
+        if (countMonographUnit > 0) {
+            addSolrField(solrInput, "count_monograph_unit", Integer.toString(countMonographUnit));
+        }
+        int countSoundUnit = Dom4jUtils.buildXpath("Description/hasSoundUnit").selectNodes(relsExtRootEl).size();
+        if (countSoundUnit > 0) {
+            addSolrField(solrInput, "count_sound_unit", Integer.toString(countSoundUnit));
+        }
+        int countIssue = Dom4jUtils.buildXpath("Description/hasItem").selectNodes(relsExtRootEl).size();
+        if (countIssue > 0) {
+            addSolrField(solrInput, "count_issue", Integer.toString(countIssue));
+        }
+        int countVolume = Dom4jUtils.buildXpath("Description/hasVolume").selectNodes(relsExtRootEl).size();
+        if (countVolume > 0) {
+            addSolrField(solrInput, "count_volume", Integer.toString(countVolume));
+        }
+        int countIntCompPart = Dom4jUtils.buildXpath("Description/hasIntCompPart").selectNodes(relsExtRootEl).size();
+        if (countIntCompPart > 0) {
+            addSolrField(solrInput, "count_internal_part", Integer.toString(countIntCompPart));
         }
 
         //OCR text
@@ -655,9 +716,11 @@ public class SolrInputBuilder {
 
         return solrInput;
     }
+
     public static String decodeXml(String encodedXml) {
         return StringEscapeUtils.unescapeHtml4(StringEscapeUtils.unescapeXml(encodedXml));
     }
+
     private Integer extractLeadingNumber(String stringPossiblyStartingWithNumber) {
         if (stringPossiblyStartingWithNumber != null && !stringPossiblyStartingWithNumber.isEmpty()) {
             StringBuilder builder = new StringBuilder();

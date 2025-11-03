@@ -1,7 +1,9 @@
 <testSuite testType="mods" model="map">
 
-    <test name="Mezinárodní zápis">
-        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba</desc>
+    <test name="Anglický zápis (stupeň/minuta/sekunda)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba
+        </desc>
         <in>
             <subject>
                 <cartographics>
@@ -14,11 +16,75 @@
             <field name="coords.bbox.center">49.783333,15.608333</field>
             <field name="coords.bbox.corner_ne">51.050000,19.183333</field>
             <field name="coords.bbox.corner_sw">48.516667,12.033333</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
-    <test name="Český zápis">
-        <desc>http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:ba4934d1-0a1e-4a01-a89d-c948477ca833?page=uuid:d22baf06-7fb6-4488-bc6f-995b644fd085</desc>
+    <test name="Anglický zápis (stupeň s desetinými místy)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba
+        </desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 12.033333°--E 19.183333°/N 51.050000°--N 48.516667°)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(12.033333,19.183333,51.050000,48.516667)</field>
+            <field name="coords.bbox.center">49.783334,15.608333</field>
+            <field name="coords.bbox.corner_ne">51.050000,19.183333</field>
+            <field name="coords.bbox.corner_sw">48.516667,12.033333</field>
+            <field name="coords.is_point">false</field>
+        </out>
+    </test>
+
+    <test name="Anglický zápis (stupeň s desetinými místy) - bod">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba
+        </desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(E 16.592990528190832°--E 16.592990528190832°/N 49.22650453651972°--N 49.22650453651972°)
+                    </coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(16.592991,16.592991,49.226505,49.226505)</field>
+            <field name="coords.bbox.center">49.226505,16.592991</field>
+            <field name="coords.bbox.corner_ne">49.226505,16.592991</field>
+            <field name="coords.bbox.corner_sw">49.226505,16.592991</field>
+            <field name="coords.is_point">true</field>
+        </out>
+    </test>
+
+    <test name="Anglický zápis (přímo bounding box)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:3572124e-d1bd-4f4e-8dfb-b16045e8aa80?page=uuid:66249fc7-10d3-11e8-a2cd-001b63bd97ba
+        </desc>
+        <in>
+            <subject>
+                <cartographics>
+                    <coordinates>(-25.4167, -34.8542, 63.5000, 37.5333)</coordinates>
+                </cartographics>
+            </subject>
+        </in>
+        <out>
+            <field name="coords.bbox">ENVELOPE(-25.416700,-34.854200,63.500000,37.533300)</field>
+            <field name="coords.bbox.center">50.516650,-30.135450</field>
+            <field name="coords.bbox.corner_ne">63.500000,-34.854200</field>
+            <field name="coords.bbox.corner_sw">37.533300,-25.416700</field>
+            <field name="coords.is_point">false</field>
+        </out>
+    </test>
+
+    <test name="Český zápis (stupeň/minuta/sekunda)">
+        <desc>
+            http://digitalniknihovna.uhonzy.cz/mzk/view/uuid:ba4934d1-0a1e-4a01-a89d-c948477ca833?page=uuid:d22baf06-7fb6-4488-bc6f-995b644fd085
+        </desc>
         <in>
             <subject>
                 <cartographics>
@@ -31,6 +97,7 @@
             <field name="coords.bbox.center">49.203333,16.607500</field>
             <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
             <field name="coords.bbox.corner_sw">49.171667,16.563056</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -48,6 +115,7 @@
             <field name="coords.bbox.center">53.343194,-8.162639</field>
             <field name="coords.bbox.corner_ne">55.534722,-5.097500</field>
             <field name="coords.bbox.corner_sw">51.151667,-11.227778</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -65,6 +133,7 @@
             <field name="coords.bbox.center">67.648611,-37.921944</field>
             <field name="coords.bbox.corner_ne">75.674167,-17.160556</field>
             <field name="coords.bbox.corner_sw">59.623056,-58.683333</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -82,6 +151,7 @@
             <field name="coords.bbox.center">55.016528,-4.493472</field>
             <field name="coords.bbox.corner_ne">59.955000,1.911389</field>
             <field name="coords.bbox.corner_sw">50.078056,-10.898333</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -99,6 +169,7 @@
             <field name="coords.bbox.center">-30.000000,117.000000</field>
             <field name="coords.bbox.corner_ne">-24.000000,126.000000</field>
             <field name="coords.bbox.corner_sw">-36.000000,108.000000</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -116,6 +187,7 @@
             <field name="coords.bbox.center">-22.573472,140.734722</field>
             <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
             <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -133,6 +205,7 @@
             <field name="coords.bbox.center">-22.573472,140.734722</field>
             <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
             <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -150,6 +223,7 @@
             <field name="coords.bbox.center">45.953194,13.555556</field>
             <field name="coords.bbox.corner_ne">46.133333,14.146389</field>
             <field name="coords.bbox.corner_sw">45.773056,12.964722</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -167,6 +241,7 @@
             <field name="coords.bbox.center">9.196250,-1.406250</field>
             <field name="coords.bbox.corner_ne">73.970833,59.589722</field>
             <field name="coords.bbox.corner_sw">-55.578333,-62.402222</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -184,6 +259,7 @@
             <field name="coords.bbox.center">50.088611,14.419028</field>
             <field name="coords.bbox.corner_ne">50.254444,14.802500</field>
             <field name="coords.bbox.corner_sw">49.922778,14.035556</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -201,6 +277,7 @@
             <field name="coords.bbox.center">45.000000,16.000000</field>
             <field name="coords.bbox.corner_ne">46.000000,17.000000</field>
             <field name="coords.bbox.corner_sw">44.000000,15.000000</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -218,6 +295,7 @@
             <field name="coords.bbox.center">49.333333,17.250000</field>
             <field name="coords.bbox.corner_ne">51.333333,23.000000</field>
             <field name="coords.bbox.corner_sw">47.333333,11.500000</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -235,6 +313,7 @@
             <field name="coords.bbox.center">45.000000,16.000000</field>
             <field name="coords.bbox.corner_ne">46.000000,17.000000</field>
             <field name="coords.bbox.corner_sw">44.000000,15.000000</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -252,6 +331,7 @@
             <field name="coords.bbox.center">49.190139,16.594583</field>
             <field name="coords.bbox.corner_ne">49.257500,16.707778</field>
             <field name="coords.bbox.corner_sw">49.122778,16.481389</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -269,6 +349,7 @@
             <field name="coords.bbox.center">49.203333,16.607500</field>
             <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
             <field name="coords.bbox.corner_sw">49.171667,16.563056</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -286,6 +367,7 @@
             <field name="coords.bbox.center">49.190139,16.594583</field>
             <field name="coords.bbox.corner_ne">49.257500,16.707778</field>
             <field name="coords.bbox.corner_sw">49.122778,16.481389</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -303,6 +385,7 @@
             <field name="coords.bbox.center">-22.573472,140.734722</field>
             <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
             <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 
@@ -321,6 +404,7 @@
             <field name="coords.bbox.center">268.791667,15.758333</field>
             <field name="coords.bbox.corner_ne">490.166667,17.066667</field>
             <field name="coords.bbox.corner_sw">47.416667,14.450000</field>
+            <field name="coords.is_point">false</field>
             -->
         </out>
     </test>
@@ -340,6 +424,7 @@
             <field name="coords.bbox.center">49.203333,103.607500</field>
             <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
             <field name="coords.bbox.corner_sw">49.171667,190.563056</field>
+            <field name="coords.is_point">false</field>
             -->
         </out>
     </test>
@@ -359,6 +444,7 @@
             <field name="coords.bbox.center">46.024444,13.552500</field>
             <field name="coords.bbox.corner_ne">45.438611,14.778333</field>
             <field name="coords.bbox.corner_sw">46.610278,12.326667</field>
+            <field name="coords.is_point">false</field>
             -->
         </out>
     </test>
@@ -377,6 +463,7 @@
             <field name="coords.bbox.center">66.000000,-6.000000</field>
             <field name="coords.bbox.corner_ne">71.000000,-169.000000</field>
             <field name="coords.bbox.corner_sw">61.000000,157.000000</field>
+            <field name="coords.is_point">false</field>
         </out>
     </test>
 

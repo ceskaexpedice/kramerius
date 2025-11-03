@@ -1,5 +1,69 @@
 <testSuite testType="mods" model="monograph">
 
+    <test name="1951 (1952)">
+        <desc>two years, not sure which one is correct year of publication, using parentheses</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1951 (1952)</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1951-01-01T00:00:00.001Z</field>
+            <field name="date.str">1951 (1952)</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1951</field>
+        </out>
+    </test>
+
+    <test name="1951(1952)">
+        <desc>two years, not sure which one is correct year of publication, using parentheses, no space</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1951(1952)</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1951-01-01T00:00:00.001Z</field>
+            <field name="date.str">1951(1952)</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1951</field>
+        </out>
+    </test>
+
+    <test name="1951   (1952)">
+        <desc>two years, not sure which one is correct year of publication, using parentheses, some extra spaces</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1951   (1952)</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1951-01-01T00:00:00.001Z</field>
+            <field name="date.str">1951 (1952)</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1951</field>
+        </out>
+    </test>
+
+    <test name="1952 (1951)">
+        <desc>two years, not sure which one is correct year of publication, using parentheses, later year first</desc>
+        <in>
+            <originInfo>
+                <dateIssued>1952 (1951)</dateIssued>
+            </originInfo>
+        </in>
+        <out>
+            <field name="date.max">1952-12-31T23:59:59.999Z</field>
+            <field name="date.min">1951-01-01T00:00:00.001Z</field>
+            <field name="date.str">1952 (1951)</field>
+            <field name="date_range_end.year">1952</field>
+            <field name="date_range_start.year">1951</field>
+        </out>
+    </test>
+
     <test name="1951, [i.e. 1952]">
         <desc>two years, not sure which one is correct year of publication</desc>
         <in>

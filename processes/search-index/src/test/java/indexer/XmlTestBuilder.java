@@ -4,6 +4,7 @@ import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AuthorsExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.DateExtractor;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.KeywordsExtractor;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.LanguagesExtractor;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.shared.AuthorInfo;
@@ -125,6 +126,7 @@ public class XmlTestBuilder {
             List<AuthorInfo> primaryAuthors = new AuthorsExtractor().extractPrimaryAuthors(test.getInDoc().getRootElement(), null);
             List<AuthorInfo> otherAuthors = new AuthorsExtractor().extractNonPrimaryAuthors(test.getInDoc().getRootElement(), null);
             DateInfo dateInfo = new DateExtractor().extractDateInfoFromMultipleSources(test.getInDoc().getRootElement(), null);
+            List<String> keywords = new KeywordsExtractor().extractKeywords(test.getInDoc().getRootElement(), null);
             RepositoryNode node = new RepositoryNode(
                     null, test.getDocType(), null,
                     null, null, null,
@@ -133,7 +135,7 @@ public class XmlTestBuilder {
                     null, null, null,
                     null, null,
                     languages, primaryAuthors, otherAuthors, dateInfo,
-                    null, null
+                    null, null, keywords, null
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
@@ -150,11 +152,11 @@ public class XmlTestBuilder {
                     "has_tiles",
                     "ds.img_full.mime",
                     "level");
-            
+
             String tAsXML = test.getOutDoc().asXML();
             String cAsXML = cleared.getDocument().asXML();
-            
-            
+
+
             assertEquals(test.getOutDoc().asXML(), cleared.getDocument().asXML());
         };
         return exec;
@@ -179,7 +181,7 @@ public class XmlTestBuilder {
                     null, null, null,
                     null, null,
                     null, null, null, null,
-                    null, null
+                    null, null, null, null
             );
             SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, null, node, null, null, null, true);
             SolrInput cleared = withoutFields(solrInput,
