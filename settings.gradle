@@ -36,7 +36,7 @@ include 'processes:sdnnt'
 include 'processes:licenses'
 include 'processes:collections-backup'
 
-
+include 'installation'
 
 
 include 'security:authfilters'
