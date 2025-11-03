@@ -184,6 +184,11 @@ allprojects {
             url "https://maven.java.net/content/repositories/snapshots/"
         }
 
+		maven {
+			url "https://maven.elmakers.com/repository"
+		}
+		
+		
         maven {
             url "https://maven.geotoolkit.org/"
         }

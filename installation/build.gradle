@@ -1,0 +1,167 @@
+import groovy.xml.XmlParser
+import groovy.xml.XmlNodePrinter
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.io.FileNotFoundException
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+
+
+def solrEnvironments = [
+        search_cloud: [
+                prefix: "solr-9.x.cloud",
+                index:"search",
+                schemaDir: "",
+                dependsOn: "generateSchemaSolr9SearchCloud"
+        ],
+        search_cdk: [
+                prefix: "solr-9.x.cdk",
+                index:"search",
+                schemaDir: "",
+                dependsOn: "generateSchemaSolr9SearchCDK"
+        ],
+        search_sa: [
+                prefix: "solr-9.x",
+                index:"search",
+                schemaDir: "conf",
+                dependsOn: "generateSchemaSolr9Search"
+        ]
+]
+
+
+abstract class EnrichSchemaXmlTask extends DefaultTask {
+    
+    @InputFile
+    abstract RegularFileProperty getInputFile()
+    
+    @OutputFile
+    abstract RegularFileProperty getOutputFile()
+
+    def readCommonXmlFile(filePath) {
+        def file = project.file(filePath)
+        if (file.exists()) {
+            return file.text
+        } else {
+            throw new FileNotFoundException("ERROR: Common file not found at path: ${filePath}. Ensure the path is correct.")
+        }
+    }
+    @TaskAction
+    void enrich() {
+        def inputFile = getInputFile().asFile.get()
+        def outputFile = getOutputFile().asFile.get()
+
+        if (!inputFile.exists()) {
+            println "Vstupní soubor ${inputFile.path} nebyl nalezen. Přeskočení úlohy."
+            return
+        }
+
+        def parser = new XmlParser()
+        parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        parser.setFeature("http://xml.org/sax/features/namespaces", false);
+
+        def schemaNode = parser.parse(inputFile)
+
+        schemaNode.children().each { element ->
+            def buildAttr = element.attributes().get('build')
+            def fileAttr = element.attributes().get('file')
+
+            if (buildAttr && fileAttr) {
+                println "Processing element <${element.name()}>: Operation '${buildAttr}' using file '${fileAttr}'."
+
+                try {
+                    def commonContent = readCommonXmlFile(fileAttr)
+                    def sourceNode = parser.parseText(commonContent)
+
+                    switch (buildAttr) {
+                        case 'replace':
+                            element.children().clear()
+                            sourceNode.children().each { child ->
+                                element.children().add(child)
+                            }
+                            println " -> Content of element <${element.name()}> was completely REPLACED."
+                            break
+                        case 'update': // Add/append the content
+                            sourceNode.children().each { child ->
+                                element.children().add(child)
+                            }
+                            println " -> Content of element <${element.name()}> was UPDATED (added)."
+                            break
+                        default:
+                            logger.warn("Unknown operation 'build'='${buildAttr}' for <${element.name()}>. Insertion skipped.")
+                            return
+                    }
+                    
+                    element.attributes().remove('build')
+                    element.attributes().remove('file')
+
+                } catch (Exception e) {
+                    logger.error("ERROR: Failed to read file: ${fileAttr}")
+                }
+            }
+        }
+
+        outputFile.parentFile.mkdirs()
+        def writer = new StringWriter()
+        def printer = new XmlNodePrinter(new PrintWriter(writer), "  ")
+        printer.setPreserveWhitespace(true)
+        printer.print(schemaNode)
+
+        outputFile.write(writer.toString())
+
+        println "Schema.xml was successfully enriched and saved to: ${outputFile.path}"
+    }
+}
+
+def allCopyTasks = []
+def getSchemaPath(config) {
+    def schemaDir =  "conf"
+    if (config.schemaDir != null) {
+        schemaDir = config.schemaDir;
+    }
+
+    return "${config.index}/${schemaDir}"
+}
+
+solrEnvironments.each { name, config ->
+
+
+    def taskName = "generateSchema${name}"
+    def schemaPath = getSchemaPath(config)
+
+    tasks.register(taskName, EnrichSchemaXmlTask) {
+        group = "xml processing"
+        description = "Enriches the schema for ${name}."
+
+        def inputPath = "${config.prefix}/${schemaPath}/managed-schema.input"
+        def outputPath = "${config.prefix}/${schemaPath}/managed-schema"
+
+        inputFile.set(project.layout.projectDirectory.file(inputPath))
+        outputFile.set(project.layout.buildDirectory.file(outputPath))
+    }
+}
+
+solrEnvironments.each { name, config ->
+    def taskName = "copySolr9${name}"
+
+    tasks.register(taskName, Copy) {
+        group = "xml processing"
+        description = "Copies all files from the Solr  ${name} core."
+
+        dependsOn(tasks.named("generateSchema${name}"))
+
+        from("${config.prefix}/${config.index}")
+        into(project.layout.buildDirectory.dir("${config.prefix}/${config.index}"))
+
+        exclude("**/*.input")
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+    allCopyTasks.add(taskName)
+}
+
+tasks.named('build') {
+    dependsOn(allCopyTasks)
+}
+
