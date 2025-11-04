@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fields>
+        <!--_version_ field must exist in schema and be searchable (indexed or docValues) and retrievable(stored or docValues) and not multiValued (_version_ does not exist)-->
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <!--version of indexer, increments with change of implementation, typically some conversions input_data_(MODS) -> data_in_SOLR -->
+        <field name="indexer_version" type="int" indexed="true" stored="true" multiValued="false"/>
+        <!--temporary field used for indexation processes, after (full) indexation is sucessfully finished, this field is cleared-->
+        <field name="full_indexation_in_progress" type="boolean" indexed="true" stored="true"  docValues="true"/>
+
+
+        <field name="pid" type="string" indexed="true" stored="true" required="true"  docValues="true"/>
+        <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+
+        <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="indexed" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
+
+        <!--keywords-->
+        <field name="keywords.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="keywords.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--geographic names-->
+        <field name="geographic_names.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="geographic_names.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--genres-->
+        <field name="genres.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="genres.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--publishers-->
+        <field name="publishers.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="publishers.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--publication place-->
+        <field name="publication_places.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="publication_places.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--vsichni autori (vcetne hlavnich, ti se nerozlisuji), 'authors' muze obsahovat datum-->
+        <field name="authors" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="authors.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		<!-- Authors search exact -->
+        <field name="authors.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
+        <field name="authors.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+
+        <!--hlavni nazev-->
+        <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+
+        <!--hlavni nazev (bez hodnoty nonSort)-->
+        <field name="title.sort" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <!--vsechny nazvy (vcetne hlavniho)-->
+        <field name="titles.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		<!-- Titles search exact -->
+        <field name="titles.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
+		<!-- localized collection titles -->
+        <dynamicField name="title.search_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		<!-- localized collection desc -->
+		<dynamicField name="collection.desc_*" type="text_general" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
+        <!--root, parent, paths-->
+        <!--root-->
+        <field name="root.pid" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="root.model" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="root.title" type="string" indexed="true" stored="true"/>
+        <field name="root.title.sort" type="string" indexed="true" stored="true"/>
+
+        <!--own parent-->
+        <field name="own_parent.pid" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="own_parent.model" type="string" indexed="true" stored="true"  docValues="true"/>
+        <field name="own_parent.title" type="string" indexed="true" stored="true"/>
+
+        <!--own pid/model path-->
+        <field name="own_pid_path" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="own_pid_path.children" type="children_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
+        <field name="own_pid_path.parents" type="parents_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
+
+		<field name="own_model_path" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+		<field name="own_model_path.children" type="children_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
+        <field name="own_model_path.parents" type="parents_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
+
+ 		
+
+        <!--position of this object within it's own parent's children-->
+        <field name="rels_ext_index.sort" type="int" indexed="true" stored="true"/>
+
+        <!--foster parents-->
+        <field name="foster_parents.pids" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <!--TODO: foster ancestors somehow for search withing articles and internalParts, or maybe do it like in collections-->
+
+        <!--foster ancestors(own, foster, mixed) that are model:collection-->
+        <field name="in_collections" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="in_collections.direct" type="string" indexed="true" stored="true" multiValued="true"/>
+
+        <!--level (vertical position in own tree starting with 0 for root) -->
+        <field name="level" type="int" indexed="true" stored="true"/>
+        <!--path from own parent to this + paths from all foster parents to this-->
+        <field name="pid_paths" type="string" indexed="true" stored="true" multiValued="true"/>
+
+        <field name="pid_paths.children" type="children_path_hierarchy" indexed="true" stored="false" multiValued="true"  docValues="false"/>
+        <field name="pid_paths.parents" type="parents_path_hierarchy" indexed="true" stored="false" multiValued="true"  docValues="false"/>
+        <!--children (own, foster)-->
+        <!--<field name="own_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>
+        <field name="foster_children_pids" type="string" indexed="true" stored="true" multiValued="true"/>-->
+
+        <!--DATES -->
+
+        <!--interval, ktery urcite obsahuje dany objekt, i kdyz jej muze presahovat (napr. pro 12.1919-3.1920 to je 1919-01-12T00:00:00.001Z - 1952-03-31T23:59:59.999Z)-->
+        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
+        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
+
+        <!--presne hodnoty datumu, pokud je datum zapsano jako jedna hodota (ac treba zapis "6. 2012" take znamena rozsah, zde jde o zapis, je to tedy instant)-->
+        <!--zruseno, namisto toho bude uvedeno oboji date_range_start.* i date_range_end.*-->
+        <!--
+        <field name="date_instant.year" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_instant.month" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_instant.day" type="int" indexed="true" stored="true" multiValued="false"/>
+        -->
+
+        <!--presne hodnoty pocatecniho datumu, napr. pro "9uu" nebude vyplneno date_range_start_year a pro 17.x.1926 nebude date_range_start_month ani date_range_start_day-->
+        <field name="date_range_start.year" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_start.month" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_start.day" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!--presne hodnoty konecneho datumu, napr. pro "9uu" nebude vyplneno date_range_end_year a pro 17.x.1926 nebude date_range_end_month ani date_range_end_day-->
+        <field name="date_range_end.year" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_end.month" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="date_range_end.day" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!--text pro zobrazeni, napr. "1947", "1947 - 1948", "19?? - 198?", "3. 7. 1947",  "3. - 12.2.1952" apod.-->
+        <field name="date.str" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+
+        <!--hodnota z mods/titleInfo/partName, pouziva se pro volume, issue, monographunit, supplement-->
+        <field name="part.name" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <!--used in monograph-unit, volume, issue, supplement-->
+        <!--pro model:volume muze obsahovat treba: "1923","1923-1924"-->
+        <!--pro model:issue muze obsahovat treba: "16.04.1948", "06.2013", "1947"-->
+        <!--pro model:monographunit muze obsahovat treba: "2", "2x"-->
+        <field name="part.number.str" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+
+        <!--monograph unit specific-->
+
+        <!--periodical volume specific-->
+
+        <!--periodical issue specific-->
+        <!--
+        pro sekundární řazení (date_min/date_max + issue.type_sort), hodnoty na základe DMF periodika 1.8 (https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42)
+        0: normal, 1: morning, 2: afternoon, 3: evening, 4: corrected, 5: special, 6: supplement, 10+X: sequence_X
+        -->
+        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <!--kód typu, pro zobrazení v náhledech/seznamech; možné hodnoty: normal, morning, afternoon, evening, corrected, special, supplement, sequence_X-->
+        <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
+
+        <!--page-->
+        <!--NormalPage, TitlePage, etc.-->
+        <field name="page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--1, [1a], etc.-->
+        <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--0, 1, 2, ...-->
+        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <!--left, right, single-->
+        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+        <!--track-->
+        <!--delka audia v sekundach (zaokrouhleno nahoru)-->
+        <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+
+        <!--identifiers-->
+        <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_uuid" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_oclc" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_sysno" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_barcode" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_isbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_issn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_ismn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <!--value in id_other is prefixed with type (if found in mods:identifier/@type) and colon, e.g. "sici:84987580"-->
+        <field name="id_other" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <!--possible other identifiers for special field: sici, coden-->
+		
+		<!-- all identifiers in one field -->
+        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		
+
+		<copyField source="id_urnnbn" dest="id_all"/>
+		<copyField source="id_ccnb" dest="id_all"/>
+		<copyField source="id_uuid" dest="id_all"/>
+		<copyField source="id_oclc" dest="id_all"/>
+		<copyField source="id_sysno" dest="id_all"/>
+		<copyField source="id_barcode" dest="id_all"/>
+		<copyField source="id_isbn" dest="id_all"/>
+		<copyField source="id_issn" dest="id_all"/>
+		<copyField source="id_ismn" dest="id_all"/>
+		<copyField source="id_other" dest="id_all"/>
+
+        <!--pocty potomku (pro zobrazeni)-->
+        <field name="count_page" type="int" indexed="true" stored="true"/>
+        <field name="count_track" type="int" indexed="true" stored="true"/>
+	    <field name="count_monograph_unit" type="int" indexed="true" stored="true"/>
+        <field name="count_sound_unit" type="int" indexed="true" stored="true"/>
+        <field name="count_issue" type="int" indexed="true" stored="true"/>
+        <field name="count_volume" type="int" indexed="true" stored="true"/>
+        <field name="count_internal_part" type="int" indexed="true" stored="true"/>
+
+
+		<!-- geo coordinates -->
+        <!-- bounding box -->
+        <field name="coords.bbox" type="bbox" multiValued="false"/>
+        <!-- center of the bounding box -->
+        <field name="coords.bbox.center" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+        <!--south west corner of the bounding box-->
+        <field name="coords.bbox.corner_sw" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+        <!--north east corner of the bounding box-->
+        <field name="coords.bbox.corner_ne" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
+        <!-- if the coordinates represent a single point -->
+        <field name="coords.is_point" type="boolean" indexed="true" stored="true"/>
+
+
+        <!--languages
+        facetové pole, ale bude se užívat i pro vyhledávání, jelikož je to jednoslovný kód, neměl by být problém s rozsekáním na slova,
+        tudíž není potřeba další pole-->
+        <field name="languages.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--physical locations-->
+        <field name="physical_locations.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+		<!-- Issue #865 -->		
+        <field name="physical_locations.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
+        <!--shelf locators-->
+        <field name="shelf_locators" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+        <!--accessiblity-->
+        <field name="accessibility" type="string" indexed="true" stored="true"/>
+
+        <!--whether there is tiles-url in rels-ext-->
+        <field name="has_tiles" type="boolean" indexed="true" stored="true"/>
+        <!--MIME type of IMG_FULL datastream-->
+        <field name="ds.img_full.mime" type="string" indexed="true" stored="true"/>
+
+        <!--kratky popis sbirky-->
+        <field name="collection.desc" type="string" indexed="true" stored="true" multiValued="true"/>
+
+        <field name="collection.is_standalone" type="boolean" indexed="true" stored="true"/>
+
+        <!--OTHER-->
+
+        <field name="mdt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="ddt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="donator" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
+        <!-- text ocr -->
+        <field name="text_ocr" type="text_general" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
+		
+		<!-- exact match field -->
+		<field name="text_ocr.exact" type="text_exact_match" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
+
+
+        <!-- licenses (formerly dnnt labels)-->
+        <field name="licenses" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+        <!-- contains licenses (formerly dnnt labels) -->
+        <field name="contains_licenses" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+        <!-- licences belonging to (own) ancestors-->
+        <field name="licenses_of_ancestors" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+
+        <!-- licenses facet field; contains data from licenenses, contains_licenses, licenses_of_ancestors -->
+        <field name="licenses.facet" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+        <!-- copy authors -->
+		<copyField source="authors" dest="authors.search.exact" />
+
+		<!-- copy titles -->
+		<copyField source="titles.search" dest="titles.search.exact" />
+
+        <copyField source="licenses_of_ancestors" dest="licenses.facet"/>
+        <copyField source="contains_licenses" dest="licenses.facet"/>
+
+        <copyField source="licenses" dest="licenses.facet"/>
+ 		<!-- copy to text_ocr -->
+        <copyField source="text_ocr" dest="text_ocr.exact"/>
+		
+		<copyField source="physical_locations.facet" dest="physical_locations.search" />
+
+		<!-- paths -->
+		<copyField source="own_pid_path" dest="own_pid_path.children" />
+		<copyField source="own_pid_path" dest="own_pid_path.parents" />
+		<copyField source="own_model_path" dest="own_model_path.children" />
+		<copyField source="own_model_path" dest="own_model_path.parents" />
+		<copyField source="pid_paths" dest="pid_paths.children" />
+		<copyField source="pid_paths" dest="pid_paths.parents" />
+
+		<copyField source="physical_locations.facet" dest="physical_locations.search" />
+
+</fields>
+

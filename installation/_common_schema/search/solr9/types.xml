@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- common types for all 9.x solr -->
+<types>
+
+	<fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+	<fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
+	<fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
+
+	<fieldtype name="binary" class="solr.BinaryField"/>
+	
+	<!-- #Issue https://github.com/ceskaexpedice/kramerius/issues/1017; upgrade data types -->
+	<fieldType name="int" class="solr.IntPointField" docValues="true" sortMissingLast="true"/>
+	<fieldType name="float" class="solr.FloatPointField" docValues="true" sortMissingLast="true"/>
+	<fieldType name="long" class="solr.LongPointField" docValues="true" sortMissingLast="true"/>
+	<fieldType name="double" class="solr.DoublePointField" docValues="true" sortMissingLast="true"/>
+	<fieldType name="tint" class="solr.IntPointField" docValues="true"/>
+	<fieldType name="tfloat" class="solr.FloatPointField" docValues="true"/>
+	<fieldType name="tlong" class="solr.LongPointField" docValues="true"/> 
+	<fieldType name="tdouble" class="solr.DoublePointField" docValues="true"/>
+	<fieldType name="tints" class="solr.IntPointField" docValues="true" multiValued="true"/>				   
+	<fieldType name="tfloats" class="solr.FloatPointField" docValues="true" multiValued="true"/>
+	<fieldType name="tlongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
+	<fieldType name="tdoubles" class="solr.DoublePointField" docValues="true" multiValued="true"/>
+	<fieldType name="tdate" class="solr.DatePointField" docValues="true"/>
+	<fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>				   
+	<fieldType name="date" class="solr.DatePointField" docValues="true" sortMissingLast="true"/>
+	
+	<!-- END OF  #Issue https://github.com/ceskaexpedice/kramerius/issues/1017 -->
+
+
+	<fieldType name="random" class="solr.RandomSortField" indexed="true"/>
+
+	<!-- A text field that only splits on whitespace for exact matching of words -->
+	<fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
+		<analyzer>
+			<tokenizer class="solr.WhitespaceTokenizerFactory"/>
+		</analyzer>
+	</fieldType>
+
+
+
+		
+	<!-- A text general field; ascii folded and synonymized  -->
+	<!-- https://github.com/ceskaexpedice/kramerius/issues/805; synonyms -->
+	<fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+		<analyzer type="index">
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="false" expand="true"/>
+			<filter class="solr.FlattenGraphFilterFactory"/>
+			<filter class="solr.ASCIIFoldingFilterFactory"/>
+			<filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+
+		</analyzer>
+		<analyzer type="query">
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="false" expand="true"/>
+			<filter class="solr.ASCIIFoldingFilterFactory"/>
+			<filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+		</analyzer>
+	</fieldType>
+	<!-- END OF  #Issue https://github.com/ceskaexpedice/kramerius/issues/805 -->
+
+
+	<!-- A text field that only splits on whitespace for exact matching of words -->
+	<fieldType name="text_fgs" class="solr.TextField" positionIncrementGap="100">
+		<analyzer>
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+		</analyzer>
+	</fieldType>
+
+
+	<!-- A text field for exact match; only tokenized  -->
+	<!-- https://github.com/ceskaexpedice/kramerius/issues/982; -->
+
+	<fieldType name="text_exact_match" class="solr.TextField" positionIncrementGap="100">
+		<analyzer>
+			<tokenizer class="solr.StandardTokenizerFactory"/>
+		</analyzer>
+	</fieldType>
+	<!-- END OF  #Issue https://github.com/ceskaexpedice/kramerius/issues/982 -->
+	
+	<fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField"/>
+
+	<fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
+	<fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" geo="true" distErrPct="0.025" maxDistErr="0.000009"/>
+	<fieldType name="bbox" class="solr.BBoxField" geo="true" numberType="_bbox_coord" storeSubFields="false" stored="true"/>
+	<fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="true" stored="false"/>
+
+   <fieldType name="children_path_hierarchy" class="solr.TextField" positionIncrementGap="100">
+		<analyzer type="index">
+			<tokenizer class="solr.PathHierarchyTokenizerFactory" delimiter="/"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+		</analyzer>
+		<analyzer type="query">
+			<tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+		</analyzer>
+	</fieldType>
+
+	<fieldType name="parents_path_hierarchy" class="solr.TextField" positionIncrementGap="100">
+		<analyzer type="index">
+			<tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+		</analyzer>
+		<analyzer type="query">
+			<tokenizer class="solr.PathHierarchyTokenizerFactory" delimiter="/"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+		</analyzer>
+	</fieldType>
+
+</types>
+

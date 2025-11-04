@@ -46,6 +46,8 @@ include 'processes:sdnnt'
 include 'processes:licenses'
 include 'processes:collections-backup'
 
+include 'installation'
+
 
 include 'security:authfilters'
 include 'security:oauth'
@@ -55,11 +57,11 @@ include 'processes:cdkreharvest'
 include 'processes:cdkprocesses'
 
 // test worker - only for testing (contains mock plugin
-include 'nprocesses:test:worker'	
+include 'nprocesses:test:worker'
 
 // mock plugin
-include 'nprocesses:test:mock'	
-include 'nprocesses:test:import'	
+include 'nprocesses:test:mock'
+include 'nprocesses:test:import'
 
 
 
