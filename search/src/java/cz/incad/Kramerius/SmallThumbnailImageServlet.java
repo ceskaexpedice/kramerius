@@ -1,6 +1,5 @@
 package cz.incad.Kramerius;
 
-import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -8,7 +7,6 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.apache.commons.io.IOUtils;
-import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 
 import javax.servlet.ServletException;
@@ -115,10 +113,6 @@ public class SmallThumbnailImageServlet extends AbstractImageServlet {
         KConfiguration config = KConfiguration.getInstance();
         boolean highQuality = config.getConfiguration().getBoolean("thumbImage.iterateScaling", true);
         return highQuality;
-    }
-
-    public static String thumbImageServlet(HttpServletRequest request) {
-        return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.thmbImage"));
     }
 
 }

@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 
 import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
-import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.DCUtils;
@@ -128,10 +127,6 @@ public class FullImageServlet extends AbstractImageServlet {
         }
     }
 
-
-    public static String fullImageServlet(HttpServletRequest request) {
-        return ApplicationURL.urlOfPath(request, InternalConfiguration.get().getProperties().getProperty("servlets.mapping.fullImage"));
-    }
 
     @Override
     protected BufferedImage rawFullImage(String uuid, HttpServletRequest request, int page) throws IOException, MalformedURLException, XPathExpressionException {
