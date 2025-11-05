@@ -5,8 +5,9 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 -->
 <schema name="kramerius" version="1.4">
 
-    <types build="replace" file="_common_schema/search/solr9/types.xml"></types>
-    <fields build="update" file="_common_schema/search/solr9/fields.xml">
+		<types build="replace" file="_common_schema/search/types.xml"></types>
+		<fields build="update" file="_common_schema/search/fields.xml">
+
 		<!-- composite field for solr cloud -->	
         <field name="compositeId" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
 

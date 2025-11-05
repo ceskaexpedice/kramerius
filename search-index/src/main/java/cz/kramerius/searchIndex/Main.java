@@ -423,7 +423,7 @@ public class Main {
             } else {
                 String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
                 Integer audioLength = "track".equals(repositoryNode.getModel()) ? detectAudioLength(repositoryNode.getPid(), akubraRepository) : null;
-                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, true);
+                SolrInput solrInput = solrInputBuilder.processObjectFromRepository(akubraRepository, foxmlDoc, ocrText, repositoryNode, nodeManager, imgFullMime, audioLength, true);
                 String solrInputStr = solrInput.getDocument().asXML();
                 //System.out.println(solrInputStr);
                 System.out.println("indexing " + pid);
@@ -472,7 +472,7 @@ public class Main {
                 String pid = foxmlFilename.substring(0, foxmlFilename.length() - ".foxml.xml".length());
                 System.out.println("processing " + foxmlFilename);
                 File outSolrInputFile = new File(foxmlDir, pid + ".solr.xml");
-                builder.convertFoxmlToSolrInput(new File(foxmlDir, foxmlFilename), outSolrInputFile);
+                builder.convertFoxmlToSolrInput(null, new File(foxmlDir, foxmlFilename), outSolrInputFile);
                 //TODO: indexation temporarily disabled
                 //solrAccess.indexFromXmlFile(outSolrInputFile, true);
             }
@@ -480,16 +480,16 @@ public class Main {
         }
     }
 
-    private static void convertFoxmlsToSolrInputs(File monDir) throws IOException, DocumentException {
-        System.out.println("converting foxml -> solr_import_xml (in " + monDir.getAbsolutePath() + ")");
-        SolrInputBuilder builder = new SolrInputBuilder();
-        String[] foxmlFilenames = monDir.list((dir, name) -> name.endsWith(".foxml.xml"));
-        for (String foxmlFilename : foxmlFilenames) {
-            String pid = foxmlFilename.substring(0, foxmlFilename.length() - ".foxml.xml".length());
-            builder.convertFoxmlToSolrInput(new File(monDir, foxmlFilename), new File(monDir, pid + ".solr.xml"));
-        }
-        System.out.println("converted " + foxmlFilenames.length + " files");
-    }
+//    private static void convertFoxmlsToSolrInputs(File monDir) throws IOException, DocumentException {
+//        System.out.println("converting foxml -> solr_import_xml (in " + monDir.getAbsolutePath() + ")");
+//        SolrInputBuilder builder = new SolrInputBuilder();
+//        String[] foxmlFilenames = monDir.list((dir, name) -> name.endsWith(".foxml.xml"));
+//        for (String foxmlFilename : foxmlFilenames) {
+//            String pid = foxmlFilename.substring(0, foxmlFilename.length() - ".foxml.xml".length());
+//            builder.convertFoxmlToSolrInput(new File(monDir, foxmlFilename), new File(monDir, pid + ".solr.xml"));
+//        }
+//        System.out.println("converted " + foxmlFilenames.length + " files");
+//    }
 
     private static void buildSolrBasicAuthPluginCredentials(String[] args) {
         if (args.length < 2) {

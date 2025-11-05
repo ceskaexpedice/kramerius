@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- monitor types -->
+<fields>
+  <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+  <field name="identifier" type="string" indexed="true" stored="true"></field>	
+  <field name="resource" type="string" indexed="true" stored="true" docValues="true"></field>	
+  <field name="endpoint" type="string" indexed="true" stored="true" docValues="true"></field>	
+  <field name="httpMethod" type="string" indexed="true" stored="true" docValues="true"></field>	
+  <field name="pid" type="string" indexed="true" stored="true" docValues="true"></field>	
+  <field name="startTime" type="date" indexed="true"  docValues="true" stored="true"></field>	
+  <field name="endTime" type="date" indexed="true" docValues="true" stored="true"></field>	
+  <field name="duration" type="long" indexed="true" stored="true"></field>	
+  <field name="statusCode" type="int" indexed="true" stored="true"></field>	
+  <field name="userId" type="string" indexed="true" stored="true"></field>	
+  <field name="labels" type="string" indexed="true" stored="true" multiValued="true" ></field>	
+  <field name="ipaddress" type="string" indexed="true" stored="true" ></field>	
+  <field name="granularSnapshot" type="string" indexed="true" stored="true" ></field>
+</fields>

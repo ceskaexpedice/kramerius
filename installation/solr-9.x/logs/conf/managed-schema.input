@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="processing-schema" version="18">
+	<types build="replace" file="_common_schema/logs/types.xml"></types>
+	<fields build="replace" file="_common_schema/logs/fields.xml"></fields>
+	<uniqueKey>id</uniqueKey>
+</schema>

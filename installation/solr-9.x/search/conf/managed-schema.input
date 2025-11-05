@@ -4,11 +4,7 @@
 see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyTPeQsC2A
 -->
 <schema name="kramerius" version="18">
-    <types build="replace" file="_common_schema/search/solr9/types.xml">
-    </types>
-	<fields build="update" file="_common_schema/search/solr9/fields.xml">
-	</fields>
-
+    <types build="replace" file="_common_schema/search/types.xml"></types>
+	<fields build="update" file="_common_schema/search/fields.xml"></fields>
     <uniqueKey>pid</uniqueKey>
-
 </schema>

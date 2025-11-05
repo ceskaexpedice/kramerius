@@ -11,23 +11,102 @@ import org.gradle.api.file.RegularFileProperty
 
 
 def solrEnvironments = [
+
+        // reharvest
+//        reharvest_cdk:[
+//                prefix: "solr-9.x.cdk",
+//                index:"reharvest",
+//                schemaDir: "",
+//                dependsOn: "generateSchemareharvest_cdk"
+//        ],
+//        update_cdk:[
+//                prefix: "solr-9.x.cdk",
+//                index:"update",
+//                schemaDir: "",
+//                dependsOn: "generateSchemareupdate_cdk"
+//        ],
+
+
+        // processing
+        "sdnnt-sync_sa":[
+                prefix: "solr-9.x",
+                index:"sdnnt-sync",
+                schemaDir: "conf",
+                dependsOn: "generateSchemaprocessing_sa"
+        ],
+        "sdnnt-sync_cloud":[
+                prefix: "solr-9.x.cloud",
+                index:"sdnnt-sync",
+                schemaDir: "",
+                dependsOn: "generateSchemamonitor_cloud"
+        ],
+
+        // processing
+        processing_sa:[
+                prefix: "solr-9.x",
+                index:"processing",
+                schemaDir: "conf",
+                dependsOn: "generateSchemaprocessing_sa"
+        ],
+        processing_cloud:[
+                prefix: "solr-9.x.cloud",
+                index:"processing",
+                schemaDir: "",
+                dependsOn: "generateSchemamonitor_cloud"
+        ],
+
+        // monitor
+        monitor_sa:[
+                prefix: "solr-9.x",
+                index:"monitor",
+                schemaDir: "conf",
+                dependsOn: "generateSchemamonitor_sa"
+        ],
+        monitor_cloud:[
+                prefix: "solr-9.x.cloud",
+                index:"monitor",
+                schemaDir: "",
+                dependsOn: "generateSchemamonitor_cloud"
+        ],
+//        monitor_cdk:[
+//                prefix: "solr-9.x.cdk",
+//                index:"monitor",
+//                schemaDir: "",
+//                dependsOn: "generateSchemamonitor_cdk"
+//        ],
+
+        // logs
+        logs_sa:[
+                prefix: "solr-9.x",
+                index:"logs",
+                schemaDir: "conf",
+                dependsOn: "generateSchemalogs_sa"
+        ],
+        logs_cloud:[
+                prefix: "solr-9.x.cloud",
+                index:"logs",
+                schemaDir: "",
+                dependsOn: "generateSchemalogs_cloud"
+        ],
+
+        // search
         search_cloud: [
                 prefix: "solr-9.x.cloud",
                 index:"search",
                 schemaDir: "",
-                dependsOn: "generateSchemaSolr9SearchCloud"
+                dependsOn: "generateSchemasearch_cloud"
         ],
         search_cdk: [
                 prefix: "solr-9.x.cdk",
                 index:"search",
                 schemaDir: "",
-                dependsOn: "generateSchemaSolr9SearchCDK"
+                dependsOn: "generateSchemasearch_cdk"
         ],
         search_sa: [
                 prefix: "solr-9.x",
                 index:"search",
                 schemaDir: "conf",
-                dependsOn: "generateSchemaSolr9Search"
+                dependsOn: "generateSchemasearch_sa"
         ]
 ]
 
@@ -99,6 +178,7 @@ abstract class EnrichSchemaXmlTask extends DefaultTask {
 
                 } catch (Exception e) {
                     logger.error("ERROR: Failed to read file: ${fileAttr}")
+                    throw  e
                 }
             }
         }

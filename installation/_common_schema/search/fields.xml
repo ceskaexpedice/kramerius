@@ -11,6 +11,7 @@
 
         <field name="pid" type="string" indexed="true" stored="true" required="true"  docValues="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+		<field name="subtype" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -23,6 +24,16 @@
         <!--geographic names-->
         <field name="geographic_names.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="geographic_names.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+		
+		 <!--subject names (personal/corporate)-->
+        <field name="subject_names_personal.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_names_personal.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="subject_names_corporate.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_names_corporate.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+		
+		<!--subject temporals-->
+        <field name="subject_temporals.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="subject_temporals.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
         <!--genres-->
         <field name="genres.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
@@ -46,7 +57,8 @@
 
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
-
+		<!-- localized collection titles -->
+        <dynamicField name="title.search_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
 
         <!--hlavni nazev (bez hodnoty nonSort)-->
         <field name="title.sort" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -54,8 +66,7 @@
         <field name="titles.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
 		<!-- Titles search exact -->
         <field name="titles.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
-		<!-- localized collection titles -->
-        <dynamicField name="title.search_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
 		<!-- localized collection desc -->
 		<dynamicField name="collection.desc_*" type="text_general" indexed="true" stored="true" multiValued="true" docValues="false"/>
 
@@ -252,6 +263,7 @@
         <field name="mdt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="ddt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="donator" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+		
 
         <!-- text ocr -->
         <field name="text_ocr" type="text_general" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
@@ -259,6 +271,11 @@
 		<!-- exact match field -->
 		<field name="text_ocr.exact" type="text_exact_match" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
 
+		<!-- has text_ocr content; for monograph, issues, etc.. -->
+        <field name="has_text_ocr_content" type="boolean" indexed="true" stored="true"  docValues="true"/>
+
+		<!-- has text_alto content; for monograph, issues, etc.. -->
+        <field name="has_alto_content" type="boolean" indexed="true" stored="true"  docValues="true"/>
 
         <!-- licenses (formerly dnnt labels)-->
         <field name="licenses" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>

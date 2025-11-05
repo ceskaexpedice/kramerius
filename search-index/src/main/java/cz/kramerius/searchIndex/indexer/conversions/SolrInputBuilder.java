@@ -10,17 +10,17 @@ import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.dom4j.*;
 
 import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
@@ -29,6 +29,8 @@ import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 @see https://github.com/ceskaexpedice/kramerius/blob/akubra/processes/indexer/src/cz/incad/kramerius/indexer/res/K4.xslt
  */
 public class SolrInputBuilder {
+
+    public static Logger LOGGER = Logger.getLogger(SolrInputBuilder.class.getName());
 
     private final Set<String> genreStopWords = initGenreStopWords();
     private final SortingNormalizer sortingNormalizer = new SortingNormalizer();
@@ -54,10 +56,10 @@ public class SolrInputBuilder {
         return stopWords;
     }
 
-    public void convertFoxmlToSolrInput(File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
+    public void convertFoxmlToSolrInput(AkubraRepository akubraRepository, File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
         //System.out.println("processing " + inFoxmlFile.getName());
         Document foxmlDoc = Dom4jUtils.parseXmlFromFile(inFoxmlFile);
-        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null, null, false);
+        SolrInput solrInput = processObjectFromRepository( akubraRepository, foxmlDoc, null, null, null, null, null, false);
         solrInput.printTo(outSolrImportFile, true);
     }
 
@@ -151,7 +153,7 @@ public class SolrInputBuilder {
         return solrInput;
     }
 
-    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, Integer audioLength, boolean setFullIndexationInProgress) throws IOException, DocumentException {
+    public SolrInput processObjectFromRepository(AkubraRepository akubraRepository, Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, Integer audioLength, boolean setFullIndexationInProgress) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
 
@@ -212,6 +214,8 @@ public class SolrInputBuilder {
 
         //root, parent, path, children (own, foster), foster-parents
         if (repositoryNode != null) {
+
+
             addSolrField(solrInput, "root.pid", repositoryNode.getRootPid());
             addSolrField(solrInput, "root.model", repositoryNode.getRootModel());
             if (repositoryNode.getRootTitle() != null) {
@@ -713,6 +717,24 @@ public class SolrInputBuilder {
         if (ocrText != null && !ocrText.isEmpty()) {
             addSolrField(solrInput, "text_ocr", ocrText);
         }
+        if (akubraRepository != null) {
+            if (akubraRepository.pi().containsRelation(pid, "hasPage")) {
+                //
+                List<String> childrenStreamNames = akubraRepository.pi().getChildrenStreamNames(pid);
+                if (childrenStreamNames != null && childrenStreamNames.contains(KnownDatastreams.OCR_TEXT.toString()) ) {
+                    addSolrField(solrInput, "has_text_ocr_content", true);
+                } else {
+                    addSolrField(solrInput, "has_text_ocr_content", false);
+                }
+
+                if (childrenStreamNames != null && childrenStreamNames.contains(KnownDatastreams.OCR_ALTO.toString()) ) {
+                    addSolrField(solrInput, "has_alto_content", true);
+                } else {
+                    addSolrField(solrInput, "has_alto_content", false);
+                }
+            }
+        }
+
 
         return solrInput;
     }
