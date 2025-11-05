@@ -16,9 +16,7 @@ Main development coordinator: Martin Lhoták, Library of the Czech Academy of Sc
 
 je softwarové řešení pro zpřístupnění digitálních dokumentů. Primárně je určen pro digitalizované knihovní sbírky, monografie a periodika. Využit může být ke zpřístupnění dalších typů dokumentů např. map, hudebnin a starých tisků, případně částí dokumentů jako jsou články a kapitoly. Systém je vhodný také pro tzv. digital born dokumenty, tedy dokumenty, které vznikly v elektronické podobě. Kramerius je průběžně upravován tak, aby struktura metadat odpovídala standardům vyhlašovaným Národní knihovnou České republiky. Systém poskytuje rozhraní pro přístup koncových uživatelů, zajišťující vyhledávání v metadatech a v plných textech, generování vícestránkových PDF dokumentů z vybraných stran, vytváření virtuálních sbírek a další operace nad uloženou sbírkou digitálních dokumentů.
 
-V testování je aktuálně vydaná verze K7, ve které došlo k významnému vývojové mu kroku zejména z pohledu využitého repozitáře, vyhledávacího schematu a implementace licenčních modelů.  Nové řešení jádra by mělo zajistit rychlejší práci s velkým množstvím objektů. Ostré nasazování je předpokládáno v průběhu roku 2022.
-
-Aktuální verze vychází koncepčně z předchozích verzí 4 a 5, která byla vyvíjena a průběžně publikována od roku 2009. Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
+Aktuální verze 7 vychází koncepčně z předchozích verzí 4 a 5, které byly vyvíjeny a zveřejňovány od roku 2009. Při vývoji jsou využívány další volně dostupné technologie třetích stran - Apache, Apache Tomcat, Apache Solr, Postgres SQL. Systém je založen na technologii Java a lze ho provozovat jako samostatnou webovou aplikaci v libovolném J2EE kontejneru (např. Apache Tomcat).
 
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer, který však není doporučován, vzhledem k tomu, že nepodporuje standardy. Rozhranní je vícejazyčné.
 
@@ -34,15 +32,14 @@ Kramerius je open source systém, který je vyvíjen pod licencí GNU GPL v3. ht
 
 ## Vývojový tým
 
-Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Moravské zemské knihovny v Brně, Národní technické knihovny, Národní lékařské knihovny, Městské knihovny v Praze a Severočeské vědecké knihovny v Ústí nad Labem. Technologickými partnery jsou společnosti Galderon, INOVATIKA a Trinera.
+Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Moravské zemské knihovny v Brně, Národní technické knihovny, Národní lékařské knihovny a Městské knihovny v Praze. Technologickými partnery jsou společnosti Galderon, INOVATIKA a Trinera.
 
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, F. Kersch; 
-NK ČR – P. Kukač, J. Hrzinová, V. Jiroušek, K. Košťálová; 
-MZK – M. Smetánková, P. Žabička, F. Jebavý; 
-NTK – J. Kolátor, J. Dobiášovský; 
+NK ČR – P. Burdová, J. Hrzinová, V. Jiroušek, K. Košťálová; 
+MZK – M. Dvořáková, P. Žabička, F. Jebavý; 
+NTK - 
 NLK – F. Kříž;
-SVKUL - A. Brožek;
 MKP - M. Světlý;
 Programátorský tým: P.Kocourek, V.Lahoda, P.Šťastný, J.Rychtář
 
