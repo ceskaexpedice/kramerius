@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="sdnnt-sync" version="18">
+  <uniqueKey>id</uniqueKey>
+  <types build="replace" file="_common_schema/sdnnt-sync/types.xml"></types>
+  <fields build="replace" file="_common_schema/sdnnt-sync/fields.xml"></fields>
+</schema>

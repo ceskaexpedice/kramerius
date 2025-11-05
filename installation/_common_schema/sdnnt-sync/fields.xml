@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fields>
+<field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+  
+  
+  
+  <!-- hlavni zaznam -->  
+  <!-- jednoznacny identifikator -->
+  <field name="id"  type="string" indexed="true" stored="true"></field>
+  <!-- pid -->
+  <field name="pid" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <!-- datum sklizeni -->
+  <field name="fetched" type="date" default="NOW" indexed="true" stored="true" multiValued="false"></field>	
+
+  <!-- type -->
+  <field name="type_of_rec" type="string" indexed="true" stored="true" multiValued="false"></field>	
+
+  <!-- catalog -->
+  <field name="catalog" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  
+  <!-- main or granularity -->
+  <field name="type" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <!-- titulek --> 	
+  <field name="title" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <!-- licence --> 	
+  <field name="license" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <!-- stav --> 	
+  <field name="state" type="string" indexed="true" stored="true" multiValued="false"></field>	
+
+  <!-- identifier has granularity --> 		
+  <field name="has_granularity" type="boolean" indexed="true" stored="true" 
+  multiValued="false"></field>	
+
+
+  <!-- control fields --> 	
+  <field name="controlField_typeofdate" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <field name="controlField_date1" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <field name="controlField_date2" type="string" indexed="true" stored="true" multiValued="false"></field>	
+
+	
+  <!-- Real kramerius fields --> 
+  <field name="real_kram_licenses" type="string" indexed="true" stored="true" multiValued="true"></field>	
+  <field name="real_kram_exists" type="boolean" indexed="true" stored="true" multiValued="false"></field>	
+  <field name="real_kram_date" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <field name="real_kram_model" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <field name="real_kram_titles_search" type="string" indexed="true" stored="true" multiValued="true"></field>	
+  
+  <field name="sync_actions" type="string" indexed="true" stored="true" multiValued="true"></field>	
+  <field name="sync_sort" type="int" indexed="true" stored="true" multiValued="false"></field>	
+  
+  <field name="process_id" type="string" indexed="true" stored="true" multiValued="true"></field>	
+  <field name="process_uuid" type="string" indexed="true" stored="true" multiValued="true"></field>	
+
+  <!-- granularita -->  
+  <field name="rocnik" type="string" indexed="true" stored="true" multiValued="false"></field>	
+  <field name="parent_id" type="string" indexed="true" stored="true" multiValued="false"></field>	
+
+
+</fields>

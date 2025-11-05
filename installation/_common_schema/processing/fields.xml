@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- processing fields -->
+<fields>
+ 
+  <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+
+  <!-- 
+	IDENTIFIER OF OBJECT IN PROCESSSING INDEX
+	// relation|uuid:463d0452-091e-470f-9af8-fe2f2b9f3a28|hasPage|uuid:3ea8b6c6-7273-4e4b-80d0-29db24f11174 - for relation 
+	//description|uuid:c9b6c867-6d60-4a64-9519-95f5e66ea910 - for decription 
+  -->		
+  <field name="pid" type="string" indexed="true" stored="true"/>
+
+  <!-- Type of record -->	
+  <field name="type" type="string" indexed="true" stored="true"/>
+  <!-- Source of information (PID) -->	
+  <field name="source" type="string" indexed="true" stored="true"/>
+  <field name="source_edge" type="pid_edge_ngram" indexed="true" stored="false"/>
+
+  
+  <!-- // Description fields -->		
+  <!-- Titles from DC -->
+  <field name="dc.title" type="string" indexed="true" stored="true" />	
+  <field name="dc.title_edge" type="text_general_edge_ngram" indexed="true" stored="false" />
+  <field name="dc.title_czech" type="text_cz" indexed="true" stored="false" />
+
+  <!-- Titles from MODS -->
+  <field name="mods.title" type="string" indexed="true" stored="true" />
+  <field name="mods.title_edge" type="text_general_edge_ngram" indexed="true" stored="false" />
+  <!-- Generic titles from DC or MODS --> 	
+  <field name="title" type="string" indexed="true" stored="true" />
+  <field name="title_edge" type="text_general_edge_ngram" indexed="true" stored="false" />
+  <!-- Streams in object -->	
+  <field name="streams"	type="string" indexed="true" stored="true" multiValued="true"/>
+  <!-- Model from object -->
+  <field name="model" type="string" indexed="true" stored="true"/>
+  <!-- Ingesting date -->	
+  <field name="date" type="date" indexed="true" stored="true" />
+  <!-- Reference in repository -->	
+  <field name="ref" type="string" indexed="true" stored="true"/>
+  <field name="ref_path" type="descendent_path" indexed="true" stored="false"/>
+  <!-- // END of description fields -->		
+  
+  <!-- // Relation fields -->		
+  <field name="relation" type="string" indexed="true" stored="true"/>
+  <!-- Pid of target relation -->	
+  <field name="targetPid" type="string" indexed="true" stored="true"/>
+  <!-- Target pid streams -->
+  <field name="targetPidStreams" type="string" indexed="true" stored="true" multiValued="true"/>
+  <!-- // END of relation fields -->		
+
+  
+  <!-- //DEPRECATED -->
+  <field name="name" type="string" indexed="true" stored="true"/>
+  <field name="parent" type="strings" indexed="true" stored="true"/>
+
+  <copyField source="dc.title" dest="dc.title_edge" />
+  <copyField source="dc.title" dest="dc.title_czech" />
+
+  <copyField source="dc.title" dest="title" />
+  <copyField source="dc.title" dest="title_edge" />
+
+  <copyField source="mods.title" dest="title" />
+  <copyField source="mods.title" dest="title_edge" />
+
+  <copyField source="source" dest="source_edge" />
+  <copyField source="ref" dest="ref_path" />
+
+</fields>
+
