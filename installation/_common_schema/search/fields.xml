@@ -54,6 +54,17 @@
         <field name="authors.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
         <field name="authors.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
+		<!-- Vsichni autori a infix aut znamena, ze se bere primarne autoritni zaznam -->
+        <field name="authors.aut.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+		<dynamicField name="author.aut.search.role_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>		
+		<dynamicField name="author.aut.facet.role_*" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>		
+
+        <!--
+		<field name="authors.aut.identifiers" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+		-->
+        <field name="authors.aut.roles" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
 
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
