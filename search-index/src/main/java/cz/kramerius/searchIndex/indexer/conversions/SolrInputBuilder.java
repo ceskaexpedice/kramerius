@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.indexer.conversions;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
@@ -116,45 +117,29 @@ public class SolrInputBuilder {
         }
         //authors
         for (AuthorInfo author : parentNode.getPrimaryAuthors()) {
-            solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+            solrInput.addField("authors", getAuthorDate(author));
             solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
             solrInput.addField("authors.search", author.getName());
-
-            String authorIdentification = withFirstLetterInUpperCase(author.getName());
-            String identifier = author.getAuthIdentifier();
-            if (identifier != null) {
-                authorIdentification = String.format("id_%s",identifier);
+            if (author.getAuthIdentifier() != null) {
+                solrInput.addField("authors.search", author.getAuthIdentifier());
+                solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
             }
+
+            String authorIdentification = getAuthorIdentification(author);
             solrInput.addField("authors.aut.facet", authorIdentification);
-            String[] roles = author.getRoles();
-            if (roles != null) {
-                for (String role : roles) {
-                    solrInput.addField(String.format("author.aut.search.role_%s",role), author.getName());
-                    solrInput.addField(String.format("author.aut.facet.role_%s",role), authorIdentification);
-                }
-            }
-
         }
         for (AuthorInfo author : parentNode.getOtherAuthors()) {
             String name = author.getName();
-            solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+            solrInput.addField("authors", getAuthorDate(author));
             solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
             solrInput.addField("authors.search", author.getName());
-
-            String authorIdentification = withFirstLetterInUpperCase(author.getName());
-            String identifier = author.getAuthIdentifier();
-            if (identifier != null) {
-                authorIdentification = String.format("id_%s",identifier);
+            if (author.getAuthIdentifier() != null) {
+                solrInput.addField("authors.search", author.getAuthIdentifier());
+                solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
             }
+
+            String authorIdentification = getAuthorIdentification(author);
             solrInput.addField("authors.aut.facet", authorIdentification);
-            String[] roles = author.getRoles();
-            if (roles != null) {
-                for (String role: roles) {
-                    solrInput.addField(String.format("author.aut.search.role_%s",role), author.getName());
-                    solrInput.addField(String.format("author.aut.facet.role_%s",role), authorIdentification);
-                }
-
-            }
         }
 
         //dates
@@ -182,6 +167,12 @@ public class SolrInputBuilder {
             addSolrField(solrInput, "text_ocr", pageOcrText);
         }
         return solrInput;
+    }
+
+    private String getAuthorIdentification(AuthorInfo author) {
+        String identifier = author.getAuthIdentifier();
+        String authDate = author.getDate() != null ? author.getName() + "_" + author.getDate() : author.getName();
+        return StringUtils.isAnyString(identifier) ? String.format("%s_%s", identifier,authDate) : String.format("_%s", authDate);
     }
 
     public SolrInput processObjectFromRepository(AkubraRepository akubraRepository, Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, Integer audioLength, boolean setFullIndexationInProgress) throws IOException, DocumentException {
@@ -334,44 +325,28 @@ public class SolrInputBuilder {
             }
             //authors
             for (AuthorInfo author : repositoryNode.getPrimaryAuthors()) {
-                solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+                solrInput.addField("authors", getAuthorDate(author));
                 solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
                 solrInput.addField("authors.search", author.getName());
-
-                String authorIdentification = withFirstLetterInUpperCase(author.getName());
-                String identifier = author.getAuthIdentifier();
-                if (identifier != null) {
-                    authorIdentification = String.format("id_%s",identifier);
+                if (author.getAuthIdentifier() != null) {
+                    solrInput.addField("authors.search", author.getAuthIdentifier());
+                    solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
                 }
+
+                String authorIdentification = getAuthorIdentification(author);
                 solrInput.addField("authors.aut.facet", authorIdentification);
-                String[] roles = author.getRoles();
-                if (roles != null) {
-                    for (String role : roles) {
-                        solrInput.addField(String.format("author.aut.search.role_%s",role), author.getName());
-                        solrInput.addField(String.format("author.aut.facet.role_%s",role), authorIdentification);
-                    }
-                }
-
             }
             for (AuthorInfo author : repositoryNode.getOtherAuthors()) {
-                solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+                solrInput.addField("authors", getAuthorDate(author));
                 solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
                 solrInput.addField("authors.search", author.getName());
-
-                String authorIdentification = withFirstLetterInUpperCase(author.getName());
-                String identifier = author.getAuthIdentifier();
-                if (identifier != null) {
-                    authorIdentification = String.format("id_%s",identifier);
+                if (author.getAuthIdentifier() != null) {
+                    solrInput.addField("authors.search", author.getAuthIdentifier());
+                    solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
                 }
+
+                String authorIdentification = getAuthorIdentification(author);
                 solrInput.addField("authors.aut.facet", authorIdentification);
-                String[] roles = author.getRoles();
-                if (roles != null) {
-                    for (String role : roles) {
-                        solrInput.addField(String.format("author.aut.search.role_%s",role), author.getName());
-                        solrInput.addField(String.format("author.aut.facet.role_%s",role), authorIdentification);
-                    }
-                }
-
             }
         }
 
@@ -798,6 +773,10 @@ public class SolrInputBuilder {
 
 
         return solrInput;
+    }
+
+    private static String getAuthorDate(AuthorInfo author) {
+        return author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName();
     }
 
     public static String decodeXml(String encodedXml) {
