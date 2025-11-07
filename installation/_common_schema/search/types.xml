@@ -23,7 +23,7 @@
 	<fieldType name="tlongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
 	<fieldType name="tdoubles" class="solr.DoublePointField" docValues="true" multiValued="true"/>
 	<fieldType name="tdate" class="solr.DatePointField" docValues="true"/>
-	<fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>				   
+	<fieldType name="tdates" class="solr.DatePointField" docValues="true" multiValued="true"/>
 	<fieldType name="date" class="solr.DatePointField" docValues="true" sortMissingLast="true"/>
 	
 	<!-- END OF  #Issue https://github.com/ceskaexpedice/kramerius/issues/1017 -->
