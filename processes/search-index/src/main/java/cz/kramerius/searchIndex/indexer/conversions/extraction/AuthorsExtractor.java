@@ -7,6 +7,8 @@ import org.dom4j.Node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class AuthorsExtractor {
 
@@ -27,24 +29,30 @@ public class AuthorsExtractor {
             String namePartTypeFamilyEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='family']").selectSingleNode(nameEl));
             String namePartTypeGivenEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='given']").selectSingleNode(nameEl));
             String namePartTypetermsOfAddressEl = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='termsOfAddress']").selectSingleNode(nameEl));
+
+            List<Node> nodes = Dom4jUtils.buildXpath("role/roleTerm").selectNodes(nameEl);
+            List<String> roles = nodes.stream().map(Node::getText).toList();
+            String nameIdentifier = toStringOrNull(Dom4jUtils.buildXpath("nameIdentifier").selectSingleNode(nameEl));
+
             if (namePartNoTypeEl != null) {
-                result.add(extractAuthor(namePartNoTypeEl, nameEl));
+                result.add(extractAuthor(namePartNoTypeEl, nameEl,nameIdentifier,roles));
             } else if (namePartTypeFamilyEl != null && namePartTypeGivenEl != null && namePartTypetermsOfAddressEl != null) {
-                result.add(extractAuthor(namePartTypeFamilyEl + ", " + namePartTypeGivenEl + ", " + namePartTypetermsOfAddressEl, nameEl));
+                result.add(extractAuthor(namePartTypeFamilyEl + ", " + namePartTypeGivenEl + ", " + namePartTypetermsOfAddressEl, nameEl, nameIdentifier,roles));
             } else if (namePartTypeFamilyEl != null && namePartTypeGivenEl != null) {
-                result.add(extractAuthor(namePartTypeFamilyEl + ", " + namePartTypeGivenEl, nameEl));
+                result.add(extractAuthor(namePartTypeFamilyEl + ", " + namePartTypeGivenEl, nameEl,nameIdentifier,roles));
             } else if (namePartTypeFamilyEl != null) {
-                result.add(extractAuthor(namePartTypeFamilyEl, nameEl));
+                result.add(extractAuthor(namePartTypeFamilyEl, nameEl,nameIdentifier,roles));
             } else if (namePartTypeGivenEl != null) {
-                result.add(extractAuthor(namePartTypeGivenEl, nameEl));
+                result.add(extractAuthor(namePartTypeGivenEl, nameEl,nameIdentifier,roles));
             }
         }
         return result;
     }
 
-    private AuthorInfo extractAuthor(String extractedName, Node modsNameEl) {
+    private AuthorInfo extractAuthor(String extractedName, Node modsNameEl,    String autIdentifier, List<String> roleTermElms) {
         String date = toStringOrNull(Dom4jUtils.buildXpath("namePart[@type='date']").selectSingleNode(modsNameEl));
-        return new AuthorInfo(extractedName, date);
+        String[] roles = roleTermElms.toArray(new String[roleTermElms.size()]);
+        return new AuthorInfo(extractedName, date,  autIdentifier, roles);
     }
 
     private String toStringOrNull(Node node) {

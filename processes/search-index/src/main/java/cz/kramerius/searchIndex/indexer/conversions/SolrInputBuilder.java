@@ -1,5 +1,6 @@
 package cz.kramerius.searchIndex.indexer.conversions;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.kramerius.searchIndex.indexer.SolrInput;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.*;
 import cz.kramerius.searchIndex.indexer.utils.NamespaceRemovingVisitor;
@@ -10,13 +11,14 @@ import cz.kramerius.shared.AuthorInfo;
 import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.dom4j.*;
 
 import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -29,6 +31,8 @@ import static cz.kramerius.searchIndex.indexer.execution.Indexer.*;
 @see https://github.com/ceskaexpedice/kramerius/blob/akubra/processes/indexer/src/cz/incad/kramerius/indexer/res/K4.xslt
  */
 public class SolrInputBuilder {
+
+    public static Logger LOGGER = Logger.getLogger(SolrInputBuilder.class.getName());
 
     private final Set<String> genreStopWords = initGenreStopWords();
     private final SortingNormalizer sortingNormalizer = new SortingNormalizer();
@@ -54,10 +58,9 @@ public class SolrInputBuilder {
         return stopWords;
     }
 
-    public void convertFoxmlToSolrInput(File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
-        //System.out.println("processing " + inFoxmlFile.getName());
+    public void convertFoxmlToSolrInput(AkubraRepository akubraRepository, File inFoxmlFile, File outSolrImportFile) throws IOException, DocumentException {
         Document foxmlDoc = Dom4jUtils.parseXmlFromFile(inFoxmlFile);
-        SolrInput solrInput = processObjectFromRepository(foxmlDoc, null, null, null, null, null, false);
+        SolrInput solrInput = processObjectFromRepository( akubraRepository, foxmlDoc, null, null, null, null, null, false);
         solrInput.printTo(outSolrImportFile, true);
     }
 
@@ -114,14 +117,29 @@ public class SolrInputBuilder {
         }
         //authors
         for (AuthorInfo author : parentNode.getPrimaryAuthors()) {
-            solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+            solrInput.addField("authors", getAuthorDate(author));
             solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
             solrInput.addField("authors.search", author.getName());
+            if (author.getAuthIdentifier() != null) {
+                solrInput.addField("authors.search", author.getAuthIdentifier());
+                solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
+            }
+
+            String authorIdentification = getAuthorIdentification(author);
+            solrInput.addField("authors.aut.facet", authorIdentification);
         }
         for (AuthorInfo author : parentNode.getOtherAuthors()) {
-            solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+            String name = author.getName();
+            solrInput.addField("authors", getAuthorDate(author));
             solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
             solrInput.addField("authors.search", author.getName());
+            if (author.getAuthIdentifier() != null) {
+                solrInput.addField("authors.search", author.getAuthIdentifier());
+                solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
+            }
+
+            String authorIdentification = getAuthorIdentification(author);
+            solrInput.addField("authors.aut.facet", authorIdentification);
         }
 
         //dates
@@ -151,7 +169,13 @@ public class SolrInputBuilder {
         return solrInput;
     }
 
-    public SolrInput processObjectFromRepository(Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, Integer audioLength, boolean setFullIndexationInProgress) throws IOException, DocumentException {
+    private String getAuthorIdentification(AuthorInfo author) {
+        String identifier = author.getAuthIdentifier();
+        String authDate = author.getDate() != null ? author.getName() + "_" + author.getDate() : author.getName();
+        return StringUtils.isAnyString(identifier) ? String.format("%s_%s", identifier,authDate) : String.format("_%s", authDate);
+    }
+
+    public SolrInput processObjectFromRepository(AkubraRepository akubraRepository, Document foxmlDoc, String ocrText, RepositoryNode repositoryNode, RepositoryNodeManager nodeManager, String imgFullMime, Integer audioLength, boolean setFullIndexationInProgress) throws IOException, DocumentException {
         //remove namespaces before applying xpaths etc
         foxmlDoc.accept(new NamespaceRemovingVisitor(true, true));
 
@@ -212,6 +236,8 @@ public class SolrInputBuilder {
 
         //root, parent, path, children (own, foster), foster-parents
         if (repositoryNode != null) {
+
+
             addSolrField(solrInput, "root.pid", repositoryNode.getRootPid());
             addSolrField(solrInput, "root.model", repositoryNode.getRootModel());
             if (repositoryNode.getRootTitle() != null) {
@@ -299,14 +325,28 @@ public class SolrInputBuilder {
             }
             //authors
             for (AuthorInfo author : repositoryNode.getPrimaryAuthors()) {
-                solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+                solrInput.addField("authors", getAuthorDate(author));
                 solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
                 solrInput.addField("authors.search", author.getName());
+                if (author.getAuthIdentifier() != null) {
+                    solrInput.addField("authors.search", author.getAuthIdentifier());
+                    solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
+                }
+
+                String authorIdentification = getAuthorIdentification(author);
+                solrInput.addField("authors.aut.facet", authorIdentification);
             }
             for (AuthorInfo author : repositoryNode.getOtherAuthors()) {
-                solrInput.addField("authors", author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName());
+                solrInput.addField("authors", getAuthorDate(author));
                 solrInput.addField("authors.facet", withFirstLetterInUpperCase(author.getName()));
                 solrInput.addField("authors.search", author.getName());
+                if (author.getAuthIdentifier() != null) {
+                    solrInput.addField("authors.search", author.getAuthIdentifier());
+                    solrInput.addField("authors.aut.identifiers", author.getAuthIdentifier());
+                }
+
+                String authorIdentification = getAuthorIdentification(author);
+                solrInput.addField("authors.aut.facet", authorIdentification);
             }
         }
 
@@ -449,28 +489,26 @@ public class SolrInputBuilder {
         if ("page".equals(model)) {
             //page type
             List<Node> partWithTypeEls = Dom4jUtils.buildXpath("mods/part[@type]").selectNodes(modsRootEl);
-            //System.out.println("partWithTypeEls:" + partWithTypeEls.size());
             if (partWithTypeEls.isEmpty()) {
-                System.err.println("WARNING: no page type for " + pid);
+                LOGGER.warning("WARNING: no page type for " + pid);
             } else {
                 if (partWithTypeEls.size() > 1) {
-                    System.err.println("WARNING: multiple page types for " + pid + ", using first one");
+                    LOGGER.warning("WARNING: multiple page types for " + pid + ", using first one");
                 }
                 String type = Dom4jUtils.stringOrNullFromAttributeByName((Element) partWithTypeEls.get(0), "type");
-                //System.out.println("type: " + type);
                 addSolrField(solrInput, "page.type", type);
             }
             //page number (string)
             String number = Dom4jUtils.stringOrNullFromFirstElementByXpath(modsRootEl, "mods/part/detail[@type='pageNumber']/number|mods/part/detail[@type='page number']/number");
             if (number == null) {
-                System.err.println("WARNING: no page number for " + pid);
+                LOGGER.warning("WARNING: no page number for " + pid);
             } else {
                 addSolrField(solrInput, "page.number", number);
             }
             //page index (integer)
             Integer index = Dom4jUtils.integerOrNullFromFirstElementByXpath(modsRootEl, "mods/part/detail[@type='pageIndex']/number");
             if (index == null) {
-                System.err.println("WARNING: no page index for " + pid);
+                LOGGER.warning("WARNING: no page number for " + pid);
             } else {
                 addSolrField(solrInput, "page.index", index.toString());
             }
@@ -639,7 +677,7 @@ public class SolrInputBuilder {
             if (policyFromRelsExt.startsWith(prefix)) {
                 addSolrField(solrInput, "accessibility", policyFromRelsExt.substring(prefix.length()));
             } else {
-                System.err.println("unexpected content of RELS-EXT policy '" + policyFromRelsExt + "'");
+                LOGGER.log(Level.SEVERE, "unexpected content of RELS-EXT policy '" + policyFromRelsExt + "'");
             }
         }
 
@@ -714,7 +752,31 @@ public class SolrInputBuilder {
             addSolrField(solrInput, "text_ocr", ocrText);
         }
 
+
+
+        if (akubraRepository != null) {
+            if (akubraRepository.pi().containsRelation(pid, "hasPage")) {
+                List<String> childrenStreamNames = akubraRepository.pi().getChildrenStreamNames(pid);
+                if (childrenStreamNames != null && childrenStreamNames.contains(KnownDatastreams.OCR_TEXT.toString()) ) {
+                    addSolrField(solrInput, "has_text_ocr_content", true);
+                } else {
+                    addSolrField(solrInput, "has_text_ocr_content", false);
+                }
+
+                if (childrenStreamNames != null && childrenStreamNames.contains(KnownDatastreams.OCR_ALTO.toString()) ) {
+                    addSolrField(solrInput, "has_alto_content", true);
+                } else {
+                    addSolrField(solrInput, "has_alto_content", false);
+                }
+            }
+        }
+
+
         return solrInput;
+    }
+
+    private static String getAuthorDate(AuthorInfo author) {
+        return author.getDate() != null ? author.getName() + ", " + author.getDate() : author.getName();
     }
 
     public static String decodeXml(String encodedXml) {

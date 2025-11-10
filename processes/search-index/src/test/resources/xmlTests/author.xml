@@ -11,6 +11,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel, 1890-1938</field>
+            <field name="authors.aut.facet">_Čapek, Karel_1890-1938</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -26,6 +27,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel</field>
+            <field name="authors.aut.facet">_Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -40,6 +42,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel</field>
+            <field name="authors.aut.facet">_Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -62,6 +65,9 @@
             <field name="authors">Bára</field>
             <field name="authors">Adam</field>
             <field name="authors">Cyril</field>
+            <field name="authors.aut.facet">_Bára</field>
+            <field name="authors.aut.facet">_Adam</field>
+            <field name="authors.aut.facet">_Cyril</field>
             <field name="authors.facet">Bára</field>
             <field name="authors.facet">Adam</field>
             <field name="authors.facet">Cyril</field>
@@ -81,6 +87,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel</field>
+            <field name="authors.aut.facet">_Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -97,6 +104,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel, 1890-1938</field>
+            <field name="authors.aut.facet">_Čapek, Karel_1890-1938</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -117,6 +125,9 @@
         <out>
             <field name="authors">Neruda, Jan</field>
             <field name="authors">Jirásek, Alois</field>
+
+            <field name="authors.aut.facet">_Neruda, Jan</field>
+            <field name="authors.aut.facet">_Jirásek, Alois</field>
 
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
@@ -141,6 +152,9 @@
             <field name="authors">Neruda, Jan</field>
             <field name="authors">Jirásek, Alois</field>
 
+            <field name="authors.aut.facet">_Neruda, Jan</field>
+            <field name="authors.aut.facet">_Jirásek, Alois</field>
+
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
 
@@ -160,6 +174,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel</field>
+            <field name="authors.aut.facet">_Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -174,6 +189,7 @@
         </in>
         <out>
             <field name="authors">Čapek</field>
+            <field name="authors.aut.facet">_Čapek</field>
             <field name="authors.facet">Čapek</field>
             <field name="authors.search">Čapek</field>
         </out>
@@ -190,6 +206,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel</field>
+            <field name="authors.aut.facet">_Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -204,6 +221,7 @@
         </in>
         <out>
             <field name="authors">Karel</field>
+            <field name="authors.aut.facet">_Karel</field>
             <field name="authors.facet">Karel</field>
             <field name="authors.search">Karel</field>
         </out>
@@ -220,6 +238,7 @@
         </in>
         <out>
             <field name="authors">Komenský, Jan</field>
+            <field name="authors.aut.facet">_Komenský, Jan</field>
             <field name="authors.facet">Komenský, Jan</field>
             <field name="authors.search">Komenský, Jan</field>
         </out>
@@ -235,6 +254,7 @@
         </in>
         <out>
             <field name="authors">Komenský, Jan Amos</field>
+            <field name="authors.aut.facet">_Komenský, Jan Amos</field>
             <field name="authors.facet">Komenský, Jan Amos</field>
             <field name="authors.search">Komenský, Jan Amos</field>
         </out>
@@ -268,6 +288,10 @@
             <field name="authors">Jirásek, Alois</field>
             <field name="authors">Kafka, Franz</field>
 
+            <field name="authors.aut.facet">_Neruda, Jan</field>
+            <field name="authors.aut.facet">_Jirásek, Alois</field>
+            <field name="authors.aut.facet">_Kafka, Franz</field>
+
             <field name="authors.facet">Neruda, Jan</field>
             <field name="authors.facet">Jirásek, Alois</field>
             <field name="authors.facet">Kafka, Franz</field>
@@ -296,6 +320,10 @@
             <field name="authors">Arbes, Jakub</field>
             <field name="authors">Mácha, Karel Hynek</field>
 
+            <field name="authors.aut.facet">_Zola, Émile</field>
+            <field name="authors.aut.facet">_Arbes, Jakub</field>
+            <field name="authors.aut.facet">_Mácha, Karel Hynek</field>
+
             <field name="authors.facet">Zola, Émile</field>
             <field name="authors.facet">Arbes, Jakub</field>
             <field name="authors.facet">Mácha, Karel Hynek</field>
@@ -317,6 +345,7 @@
         </in>
         <out>
             <field name="authors">Čapek, Karel</field>
+            <field name="authors.aut.facet">_Čapek, Karel</field>
             <field name="authors.facet">Čapek, Karel</field>
             <field name="authors.search">Čapek, Karel</field>
         </out>
@@ -334,6 +363,7 @@
         </in>
         <out>
             <field name="authors">Pavel, Jan, II.</field>
+            <field name="authors.aut.facet">_Pavel, Jan, II.</field>
             <field name="authors.facet">Pavel, Jan, II.</field>
             <field name="authors.search">Pavel, Jan, II.</field>
         </out>
@@ -372,13 +402,21 @@
             </name>
         </in>
         <out>
+
+
             <field name="authors">Absolon, Karel, 1877-1960</field>
             <field name="authors">Jaroš, Zdeněk, 1883-1945</field>
             <field name="authors">Promberger, Romuald, 1856-1932</field>
             <field name="authors">V. Neubert a synové (firma)</field>
 
+            <field name="authors.aut.facet">_Absolon, Karel_1877-1960</field>
+            <field name="authors.aut.facet">_Jaroš, Zdeněk_1883-1945</field>
+            <field name="authors.aut.facet">_Promberger, Romuald_1856-1932</field>
+            <field name="authors.aut.facet">_V. Neubert a synové (firma)</field>
+
             <field name="authors.facet">Absolon, Karel</field>
             <field name="authors.facet">Jaroš, Zdeněk</field>
+
             <field name="authors.facet">Promberger, Romuald</field>
             <field name="authors.facet">V. Neubert a synové (firma)</field>
 
@@ -412,6 +450,10 @@
             <field name="authors">Fleming, Ian</field>
             <field name="authors">Miklínová, Galina</field>
             <field name="authors">Medek, Vladimír</field>
+            <field name="authors.aut.facet">_Rowling, J. K.</field>
+            <field name="authors.aut.facet">_Fleming, Ian</field>
+            <field name="authors.aut.facet">_Miklínová, Galina</field>
+            <field name="authors.aut.facet">_Medek, Vladimír</field>
             <field name="authors.facet">Rowling, J. K.</field>
             <field name="authors.facet">Fleming, Ian</field>
             <field name="authors.facet">Miklínová, Galina</field>
@@ -420,6 +462,30 @@
             <field name="authors.search">Fleming, Ian</field>
             <field name="authors.search">Miklínová, Galina</field>
             <field name="authors.search">Medek, Vladimír</field>
+        </out>
+    </test>
+
+    <test name="Indexace autorit a roli">
+        <desc>Autority a role
+        </desc>
+        <in>
+            <name type="personal" usage="primary">
+                <namePart type="family">Havlena</namePart>
+                <namePart type="given">Václav</namePart>
+                <namePart type="date">1928-1984</namePart>
+                <role>
+                    <roleTerm authority="marcrelator" type="code">aut</roleTerm>
+                </role>
+                    <nameIdentifier>jk01040317</nameIdentifier>
+            </name>
+        </in>
+        <out>
+            <field name="authors">Havlena, Václav, 1928-1984</field>
+            <field name="authors.aut.facet">jk01040317_Havlena, Václav_1928-1984</field>
+            <field name="authors.aut.identifiers">jk01040317</field>
+            <field name="authors.facet">Havlena, Václav</field>
+            <field name="authors.search">Havlena, Václav</field>
+            <field name="authors.search">jk01040317</field>
         </out>
     </test>
 
