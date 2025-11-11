@@ -14,8 +14,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.services.transform.SourceToDestTransform;
-import cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateConsumer;
+import cz.inovatika.kramerius.services.transform.SourceToDestTransform;
+import cz.inovatika.kramerius.services.transform.CopyConsumer;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class BatchUtils {
@@ -38,7 +38,7 @@ public class BatchUtils {
      * @throws ParserConfigurationException
      * @throws MigrateSolrIndexException
      */
-    public static Document batch(CDKReplicateContext cdkRepContext, Element resultElem, boolean compositeId, String root, String child, SourceToDestTransform srcTransform, CopyReplicateConsumer consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
+    public static Document batch(CDKReplicateContext cdkRepContext, Element resultElem, boolean compositeId, String root, String child, SourceToDestTransform srcTransform, CopyConsumer consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
         Document destBatch = XMLUtils.crateDocument("add");
         List<Element> docs = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
             @Override

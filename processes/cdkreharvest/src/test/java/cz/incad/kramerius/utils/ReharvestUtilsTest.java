@@ -16,36 +16,22 @@
  */
 package cz.incad.kramerius.utils;
 
-import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
-import cz.incad.kramerius.services.ParallelProcessImpl;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.easymock.EasyMock.createMockBuilder;
 
 public class ReharvestUtilsTest {
 

@@ -3,18 +3,18 @@ package cz.incad.kramerius.services.workers.replicate;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
-import cz.incad.kramerius.services.WorkerFinisher;
-import cz.incad.kramerius.services.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
-import org.apache.commons.collections4.list.FixedSizeList;
+import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -48,16 +48,16 @@ public class ReplicateFinisher   extends WorkerFinisher {
     
     long start = System.currentTimeMillis();
 
-    protected String typeOfCrawl;
+    //protected String typeOfCrawl;
 
     
-    public ReplicateFinisher(String timestampUrl, Element workerElm, Client client) {
-        super(timestampUrl, workerElm, client);
+    public ReplicateFinisher(ProcessConfig config, Client client) {
+        super(config, client);
 
-        Element typeElm = XMLUtils.findElement((Element)workerElm.getParentNode(), "type");
-        if (typeElm != null) {
-            typeOfCrawl = typeElm.getTextContent();
-        }
+//        Element typeElm = XMLUtils.findElement((Element)workerElm.getParentNode(), "type");
+//        if (typeElm != null) {
+//            typeOfCrawl = typeElm.getTextContent();
+//        }
 
     }
 
@@ -73,13 +73,12 @@ public class ReplicateFinisher   extends WorkerFinisher {
 		jsonObject.put("updated", UPDATED);
 		jsonObject.put("hostname", hostname);
 		
-		
+		String typeOfCrawl = this.processConfig.getType();
 		if (typeOfCrawl != null) {
 	        jsonObject.put("type", typeOfCrawl);
 		}
 		
-        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] url %s", timestampUrl));
-    	WebResource r = client.resource(timestampUrl);
+    	WebResource r = client.resource(this.processConfig.getTimestampUrl());
         String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObject.toString()).put(String.class);
         return new JSONObject(t);
 	}
@@ -96,10 +95,10 @@ public class ReplicateFinisher   extends WorkerFinisher {
 
     @Override
     public void finish() {
-        if (StringUtils.isAnyString(timestampUrl) && EXCEPTION_DURING_CRAWL.isEmpty()) {
+        if (StringUtils.isAnyString(this.processConfig.getTimestampUrl()) && EXCEPTION_DURING_CRAWL.isEmpty()) {
     		storeTimestamp();
     	}
-    	KubernetesSolrUtils.commitJersey(this.client, this.destinationUrl);
+    	KubernetesSolrUtils.commitJersey(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
         LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
     }
 }

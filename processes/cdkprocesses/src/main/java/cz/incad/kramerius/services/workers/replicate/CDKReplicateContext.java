@@ -1,7 +1,7 @@
 package cz.incad.kramerius.services.workers.replicate;
 
 
-import cz.incad.kramerius.services.iterators.IterationItem;
+import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.workers.replicate.records.ExistingConflictRecord;
 import cz.incad.kramerius.services.workers.replicate.records.IndexedRecord;
 import cz.incad.kramerius.services.workers.replicate.records.NewConflictRecord;

@@ -7,59 +7,74 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import cz.incad.kramerius.services.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.transform.CopyTransformation;
+import cz.incad.kramerius.services.transform.K7SourceToDestTransform;
+import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.incad.kramerius.services.utils.ResultsUtils;
 import cz.incad.kramerius.services.workers.replicate.records.ExistingConflictRecord;
 import cz.incad.kramerius.services.workers.replicate.records.IndexedRecord;
 import cz.incad.kramerius.services.workers.replicate.records.ReplicateRecord;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.sun.jersey.api.client.Client;
 
-import cz.incad.kramerius.services.Worker;
-import cz.incad.kramerius.services.WorkerFinisher;
-import cz.incad.kramerius.services.iterators.IterationItem;
-import cz.incad.kramerius.services.transform.SourceToDestTransform;
+import cz.inovatika.kramerius.services.workers.Worker;
+import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.inovatika.kramerius.services.iterators.IterationItem;
+import cz.inovatika.kramerius.services.transform.SourceToDestTransform;
 import cz.incad.kramerius.utils.XMLUtils;
 
 
 public abstract class AbstractReplicateWorker extends Worker {
 
+    public AbstractReplicateWorker(ProcessConfig processConfig, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+        super(processConfig, client, items, finisher);
+    }
+
     /**
      * Default field list for copying fields from source library
       */
-    public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status created_date modified_date parent_model "
-            + "parent_pid parent_pid parent_title root_model root_pid root_title text_ocr pages_count "
-            + "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords "
-            + "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort "
-            + "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable "
-            + "virtual location range mods.shelfLocator mods.physicalLocation text dnnt dnnt-labels contains-dnnt-labels";
+//    public static final String DEFAULT_FIELDLIST = "PID timestamp fedora.model document_type handle status created_date modified_date parent_model "
+//            + "parent_pid parent_pid parent_title root_model root_pid root_title text_ocr pages_count "
+//            + "datum_str datum rok datum_begin datum_end datum_page issn mdt ddt dostupnost keywords "
+//            + "geographic_names collection sec model_path pid_path rels_ext_index level dc.title title_sort "
+//            + "title_sort dc.creator dc.identifier language dc.description details facet_title browse_title browse_autor img_full_mime viewable "
+//            + "virtual location range mods.shelfLocator mods.physicalLocation text dnnt dnnt-labels contains-dnnt-labels";
 
 
-    public static final String DEFAULT_PID_FIELD = "PID";
-    public static final String COLLECTION_FIELD = "collection";
+    //public static final String DEFAULT_PID_FIELD = "PID";
+    //public static final String COLLECTION_FIELD = "collection";
 
     // default field list
-    protected String fieldList = DEFAULT_FIELDLIST;
+    //protected String fieldList = DEFAULT_FIELDLIST;
 
-    protected String onIndexedFieldList = null;
-    protected String onUpdateFieldList = null;
+//    protected String onIndexedFieldList = null;
+//    protected String onUpdateFieldList = null;
+//
+//    protected String idIdentifier = DEFAULT_PID_FIELD;
+//    protected String collectionField = COLLECTION_FIELD;
+//
+//    protected boolean compositeId = false;
+//    protected String rootOfComposite = null;
+//    protected String childOfComposite = null;
+//    protected String checkUrl = null;
+//    protected String checkEndpoint = null;
+//    protected SourceToDestTransform transform;
 
-    protected String idIdentifier = DEFAULT_PID_FIELD;
-    protected String collectionField = COLLECTION_FIELD;
+    //WorkerConfig config, Client client, List<IterationItem> items, WorkerFinisher finisher
 
-    protected boolean compositeId = false;
-    protected String rootOfComposite = null;
-    protected String childOfComposite = null;
-    protected String checkUrl = null;
-    protected String checkEndpoint = null;
-    protected SourceToDestTransform transform;
+//    public AbstractReplicateWorker(WorkerConfig config, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+//        super(config, client, items, finisher);
+//    }
 
-    public AbstractReplicateWorker(String sourceName, String introspectUrl, Element workerElm, Client client, List<IterationItem> items, WorkerFinisher finisher) {
-        super(sourceName, introspectUrl, workerElm, client, items, finisher);
-    }
+
+//    public AbstractReplicateWorker(String sourceName, String introspectUrl, Element workerElm, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+//        super(sourceName, introspectUrl, workerElm, client, items, finisher);
+//    }
 
     // zjistuje, ziskava vsechny pidy, ktere jsou naindexovane
     protected CDKReplicateContext createReplicateContext(List<IterationItem> subitems, SourceToDestTransform transform)  throws ParserConfigurationException, SAXException, IOException {
@@ -68,7 +83,12 @@ public abstract class AbstractReplicateWorker extends Worker {
         String reduce = subitems.stream().map(it -> {
             return '"' + it.getPid() + '"';
         }).collect(Collectors.joining(" OR "));
-        
+
+        String collectionField = this.config.getRequestConfig().getCollectionField();
+        String checkUrlC = this.config.getRequestConfig().getCheckUrl();
+        String checkEndpoint = this.config.getRequestConfig().getCheckEndpoint();
+        boolean compositeId = this.config.getRequestConfig().isCompositeId();
+
         List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
         String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+computedFields.stream().collect(Collectors.joining(" "));
         if (compositeId) {
@@ -78,7 +98,7 @@ public abstract class AbstractReplicateWorker extends Worker {
         String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, "UTF-8")
                 + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + subitems.size();
 
-        String checkUrl = this.checkUrl + (this.checkUrl.endsWith("/") ? "" : "/") + this.checkEndpoint;
+        String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
         Element resultElem = XMLUtils.findElement(KubernetesSolrUtils.executeQueryJersey(client, checkUrl, query),
                 (elm) -> {
                     return elm.getNodeName().equals("result");
@@ -141,14 +161,16 @@ public abstract class AbstractReplicateWorker extends Worker {
     }
 
     private List<ExistingConflictRecord> findIndexConflict(List<Map<String,Object>> docs) {
+        String childOfComposite = this.config.getRequestConfig().getChildOfComposite();
+
         Map<String, List<String>> pidToCompositeIds = docs.stream()
                 .filter(map -> {
-                    String pid = (String) map.get(this.transform.getField(childOfComposite));
+                    String pid = (String) map.get(getTransform(this.config).getField(childOfComposite));
                     String compositeId = (String) map.get("compositeId");
                     return StringUtils.isAnyString(pid) && StringUtils.isAnyString(compositeId);
                 })
                 .collect(Collectors.groupingBy(
-                        map -> (String) map.get(this.transform.getField(childOfComposite)),
+                        map -> (String) map.get(getTransform(this.config).getField(childOfComposite)),
                         Collectors.mapping(map -> (String) map.get("compositeId"), Collectors.toList())
                 ));
 
@@ -158,6 +180,18 @@ public abstract class AbstractReplicateWorker extends Worker {
                         entry.getValue().stream().distinct().collect(Collectors.toList())))
                 .filter(ExistingConflictRecord::isConflict)
                 .collect(Collectors.toList());
+    }
+
+    private static SourceToDestTransform getTransform(WorkerConfig config) {
+        String transform = config.getRequestConfig().getTransform();
+        if (transform != null) {
+            switch (transform.toLowerCase()) {
+                case "copy": return new CopyTransformation();
+                case "k7": return new K7SourceToDestTransform();
+                default: return new CopyTransformation();
+            }
+        }
+        return new CopyTransformation();
     }
 
 
@@ -172,6 +206,7 @@ public abstract class AbstractReplicateWorker extends Worker {
         }
     }
 
+    /*
     protected void config(Element workerElm) {
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");
         if (destinationElm != null) {
@@ -250,10 +285,13 @@ public abstract class AbstractReplicateWorker extends Worker {
                 this.checkEndpoint = checkEndpointElm.getTextContent();
             }
         }
-    }
+    }*/
 
     public Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids, String fieldlist)
             throws IOException, SAXException, ParserConfigurationException {
+        String idIdentifier = this.config.getRequestConfig().getIdIdentifier();
+        String requestUrl = this.config.getRequestConfig().getUrl();
+
         String reduce = pids.stream().reduce("", (i, v) -> {
             if (!i.equals("")) {
                 return i + " OR \"" + v + "\"";
@@ -263,7 +301,7 @@ public abstract class AbstractReplicateWorker extends Worker {
         });
         String query = "?q=" + idIdentifier + ":(" + URLEncoder.encode(reduce, "UTF-8") + ")&fl="
                 + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + pids.size();
-        LOGGER.info(String.format("Requesting uri %s, %s",this.requestUrl, query));
-        return KubernetesSolrUtils.executeQueryJersey(client, this.requestUrl, query);
+        LOGGER.info(String.format("Requesting uri %s, %s",requestUrl, query));
+        return KubernetesSolrUtils.executeQueryJersey(client,requestUrl, query);
     }
 }

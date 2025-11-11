@@ -3,7 +3,7 @@
  -->
 <cdkprocess>
     <!-- Iteration part -->
-    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         
         <!--  Sliced collection  -->

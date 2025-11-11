@@ -1,14 +1,15 @@
 package cz.incad.kramerius.services.transform;
 
 import cz.incad.kramerius.KrameriusModels;
-import cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateConsumer;
-import cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateConsumer.ModifyFieldResult;
+import cz.inovatika.kramerius.services.transform.CopyConsumer;
+import cz.inovatika.kramerius.services.transform.CopyConsumer.ModifyFieldResult;
 import cz.incad.kramerius.services.workers.replicate.k7date.DateExtractor;
 import cz.incad.kramerius.services.workers.replicate.k7date.DateInfo;
 import cz.incad.kramerius.services.workers.replicate.k7date.MyDateTimeUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.UTFSort;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.transform.SourceToDestTransform;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,7 +18,6 @@ import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class K7SourceToDestTransform extends SourceToDestTransform {
 
     public static final Logger LOGGER = Logger.getLogger(K7SourceToDestTransform.class.getName());
+    public static final String NAME = "K7";
 
 
     private Map<String,List<String>> plainValueFields = new HashMap<>();
@@ -90,7 +91,12 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
 
 
     @Override
-    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, CopyReplicateConsumer consumer) {
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, CopyConsumer consumer) {
         if (sourceDocElm.getNodeName().equals("doc")) {
 
             Map<String, List<String>> document = new HashMap<>();
@@ -405,7 +411,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
         }
     }
 
-    private void translateAccessibilityToLicense(String model, String accessibility, Document destDocument, Element destDocElem, CopyReplicateConsumer consumer) {
+    private void translateAccessibilityToLicense(String model, String accessibility, Document destDocument, Element destDocElem, CopyConsumer consumer) {
         
         // Translate accessibility to license
         String license = "public".equals(accessibility) ? "public" : "onsite";
@@ -428,7 +434,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
     }
 
 
-    private void field(Document destDocument, Element destDocElem, String value, String targetName, CopyReplicateConsumer consumer) {
+    private void field(Document destDocument, Element destDocElem, String value, String targetName, CopyConsumer consumer) {
         Element strElm = destDocument.createElement("field");
         strElm.setAttribute("name", targetName);
         String content = StringEscapeUtils.escapeXml(value);
@@ -444,7 +450,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
     }
 
 
-    public void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, CopyReplicateConsumer consumer) {
+    public void arrayValue(String pid, Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, CopyConsumer consumer) {
         String attributeName = ((Element) node).getAttribute("name");
         NodeList childNodes = node.getChildNodes();
         for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
@@ -462,7 +468,7 @@ public class K7SourceToDestTransform extends SourceToDestTransform {
     }
 
 
-    private void appendDateFields(Document feedDoc, Element feedDocElement, DateInfo dateInfo, CopyReplicateConsumer consumer) {
+    private void appendDateFields(Document feedDoc, Element feedDocElement, DateInfo dateInfo, CopyConsumer consumer) {
         //min-max dates
         if (dateInfo.dateMin != null) {
             field(feedDoc, feedDocElement,MyDateTimeUtils.formatForSolr(dateInfo.dateMin),"date.min", consumer);
