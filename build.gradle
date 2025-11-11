@@ -419,8 +419,11 @@ task zipInstallDir(type:Zip) {
 
     from ("installation/build") {
 		include "solr-9*/**"
+	}
+    from ("installation") {
 		include "0eaa6730-9068-11dd-97de-000d606f5dc6.zip"
 	}
+
     destinationDirectory.set(file('build/installation'))
 }
 
