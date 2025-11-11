@@ -408,10 +408,17 @@ task distPatchZip(type:Zip) {
 // zip installaton directory
 task zipInstallDir(type:Zip) {
     description "Create zip from installation directory"
+
+	def installationProject = project(':installation')
+    def solrTasks = installationProject.tasks.matching { task ->
+        task.name.startsWith('copySolr9') || task.name.startsWith('generateSchema')
+    }
+    dependsOn(solrTasks)
+
     archiveBaseName.set('installation')
-    from ("installation") {
+
+    from ("installation/build") {
 		include "solr-9*/**"
-		include "solr-7*/**"
 		include "0eaa6730-9068-11dd-97de-000d606f5dc6.zip"
 	}
     destinationDirectory.set(file('build/installation'))
