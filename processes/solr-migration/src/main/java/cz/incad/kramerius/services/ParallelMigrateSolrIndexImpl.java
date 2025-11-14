@@ -26,7 +26,6 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
     public ParallelMigrateSolrIndexImpl() throws MigrateSolrIndexException {
         super();
         this.client = Client.create();
-        //this.service = Executors.newFixedThreadPool(MigrationUtils.configuredNumberOfThreads());
     }
 
     private void startWorkers(List<SolrWorker> worksWhasHasToBeDone) throws BrokenBarrierException, InterruptedException {

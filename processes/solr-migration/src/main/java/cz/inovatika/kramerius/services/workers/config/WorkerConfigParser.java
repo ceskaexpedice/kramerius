@@ -37,19 +37,6 @@ public class WorkerConfigParser {
 
             destinationConfig = DestinationConfigParser.parse(destinationElm);
 
-//            // on index
-//            Element onIndexFieldList = XMLUtils.findElement(destinationElm, "onindex");
-//            String oIfieldlistText = findSubElementText(onIndexFieldList, "fieldlist");
-//            if (oIfieldlistText != null) {
-//                builder.onIndexedFieldList(oIfieldlistText);
-//            }
-//
-//            // on update
-//            Element onUpdateFieldList = XMLUtils.findElement(destinationElm, "onupdate");
-//            String oUfieldlistText = findSubElementText(onUpdateFieldList, "fieldlist");
-//            if (oUfieldlistText != null) {
-//                builder.onUpdateFieldList(oUfieldlistText);
-//            }
             builder.destinationConfig(destinationConfig);
         }
         

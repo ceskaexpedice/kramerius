@@ -83,8 +83,8 @@
                 });
 
             } catch (Exception e) {
-                this.finisher.exceptionDuringCrawl(e);
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                this.finisher.exceptionDuringCrawl(e);
                 throw new MigrateSolrIndexException(e);
             } finally {
                 // stop process

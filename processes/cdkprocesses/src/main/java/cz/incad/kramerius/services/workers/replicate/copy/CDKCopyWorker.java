@@ -5,7 +5,7 @@ import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.SupportedLibraries;
 import cz.incad.kramerius.services.transform.K7SourceToDestTransform;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.transform.CopyConsumer;
+import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
@@ -15,7 +15,6 @@ import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -96,7 +95,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                         });
 
                         // test conflict
-                        Document batch = BatchUtils.batch(cdkReplicateContext, resultElem, compositeId, rootOfComposite, childOfComposite, new K7SourceToDestTransform(), new CopyConsumer() {
+                        Document batch = BatchUtils.batch(cdkReplicateContext, resultElem, compositeId, rootOfComposite, childOfComposite, new K7SourceToDestTransform(), new BatchConsumer() {
 
                             @Override
                             public ModifyFieldResult modifyField(Element field) {
@@ -224,7 +223,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                     return elm.getNodeName().equals("result");
                                 });
                                 /** Construct final batch */
-                                destBatch = BatchUtils.batch(cdkReplicateContext, resultElem, compositeId, rootOfComposite, childOfComposite, new K7SourceToDestTransform(), new CopyConsumer() {
+                                destBatch = BatchUtils.batch(cdkReplicateContext, resultElem, compositeId, rootOfComposite, childOfComposite, new K7SourceToDestTransform(), new BatchConsumer() {
 
                                             /**
                                              * Fields mofidication method; allows modification after
@@ -461,83 +460,5 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
         }
     }
 
-    /**
-     * Handles a field removal event during the indexing process.
-     * <p>
-     * This method is triggered during indexing when certain fields should be excluded
-     * from the final indexing batch. It iterates over a predefined list of field definitions
-     * (stored in {@code onIndexEventRemoveElms}) and removes matching fields from the given
-     * {@code addDocument} element.
-     * <p>
-     * For each field to be removed, it compares its name with field elements inside the document.
-     * If a match is found, that field is removed from the respective <doc> element.
-     *
-     * @param addDocument The XML element representing the indexing batch,
-     *                    typically containing one or more <doc> elements with fields to be processed.
-     */
-    private void onIndexRemoveEvent(Element addDocument) {
-        List<Element> onIndexEventRemoveElms = config.getDestinationConfig().getOnIndexEventRemoveElms();
-        onIndexEventRemoveElms.stream().forEach(f->{
-            synchronized (f.getOwnerDocument()) {
-                String name = f.getAttribute("name");
-                // iterating over doc
-                List<Element> docs = XMLUtils.getElements(addDocument);
-                for (int j = 0,ll=docs.size(); j < ll; j++) {
-                    Element doc = docs.get(j);
-                    List<Element> fields = XMLUtils.getElements(doc);
-                    for (Element fe : fields) {
-                        String fName = fe.getAttribute("name");
-                        if (name.equals(fName)) {
-                            doc.removeChild(fe);
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-
-	// on update event
-	private void onUpdateEvent(Element addDocument) {
-        List<Element> onUpdateUpdateElements = config.getDestinationConfig().getOnUpdateUpdateElements();
-        onUpdateUpdateElements.stream().forEach(f->{
-		    synchronized (f.getOwnerDocument()) {
-		        String name = f.getAttribute("name");
-		        List<Element> docs = XMLUtils.getElements(addDocument);
-		        for (int j = 0,ll=docs.size(); j < ll; j++) {
-		            Element doc = docs.get(j);
-		            Node node = f.cloneNode(true);
-		            doc.getOwnerDocument().adoptNode(node);
-		            doc.appendChild(node);
-		        }
-		    }
-		});
-	}
-
-
-    /**
-     * Handles a field addition event during the indexing process.
-     * <p>
-     * This method is triggered during indexing to inject additional fields into each <doc> element
-     * in the current indexing batch. The fields to be added are pre-defined in the list
-     * {@code onIndexEventUpdateElms}, typically representing fixed or dynamically generated metadata.
-     *
-     * @param addDocument The XML element representing the indexing batch,
-     *                    which contains one or more <doc> elements to be enriched with new fields.
-     */
-    private void onIndexUpdateEvent(Element addDocument) {
-        List<Element> onIndexEventUpdateElms = config.getDestinationConfig().getOnIndexEventUpdateElms();
-        onIndexEventUpdateElms.stream().forEach(f->{
-		    synchronized (f.getOwnerDocument()) {
-		        List<Element> docs = XMLUtils.getElements(addDocument);
-		        for (int j = 0,ll=docs.size(); j < ll; j++) {
-		            Element doc = docs.get(j);
-		            Node node = f.cloneNode(true);
-		            doc.getOwnerDocument().adoptNode(node);
-		            doc.appendChild(node);
-		        }
-		    }
-		});
-	}
 
 }

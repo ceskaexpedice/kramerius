@@ -1,4 +1,4 @@
-package cz.inovatika.kramerius.services.transform;
+package cz.inovatika.kramerius.services.workers.batch;
 
 import org.w3c.dom.Element;
 
@@ -10,7 +10,7 @@ import org.w3c.dom.Element;
  * Implementations can edit, remove, or compute field values dynamically, and also adjust
  * the structure or content of the whole document in the batch.
  */
-public interface CopyConsumer {
+public interface BatchConsumer {
 
     /**
      * Enum describing the result of a field modification.

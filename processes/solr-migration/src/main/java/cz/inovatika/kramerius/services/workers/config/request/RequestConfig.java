@@ -6,6 +6,10 @@ package cz.inovatika.kramerius.services.workers.config.request;
  */
 public class RequestConfig {
 
+    public static final String DEFAULT_ENDPOINT="select";
+    public static final int DEFAULT_BATCH_SIZE = 20;
+    public static final String DEFAULT_FIELD_LIST = "*";
+    public static final String DEFAULT_IDENTIFIER = "pid";
 
     private final String fieldList;
     private final String idIdentifier;
@@ -60,19 +64,19 @@ public class RequestConfig {
 
     public static class Builder {
         // --- Defaults ---
-        private String fieldList = "*";
-        private String idIdentifier = "pid";
+        private String fieldList = DEFAULT_FIELD_LIST;
+        private String idIdentifier = DEFAULT_IDENTIFIER;
         private String transform = null; // Default
         private String collectionField = null;
         private boolean compositeId = false;
         private String rootOfComposite = null;
         private String childOfComposite = null;
         private String checkUrl = null;
-        private String checkEndpoint = null;
+        private String checkEndpoint = DEFAULT_ENDPOINT;
 
         private String url;
         private String endpoint;
-        private int batchSize;
+        private int batchSize= DEFAULT_BATCH_SIZE;
 
         public Builder fieldList(String fieldList) { this.fieldList = fieldList; return this; }
         public Builder idIdentifier(String idIdentifier) { this.idIdentifier = idIdentifier; return this; }

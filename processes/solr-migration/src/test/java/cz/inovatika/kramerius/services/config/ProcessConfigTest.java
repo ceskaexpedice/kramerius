@@ -16,7 +16,7 @@ public class ProcessConfigTest {
 
     @Test
     public void testProcessConfig() throws ParserConfigurationException, IOException, SAXException {
-        InputStream resourceAsStream = ProcessConfigTest.class.getResourceAsStream("config1.xml");
+        InputStream resourceAsStream = ProcessConfigTest.class.getResourceAsStream("config.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
         ProcessConfig config = ProcessConfigParser.parse(document.getDocumentElement());
         System.out.println(config.toString());

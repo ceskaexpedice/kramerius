@@ -16,7 +16,7 @@ public class DNNTBatchUtilsTest {
 
 
     @Test
-    public void testBatchUtils() throws ParserConfigurationException, TransformerException {
+    public void testCreateUtils() throws ParserConfigurationException, TransformerException {
         List<String> pids  = Arrays.asList(
             "uuid:530719f5-ee95-4449-8ce7-12b0f4cadb22",
             "uuid:40d779fa-b2d9-4a85-857b-ee4febc477f1",

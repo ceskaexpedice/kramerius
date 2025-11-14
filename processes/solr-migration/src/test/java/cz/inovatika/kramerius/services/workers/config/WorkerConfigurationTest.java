@@ -15,7 +15,7 @@ public class WorkerConfigurationTest {
 
     @Test
     public void testWorkerConfig1() throws ParserConfigurationException, IOException, SAXException {
-        InputStream resourceAsStream = WorkerConfigurationTest.class.getResourceAsStream("config1.xml");
+        InputStream resourceAsStream = WorkerConfigurationTest.class.getResourceAsStream("config.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
         WorkerConfig workerConfig =  WorkerConfigParser.parse(XMLUtils.findElement(document.getDocumentElement(),"worker"));
         Assert.assertNotNull(workerConfig);

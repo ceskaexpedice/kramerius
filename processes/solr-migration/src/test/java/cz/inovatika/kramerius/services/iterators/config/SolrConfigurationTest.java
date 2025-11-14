@@ -14,7 +14,7 @@ public class SolrConfigurationTest {
 
     @Test
     public void testSolrConfiguration() throws ParserConfigurationException, IOException, SAXException {
-        InputStream resourceAsStream = SolrConfigurationTest.class.getResourceAsStream("config1.xml");
+        InputStream resourceAsStream = SolrConfigurationTest.class.getResourceAsStream("config.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
 
         SolrIteratorConfig build = SolrConfigParser.parse(XMLUtils.findElement(document.getDocumentElement(), "migration"), "fq");

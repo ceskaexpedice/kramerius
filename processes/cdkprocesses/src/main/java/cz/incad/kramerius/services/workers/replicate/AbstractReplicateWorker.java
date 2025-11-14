@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.transform.CopyTransformation;
+import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
 import cz.incad.kramerius.services.transform.K7SourceToDestTransform;
 import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.incad.kramerius.services.utils.ResultsUtils;
@@ -25,7 +25,7 @@ import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.workers.Worker;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
-import cz.inovatika.kramerius.services.transform.SourceToDestTransform;
+import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
 import cz.incad.kramerius.utils.XMLUtils;
 
 
@@ -77,7 +77,7 @@ public abstract class AbstractReplicateWorker extends Worker {
 //    }
 
     // zjistuje, ziskava vsechny pidy, ktere jsou naindexovane
-    protected CDKReplicateContext createReplicateContext(List<IterationItem> subitems, SourceToDestTransform transform)  throws ParserConfigurationException, SAXException, IOException {
+    protected CDKReplicateContext createReplicateContext(List<IterationItem> subitems, BatchTransformation transform)  throws ParserConfigurationException, SAXException, IOException {
 
         // vsechny pidy
         String reduce = subitems.stream().map(it -> {
@@ -182,7 +182,7 @@ public abstract class AbstractReplicateWorker extends Worker {
                 .collect(Collectors.toList());
     }
 
-    private static SourceToDestTransform getTransform(WorkerConfig config) {
+    private static BatchTransformation getTransform(WorkerConfig config) {
         String transform = config.getRequestConfig().getTransform();
         if (transform != null) {
             switch (transform.toLowerCase()) {
@@ -303,5 +303,40 @@ public abstract class AbstractReplicateWorker extends Worker {
                 + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + pids.size();
         LOGGER.info(String.format("Requesting uri %s, %s",requestUrl, query));
         return KubernetesSolrUtils.executeQueryJersey(client,requestUrl, query);
+    }
+
+    /**
+     * Handles a field removal event during the indexing process.
+     * <p>
+     * This method is triggered during indexing when certain fields should be excluded
+     * from the final indexing batch. It iterates over a predefined list of field definitions
+     * (stored in {@code onIndexEventRemoveElms}) and removes matching fields from the given
+     * {@code addDocument} element.
+     * <p>
+     * For each field to be removed, it compares its name with field elements inside the document.
+     * If a match is found, that field is removed from the respective <doc> element.
+     *
+     * @param addDocument The XML element representing the indexing batch,
+     *                    typically containing one or more <doc> elements with fields to be processed.
+     */
+    protected void onIndexRemoveEvent(Element addDocument) {
+        List<Element> onIndexEventRemoveElms = config.getDestinationConfig().getOnIndexEventRemoveElms();
+        onIndexEventRemoveElms.stream().forEach(f->{
+            synchronized (f.getOwnerDocument()) {
+                String name = f.getAttribute("name");
+                // iterating over doc
+                List<Element> docs = XMLUtils.getElements(addDocument);
+                for (int j = 0,ll=docs.size(); j < ll; j++) {
+                    Element doc = docs.get(j);
+                    List<Element> fields = XMLUtils.getElements(doc);
+                    for (Element fe : fields) {
+                        String fName = fe.getAttribute("name");
+                        if (name.equals(fName)) {
+                            doc.removeChild(fe);
+                        }
+                    }
+                }
+            }
+        });
     }
 }

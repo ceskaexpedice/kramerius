@@ -1,7 +1,9 @@
-package cz.inovatika.kramerius.services.transform;
+package cz.inovatika.kramerius.services.workers.batch.impl;
 
-import cz.inovatika.kramerius.services.transform.CopyConsumer.ModifyFieldResult;
+import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
+import cz.inovatika.kramerius.services.workers.batch.BatchConsumer.ModifyFieldResult;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,19 +15,21 @@ import java.util.List;
 
 
 //TODO: Change it in future; copied from K5 cdk download
-public class CopyTransformation extends SourceToDestTransform {
+public class CopyTransformation extends BatchTransformation {
 
 
     public static final String NAME = "COPY";
 
-    public static void simpleValue(Document feedDoc, Element feedDocElm, Node node, String derivedName, CopyConsumer consumer) {
+    public static void simpleValue(Document feedDoc, Element feedDocElm, Node node, String derivedName, BatchConsumer consumer) {
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
  
         Element strElm = feedDoc.createElement("field");
         strElm.setAttribute("name", attributeName);
-        String content = StringEscapeUtils.escapeXml(node.getTextContent());
+        String textContent = node.getTextContent();
+        String content = StringEscapeUtils.escapeXml(textContent);
+
         // add to context to process
-        strElm.setTextContent(content);
+        strElm.setTextContent(textContent);
 
         ModifyFieldResult result = ModifyFieldResult.none;
         if (consumer != null) {
@@ -36,7 +40,7 @@ public class CopyTransformation extends SourceToDestTransform {
         }
     }
 
-    public static void arrayValue( Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, CopyConsumer consumer) {
+    public static void arrayValue( Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, BatchConsumer consumer) {
         String attributeName = ((Element) node).getAttribute("name");
         NodeList childNodes = node.getChildNodes();
         for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
@@ -70,7 +74,7 @@ public class CopyTransformation extends SourceToDestTransform {
     }
 
     /** */
-    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, CopyConsumer consumer)  {
+    public void transform(Element sourceDocElm, Document destDocument, Element destDocElem, BatchConsumer consumer)  {
         //String pid = pid(sourceDocElm);
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();

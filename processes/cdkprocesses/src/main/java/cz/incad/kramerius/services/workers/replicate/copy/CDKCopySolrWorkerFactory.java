@@ -7,11 +7,8 @@ import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.transform.CopyTransformation;
-import cz.inovatika.kramerius.services.transform.SourceToDestTransform;
-import cz.incad.kramerius.services.workers.replicate.ReplicateFinisher;
-
-import org.w3c.dom.Element;
+import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
+import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
 
 import java.util.List;
 
@@ -38,7 +35,7 @@ public class CDKCopySolrWorkerFactory extends WorkerFactory {
         return null;
     }
 
-    public SourceToDestTransform createTransform() {
+    public BatchTransformation createTransform() {
         return new CopyTransformation();
     }
 }

@@ -17,7 +17,7 @@ public class ProcessIteratorFactoryTest {
 
     @Test
     public void testFactory() throws ParserConfigurationException, IOException, SAXException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-        InputStream resourceAsStream = SolrConfigurationTest.class.getResourceAsStream("config1.xml");
+        InputStream resourceAsStream = SolrConfigurationTest.class.getResourceAsStream("config.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
 
         SolrIteratorConfig config = SolrConfigParser.parse(XMLUtils.findElement(document.getDocumentElement(), "migration"), "fq");

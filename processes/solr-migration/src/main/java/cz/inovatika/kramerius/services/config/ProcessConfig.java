@@ -8,7 +8,10 @@ import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
  * Immutable root configuration object for a CDK replication process.
  * Encapsulates settings for the source (iterator) and the processing unit (worker).
  */
-public class ProcessConfig {
+public class  ProcessConfig {
+
+    public static final String DEFAULT_SOURCE_NAME="default";
+    public static final String DEFAULT_NAME="default";
 
     // --- Core Fields ---
     private final String sourceName;
@@ -58,8 +61,8 @@ public class ProcessConfig {
     // ==========================================================
 
     public static class Builder {
-        private String sourceName;
-        private String name;
+        private String sourceName = DEFAULT_SOURCE_NAME;
+        private String name = DEFAULT_NAME;
         private int threads = 1;
         // Factory class fields REMOVED
 
@@ -86,8 +89,7 @@ public class ProcessConfig {
 
         public ProcessConfig build() {
             if (sourceName == null || name == null || iteratorConfig == null || workerConfig == null) {
-                // Upravená kontrola: již nevyžadujeme factory classy
-                throw new IllegalStateException("CDKProcessConfig must contain sourceName, name, iteratorConfig, and workerConfig.");
+                throw new IllegalStateException("ProcessConfig must contain sourceName, name, iteratorConfig, and workerConfig.");
             }
             return new ProcessConfig(this);
         }

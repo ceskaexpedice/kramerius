@@ -14,9 +14,6 @@ public abstract class WorkerFinisher {
     protected Client client;
     protected CyclicBarrier barrier;
     protected ProcessConfig processConfig;
-//    protected Element workerElm;
-//    protected String destinationUrl;
-//    protected String timestampUrl;
 
     
     public WorkerFinisher(ProcessConfig config,  /*String timestampUrl, Element workerElm,*/ Client client) {

@@ -32,8 +32,6 @@ public class WorkerConfig {
     // Gettery pro zapouzdřené objekty
     public RequestConfig getRequestConfig() { return requestConfig; }
     public DestinationConfig getDestinationConfig() { return destinationConfig; }
-
-    // Gettery pro zbylá pole
     public String getFactoryClz() { return factoryClz; }
 
 
@@ -96,8 +94,6 @@ public class WorkerConfig {
             }
             return new WorkerConfig(this);
         }
-
-        // VŠECHNY PŮVODNÍ SETTERY PRO FIELDLIST, CHECKURL, TRANSFORM atd. BYLY ODSTRANĚNY!
     }
 
     @Override

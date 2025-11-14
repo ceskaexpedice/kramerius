@@ -14,8 +14,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.inovatika.kramerius.services.transform.SourceToDestTransform;
-import cz.inovatika.kramerius.services.transform.CopyConsumer;
+import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
+import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class BatchUtils {
@@ -38,7 +38,7 @@ public class BatchUtils {
      * @throws ParserConfigurationException
      * @throws MigrateSolrIndexException
      */
-    public static Document batch(CDKReplicateContext cdkRepContext, Element resultElem, boolean compositeId, String root, String child, SourceToDestTransform srcTransform, CopyConsumer consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
+    public static Document batch(CDKReplicateContext cdkRepContext, Element resultElem, boolean compositeId, String root, String child, BatchTransformation srcTransform, BatchConsumer consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
         Document destBatch = XMLUtils.crateDocument("add");
         List<Element> docs = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
             @Override
@@ -102,7 +102,7 @@ public class BatchUtils {
 
 
     /** find conflicting record */
-    private static NewConflictRecord checkModelConflict(CDKReplicateContext cdkReplicateContext, Element sourceDocElm, String childComposite, SourceToDestTransform srcTransform) {
+    private static NewConflictRecord checkModelConflict(CDKReplicateContext cdkReplicateContext, Element sourceDocElm, String childComposite, BatchTransformation srcTransform) {
         String transformedComposite = srcTransform.resolveSourcePid(childComposite);
         Map<String, Object> doc = ResultsUtils.doc(sourceDocElm);
         Object pid = doc.get(transformedComposite);
