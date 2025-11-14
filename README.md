@@ -40,6 +40,7 @@ NK ČR – P. Burdová, J. Hrzinová, V. Jiroušek, K. Košťálová;
 MZK – M. Dvořáková, P. Žabička, F. Jebavý; 
 NTK - T. Lysoněk
 NLK – F. Kříž;
+KUK - A. Brožek;
 MKP - M. Světlý;
 Programátorský tým: P.Kocourek, V.Lahoda, P.Šťastný, J.Rychtář
 
