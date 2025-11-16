@@ -93,7 +93,7 @@ public class SolrCursorIterator extends AbstractSolrIterator {
 
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
-                iterationCallback.call(KubernetesSolrUtils.findAllPids(element, this.address, this.id));
+                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
             } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
             // callback after iteration
             endCallback.end();
@@ -113,7 +113,7 @@ public class SolrCursorIterator extends AbstractSolrIterator {
 
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
-                iterationCallback.call( KubernetesSolrUtils.findAllPids(element, this.address, this.id));
+                iterationCallback.call( KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
             } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
             // callback after iteration
             endCallback.end();

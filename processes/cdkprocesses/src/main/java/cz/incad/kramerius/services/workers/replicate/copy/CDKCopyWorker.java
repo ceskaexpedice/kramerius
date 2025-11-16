@@ -67,7 +67,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
             String childOfComposite = processConfig.getWorkerConfig().getRequestConfig().getChildOfComposite();
 
             ReplicateFinisher.WORKERS.addAndGet(this.itemsToBeProcessed.size());
-            LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.itemsToBeProcessed.size());
+            LOGGER.info("["+Thread.currentThread().getName()+"] processing list of items "+this.itemsToBeProcessed.size());
             int batches = this.itemsToBeProcessed.size() / batchSize + (this.itemsToBeProcessed.size() % batchSize == 0 ? 0 :1);
             LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
             for (int i=0;i<batches;i++) {
@@ -104,7 +104,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
 
 
                             @Override
-                            public void changeDocument(String rootPid, String pid,Element doc) {
+                            public void changeDocument(ProcessConfig processConfig, Element doc) {
 
                                 // --- Indexed field modification ---
                                 List<Element> indexed = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
@@ -136,7 +136,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                     Document document = doc.getOwnerDocument();
                                     Element cdkLicenses = document.createElement("field");
                                     cdkLicenses.setAttribute("name", "cdk.licenses_of_ancestors");
-                                    cdkLicenses.setTextContent(processConfig.getSourceName()+"_"+ licOfAncestors);
+                                    cdkLicenses.setTextContent(CDKCopyWorker.this.processConfig.getSourceName()+"_"+ licOfAncestors);
                                     doc.appendChild(cdkLicenses);
                                 }
                                 // ----
@@ -155,7 +155,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                     Document document = doc.getOwnerDocument();
                                     Element cdkLicenses = document.createElement("field");
                                     cdkLicenses.setAttribute("name", "cdk.contains_licenses");
-                                    cdkLicenses.setTextContent(processConfig.getSourceName()+"_"+ licOfAncestors);
+                                    cdkLicenses.setTextContent(CDKCopyWorker.this.processConfig.getSourceName()+"_"+ licOfAncestors);
                                     doc.appendChild(cdkLicenses);
                                 }
                                 // ----
@@ -175,7 +175,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                     Document document = doc.getOwnerDocument();
                                     Element cdkLicenses = document.createElement("field");
                                     cdkLicenses.setAttribute("name", "cdk.licenses");
-                                    cdkLicenses.setTextContent(processConfig.getSourceName()+"_"+ license);
+                                    cdkLicenses.setTextContent(CDKCopyWorker.this.processConfig.getSourceName()+"_"+ license);
                                     doc.appendChild(cdkLicenses);
                                 }
                                 // ----
@@ -268,7 +268,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                             }
 
                                             @Override
-                                            public void changeDocument(String root, String pid, Element doc) {
+                                            public void changeDocument(ProcessConfig processConfig, Element doc) {
 
                                                 Instant instant = new Date().toInstant();
                                                 Element fieldDate = doc.getOwnerDocument().createElement("field");
@@ -284,7 +284,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                                         Pair.of("licenses_of_ancestors", "cdk.licenses_of_ancestors")
                                                 );
 
-                                                Map<String, Object> cdkDoc = alreadyIndexedAsMap.get(pid).getDocument();
+                                                Map<String, Object> cdkDoc = alreadyIndexedAsMap.get(childOfComposite).getDocument();
 
                                                 for (Pair<String,String> cpField : comparingFields) {
 
@@ -300,16 +300,16 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
 
                                                     Set<String> newCDKValues = new HashSet<>();
                                                     newCDKValues =  newIndexedField.stream().map(Element::getTextContent).map(cnt-> {
-                                                        return processConfig.getSourceName()+"_"+cnt;
+                                                        return CDKCopyWorker.this.processConfig.getSourceName()+"_"+cnt;
                                                     }).collect(Collectors.toSet());
 
 
                                                     Set<String> indexedCDKLicenses = cdkDoc.get(specificCDKField) != null ?  new HashSet<String>((List<String>)cdkDoc.get(specificCDKField)) : new HashSet<>();
-                                                    indexedCDKLicenses.removeIf(item -> !item.startsWith(processConfig.getSourceName() + "_"));
+                                                    indexedCDKLicenses.removeIf(item -> !item.startsWith(CDKCopyWorker.this.processConfig.getSourceName() + "_"));
                                                     if (!indexedCDKLicenses.equals(newCDKValues)) {
                                                         List<String> newList = new ArrayList<String>( cdkDoc.get(specificCDKField)  != null ?  (List<String>)cdkDoc.get(specificCDKField) : new ArrayList<>() );
                                                         // remove everything what is prefixed
-                                                        newList.removeIf(item -> item.startsWith(processConfig.getSourceName() + "_"));
+                                                        newList.removeIf(item -> item.startsWith(CDKCopyWorker.this.processConfig.getSourceName() + "_"));
 
                                                         // add new indexed values
                                                         newList.addAll(newCDKValues);

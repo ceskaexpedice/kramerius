@@ -26,7 +26,7 @@ public class CopyTransformation extends BatchTransformation {
         Element strElm = feedDoc.createElement("field");
         strElm.setAttribute("name", attributeName);
         String textContent = node.getTextContent();
-        String content = StringEscapeUtils.escapeXml(textContent);
+        //String content = StringEscapeUtils.escapeXml(textContent);
 
         // add to context to process
         strElm.setTextContent(textContent);

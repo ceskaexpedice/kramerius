@@ -105,7 +105,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
                 Element element = pidsFilterApache( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.fieldList);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
-                iterationCallback.call(KubernetesSolrUtils.findAllPids(element, this.address, this.id));
+                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
             }while(lastPid != null  && !lastPid.equals(previousPid));
             // callback after iteration
             endCallback.end();
@@ -125,7 +125,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
                 Element element = pidsFilterJersey( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, fieldList);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
-                iterationCallback.call(KubernetesSolrUtils.findAllPids(element, this.address, this.id));
+                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
             }while(lastPid != null  && !lastPid.equals(previousPid));
             // callback after iteration
             endCallback.end();

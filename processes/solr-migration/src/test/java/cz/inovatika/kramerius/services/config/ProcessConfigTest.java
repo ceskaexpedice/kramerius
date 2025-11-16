@@ -4,6 +4,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.config.SolrConfigParser;
 import cz.inovatika.kramerius.services.iterators.config.SolrConfigurationTest;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
+import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -16,10 +17,14 @@ public class ProcessConfigTest {
 
     @Test
     public void testProcessConfig() throws ParserConfigurationException, IOException, SAXException {
-        InputStream resourceAsStream = ProcessConfigTest.class.getResourceAsStream("config.xml");
+        InputStream resourceAsStream = ProcessConfigTest.class.getResourceAsStream("config1.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
         ProcessConfig config = ProcessConfigParser.parse(document.getDocumentElement());
-        System.out.println(config.toString());
+        Assert.assertEquals(config.getIteratorConfig().getIdField(), "$iteration.id$");
+        Assert.assertEquals(config.getWorkerConfig().getRequestConfig().getIdIdentifier(), "$iteration.id$");
+
+        String filterQuery = config.getIteratorConfig().getFilterQuery();
+        Assert.assertEquals(filterQuery, "$iteration.fquery$");
 
     }
 

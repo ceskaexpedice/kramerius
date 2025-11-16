@@ -20,7 +20,6 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
     public static final Logger LOGGER = Logger.getLogger(ParallelMigrateSolrIndexImpl.class.getName());
     
     private Client client;
-    //private ExecutorService service;
     private CyclicBarrier cyclicBarrier;
 
     public ParallelMigrateSolrIndexImpl() throws MigrateSolrIndexException {
@@ -64,7 +63,6 @@ public class ParallelMigrateSolrIndexImpl implements MigrateSolrIndex{
                     finishRestWorkers(worksWhatHasToBeDone);
 
                 });
-                //this.migrateUseQueryFilter(MigrationUtils.configuredSourceServer(),"*:*");
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

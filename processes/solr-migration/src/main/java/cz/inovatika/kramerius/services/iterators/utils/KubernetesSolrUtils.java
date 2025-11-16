@@ -217,7 +217,7 @@ public class KubernetesSolrUtils {
     }
 
 
-    public static List<IterationItem> findAllPids(Element elm, String source, String identKey) {
+    public static List<IterationItem> prepareIterationItems(Element elm, String source, String identKey) {
         Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {

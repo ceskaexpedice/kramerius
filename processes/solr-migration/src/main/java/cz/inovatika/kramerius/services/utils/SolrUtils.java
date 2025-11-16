@@ -39,6 +39,7 @@ public class SolrUtils {
         try {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
+            LOGGER.info(writer.toString());
             return sendBatchToDestJersey(destSolr, jerseyClient, batchDoc, writer);
         } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

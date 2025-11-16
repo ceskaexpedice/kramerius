@@ -21,9 +21,7 @@ public class SolrConfigParser {
      * @return A ready-to-use SolrIteratorConfig.Builder.
      */
     public static SolrIteratorConfig parse(Element iteration, String filterQueryOverride) {
-        
-        // --- 1. Mandatory Fields Extraction ---
-        
+
         Element urlElm = XMLUtils.findElement(iteration, "url");
         String url = urlElm != null ? urlElm.getTextContent() : null;
         
@@ -36,9 +34,7 @@ public class SolrConfigParser {
 
         SolrIteratorConfig.Builder builder = new SolrIteratorConfig.Builder(url, id);
 
-        // --- 2. Optional Fields Extraction ---
-        
-        // A. Filter Query (uses override if provided, otherwise uses XML value)
+
         Element fqueryElm = XMLUtils.findElement(iteration, "fquery");
         String xmlFilterQuery = fqueryElm != null ? fqueryElm.getTextContent() : "";
         
@@ -67,7 +63,6 @@ public class SolrConfigParser {
             }
         }
         
-        // F. Type of Iteration
         Element typeElm = XMLUtils.findElement(iteration, "type");
         if (typeElm != null) {
             try {

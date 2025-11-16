@@ -94,11 +94,17 @@
 
 
 
-        public static void main(String[] args) throws MigrateSolrIndexException, ClassNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, SAXException, ParserConfigurationException {
+        public static void main(String[] args)  {
             if (args.length > 0 ) {
                 for (String arg : args) {
-                    Migration migr = new Migration();
-                    migr.migrate(new File(arg));
+                    try {
+                        Migration migr = new Migration();
+                        migr.migrate(new File(arg));
+                    } catch (MigrateSolrIndexException | IllegalAccessException | InstantiationException |
+                             ClassNotFoundException | IOException | ParserConfigurationException | SAXException |
+                             NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }

@@ -35,6 +35,8 @@ public class Batch {
 
             // basic transform
             transformation.transform(sourceDocElm, destBatch, destDocElement,consumer);
+
+            // dat do workeru
             boolean compositeId = config.getWorkerConfig().getRequestConfig().isCompositeId();
             String root = config.getWorkerConfig().getRequestConfig().getRootOfComposite();
             String child = config.getWorkerConfig().getRequestConfig().getChildOfComposite();
@@ -43,7 +45,6 @@ public class Batch {
             if (compositeId && root != null && child != null) {
                 root = transformation.getField(root) != null ?  transformation.getField(root) : root;
                 child = transformation.getField(child) != null ?  transformation.getField(child) : child;
-
                 boolean b = enhanceByCompositeId(destBatch, destDocElement, root, child);
                 if (b) {
                     destBatch.getDocumentElement().appendChild(destDocElement);
@@ -52,15 +53,16 @@ public class Batch {
                 destBatch.getDocumentElement().appendChild(destDocElement);
             }
 
-            if (consumer != null) consumer.changeDocument(null,null, destDocElement);
-
+            if (consumer != null) consumer.changeDocument(this.config, destDocElement);
         }
         return destBatch;
 
     }
 
+
+
     private static boolean enhanceByCompositeId(Document ndoc,Element docElm, String root, String child) {
-        Element pidElm = XMLUtils.findElement(docElm, new XMLUtils.ElementsFilter() {
+        Element childComponent = XMLUtils.findElement(docElm, new XMLUtils.ElementsFilter() {
 
             @Override
             public boolean acceptElement(Element paramElement) {
@@ -68,7 +70,7 @@ public class Batch {
                 return attribute.equals(child);
             }
         });
-        Element rootPidElm = XMLUtils.findElement(docElm, new XMLUtils.ElementsFilter() {
+        Element rootComponent = XMLUtils.findElement(docElm, new XMLUtils.ElementsFilter() {
 
             @Override
             public boolean acceptElement(Element paramElement) {
@@ -77,9 +79,9 @@ public class Batch {
             }
         });
 
-        if (rootPidElm != null && pidElm != null) {
+        if (rootComponent != null && childComponent != null) {
 
-            String txt = rootPidElm.getTextContent().trim()+"!"+pidElm.getTextContent().trim();
+            String txt = rootComponent.getTextContent().trim()+"!"+childComponent.getTextContent().trim();
             Element compositeIdElm = ndoc.createElement("field");
             String compositeIdName = System.getProperty("compositeId.field.name","compositeId");
             compositeIdElm.setAttribute("name", compositeIdName);

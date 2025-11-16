@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.services.workers.config.request;
 
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import org.w3c.dom.Element;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -27,7 +28,7 @@ public class RequestConfigParser {
      * @param workerElm The root <worker> element, used to find the <request> block.
      * @return A fully configured RequestConfig object.
      */
-    public static RequestConfig parse(Element workerElm) {
+    public static RequestConfig parse(SolrIteratorConfig config, Element workerElm) {
         
         RequestConfig.Builder builder = new RequestConfig.Builder();
         Element requestElm = XMLUtils.findElement(workerElm, "request");
@@ -41,6 +42,9 @@ public class RequestConfigParser {
             // Id
             String idText = findSubElementText(requestElm, "id");
             if (idText != null) builder.idIdentifier(idText);
+            else {
+                if (config != null)  builder.idIdentifier(config.getIdField());
+            }
 
             // transform
             String transformFormatText = findSubElementText(requestElm, "trasfrom");

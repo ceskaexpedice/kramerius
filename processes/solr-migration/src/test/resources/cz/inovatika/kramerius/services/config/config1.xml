@@ -30,7 +30,6 @@
             <endpoint>select</endpoint>
             <batchsize>80</batchsize>
 
-            <id>pid</id>
 
             <composite.id>true</composite.id>
             <composite.root>root.pid</composite.root>

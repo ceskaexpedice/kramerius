@@ -66,8 +66,9 @@ public class ProcessConfigParser {
 
         // --- 2. Iteration Configuration (Delegated) ---
         Element iterationElm = XMLUtils.findElement(processElm, "iteration");
+        SolrIteratorConfig iteratorConfig = null;
         if (iterationElm != null) {
-            SolrIteratorConfig iteratorConfig = SolrConfigParser.parse(iterationElm, null);
+            iteratorConfig = SolrConfigParser.parse(iterationElm, null);
             builder.iteratorConfig(iteratorConfig);
         } else {
              LOGGER.log(Level.SEVERE, "Required <iteration> element not found in configuration.");
@@ -77,7 +78,7 @@ public class ProcessConfigParser {
         Element workerElm = XMLUtils.findElement(processElm, "worker");
         if (workerElm != null) {
             // Používáme WorkerConfigParser pro parsování <worker>
-            WorkerConfig workerConfig = WorkerConfigParser.parse(workerElm);
+            WorkerConfig workerConfig = WorkerConfigParser.parse(iteratorConfig,  workerElm);
             builder.workerConfig(workerConfig);
         } else {
             LOGGER.log(Level.SEVERE, "Required <worker> element not found in configuration.");

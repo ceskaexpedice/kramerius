@@ -80,7 +80,7 @@ public class SolrPageIterator extends AbstractSolrIterator {
                     numberOfResult = findNumberOfResults(element);
                 }
                 //List<String> allPids = findAllPids(element);
-                iterationCallback.call(KubernetesSolrUtils.findAllPids(element, this.address, this.id));
+                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
                 offset += rows;
             }while(offset < numberOfResult);
             // callback after iteration
@@ -103,7 +103,7 @@ public class SolrPageIterator extends AbstractSolrIterator {
                 if (numberOfResult == Integer.MAX_VALUE) {
                     numberOfResult = findNumberOfResults(element);
                 }
-                iterationCallback.call(KubernetesSolrUtils.findAllPids(element, this.address, this.id));
+                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
                 offset += rows;
             }while(offset < numberOfResult);
             // callback after iteration

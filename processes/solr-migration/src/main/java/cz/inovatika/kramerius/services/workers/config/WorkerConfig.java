@@ -49,7 +49,6 @@ public class WorkerConfig {
         private String onUpdateFieldList = null;
         private String factoryClz = null;
 
-        // --- Fluid Setter Methods for Encapsulated Configs ---
 
         /**
          * Sets the Request configuration object.

@@ -9,7 +9,7 @@ public class RequestConfig {
     public static final String DEFAULT_ENDPOINT="select";
     public static final int DEFAULT_BATCH_SIZE = 20;
     public static final String DEFAULT_FIELD_LIST = "*";
-    public static final String DEFAULT_IDENTIFIER = "pid";
+    //public static final String DEFAULT_IDENTIFIER = "pid";
 
     private final String fieldList;
     private final String idIdentifier;
@@ -36,7 +36,6 @@ public class RequestConfig {
         this.checkUrl = builder.checkUrl;
         this.checkEndpoint = builder.checkEndpoint;
 
-        // Inicializace nových polí
         this.url = builder.url;
         this.endpoint = builder.endpoint;
         this.batchSize = builder.batchSize;
@@ -65,7 +64,7 @@ public class RequestConfig {
     public static class Builder {
         // --- Defaults ---
         private String fieldList = DEFAULT_FIELD_LIST;
-        private String idIdentifier = DEFAULT_IDENTIFIER;
+        private String idIdentifier = null;
         private String transform = null; // Default
         private String collectionField = null;
         private boolean compositeId = false;

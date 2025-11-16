@@ -1,13 +1,12 @@
 package cz.inovatika.kramerius.services.workers;
 
 import com.sun.jersey.api.client.*;
-import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.inovatika.kramerius.services.workers.batch.Batch;
+import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
 import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
 import cz.inovatika.kramerius.services.utils.ResultsUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
@@ -17,16 +16,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
@@ -115,7 +108,7 @@ public abstract class Worker implements Runnable {
     }
 
     protected void onIndexRemoveEvent(Element addDocument) {
-        List<Element> onIndexEventRemoveElms = config.getDestinationConfig().getOnIndexEventUpdateElms();
+        List<Element> onIndexEventRemoveElms = config.getDestinationConfig().getOnIndexEventRemoveElms();
         onIndexEventRemoveElms.stream().forEach(f->{
             synchronized (f.getOwnerDocument()) {
                 String name = f.getAttribute("name");
@@ -137,7 +130,10 @@ public abstract class Worker implements Runnable {
 
     public Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids, String fieldlist)
             throws IOException, SAXException, ParserConfigurationException {
-        String idIdentifier = this.config.getRequestConfig().getIdIdentifier();
+        //String idIdentifier = this.config.getRequestConfig().getIdIdentifier();
+        String idIdentifier = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
+
+
         String requestUrl = this.config.getRequestConfig().getUrl();
         String requestEndpoint =  this.config.getRequestConfig().getEndpoint();
         String reduce = pids.stream().reduce("", (i, v) -> {
@@ -155,22 +151,48 @@ public abstract class Worker implements Runnable {
 
     protected WorkerContext createContext(List<IterationItem> subitems)  throws ParserConfigurationException, SAXException, IOException {
 
+        String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
+
+        // iterovat pres composite id ale pro dotazovani pouzit jinou polozku z docu
+        // pri iterovani ziskavat jeste jine polozky
         String reduce = subitems.stream().map(it -> {
-            return '"' + it.getPid() + '"';
+            Map<String, Object> doc = it.getDoc();
+            if (doc.containsKey(identifierField)) {
+                return  '"'+(String) doc.get(identifierField) + '"';
+            } else {
+                return '"' + it.getId() + '"';
+            }
         }).collect(Collectors.joining(" OR "));
+
 
         String collectionField = this.config.getRequestConfig().getCollectionField();
         String checkUrlC = this.config.getRequestConfig().getCheckUrl();
         String checkEndpoint = this.config.getRequestConfig().getCheckEndpoint();
         boolean compositeId = this.config.getRequestConfig().isCompositeId();
 
-        List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
-        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+computedFields.stream().collect(Collectors.joining(" "));
+        String childOfComposite = this.config.getRequestConfig().getChildOfComposite();
+        String rootOfComposite = this.config.getRequestConfig().getRootOfComposite();
+
+        String fieldlist = this.config.getRequestConfig().getFieldList();
         if (compositeId) {
-            fieldlist = fieldlist + " " + " root.pid compositeId";
+            if (!fieldlist.contains(childOfComposite)) {
+                throw new IllegalArgumentException("Field list must contain '"+childOfComposite+"'");
+            }
+            if (!fieldlist.contains(rootOfComposite)) {
+                throw new IllegalArgumentException("Field list must contain '"+rootOfComposite+"'");
+            }
         }
 
-        String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, "UTF-8")
+
+        //TODO: Control fetch; must contain compo
+        // Todo - Move
+//        List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
+//        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+computedFields.stream().collect(Collectors.joining(" "));
+//        if (compositeId) {
+//            fieldlist = fieldlist + " " + " root.pid compositeId";
+//        }
+
+        String query = "?q=" + identifierField + ":(" + URLEncoder.encode(reduce, "UTF-8")
                 + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + subitems.size();
 
         String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
@@ -178,6 +200,7 @@ public abstract class Worker implements Runnable {
                 (elm) -> {
                     return elm.getNodeName().equals("result");
                 });
+
 
         List<Element> docElms = XMLUtils.getElements(resultElem);
         List<Map<String, Object>>  docs = docElms.stream().map(d -> {
@@ -190,7 +213,7 @@ public abstract class Worker implements Runnable {
         docElms.stream().forEach(d -> {
             Map<String, Object> map = ResultsUtils.doc(d);
 
-            WorkerIndexedItem record = new WorkerIndexedItem(config.getRequestConfig().getIdIdentifier(),  map);
+            WorkerIndexedItem record = new WorkerIndexedItem(identifierField,  map);
             workerIndexedItemList.add(record);
         });
 
@@ -200,52 +223,20 @@ public abstract class Worker implements Runnable {
 
         List<IterationItem> notindexed = new ArrayList<>();
         subitems.forEach(item -> {
-            if (!identifierFromOriginalSolr.contains(item.getPid()))
+            if (!identifierFromOriginalSolr.contains(item.getId()))
                 notindexed.add(item);
         });
 
         return new WorkerContext(workerIndexedItemList, notindexed);
     }
 
-    protected String sendToDestination(Document destBatch) {
-        try {
-            StringWriter writer = new StringWriter();
-            XMLUtils.print(destBatch, writer);
-            return sendBatchToDestJersey(this.config.getDestinationConfig().getDestinationUrl(), this.client, destBatch, writer);
-        } catch (UniformInterfaceException | ClientHandlerException | TransformerException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected  String sendBatchToDestJersey(String destSolr, Client client, Document batchDoc, StringWriter writer) throws TransformerException, IOException {
-        WebResource r = client.resource(destSolr);
-        ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
-        if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
-
-            StringWriter stringWriter = new StringWriter();
-            XMLUtils.print(batchDoc,stringWriter);
-            LOGGER.warning("Problematic batch: ");
-            LOGGER.warning(stringWriter.toString());
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            InputStream entityInputStream = resp.getEntityInputStream();
-            IOUtils.copyStreams(entityInputStream, bos);
-            return new String(bos.toByteArray(), "UTF-8");
-        } else {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            InputStream entityInputStream = resp.getEntityInputStream();
-            IOUtils.copyStreams(entityInputStream, bos);
-            return new String(bos.toByteArray(), "UTF-8");
-        }
-    }
 
     // Basic implemenation
     @Override
     public void run() {
         try {
             int batchSize = this.config.getRequestConfig().getBatchSize();
-            LOGGER.info("["+Thread.currentThread().getName()+"] processing list of pids "+this.itemsToBeProcessed.size());
+            LOGGER.info("["+Thread.currentThread().getName()+"] processing list of items "+this.itemsToBeProcessed.size());
             int batches = this.itemsToBeProcessed.size() / batchSize + (this.itemsToBeProcessed.size() % batchSize == 0 ? 0 :1);
             LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
             for (int i=0;i<batches;i++) {
@@ -268,7 +259,6 @@ public abstract class Worker implements Runnable {
                             return elm.getNodeName().equals("result");
                         });
 
-                        ////        Document batch = BatchUtils.batch(processConfig, resultElem, createBatchTransformation(), null);
                         Batch batchFact = new Batch(processConfig, createBatchTransformation(), null);
                         Document batch = batchFact.create(resultElem);
 
@@ -287,44 +277,63 @@ public abstract class Worker implements Runnable {
                      * Already indexed part; indexing only part of documents -  licenses, authors, titles, ...
                      */
                     if (!simpleCopyContext.getAlreadyIndexed().isEmpty()) {
-                        // On update elements must not be empty
-                        List<Element> onUpdateUpdateElements = config.getDestinationConfig().getOnUpdateUpdateElements();
-                        if (!onUpdateUpdateElements.isEmpty()) {
-                            /** Updating fields */
-                            String fl = config.getDestinationConfig().getOnUpdateFieldList() != null ? config.getDestinationConfig().getOnUpdateFieldList() : null;
-                            /** Destinatination batch */
-                            Document destBatch = null;
-                            if (fl != null) {
-                                /** already indexed pids */
-                                List<String> pids = simpleCopyContext.getAlreadyIndexed().stream().map(ir->{
-                                    String string = ir.getId();
-                                    return string;
-                                }).collect(Collectors.toList());
-                                /** Indexed records as map */
-                                Map<String, WorkerIndexedItem> alreadyIndexedAsMap = simpleCopyContext.getAlreadyIndexedAsMap();
-                                /** Fetch documents from source library */
-                                Element response2 = fetchDocumentFromRemoteSOLR( this.client,  pids, fl);
-                                Element resultElem2 = XMLUtils.findElement(response2, (elm) -> {
-                                    return elm.getNodeName().equals("result");
-                                });
-                                /** Construct final batch */
-                                Batch batch = new Batch(processConfig, createBatchTransformation(), null);
-                                destBatch = batch.create(resultElem2);
+                        /** Indexed records as map */
+                        Map<String, WorkerIndexedItem> alreadyIndexedAsMap = simpleCopyContext.getAlreadyIndexedAsMap();
 
-                            } else {
-                                /** If there is no update list, then no update */
-                                Document db = XMLUtils.crateDocument("add");
-                                destBatch = db;
-                            }
+                        /** Updating fields */
+                        String fl = config.getDestinationConfig().getOnUpdateFieldList() != null ? config.getDestinationConfig().getOnUpdateFieldList() : null;
+                        /** Destinatination batch */
+                        Document destBatch = null;
+                        if (fl != null) {
+                            /** already indexed pids */
+                            List<String> identifiers = simpleCopyContext.getAlreadyIndexed().stream().map(ir->{
+                                String string = ir.getId();
+                                return string;
+                            }).collect(Collectors.toList());
+                            /** Fetch documents from source library */
+                            Element response2 = fetchDocumentFromRemoteSOLR( this.client,  identifiers, fl);
+                            Element resultElem2 = XMLUtils.findElement(response2, (elm) -> {
+                                return elm.getNodeName().equals("result");
+                            });
+                            /** Construct final batch */
+                            Batch batch = new Batch(processConfig, createBatchTransformation(), new BatchConsumer() {
+                                @Override
+                                public ModifyFieldResult modifyField(Element field) {
+                                    String name = field.getAttribute("name");
+
+                                    boolean compositeId = processConfig.getWorkerConfig().getRequestConfig().isCompositeId();
+                                    String idIdentifier = processConfig.getWorkerConfig().getRequestConfig().getIdIdentifier();
+
+                                    if (compositeId && name.equals("compositeId")) {
+                                        return ModifyFieldResult.none;
+                                    }
+                                    if (!compositeId && name.equals(idIdentifier)) {
+                                        return ModifyFieldResult.none;
+                                    }
+                                    // edit
+                                    field.setAttribute("update","set");
+                                    return ModifyFieldResult.edit;
+                                }
+
+                                @Override
+                                public void changeDocument(ProcessConfig processConfig, Element doc) {
+
+                                }
+                            });
+                            destBatch = batch.create(resultElem2);
 
 
-                            Element addDocument = destBatch.getDocumentElement();
-                            onUpdateEvent(addDocument);
-                            sendToDestination(destBatch);
                         } else {
-                            // no update
-                            LOGGER.info("No update element ");
+                            /** If there is no update list, then no update */
+                            Document db = XMLUtils.crateDocument("add");
+                            destBatch = db;
                         }
+
+                        Element addDocument = destBatch.getDocumentElement();
+                        onUpdateEvent(addDocument);
+
+                        String s = SolrUtils.sendToDest(this.config.getDestinationConfig().getDestinationUrl(), this.client, destBatch);
+                        LOGGER.info(s);
                     }
 
                 } catch (ParserConfigurationException e) {

@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.services.workers.config;
 
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import cz.inovatika.kramerius.services.workers.config.destination.DestinationConfig;
 import cz.inovatika.kramerius.services.workers.config.destination.DestinationConfigParser;
 import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
@@ -21,7 +22,7 @@ public class WorkerConfigParser {
      * @param workerElm The root <worker> element from the configuration file.
      * @return A fully configured ReplicateWorkerConfig object.
      */
-    public static WorkerConfig parse(Element workerElm) {
+    public static WorkerConfig parse(SolrIteratorConfig config, Element workerElm) {
         
         WorkerConfig.Builder builder = new WorkerConfig.Builder();
 
@@ -46,73 +47,12 @@ public class WorkerConfigParser {
         Element requestElm = XMLUtils.findElement(workerElm, "request");
         if (requestElm != null) {
 
-            requestConfig = RequestConfigParser.parse(requestElm);
+            requestConfig = RequestConfigParser.parse(config, requestElm);
             builder.requestConfig(requestConfig);
 
-//            // default field list
-//            String fieldlistText = findSubElementText(requestElm, "fieldlist");
-//            if (fieldlistText != null) {
-//                builder.fieldList(fieldlistText);
-//            }
-//
-//            // Id
-//            String idText = findSubElementText(requestElm, "id");
-//            if (idText != null) {
-//                builder.idIdentifier(idText);
-//            }
-//
-//            // transform (Using the new TransformFactory)
-//            String transformFormatText = findSubElementText(requestElm, "trasfrom");
-//            if (transformFormatText != null) {
-//                builder.transform(transformFormatText);
-//            }
-//            // collection
-//            String collectionText = findSubElementText(requestElm, "collection");
-//            if (collectionText != null) {
-//                builder.collectionField(collectionText);
-//            }
-//
-//            // Composite id
-//            String compositeIdText = findSubElementText(requestElm, "composite.id");
-//            if (compositeIdText != null) {
-//                try {
-//                    boolean isComposite = Boolean.parseBoolean(compositeIdText);
-//                    builder.compositeId(isComposite);
-//
-//                    if (isComposite) {
-//                        String compositeRootText = findSubElementText(requestElm, "composite.root");
-//                        if (compositeRootText != null) builder.rootOfComposite(compositeRootText);
-//
-//                        String compositeChildText = findSubElementText(requestElm, "composite.child");
-//                        if (compositeChildText != null) builder.childOfComposite(compositeChildText);
-//                    }
-//                } catch (Exception e) {
-//                    LOGGER.log(Level.WARNING, "Invalid boolean value for composite.id, assuming false.", e);
-//                }
-//            }
-//
-//            // Check url
-//            String checkUrlText = findSubElementText(requestElm, "checkUrl");
-//            if (checkUrlText != null) {
-//                builder.checkUrl(checkUrlText);
-//            }
-//
-//            // Check url endpoint
-//            String checkEndpointText = findSubElementText(requestElm, "checkEndpoint");
-//            if (checkEndpointText != null) {
-//                builder.checkEndpoint(checkEndpointText);
-//            }
         }
         
         return builder.build();
     }
     
-    /**
-     * Helper to find and get text content of a nested element safely.
-     */
-    private static String findSubElementText(Element parent, String tagName) {
-        if (parent == null) return null;
-        Element child = XMLUtils.findElement(parent, tagName);
-        return (child != null) ? child.getTextContent() : null;
-    }
 }

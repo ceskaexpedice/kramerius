@@ -93,7 +93,7 @@ public class BatchUtils {
                     }
                 });
 
-                if (consumer != null) consumer.changeDocument(rootPidElm.getTextContent(),pidElm.getTextContent(), destDocElement);
+                if (consumer != null) consumer.changeDocument( null, destDocElement);
             }
 
         }

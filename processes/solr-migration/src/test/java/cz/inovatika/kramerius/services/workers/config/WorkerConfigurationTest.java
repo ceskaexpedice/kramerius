@@ -15,9 +15,9 @@ public class WorkerConfigurationTest {
 
     @Test
     public void testWorkerConfig1() throws ParserConfigurationException, IOException, SAXException {
-        InputStream resourceAsStream = WorkerConfigurationTest.class.getResourceAsStream("config.xml");
+        InputStream resourceAsStream = WorkerConfigurationTest.class.getResourceAsStream("config1.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
-        WorkerConfig workerConfig =  WorkerConfigParser.parse(XMLUtils.findElement(document.getDocumentElement(),"worker"));
+        WorkerConfig workerConfig =  WorkerConfigParser.parse(null, XMLUtils.findElement(document.getDocumentElement(),"worker"));
         Assert.assertNotNull(workerConfig);
         Assert.assertNotNull(workerConfig.getDestinationConfig());
         Assert.assertNotNull(workerConfig.getRequestConfig());
@@ -40,7 +40,7 @@ public class WorkerConfigurationTest {
     public void testWorkerConfig2() throws ParserConfigurationException, IOException, SAXException {
         InputStream resourceAsStream = WorkerConfigurationTest.class.getResourceAsStream("config2.xml");
         Document document = XMLUtils.parseDocument(resourceAsStream);
-        WorkerConfig workerConfig =  WorkerConfigParser.parse(XMLUtils.findElement(document.getDocumentElement(),"worker"));
+        WorkerConfig workerConfig =  WorkerConfigParser.parse(null, XMLUtils.findElement(document.getDocumentElement(),"worker"));
         Assert.assertNotNull(workerConfig);
         Assert.assertNotNull(workerConfig.getDestinationConfig());
         Assert.assertNotNull(workerConfig.getRequestConfig());

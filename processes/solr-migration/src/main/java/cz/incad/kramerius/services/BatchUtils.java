@@ -102,13 +102,12 @@ public class BatchUtils {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     List<String> primitiveVals = Arrays.asList("str","int","bool", "date");
                     if (primitiveVals.contains(node.getNodeName())) {
-                        simpleValue(pid, destDocument,destDocElem, node,null, false);
+                        simpleValue(destDocument,destDocElem, node,null);
                     } else {
-                        arrayValue(pid,sourceDocElm, destDocument,destDocElem,node);
+                        arrayValue(destDocument,destDocElem,node);
                     }
                 }
             }
-            //browseAuthorsAndTitles(sourceDocElm, destDocument, destDocElem);
             if (MigrationUtils.configuredBuildCompositeId()) {
                 enhanceByCompositeId(destDocument, destDocElem);
             }
@@ -145,166 +144,23 @@ public class BatchUtils {
 
     }
     
-    public static void simpleValue(String pid, Document feedDoc, Element feedDocElm, Node node, String derivedName, boolean dontCareAboutNonCopiingFields) {
+    public static void simpleValue(Document feedDoc, Element feedDocElm, Node node, String derivedName) {
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
-        if (dontCareAboutNonCopiingFields || !nonCopiingField(attributeName)) {
-            Element strElm = feedDoc.createElement("field");
-            strElm.setAttribute("name", attributeName);
-            feedDocElm.appendChild(strElm);
-            String content = StringEscapeUtils.escapeXml(node.getTextContent());
-            strElm.setTextContent(content);
-        }
+        Element strElm = feedDoc.createElement("field");
+        strElm.setAttribute("name", attributeName);
+        feedDocElm.appendChild(strElm);
+        String content = StringEscapeUtils.escapeXml(node.getTextContent());
+        strElm.setTextContent(content);
     }
 
-    public static void arrayValue(String pid,Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node) {
+    public static void arrayValue( Document feedDoc, Element feedDocElement, Node node) {
         String attributeName = ((Element) node).getAttribute("name");
-        if (!nonCopiingField(attributeName)) {
-            if (exceptionField(attributeName) && pid.contains("/@")) {
-                NodeList childNodes = node.getChildNodes();
-                for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-                    Node n = childNodes.item(i);
-                    if (n.getNodeType() == Node.ELEMENT_NODE) {
-                        // exception again !!! uuugrrrr !!;
-
-                        // bug in pdf; text is filled directly to text field although text is copied field
-                        // first we have to find text_ocr, if it doesn't exist, copy whole text to text, text_lemmatized, text_lemmatized_ascii and text_lemmatized_nostopwords
-                        Element textOcr = findByAttribute(sourceDocElement, "text_ocr");
-                        if (textOcr == null) {
-                            simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false);
-                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized", true);
-                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_ascii", true);
-                            simpleValue(pid, feedDoc, feedDocElement, n,"text_lemmatized_nostopwords", true);
-                        }
-                    }
-                }
-            } else if (!exceptionField(attributeName)) {
-                NodeList childNodes = node.getChildNodes();
-                for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
-                    Node n = childNodes.item(i);
-                    if (n.getNodeType() == Node.ELEMENT_NODE) {
-                        simpleValue(pid, feedDoc,feedDocElement, n, attributeName, false);
-                    }
-                }
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
+            Node n = childNodes.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                simpleValue( feedDoc,feedDocElement, n, attributeName);
             }
         }
     }
-
-    // text is copied but not for PDF; uuugrrrr !!! Terrible
-    public static final List<String> EXCEPTION_FIELDS = Arrays.asList("text");
-
-    // copied
-    public static final List<String> COPIED_FIELDS = Arrays.asList("title", "search_title","facet_autor","search_autor");
-    // copied but identified by postfix
-    public static final List<String> COPIED_POSTFIXES = Arrays.asList("_lemmatized","_lemmatized_ascii","_lemmatized_nostopwords");
-
-    private static boolean exceptionField(String attributeName) {
-        if (EXCEPTION_FIELDS.contains(attributeName)) {
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean nonCopiingField(String attributeName) {
-        if (COPIED_FIELDS.contains(attributeName)) {
-            return true;
-        }
-        for (String postfix:
-             COPIED_POSTFIXES) {
-            if (attributeName.endsWith(postfix)) return true;
-        }
-        return false;
-    }
-
-
-//    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm) {
-//        try {
-//            FedoraOperations operations = new FedoraOperations();
-//            browseAuthorsAndTitles(sourceDocElm,ndoc,docElm, operations);
-//        } catch (Exception e) {
-//            LOGGER.log(Level.SEVERE,e.getMessage(), e);
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
-
-
-    // special not stored fields  browse_autor, browse_title
-//    public static void browseAuthorsAndTitles(Element sourceDocElm,Document ndoc, Element docElm)  {
-//        try {
-//
-//            // browse author -- skip
-//            Element browseAuthorInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-//                @Override
-//                public boolean acceptElement(Element element) {
-//                    return element.getAttribute("name").equals("browse_autor");
-//                }
-//            });
-//            // browse title doens't exist
-//            if (browseAuthorInSource == null) {
-//                Element dcCreators = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-//
-//                    @Override
-//                    public boolean acceptElement(Element e) {
-//                        String attribute = e.getAttribute("name");
-//                        return attribute.equals("dc.creator");
-//                    }
-//                });
-//                if (dcCreators != null) {
-//                    List<Element> dcCreatorsStrings = XMLUtils.getElements(dcCreators);
-//                    for (Element author : dcCreatorsStrings) {
-//                        //<xsl:value-of select="exts:prepareCzech($generic, text())"/>##<xsl:value-of select="text()"/>
-//                        String textContent = author.getTextContent();
-//                        String prepared = FedoraOperations.prepareCzechString(textContent)+"##"+textContent;
-//                        Element strElm = ndoc.createElement("field");
-//                        strElm.setAttribute("name", "browse_autor");
-//                        docElm.appendChild(strElm);
-//                        strElm.setTextContent(prepared);
-//                    }
-//                }
-//
-//            }
-//
-//
-//            // browse author -- skip
-//            Element browseTitleInSource = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-//                @Override
-//                public boolean acceptElement(Element element) {
-//                    return element.getAttribute("name").equals("browse_title");
-//               }
-//            });
-//
-//            if (browseTitleInSource == null) {
-//                Element model = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-//
-//                    @Override
-//                    public boolean acceptElement(Element e) {
-//                        String attribute = e.getAttribute("name");
-//                        return attribute.equals("fedora.model");
-//                    }
-//                });
-//
-//
-//                Element dcTitle = XMLUtils.findElement(sourceDocElm, new XMLUtils.ElementsFilter() {
-//
-//                    @Override
-//                    public boolean acceptElement(Element e) {
-//                        String attribute = e.getAttribute("name");
-//                        return attribute.equals("dc.title");
-//                    }
-//                });
-//
-//                if (dcTitle != null && model != null &&  Arrays.asList(KConfiguration.getInstance().getConfiguration().getStringArray("indexer.browseModels")).contains(model.getTextContent().trim())) {
-//                    Element strElm = ndoc.createElement("field");
-//                    strElm.setAttribute("name", "browse_title");
-//                    docElm.appendChild(strElm);
-//                    String textContent = dcTitle.getTextContent();
-//                    String prepared = FedoraOperations.prepareCzechString(textContent)+"##"+textContent;
-//                    strElm.setTextContent(prepared);
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            LOGGER.log(Level.SEVERE,e.getMessage(), e);
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
 }
