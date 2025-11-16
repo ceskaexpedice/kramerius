@@ -10,8 +10,7 @@ import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
  */
 public class WorkerConfig {
 
-    // --- Global Configuration Fields (Final) ---
-
+    /** Factory class for creating worker instance */
     private final String factoryClz;
 
     // --- Encapsulated Configuration Objects ---

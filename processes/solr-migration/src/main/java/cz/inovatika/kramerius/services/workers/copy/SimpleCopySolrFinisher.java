@@ -6,7 +6,11 @@ import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 
+import java.util.logging.Logger;
+
 public class SimpleCopySolrFinisher extends WorkerFinisher {
+
+    public static final Logger LOGGER = Logger.getLogger(SimpleCopySolrFinisher.class.getName());
 
     public SimpleCopySolrFinisher(ProcessConfig config, Client client) {
         super(config, client);
@@ -14,6 +18,7 @@ public class SimpleCopySolrFinisher extends WorkerFinisher {
 
     @Override
     public void finish() {
+        LOGGER.info("Copy finished");
         SolrUtils.commitJersey(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
     }
 }

@@ -165,7 +165,6 @@ public abstract class Worker implements Runnable {
         }).collect(Collectors.joining(" OR "));
 
 
-        String collectionField = this.config.getRequestConfig().getCollectionField();
         String checkUrlC = this.config.getRequestConfig().getCheckUrl();
         String checkEndpoint = this.config.getRequestConfig().getCheckEndpoint();
         boolean compositeId = this.config.getRequestConfig().isCompositeId();
@@ -184,13 +183,6 @@ public abstract class Worker implements Runnable {
         }
 
 
-        //TODO: Control fetch; must contain compo
-        // Todo - Move
-//        List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
-//        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+computedFields.stream().collect(Collectors.joining(" "));
-//        if (compositeId) {
-//            fieldlist = fieldlist + " " + " root.pid compositeId";
-//        }
 
         String query = "?q=" + identifierField + ":(" + URLEncoder.encode(reduce, "UTF-8")
                 + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + subitems.size();
@@ -199,7 +191,7 @@ public abstract class Worker implements Runnable {
         Element resultElem = XMLUtils.findElement(KubernetesSolrUtils.executeQueryJersey(client, checkUrl, query),
                 (elm) -> {
                     return elm.getNodeName().equals("result");
-                });
+        });
 
 
         List<Element> docElms = XMLUtils.getElements(resultElem);
@@ -374,9 +366,4 @@ public abstract class Worker implements Runnable {
         return new CopyTransformation();
     }
 
-    // intended to
-//    protected Document createBatchToIndex(Element resultElem) throws ParserConfigurationException, MigrateSolrIndexException {
-//        Document batch = BatchUtils.batch(processConfig, resultElem, createBatchTransformation(), null);
-//        return batch;
-//    }
 }

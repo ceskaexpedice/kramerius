@@ -5,22 +5,34 @@ import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 
 /**
- * Immutable root configuration object for a CDK replication process.
+ * Immutable root configuration object for a replication process.
  * Encapsulates settings for the source (iterator) and the processing unit (worker).
  */
 public class  ProcessConfig {
 
+    /** Default source name **/
     public static final String DEFAULT_SOURCE_NAME="default";
+    /** Default name */
     public static final String DEFAULT_NAME="default";
 
     // --- Core Fields ---
+    /** source name; name of index or formal name of source; only information */
     private final String sourceName;
+    /** Name of process; only information */
     private final String name;
+    /** Type of migration; only information */
+    private final String type;
+
+    /** Threads - number of workers */
     private final int threads;
 
-    private final String type;
+    /** working time; stops process if current time is not in the window */
     private final String workingTime;
+
+    /** Timestamps; for incremental processing; */
     private final String timestampUrl;
+
+    /** Introspect url for detecting conflicts */
     private final String introspectUrl;
 
     // --- Encapsulated Configs ---
@@ -42,17 +54,84 @@ public class  ProcessConfig {
     }
 
     // --- Getters ---
+
+    /**
+     * Returns the name of the source being processed.
+     * <p>
+     * This value typically corresponds to the physical entity being iterated over,
+     * which can be:
+     * <ul>
+     * <li>The **index name** (e.g., Solr core or collection) in standard processes.</li>
+     * <li>A **logical identifier** like the **library name** in complex workflows (e.g., CDK migration),
+     * used by workers to differentiate processing logic per source.</li>
+     * </ul>
+     * @return The source name.
+     */
     public String getSourceName() { return sourceName; }
+
+    /**
+     * Returns name of the migration process
+     * @return The process name
+     */
     public String getName() { return name; }
+
+    /**
+     * Returns the descriptive type or name of the underlying process.
+     * This value is used by more complex workers to distinguish between various
+     * process types (beyond simple migration) and may influence their operational logic.
+     * @return The process type identifier.
+     */
+    public String getType() { return type; }
+
+    /**
+     * Retrieves the count of worker threads to be initialized upon startup.
+     * @return The number of workers.
+     */
     public int getThreads() { return threads; }
 
-    public String getType() { return type; }
+    /**
+     * Returns the defined working time window for the worker.
+     * <p>
+     * This value specifies a **timeframe** (if configured) during which the worker
+     * is permitted to perform its tasks. If not defined, the worker typically operates continuously.
+     * @return The configured working time string, or {@code null} if not specified.
+     */
     public String getWorkingTime() { return workingTime; }
+    /**
+     * Returns the optional URL configured for fetching a control timestamp or marker.
+     * <p>
+     * This URL is queried to obtain the **starting point** (e.g., the last processed time)
+     * used to define the range for incremental downloading of new or updated documents from Solr.
+     * @return The timestamp source URL string, or {@code null} if not configured.
+     */
     public String getTimestampUrl() { return timestampUrl; }
+
+    /**
+     * Returns the optional URL configured for fetching a control timestamp or marker.
+     * <p>
+     * This URL is queried to obtain the **starting point** (e.g., the last processed time)
+     * used to define the range for incremental downloading of new or updated documents from Solr.
+     * @return The timestamp source URL string, or {@code null} if not configured.
+     */
     public String getIntrospectUrl() { return introspectUrl; }
 
     // Factory class getters REMOVED
+    /**
+     * Returns the immutable configuration object used to set up the Solr iterator.
+     * <p>
+     * This configuration encapsulates all necessary parameters (URLs, queries, sorting, etc.)
+     * required for the worker to initialize and run the Solr iteration process.
+     * @return The {@link SolrIteratorConfig} instance.
+     */
     public SolrIteratorConfig getIteratorConfig() { return iteratorConfig; }
+
+    /**
+     * Returns the configuration object specific to the worker process.
+     * <p>
+     * This configuration typically contains parameters related to worker execution,
+     * such as the number of threads, working time windows, source names, and type identifiers.
+     * @return The {@code WorkerConfig} instance.
+     */
     public WorkerConfig getWorkerConfig() { return workerConfig; }
 
 

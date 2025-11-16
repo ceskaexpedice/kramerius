@@ -20,16 +20,6 @@ public abstract class WorkerFinisher {
         super();
         this.client = client;
         this.processConfig = config;
-        /*
-        this.workerElm = workerElm;
-        this.timestampUrl = timestampUrl;
-        
-        Element destElm = XMLUtils.findElement(workerElm, "destination");
-        if (destElm != null) {
-            Element urlElm = XMLUtils.findElement(destElm, "url");
-            this.destinationUrl = urlElm != null ? urlElm.getTextContent() : "";
-        }*/
-
     }
 
     public void exceptionDuringCrawl(Exception ex) {}

@@ -28,7 +28,7 @@ public class IterationItem {
     public IterationItem(String id, String source) {
         this.id = id;
         this.source = source;
-        this.doc = new HashMap<>(); // no model; no conflict check
+        this.doc = new HashMap<>();
     }
 
     public IterationItem(String id, String source, Map<String, Object> doc) {

@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 /**
- * Main parser for the <cdkprocess> configuration XML structure.
+ * Main parser for the <migration> configuration XML structure.
  * Orchestrates the parsing of iteration and worker sub-configurations using specialized parsers.
  */
 public class ProcessConfigParser {
@@ -18,9 +18,9 @@ public class ProcessConfigParser {
     private static final Logger LOGGER = Logger.getLogger(ProcessConfigParser.class.getName());
 
     /**
-     * Parses the <cdkprocess> XML element and builds the complete configuration tree.
-     * @param processElm The root <cdkprocess> XML element.
-     * @return A fully configured CDKProcessConfig object.
+     * Parses the <migration> XML element and builds the complete configuration tree.
+     * @param processElm The root <migration> XML element.
+     * @return A fully configured ProcessConfig object.
      */
     public static ProcessConfig parse(Element processElm) {
 
@@ -77,13 +77,11 @@ public class ProcessConfigParser {
         // --- 3. Worker Configuration (Delegated) ---
         Element workerElm = XMLUtils.findElement(processElm, "worker");
         if (workerElm != null) {
-            // Používáme WorkerConfigParser pro parsování <worker>
             WorkerConfig workerConfig = WorkerConfigParser.parse(iteratorConfig,  workerElm);
             builder.workerConfig(workerConfig);
         } else {
             LOGGER.log(Level.SEVERE, "Required <worker> element not found in configuration.");
         }
-
         return builder.build();
     }
 }
