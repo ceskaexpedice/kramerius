@@ -38,15 +38,9 @@ import java.util.stream.Collectors;
  */
 public class CDKCopyWorker extends AbstractReplicateWorker {
 
-    public static SupportedLibraries supportedLibraries = new SupportedLibraries();
+    private static SupportedLibraries supportedLibraries = new SupportedLibraries();
     
-    public static Logger LOGGER = Logger.getLogger(CDKCopyWorker.class.getName());
-
-//    public CDKCopyWorker(String sourceName, String introspectUrl, Element workerElm, Client client, List<IterationItem> pids, WorkerFinisher finisher) {
-//        super(sourceName, introspectUrl, workerElm, client, pids, finisher);
-//        config(workerElm);
-//    }
-
+    private static Logger LOGGER = Logger.getLogger(CDKCopyWorker.class.getName());
 
     public CDKCopyWorker(ProcessConfig processConfig, Client client, List<IterationItem> items, WorkerFinisher finisher) {
         super(processConfig, client, items, finisher);
@@ -55,9 +49,6 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
     @Override
     public void run() {
         try {
-
-
-
             int batchSize = processConfig.getWorkerConfig().getRequestConfig().getBatchSize();
             String onIndexedFieldList = processConfig.getWorkerConfig().getDestinationConfig().getOnIndexedFieldList();
             String fieldList = processConfig.getWorkerConfig().getRequestConfig().getFieldList();
@@ -102,7 +93,6 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                 return ModifyFieldResult.none;
                             }
 
-
                             @Override
                             public void changeDocument(ProcessConfig processConfig, Element doc) {
 
@@ -115,12 +105,10 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                     }
                                 }).stream().collect(Collectors.toList());
 
-
                                 if (indexed.size() > 0) {
                                     Instant instant = new Date().toInstant();
                                     indexed.get(0).setTextContent(DateTimeFormatter.ISO_INSTANT.format(instant));
                                 }
-                                // ----
 
                                 //--- License of ancestors; preparing data for cdk.licenses_of_ancestors ---
                                 List<String> licensesOfAncestors = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
@@ -139,7 +127,6 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                     cdkLicenses.setTextContent(CDKCopyWorker.this.processConfig.getSourceName()+"_"+ licOfAncestors);
                                     doc.appendChild(cdkLicenses);
                                 }
-                                // ----
 
                                 //--- contains_licenses; preparing data for cdk.contains_licenses ---
                                 List<String> containsLicenses = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
@@ -158,9 +145,6 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                     cdkLicenses.setTextContent(CDKCopyWorker.this.processConfig.getSourceName()+"_"+ licOfAncestors);
                                     doc.appendChild(cdkLicenses);
                                 }
-                                // ----
-
-
 
                                 //--- Licenses; preparing data for cdk.licenses ---
                                 List<String> licenses = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
@@ -197,10 +181,8 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                     /**
                      * Already indexed part; indexing only part of documents -  licenses, authors, titles, ...
                      */
-
                     List<Element> onUpdateUpdateElements = config.getDestinationConfig().getOnUpdateUpdateElements();
                     String onUpdateFieldList =  config.getDestinationConfig().getOnUpdateFieldList();
-
 
                     if (!cdkReplicateContext.getAlreadyIndexed().isEmpty()) {
                         // On update elements must not be empty
@@ -346,10 +328,7 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                                                                     }
                                                                 }
                                                             });
-
                                                         } else {
-
-
                                                             Element cdkSpecific = document.createElement("field");
                                                             cdkSpecific.setAttribute("name", specificCDKField);
                                                             cdkSpecific.setAttribute("update", "set");
@@ -371,35 +350,8 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                             } else {
                                 /** If there is no update list, then no update */
                                 Document db = XMLUtils.crateDocument("add");
-//                                replicateContext.getAlreadyIndexed().stream().forEach(ir->{
-//                                    Element doc = db.createElement("doc");
-//                                    Element field = db.createElement("field");
-//                                    if (compositeId) {
-//                                        //String compositeId = pair.get("compositeId").toString();
-//
-//                                        /*
-//                                        String root = pair.get(transform.getField(rootOfComposite)).toString();
-//                                        String child = pair.get(transform.getField(childOfComposite)).toString();
-//                                         */
-//
-//                                        field.setAttribute("name", "compositeId");
-//                                        field.setTextContent(root +"!"+child);
-//
-//                                    } else {
-//
-//                                        String idname = transform.getField(idIdentifier);
-//                                        String identifier = pair.get(idname).toString();
-//                                        // if compositeid
-//                                        field.setAttribute("name", idname);
-//                                        // formal name from hashmap
-//                                        field.setTextContent(identifier);
-//                                    }
-//                                    doc.appendChild(field);
-//                                    db.getDocumentElement().appendChild(doc);
-//                                });
                                 destBatch = db;
                         	}
-
 
                             Element addDocument = destBatch.getDocumentElement();
                             onUpdateEvent(addDocument);
@@ -424,8 +376,6 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                             newConflictRecord.reharvestConflict(client, "-reharvest api-");
                         });
                     }
-
-
                 } catch (ParserConfigurationException e) {
                     LOGGER.log(Level.SEVERE,"Informing about exception");
                     finisher.exceptionDuringCrawl(e);
