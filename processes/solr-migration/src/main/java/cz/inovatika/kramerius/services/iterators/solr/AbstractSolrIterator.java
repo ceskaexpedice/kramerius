@@ -3,7 +3,6 @@ package cz.inovatika.kramerius.services.iterators.solr;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 
 public abstract class AbstractSolrIterator implements ProcessIterator {
-	
 
     protected String address;
     protected String masterQuery;

@@ -3,9 +3,6 @@ package cz.inovatika.kramerius.services.utils;
 import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.iterators.IterationItem;
-import cz.inovatika.kramerius.services.iterators.utils.SOLRUtils;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -14,8 +11,6 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 
 public class SolrUtils {
@@ -161,143 +155,4 @@ public class SolrUtils {
         }
     }
 
-    
-    public static List<Map<String,Object>> findIterationDocuments(Element elm) {
-        Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String nodeName = element.getNodeName();
-                return nodeName.equals("result");
-            }
-        });
-        if (result != null) {
-            List<Map<String,Object>> retvals = new ArrayList<>();
-            List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String nodeName = element.getNodeName();
-                    return nodeName.equals("doc");
-                }
-            });
-            for (Element doc : elements) {
-                Map<String, Object> mapDoc = new HashMap<>();
-                List<Element> fields = XMLUtils.getElements(doc);
-                for (Element field : fields) {
-                    String name = field.getAttribute("name");
-                    if (field.getNodeName().equals("arr")) {
-                        List<Object> collected = new ArrayList<>();
-                        XMLUtils.getElements(field).stream().forEach(ai -> {
-                            Class type = SOLRUtils.SOLR_NAME_TYPES.get(ai.getNodeName());
-                            Object value = SOLRUtils.value(ai.getTextContent(), type);
-                            collected.add(value);
-
-                        });
-                        mapDoc.put(name, collected);
-                        
-                    } else {
-                        Class type = SOLRUtils.SOLR_NAME_TYPES.get(field.getNodeName());
-                        Object value = SOLRUtils.value(field.getTextContent(), type);
-                        mapDoc.put(name, value);
-                    }
-                }
-               
-                retvals.add(mapDoc);
-                
-            }
-            return retvals;
-            
-        } else return new ArrayList<>();
-        
-    }
-
-
-    public static List<IterationItem> findAllPids(Element elm, String source, String identKey) {
-        Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String nodeName = element.getNodeName();
-                return nodeName.equals("result");
-            }
-        });
-        if (result != null) {
-            List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String nodeName = element.getNodeName();
-                    return nodeName.equals("doc");
-                }
-            });
-
-            return elements.stream().map(ResultsUtils::doc).map(doc-> {
-                Object ident = doc.get(identKey);
-                if (ident != null) {
-                    return new IterationItem(ident.toString(), source, doc);
-                } else return null;
-            }).collect(Collectors.toList());
-
-
-        } else return new ArrayList<>();
-    }
-
-
-    public static Element executeQueryApache(CloseableHttpClient apacheClient, String url, String query) {
-        try {
-            String t = executeSolrRequestApache(apacheClient, url, query);
-            return getElement(t);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Element executeQueryJersey(Client jerseyClient, String url, String query) {
-        try {
-            String t = executeSolrRequestJersey(jerseyClient, url, query);
-            return getElement(t);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Element getElement(String t) throws ParserConfigurationException, SAXException, IOException {
-        Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
-        Stack<Element> stack = new Stack<>();
-        stack.push(parseDocument.getDocumentElement());
-
-        while(!stack.isEmpty()) {
-            Element pop = stack.pop();
-            if (pop.getNodeName().equals("str")) {
-                String textContent = pop.getTextContent();
-                if (textContent !=null && textContent.startsWith("uuid:") && textContent.contains("@") && !textContent.contains("/")) {
-                    String[] split = textContent.split("@");
-                    String formatted = String.format("%s/@%s", split[0], split[1]);
-                    pop.setTextContent(formatted);
-                }
-            }
-            XMLUtils.getElements(pop).stream().forEach(stack::push);
-        }
-        return parseDocument.getDocumentElement();
-    }
-
-    private static String executeSolrRequestApache(CloseableHttpClient client, String url, String query) {
-        String u = url +(url.endsWith("/") ? "" : "/")+ query;
-        HttpGet get = new HttpGet(u);
-        try(CloseableHttpResponse response = client.execute(get)) {
-            InputStream is = response.getEntity().getContent();
-            String content = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
-            return content;
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private static String executeSolrRequestJersey(Client client, String url, String query) {
-        String u = url +(url.endsWith("/") ? "" : "/")+ query;
-        LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] url %s", u));
-        WebResource r = client.resource(u);
-
-
-        LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
-        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-        return t;
-    }
 }

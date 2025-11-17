@@ -13,23 +13,6 @@ public class ResultsUtils {
 
     private ResultsUtils() {}
 
-    public static List<String> pidFromResult(Element resultElem) {
-        List<Element> elements = XMLUtils.getElements(resultElem);
-        List<String> pids =  elements.stream().map(doc -> {
-            String pid = null;
-            List<String> collections = new ArrayList<>();
-            Element str = XMLUtils.findElement(doc, "str");
-            if (str.getAttribute("name").equals("PID")) {
-                pid = str.getTextContent();
-            }
-            return pid;
-        }).filter(pid -> {
-            return pid != null;
-        }).collect(Collectors.toList());
-
-        return pids;
-    }
-
 
 
 
