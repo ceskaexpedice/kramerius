@@ -44,8 +44,6 @@ public class WorkerConfig {
         private DestinationConfig destinationConfig;
 
         // --- Remaining Fields with Default Values ---
-        private String onIndexedFieldList = null;
-        private String onUpdateFieldList = null;
         private String factoryClz = null;
 
 
@@ -65,17 +63,6 @@ public class WorkerConfig {
             return this;
         }
 
-        // --- Fluid Setter Methods for remaining fields ---
-
-        public Builder onIndexedFieldList(String onIndexedFieldList) {
-            this.onIndexedFieldList = onIndexedFieldList;
-            return this;
-        }
-
-        public Builder onUpdateFieldList(String onUpdateFieldList) {
-            this.onUpdateFieldList = onUpdateFieldList;
-            return this;
-        }
 
         public Builder factoryClz(String factoryClz) {
             this.factoryClz = factoryClz;

@@ -106,6 +106,8 @@
                         throw new RuntimeException(e);
                     }
                 }
+            } else {
+                LOGGER.log(Level.INFO, "Usage: java -jar processes.jar <config-file1> <config-file2> ... ");
             }
         }
 

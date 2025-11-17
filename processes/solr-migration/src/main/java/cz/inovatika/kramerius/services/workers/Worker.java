@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.services.workers;
 
 import com.sun.jersey.api.client.*;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -269,8 +270,6 @@ public abstract class Worker implements Runnable {
                      * Already indexed part; indexing only part of documents -  licenses, authors, titles, ...
                      */
                     if (!simpleCopyContext.getAlreadyIndexed().isEmpty()) {
-                        /** Indexed records as map */
-                        Map<String, WorkerIndexedItem> alreadyIndexedAsMap = simpleCopyContext.getAlreadyIndexedAsMap();
 
                         /** Updating fields */
                         String fl = config.getDestinationConfig().getOnUpdateFieldList() != null ? config.getDestinationConfig().getOnUpdateFieldList() : null;
@@ -321,11 +320,16 @@ public abstract class Worker implements Runnable {
                             destBatch = db;
                         }
 
-                        Element addDocument = destBatch.getDocumentElement();
-                        onUpdateEvent(addDocument);
-
-                        String s = SolrUtils.sendToDest(this.config.getDestinationConfig().getDestinationUrl(), this.client, destBatch);
-                        LOGGER.info(s);
+                        // do only if fl != null ||
+                        boolean doUpdate = !config.getDestinationConfig().getOnUpdateUpdateElements().isEmpty() || StringUtils.isAnyString(fl);
+                        if (doUpdate) {
+                            Element addDocument = destBatch.getDocumentElement();
+                            onUpdateEvent(addDocument);
+                            String s = SolrUtils.sendToDest(this.config.getDestinationConfig().getDestinationUrl(), this.client, destBatch);
+                            LOGGER.info(s);
+                        } else {
+                            LOGGER.info("No update");
+                        }
                     }
 
                 } catch (ParserConfigurationException e) {
