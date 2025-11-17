@@ -3,8 +3,8 @@ package cz.incad.kramerius.services;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
 
+import cz.inovatika.kramerius.services.Migration;
 import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -15,7 +15,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Map;
 import java.util.TimeZone;
@@ -66,7 +65,7 @@ public class KubernetesProcessImpl {
 
 
                 if (!env.containsKey(ONLY_SHOW_CONFIGURATION)) {
-                    ParallelProcessImpl migr = new ParallelProcessImpl();
+                    Migration migr = new Migration();
                     migr.migrate(tmpFile);
                 }
 

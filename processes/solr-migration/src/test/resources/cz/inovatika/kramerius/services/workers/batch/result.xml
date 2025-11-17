@@ -1,0 +1,891 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="q">*:*</str>
+            <str name="indent">true</str>
+            <str name="q.op">OR</str>
+            <str name="wt">xml</str>
+            <str name="useParams"/>
+        </lst>
+    </lst>
+    <result name="response" numFound="3419" start="0" numFoundExact="true">
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <int name="count_page">112</int>
+            <date name="created">2025-07-08T13:21:50.581Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <arr name="genres.facet">
+                <str>Text</str>
+                <str>Anglická &amp; poezie</str>
+                <str>Epická &amp; poezie</str>
+                <str>Satirická &amp; poezie</str>
+            </arr>
+            <arr name="genres.search">
+                <str>text</str>
+                <str>anglická poezie</str>
+                <str>epická poezie</str>
+                <str>satirická poezie</str>
+            </arr>
+            <bool name="has_alto_content">true</bool>
+            <bool name="has_text_ocr_content">true</bool>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_ccnb">
+                <str>cnb002167224</str>
+            </arr>
+            <arr name="id_all">
+                <str>cnb002167224</str>
+                <str>barcode:26771800757</str>
+                <str>urn:nbn:cz:aba007-00test</str>
+                <str>urn:nbn:cz:aba007-000max</str>
+                <str>054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            </arr>
+            <arr name="id_other">
+                <str>barcode:26771800757</str>
+            </arr>
+            <arr name="id_urnnbn">
+                <str>urn:nbn:cz:aba007-00test</str>
+                <str>urn:nbn:cz:aba007-000max</str>
+            </arr>
+            <arr name="id_uuid">
+                <str>054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.614Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">1</int>
+            <arr name="licenses">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <arr name="mdt">
+                <str>821.111-1</str>
+            </arr>
+            <str name="model">monographunit</str>
+            <date name="modified">2025-08-27T14:37:05.363Z</date>
+            <str name="own_model_path">monograph/monographunit</str>
+            <str name="own_parent.model">monograph</str>
+            <str name="own_parent.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="part.name">III. a IV. zpěv</str>
+            <int name="part.number.sort">2</int>
+            <str name="part.number.str">2</str>
+            <arr name="physical_locations.facet">
+                <str>ABA007</str>
+            </arr>
+            <arr name="physical_locations.search">
+                <str>ABA007</str>
+                <str>ABA007</str>
+            </arr>
+            <str name="pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            </arr>
+            <arr name="publication_places.facet">
+                <str>V Praze</str>
+            </arr>
+            <arr name="publication_places.search">
+                <str>V Praze</str>
+            </arr>
+            <arr name="publishers.facet">
+                <str>Nakladatelství J. Otty</str>
+            </arr>
+            <arr name="publishers.search">
+                <str>Nakladatelství J. Otty</str>
+            </arr>
+            <int name="rels_ext_index.sort">0</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <arr name="shelf_locators">
+                <str>GK 757</str>
+            </arr>
+            <str name="title.search">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H| 2 III A IV ZPE|V</str>
+            <arr name="titles.search">
+                <str>Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+                <str>Don Juan. Česky</str>
+            </arr>
+            <long name="_version_">1848489150115741696</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.441Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>2f1564b8-9491-4b86-9d29-fee10d06c918</str>
+            </arr>
+            <arr name="id_all">
+                <str>2f1564b8-9491-4b86-9d29-fee10d06c918</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.634Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:36:58.036Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:2f1564b8-9491-4b86-9d29-fee10d06c918</str>
+            <int name="page.index">1</int>
+            <str name="page.number">[1]</str>
+            <str name="page.type">normalPage</str>
+            <str name="pid">uuid:2f1564b8-9491-4b86-9d29-fee10d06c918</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:2f1564b8-9491-4b86-9d29-fee10d06c918</str>
+            </arr>
+            <int name="rels_ext_index.sort">0</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">SBORNÍK SVĚTOVÉ POESIE VYDÁVÁ ČESKÁ AKADEMIE CÍSAŘE FRANTIŠKA JOSEFA PRO VĚDY, SLOVESNOST A UMĚNÍ ČÍSLO 84. LORD BYRON: DON JUAN V PRAZE NAKLADATELSTVÍ J. OTTY 1905</str>
+            <str name="title.search">[1]</str>
+            <str name="title.sort">1</str>
+            <arr name="titles.search">
+                <str>[1]</str>
+            </arr>
+            <long name="_version_">1848489150133567488</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.427Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>c188ddff-471b-452a-937a-20131151cc4a</str>
+            </arr>
+            <arr name="id_all">
+                <str>c188ddff-471b-452a-937a-20131151cc4a</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.652Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:37:01.674Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:c188ddff-471b-452a-937a-20131151cc4a</str>
+            <int name="page.index">2</int>
+            <str name="page.number">[2]</str>
+            <str name="page.type">blank</str>
+            <str name="pid">uuid:c188ddff-471b-452a-937a-20131151cc4a</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:c188ddff-471b-452a-937a-20131151cc4a</str>
+            </arr>
+            <int name="rels_ext_index.sort">1</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">﻿f / ν·</str>
+            <str name="title.search">[2]</str>
+            <str name="title.sort">2</str>
+            <arr name="titles.search">
+                <str>[2]</str>
+            </arr>
+            <long name="_version_">1848489150152441856</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.481Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>824a8c49-b0ed-48b1-aeb0-24988791919c</str>
+            </arr>
+            <arr name="id_all">
+                <str>824a8c49-b0ed-48b1-aeb0-24988791919c</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.668Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:37:03.084Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:824a8c49-b0ed-48b1-aeb0-24988791919c</str>
+            <int name="page.index">3</int>
+            <str name="page.number">[3]</str>
+            <str name="page.type">titlePage</str>
+            <str name="pid">uuid:824a8c49-b0ed-48b1-aeb0-24988791919c</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:824a8c49-b0ed-48b1-aeb0-24988791919c</str>
+            </arr>
+            <int name="rels_ext_index.sort">2</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">C. k. realné a vyšší gymnasium v Praze, Křemencova ulice. DON JUAN LORDA BYRONA SATIRICKÝ ROMÁN VE VERŠÍCH. PŘELOŽIL V. A. JUNG. III. a IV. ZPĚV. V PRAZE NAKLADATELSTVÍ J. OTTY 1905</str>
+            <str name="title.search">[3]</str>
+            <str name="title.sort">3</str>
+            <arr name="titles.search">
+                <str>[3]</str>
+            </arr>
+            <long name="_version_">1848489150169219072</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.468Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>79109bbe-5cc0-413b-babc-bac5a73baa5c</str>
+            </arr>
+            <arr name="id_all">
+                <str>79109bbe-5cc0-413b-babc-bac5a73baa5c</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.684Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:37:02.448Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:79109bbe-5cc0-413b-babc-bac5a73baa5c</str>
+            <int name="page.index">4</int>
+            <str name="page.number">[4]</str>
+            <str name="page.type">normalPage</str>
+            <str name="pid">uuid:79109bbe-5cc0-413b-babc-bac5a73baa5c</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:79109bbe-5cc0-413b-babc-bac5a73baa5c</str>
+            </arr>
+            <int name="rels_ext_index.sort">3</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">﻿VEŠKERÁ PRÁVA WHRAZENA TISKEM »UNIE« V PRAZE</str>
+            <str name="title.search">[4]</str>
+            <str name="title.sort">4</str>
+            <arr name="titles.search">
+                <str>[4]</str>
+            </arr>
+            <long name="_version_">1848489150188093440</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.272Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>a64bd5e7-4f2f-4925-874a-8c9f06429d92</str>
+            </arr>
+            <arr name="id_all">
+                <str>a64bd5e7-4f2f-4925-874a-8c9f06429d92</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.705Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:37:01.498Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:a64bd5e7-4f2f-4925-874a-8c9f06429d92</str>
+            <int name="page.index">5</int>
+            <str name="page.number">[5]</str>
+            <str name="page.type">normalPage</str>
+            <str name="pid">uuid:a64bd5e7-4f2f-4925-874a-8c9f06429d92</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:a64bd5e7-4f2f-4925-874a-8c9f06429d92</str>
+            </arr>
+            <int name="rels_ext_index.sort">4</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">﻿III. ZPĚV.</str>
+            <str name="title.search">[5]</str>
+            <str name="title.sort">5</str>
+            <arr name="titles.search">
+                <str>[5]</str>
+            </arr>
+            <long name="_version_">1848489150208016384</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.256Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>9a150d6e-fe4a-42d1-9e93-bd680bb56794</str>
+            </arr>
+            <arr name="id_all">
+                <str>9a150d6e-fe4a-42d1-9e93-bd680bb56794</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.721Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:36:58.571Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:9a150d6e-fe4a-42d1-9e93-bd680bb56794</str>
+            <int name="page.index">6</int>
+            <str name="page.number">[6]</str>
+            <str name="page.type">blank</str>
+            <str name="pid">uuid:9a150d6e-fe4a-42d1-9e93-bd680bb56794</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:9a150d6e-fe4a-42d1-9e93-bd680bb56794</str>
+            </arr>
+            <int name="rels_ext_index.sort">5</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">﻿</str>
+            <str name="title.search">[6]</str>
+            <str name="title.sort">6</str>
+            <arr name="titles.search">
+                <str>[6]</str>
+            </arr>
+            <long name="_version_">1848489150224793600</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.305Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>32b68e7f-ca59-4775-a996-ce2af98ca0d7</str>
+            </arr>
+            <arr name="id_all">
+                <str>32b68e7f-ca59-4775-a996-ce2af98ca0d7</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.738Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:36:58.482Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:32b68e7f-ca59-4775-a996-ce2af98ca0d7</str>
+            <int name="page.index">7</int>
+            <str name="page.number">[7]</str>
+            <str name="page.type">normalPage</str>
+            <str name="pid">uuid:32b68e7f-ca59-4775-a996-ce2af98ca0d7</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:32b68e7f-ca59-4775-a996-ce2af98ca0d7</str>
+            </arr>
+            <int name="rels_ext_index.sort">6</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">﻿POZNÁMKY KE TŘETÍMU ZPĚVU. Sloka io. Vím o dvou jen, již pěli o pekle a nebi nebo manželství, a jsou to Dante a Milton. Dante nazývá svou ženu v Pekle „la fiera moglie". Miltonovi první žena utekla hned první měsíc po sňatku. Kdyby byla neutekla, co by si byl John Milton Byron. Sloka 7Q. Jak Southy pravdiv, veršem jako Crashaw Crashaw, duchovní básník anglický. Zemřel r. 1650 v Lorettu. Sloka 89. Kýs tupý M. S. Zkratka slova „manuskript". Sloka 93, Ne všichni jsou jak Southy moralisty, když hlásal světu „Pantisokracii“ Básník Southy, dříve nežli propůjčil své péro к nedůstojným panegyrikám na krále Jiřího III., zač dostalo se mu titulu laureata a roční pense, chtěl se vystěhovati do Ameriky a založiti tam tak zv. Pantisokracii, to jest socialistickou vzornou osadu bez manželství a soukromého majetku. V téže sloce dostávají opětně svůj díl dva jiní přeběhlíci od radikalismu — Wordsworth a Coleridge, z nichž poslednější dokonce zastával se instituce šlechtictví, ačkoliv to ani jemu, ani Southymu, jak Byron jízlivě na konci téže sloky podotýká, nepřekáželo oženit se s plebejkami, Švadlenámi z Bathu. počal ?</str>
+            <str name="title.search">[7]</str>
+            <str name="title.sort">7</str>
+            <arr name="titles.search">
+                <str>[7]</str>
+            </arr>
+            <long name="_version_">1848489150242619392</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.287Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>98387320-a4ec-418c-b6e1-c959c814d3cd</str>
+            </arr>
+            <arr name="id_all">
+                <str>98387320-a4ec-418c-b6e1-c959c814d3cd</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.754Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:36:58.377Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:98387320-a4ec-418c-b6e1-c959c814d3cd</str>
+            <int name="page.index">8</int>
+            <str name="page.number">8</str>
+            <str name="page.type">normalPage</str>
+            <str name="pid">uuid:98387320-a4ec-418c-b6e1-c959c814d3cd</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:98387320-a4ec-418c-b6e1-c959c814d3cd</str>
+            </arr>
+            <int name="rels_ext_index.sort">7</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">﻿8 Sloka 94. Ta jména jsou ted čísly pro trestance — nu Botany Bay v mravní geografii Botany Bay — tolik co naše Kartouzy nebo Pankrác. Sloka 94. Mdlá, nudná báseň, nadepsaná „Vyleť' Hrdinou této Wordsworthovy básně je podomní kramář, který ve spolku s básníkem, bývalým polním kazatelem, ženou jakéhosi nešťastného náboženského agitátora, služkou a ještě jinými lidmi toho druhu, potuluje se v horách severní Anglie a filosofuje o životč a smrti. Sloka 95. Jak Southcotová, jež zas svou má sektu Jenny Southcotová, ztřeštěná pobožnůstkáfka, která v 60tém roce věku hlásala o sobě, že je těhotná a porodí mesiáše. Sloka 97. Vím, že co „longueurs“ и sousedů, zve se Longueurs — dlouhé nudné pasáže v knihách. Sloka 98. „Člun" přeje si, by plout molť bez obtíži — zda mořem? — ba ne, vzduchem — — Wordsworth totiž v jedné ze svých básní (Peter Bell) pěje: Je něco komoft perutný, je něco balon mohutný; však nepřepili ji oblohu, leč až si к člunku pomohu. Sloka 110. Tak ráčíme my Cantábovc zvát Cantab — absolvent cantabridžské university. Sloka 100. . . . Kal, jenž na povrch smi téc' z dna „bathosu" Narážka na švadleny z Bathu (Sl. 93.) a ovšem i slovní hříčka (bathos-pathos). Sloka 100. A zpěvu ten Jack Cades smí nad tvým hrobem syčet posměchem — smí „člunkář“ ten a autor „Petra Bella“ se tomu smát, kdo psal „Achitofcla"? Jack Cades (čti Kéds) pouliční zpěvák londýnský. — Wordsworth napsal předmluvu к novému vydání Dryděna, jehož veršů si Byron velmi vážil, a pravil v té předmluvě, že Drydenovy verše, druhdy tak slavené, upadly v zapomenutí.</str>
+            <str name="title.search">8</str>
+            <str name="title.sort">8</str>
+            <arr name="titles.search">
+                <str>8</str>
+            </arr>
+            <long name="_version_">1848489150259396608</long></doc>
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <date name="created">2025-07-08T13:21:49.322Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1905-01-01T00:00:00.001Z</date>
+            <str name="date.str">1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1905</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_uuid">
+                <str>172a9727-3df8-4dc2-86cd-5471a57a7867</str>
+            </arr>
+            <arr name="id_all">
+                <str>172a9727-3df8-4dc2-86cd-5471a57a7867</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.771Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">2</int>
+            <arr name="licenses_of_ancestors">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <str name="model">page</str>
+            <date name="modified">2025-08-27T14:36:59.250Z</date>
+            <str name="own_model_path">monograph/monographunit/page</str>
+            <str name="own_parent.model">monographunit</str>
+            <str name="own_parent.pid">uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6</str>
+            <str name="own_parent.title">Don Juan lorda Byrona: satirický román ve verších. 2. III. a IV. zpěv</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:172a9727-3df8-4dc2-86cd-5471a57a7867</str>
+            <int name="page.index">9</int>
+            <str name="page.number">9</str>
+            <str name="page.type">normalPage</str>
+            <str name="pid">uuid:172a9727-3df8-4dc2-86cd-5471a57a7867</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf/uuid:054a53a9-536e-4ac9-95c0-38a5d3b506a6/uuid:172a9727-3df8-4dc2-86cd-5471a57a7867</str>
+            </arr>
+            <int name="rels_ext_index.sort">8</int>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <str name="text_ocr">﻿9 Sloka 106. Stín lovce z kmene Onestů — Narážka na Drydenovu báseň „Theodor a Honoria", к níž poskytla Drydenovi látku Bocacciova jedna povídka, jejíž děj odehrává se v lese u Ravenny. Sloka 107. O Vespere! vše dobré přinášíš. Tato sloka je skoro doslovnou parafrasí Sapphiných veršů 'Έσπερε ποιντοί φέρεις atd. Sloka 109. Když Nero zasloužené za své vzal. Suetonius vypravuje: Přes všeobecný jásot nad smrtí Neronovou vyskytli se přece lidé, kteří dlouho ještě potom hrob jeho zdobili květinami.</str>
+            <str name="title.search">9</str>
+            <str name="title.sort">9</str>
+            <arr name="titles.search">
+                <str>9</str>
+            </arr>
+            <long name="_version_">1848489150278270976</long></doc>
+    </result>
+</response>

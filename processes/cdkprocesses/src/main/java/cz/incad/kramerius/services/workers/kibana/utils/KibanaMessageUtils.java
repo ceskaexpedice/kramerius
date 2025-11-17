@@ -1,6 +1,6 @@
 package cz.incad.kramerius.services.workers.kibana.utils;
 
-import cz.incad.kramerius.services.iterators.IterationItem;
+import cz.inovatika.kramerius.services.iterators.IterationItem;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

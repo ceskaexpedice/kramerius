@@ -1,0 +1,82 @@
+<!--  Metska knihovna Praha/mlp   -->
+<migration>
+
+    <source-name>mlp</source-name>
+    <name>mlp-full</name>
+
+    <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+
+        <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
+
+        <url>$iteration.url$</url>
+        <endpoint>select</endpoint>
+
+        <id>PID</id>
+        <rows>4000</rows>
+        <type>CURSOR</type>
+
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
+    </iteration>
+
+    <threads>1</threads>
+
+
+    <worker>
+        <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CDKCopySolrWorkerFactory"></workerFactory>
+        <request>
+
+            <endpoint>select</endpoint>
+            <batchsize>20</batchsize>
+
+            <url>$iteration.url$</url>
+
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+
+
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+
+            <checkUrl>$destination.url$</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
+            <trasfrom>K7</trasfrom>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="cdk.collection">mlp</field>
+                    <field name="cdk.leader">mlp</field>
+
+                </update.dest.field>
+            </onindex>
+
+            <!-- on update -->
+            <onupdate>
+                <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">mlp</field>
+
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</migration>
+ 

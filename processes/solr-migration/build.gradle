@@ -1,7 +1,16 @@
+apply plugin: 'application'
 
+
+mainClassName = "cz.inovatika.kramerius.services.Migration"
+
+tasks.withType(CreateStartScripts).each { task ->
+    task.doLast {
+        String text = task.windowsScript.text
+        text = text.replaceFirst(/(set CLASSPATH=%APP_HOME%\\lib\\).*/, { "${it[1]}*" })
+        task.windowsScript.write text
+    }
+}
 
 dependencies {
     implementation project(':shared:common')
-//    implementation project(':processes:indexer')
-   
 }

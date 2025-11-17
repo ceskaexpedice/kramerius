@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.inovatika.kramerius.services.iterators.config.TypeOfIteration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.IOUtils;
@@ -44,14 +45,13 @@ import cz.incad.kramerius.TooBigException;
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.services.ParallelProcessImpl;
-import cz.incad.kramerius.services.iterators.IterationItem;
-import cz.incad.kramerius.services.iterators.ProcessIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrCursorIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrFilterQueryIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrPageIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory.TypeOfIteration;
-import cz.incad.kramerius.services.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.Migration;
+import cz.inovatika.kramerius.services.iterators.IterationItem;
+import cz.inovatika.kramerius.services.iterators.ProcessIterator;
+import cz.inovatika.kramerius.services.iterators.solr.SolrCursorIterator;
+import cz.inovatika.kramerius.services.iterators.solr.SolrFilterQueryIterator;
+import cz.inovatika.kramerius.services.iterators.solr.SolrPageIterator;
+import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 
 public class ReharvestUtils {
     
@@ -489,7 +489,7 @@ public class ReharvestUtils {
             } else {
                 // safra ?? 
                 try {
-                    ParallelProcessImpl reharvest = new ParallelProcessImpl();
+                    Migration reharvest = new Migration();
                     String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
                     LOGGER.info(String.format("Configuration %s" ,config));
                     reharvest.migrate(harvestFile);
