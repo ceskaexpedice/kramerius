@@ -131,9 +131,7 @@ public abstract class Worker implements Runnable {
 
     public Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids, String fieldlist)
             throws IOException, SAXException, ParserConfigurationException {
-        //String idIdentifier = this.config.getRequestConfig().getIdIdentifier();
         String idIdentifier = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
-
 
         String requestUrl = this.config.getRequestConfig().getUrl();
         String requestEndpoint =  this.config.getRequestConfig().getEndpoint();
@@ -151,7 +149,6 @@ public abstract class Worker implements Runnable {
     }
 
     protected WorkerContext createContext(List<IterationItem> subitems)  throws ParserConfigurationException, SAXException, IOException {
-
         String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
 
         // iterovat pres composite id ale pro dotazovani pouzit jinou polozku z docu
@@ -183,8 +180,6 @@ public abstract class Worker implements Runnable {
             }
         }
 
-
-
         String query = "?q=" + identifierField + ":(" + URLEncoder.encode(reduce, "UTF-8")
                 + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + subitems.size();
 
@@ -196,12 +191,6 @@ public abstract class Worker implements Runnable {
 
 
         List<Element> docElms = XMLUtils.getElements(resultElem);
-        List<Map<String, Object>>  docs = docElms.stream().map(d -> {
-            Map<String, Object> map = ResultsUtils.doc(d);
-            return map;
-        }).collect(Collectors.toList());
-
-
         List<WorkerIndexedItem> workerIndexedItemList = new ArrayList<>();
         docElms.stream().forEach(d -> {
             Map<String, Object> map = ResultsUtils.doc(d);
@@ -331,19 +320,6 @@ public abstract class Worker implements Runnable {
                             LOGGER.info("No update");
                         }
                     }
-
-                } catch (ParserConfigurationException e) {
-                    LOGGER.log(Level.SEVERE,"Informing about exception");
-                    finisher.exceptionDuringCrawl(e);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } catch (SAXException e) {
-                    LOGGER.log(Level.SEVERE,"Informing about exception");
-                    finisher.exceptionDuringCrawl(e);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE,"Informing about exception");
-                    finisher.exceptionDuringCrawl(e);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE,"Informing about exception");
                     finisher.exceptionDuringCrawl(e);
@@ -362,7 +338,6 @@ public abstract class Worker implements Runnable {
             } catch (BrokenBarrierException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
-            //LOGGER.info(String.format("Worker finished; All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  ReplicateFinisher.WORKERS.get(), ReplicateFinisher.BATCHES.get(), ReplicateFinisher.NEWINDEXED.get(), ReplicateFinisher.UPDATED.get(),ReplicateFinisher.NOT_INDEXED_COMPOSITEID.get()));
         }
     }
 

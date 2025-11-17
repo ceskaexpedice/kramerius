@@ -67,11 +67,9 @@
             // Iterator factory
             ProcessIteratorFactory processIteratorFactory = ProcessIteratorFactory.create(config.getIteratorConfig().getFactoryClz());
 
-            //this.iterator = processIteratorFactory.createProcessIterator( iterationElm, this.getClient());
             this.iterator = processIteratorFactory.createProcessIterator( config.getIteratorConfig(), this.client);
             this.workerFactory = WorkerFactory.create(config.getWorkerConfig());
 
-            //this.workerElem = XMLUtils.findElement(document.getDocumentElement(), "worker");
             this.finisher = this.workerFactory.createFinisher(config, this.client);
 
             final List<Worker>  worksWhatHasToBeDone = new ArrayList<>();
@@ -91,8 +89,6 @@
                 if (finisher != null)  this.finisher.finish();
             }
         }
-
-
 
         public static void main(String[] args)  {
             if (args.length > 0 ) {
@@ -208,10 +204,8 @@
                 waitingInfo(startDateTimeLT, millis);
 
                 return millis;
-                //Thread.sleep(millis);
             } else {
                 startDateTimeLT = startDateTimeLT.plusDays(1);
-                endDateTimeLT = endDateTimeLT.plusDays(1);
                 LOGGER.info("I'm shifting day to :"+startDateTimeLT);
                 duration = Duration.between(current, startDateTimeLT);
                 long millis = duration.toMillis();
