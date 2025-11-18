@@ -76,7 +76,7 @@ public abstract class Worker implements Runnable {
         this.barrier = barrier;
     }
 
-    // on update event
+    // --- Events --
     protected void onUpdateEvent(Element addDocument) {
         List<Element> onUpdateUpdateElements = config.getDestinationConfig().getOnUpdateUpdateElements();
         onUpdateUpdateElements.stream().forEach(f->{
@@ -129,7 +129,7 @@ public abstract class Worker implements Runnable {
         });
     }
 
-    public Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids, String fieldlist)
+    protected Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids, String fieldlist)
             throws IOException, SAXException, ParserConfigurationException {
         String idIdentifier = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
 
@@ -208,7 +208,6 @@ public abstract class Worker implements Runnable {
             if (!identifierFromOriginalSolr.contains(item.getId()))
                 notindexed.add(item);
         });
-
         return new WorkerContext(workerIndexedItemList, notindexed);
     }
 
@@ -236,12 +235,14 @@ public abstract class Worker implements Runnable {
                         String fieldList = config.getRequestConfig().getFieldList();
                         String fl =  onIndexedFieldList != null ? onIndexedFieldList : fieldList;
 
-                        Element response = fetchDocumentFromRemoteSOLR( this.client,  subitems.stream().map(IterationItem::getPid).collect(Collectors.toList()), fl);
+                        //List<String> identifiers = getNotIndexedIdentifiers(simpleCopyContext);
+
+                        Element response = fetchDocumentFromRemoteSOLR( this.client,  getNotIndexedIdentifiers(simpleCopyContext) , fl);
                         Element resultElem = XMLUtils.findElement(response, (elm) -> {
                             return elm.getNodeName().equals("result");
                         });
 
-                        Batch batchFact = new Batch(processConfig, createBatchTransformation(), null);
+                        Batch batchFact = new Batch(processConfig, createBatchTransformation(), createNewIndexedBatchConsumer());
                         Document batch = batchFact.create(resultElem);
 
                         Element addDocument = batch.getDocumentElement();
@@ -266,40 +267,14 @@ public abstract class Worker implements Runnable {
                         Document destBatch = null;
                         if (fl != null) {
                             /** already indexed pids */
-                            List<String> identifiers = simpleCopyContext.getAlreadyIndexed().stream().map(ir->{
-                                String string = ir.getId();
-                                return string;
-                            }).collect(Collectors.toList());
+                            List<String> identifiers = getIndexedIdentifiers(simpleCopyContext);
                             /** Fetch documents from source library */
                             Element response2 = fetchDocumentFromRemoteSOLR( this.client,  identifiers, fl);
                             Element resultElem2 = XMLUtils.findElement(response2, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
                             /** Construct final batch */
-                            Batch batch = new Batch(processConfig, createBatchTransformation(), new BatchConsumer() {
-                                @Override
-                                public ModifyFieldResult modifyField(Element field) {
-                                    String name = field.getAttribute("name");
-
-                                    boolean compositeId = processConfig.getWorkerConfig().getRequestConfig().isCompositeId();
-                                    String idIdentifier = processConfig.getWorkerConfig().getRequestConfig().getIdIdentifier();
-
-                                    if (compositeId && name.equals("compositeId")) {
-                                        return ModifyFieldResult.none;
-                                    }
-                                    if (!compositeId && name.equals(idIdentifier)) {
-                                        return ModifyFieldResult.none;
-                                    }
-                                    // edit
-                                    field.setAttribute("update","set");
-                                    return ModifyFieldResult.edit;
-                                }
-
-                                @Override
-                                public void changeDocument(ProcessConfig processConfig, Element doc) {
-
-                                }
-                            });
+                            Batch batch = new Batch(processConfig, createBatchTransformation(), createAlreadyIndexedBatchConsumer());
                             destBatch = batch.create(resultElem2);
 
 
@@ -341,7 +316,51 @@ public abstract class Worker implements Runnable {
         }
     }
 
-    private static CopyTransformation createBatchTransformation() {
+    protected List<String> getIndexedIdentifiers(WorkerContext simpleCopyContext) {
+        List<String> identifiers = simpleCopyContext.getAlreadyIndexed().stream().map(ir->{
+            String string = ir.getId();
+            return string;
+        }).collect(Collectors.toList());
+        return identifiers;
+    }
+
+    protected List<String> getNotIndexedIdentifiers(WorkerContext simpleCopyContext) {
+        return simpleCopyContext.getNotIndexed().stream().map(IterationItem::getId).collect(Collectors.toList());
+    }
+
+    protected BatchConsumer createAlreadyIndexedBatchConsumer() {
+        return new BatchConsumer() {
+            @Override
+            public ModifyFieldResult modifyField(Element field) {
+                String name = field.getAttribute("name");
+
+                boolean compositeId = processConfig.getWorkerConfig().getRequestConfig().isCompositeId();
+                String idIdentifier = processConfig.getWorkerConfig().getRequestConfig().getIdIdentifier();
+
+                if (compositeId && name.equals("compositeId")) {
+                    return ModifyFieldResult.none;
+                }
+                if (!compositeId && name.equals(idIdentifier)) {
+                    return ModifyFieldResult.none;
+                }
+                // edit
+                field.setAttribute("update", "set");
+                return ModifyFieldResult.edit;
+            }
+
+            @Override
+            public void changeDocument(ProcessConfig processConfig, Element doc) {
+
+            }
+        };
+    }
+
+    protected BatchConsumer createNewIndexedBatchConsumer() {
+        return null;
+    }
+
+
+    protected CopyTransformation createBatchTransformation() {
         return new CopyTransformation();
     }
 

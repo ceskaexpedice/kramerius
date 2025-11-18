@@ -25,19 +25,6 @@ public class BatchUtils {
 
     public static final Logger LOGGER = Logger.getLogger(BatchUtils.class.getName());
 
-    /**
-     * Creates batch document
-     * @param cdkRepContext ReplicateContext class
-     * @param resultElem Result element from source library
-     * @param compositeId CompoisteId
-     * @param root Root PID
-     * @param child  Child PID
-     * @param srcTransform SourceToDestTransformation
-     * @param consumer Consumer for additional modification
-     * @return
-     * @throws ParserConfigurationException
-     * @throws MigrateSolrIndexException
-     */
     public static Document batch(CDKReplicateContext cdkRepContext, Element resultElem, boolean compositeId, String root, String child, BatchTransformation srcTransform, BatchConsumer consumer ) throws ParserConfigurationException, MigrateSolrIndexException  {
         Document destBatch = XMLUtils.crateDocument("add");
         List<Element> docs = XMLUtils.getElements(resultElem, new XMLUtils.ElementsFilter() {
@@ -150,6 +137,4 @@ public class BatchUtils {
             return  false;
         }
     }
-
-
 }

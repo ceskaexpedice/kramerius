@@ -254,8 +254,8 @@ public class KubernetesSolrUtils {
         LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] url %s", u));
         WebResource r = client.resource(u);
 
-
         LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
+
         String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
         return t;
     }

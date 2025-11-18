@@ -4,7 +4,12 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.SupportedLibraries;
 import cz.incad.kramerius.services.transform.K7SourceToDestTransform;
+import cz.incad.kramerius.services.utils.ResultsUtils;
+import cz.incad.kramerius.services.workers.replicate.records.ExistingConflictRecord;
+import cz.incad.kramerius.services.workers.replicate.records.ReplicateRecord;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.workers.Worker;
 import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
@@ -12,6 +17,9 @@ import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.incad.kramerius.services.workers.replicate.*;
 import cz.incad.kramerius.services.workers.replicate.records.IndexedRecord;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
+import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
+import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,6 +27,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -33,10 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Replicate index; 1-1 copy + enhancing compositeID if there is solr cloud
- */
-public class CDKCopyWorker extends AbstractReplicateWorker {
+public class CDKCopyWorker extends Worker {
 
     private static SupportedLibraries supportedLibraries = new SupportedLibraries();
     
@@ -407,6 +413,135 @@ public class CDKCopyWorker extends AbstractReplicateWorker {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
             LOGGER.info(String.format("Worker finished; All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  ReplicateFinisher.WORKERS.get(), ReplicateFinisher.BATCHES.get(), ReplicateFinisher.NEWINDEXED.get(), ReplicateFinisher.UPDATED.get(),ReplicateFinisher.NOT_INDEXED_COMPOSITEID.get()));
+        }
+    }
+
+    protected CDKReplicateContext createReplicateContext(List<IterationItem> subitems, BatchTransformation transform)  throws ParserConfigurationException, SAXException, IOException {
+
+        // vsechny pidy
+        String reduce = subitems.stream().map(it -> {
+            return '"' + it.getPid() + '"';
+        }).collect(Collectors.joining(" OR "));
+
+        String collectionField = this.config.getRequestConfig().getCollectionField();
+        String checkUrlC = this.config.getRequestConfig().getCheckUrl();
+        String checkEndpoint = this.config.getRequestConfig().getCheckEndpoint();
+        boolean compositeId = this.config.getRequestConfig().isCompositeId();
+
+        List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
+        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+computedFields.stream().collect(Collectors.joining(" "));
+        if (compositeId) {
+            fieldlist = fieldlist + " " + " root.pid compositeId";
+        }
+
+        String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, "UTF-8")
+                + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + subitems.size();
+
+        String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
+        Element resultElem = XMLUtils.findElement(KubernetesSolrUtils.executeQueryJersey(client, checkUrl, query),
+                (elm) -> {
+                    return elm.getNodeName().equals("result");
+                });
+
+        List<Element> docElms = XMLUtils.getElements(resultElem);
+        List<Map<String, Object>>  docs = docElms.stream().map(d -> {
+            Map<String, Object> map = ResultsUtils.doc(d);
+            return map;
+        }).collect(Collectors.toList());
+
+
+        List<IndexedRecord> indexedRecordList = new ArrayList<>();
+        // Existing conficts - remove from docElms
+        List<ExistingConflictRecord> econflicts = findIndexConflict(docs);
+        removePids(econflicts, docs);
+
+        List<String> econflictPids = econflicts.stream().map(ExistingConflictRecord::getPid).collect(Collectors.toList());
+
+        // found indexed & not indexed records
+        docElms.stream().forEach(d -> {
+            Map<String, Object> map = ResultsUtils.doc(d);
+
+            Element collection = XMLUtils.findElement(d, e -> {
+                return e.getAttribute("name").equals(collectionField);
+            });
+
+            if (collection != null) {
+                map.put(collectionField, collection.getTextContent());
+            }
+
+            // computed fields
+            computedFields.stream().forEach(it-> computedField(d, map,it));
+
+            IndexedRecord record = new IndexedRecord(map);
+            if (!econflictPids.contains(record.getPid())) {
+                indexedRecordList.add(record);
+            }
+        });
+
+        List<String> pidsFromLocalSolr = indexedRecordList.stream().map(m -> {
+            return m.getPid();
+        }).collect(Collectors.toList());
+
+        List<IterationItem> notindexed = new ArrayList<>();
+        subitems.forEach(item -> {
+            if (!pidsFromLocalSolr.contains(item.getPid()) && !econflictPids.contains(item.getPid()))
+                notindexed.add(item);
+        });
+
+        return new CDKReplicateContext(indexedRecordList, econflicts, notindexed);
+    }
+
+
+    private static void removePids(List<? extends ReplicateRecord> conflicts, List<Map<String, Object>> docs) {
+        Set<String> pids = conflicts.stream()
+                .map(ReplicateRecord::getPid)
+                .collect(Collectors.toSet());
+        docs.removeIf(doc -> pids.contains(doc.get("pid")));
+    }
+
+    private List<ExistingConflictRecord> findIndexConflict(List<Map<String,Object>> docs) {
+        String childOfComposite = this.config.getRequestConfig().getChildOfComposite();
+
+        Map<String, List<String>> pidToCompositeIds = docs.stream()
+                .filter(map -> {
+                    String pid = (String) map.get(getTransform(this.config).getField(childOfComposite));
+                    String compositeId = (String) map.get("compositeId");
+                    return StringUtils.isAnyString(pid) && StringUtils.isAnyString(compositeId);
+                })
+                .collect(Collectors.groupingBy(
+                        map -> (String) map.get(getTransform(this.config).getField(childOfComposite)),
+                        Collectors.mapping(map -> (String) map.get("compositeId"), Collectors.toList())
+                ));
+
+
+        return pidToCompositeIds.entrySet().stream()
+                .map(entry -> new ExistingConflictRecord(entry.getKey(),
+                        entry.getValue().stream().distinct().collect(Collectors.toList())))
+                .filter(ExistingConflictRecord::isConflict)
+                .collect(Collectors.toList());
+    }
+
+    private static BatchTransformation getTransform(WorkerConfig config) {
+        String transform = config.getRequestConfig().getTransform();
+        if (transform != null) {
+            switch (transform.toLowerCase()) {
+                case "copy": return new CopyTransformation();
+                case "k7": return new K7SourceToDestTransform();
+                default: return new CopyTransformation();
+            }
+        }
+        return new CopyTransformation();
+    }
+
+
+    private void computedField(Element d, Map<String, Object> map, String fieldName) {
+        Element cdkLicenses = XMLUtils.findElement(d, e -> {
+            return e.getAttribute("name").equals(fieldName);
+        });
+
+        if (cdkLicenses != null) {
+            List<String> licenses = XMLUtils.getElements(cdkLicenses).stream().map(Element::getTextContent).collect(Collectors.toList());
+            map.put(fieldName, licenses);
         }
     }
 

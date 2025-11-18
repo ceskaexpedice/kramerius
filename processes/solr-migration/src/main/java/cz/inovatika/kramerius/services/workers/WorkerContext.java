@@ -21,10 +21,6 @@ public class WorkerContext {
         return workerIndexedItems;
     }
 
-    public Map<String, WorkerIndexedItem> getAlreadyIndexedAsMap() {
-        return workerIndexedItems.stream()
-                .collect(Collectors.toMap(WorkerIndexedItem::getId, r -> r));
-    }
 
     public List<IterationItem> getNotIndexed() {
         return notIndexed;

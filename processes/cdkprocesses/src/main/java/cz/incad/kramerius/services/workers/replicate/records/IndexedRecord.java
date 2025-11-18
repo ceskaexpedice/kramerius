@@ -39,7 +39,6 @@ public class IndexedRecord extends ReplicateRecord {
     public IndexedRecord(Map<String,Object> document) {
         super(document.containsKey("pid") ? (String) document.get("pid") : null);
         this.document = document;
-        //this.pid = document.containsKey("pid") ? (String) this.document.get("pid") : null;
         this.cdkLeader =  document.containsKey("cdk.leader") ? (String) this.document.get("cdk.leader") : null;
         this.composeId = document.containsKey("compositeId") ? (String) this.document.get("compositeId") : null;;
     }
