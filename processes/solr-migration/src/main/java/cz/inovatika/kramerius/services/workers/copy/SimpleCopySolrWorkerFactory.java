@@ -4,8 +4,6 @@ import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
-import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
 import cz.inovatika.kramerius.services.workers.Worker;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
@@ -23,9 +21,4 @@ public class SimpleCopySolrWorkerFactory extends WorkerFactory {
     public WorkerFinisher createFinisher(ProcessConfig processConfig, Client client) {
         return new SimpleCopySolrFinisher(processConfig, client);
     }
-
-    /*
-    public BatchTransformation createTransform() {
-        return new CopyTransformation();
-    }*/
 }

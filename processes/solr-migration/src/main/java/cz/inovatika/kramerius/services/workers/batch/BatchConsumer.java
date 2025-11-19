@@ -23,7 +23,7 @@ public interface BatchConsumer {
         /** The field was edited or updated. */
         edit,
 
-        /** The field should be removed from the document. */
+            /** The field should be removed from the document. */
         delete,
 
         /** No change was made to the field. */

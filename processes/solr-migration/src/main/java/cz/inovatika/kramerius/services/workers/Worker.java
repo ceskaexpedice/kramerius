@@ -6,9 +6,8 @@ import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
-import cz.inovatika.kramerius.services.workers.batch.Batch;
+import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatch;
 import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
-import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
 import cz.inovatika.kramerius.services.utils.ResultsUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
 import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
@@ -242,8 +241,11 @@ public abstract class Worker implements Runnable {
                             return elm.getNodeName().equals("result");
                         });
 
-                        Batch batchFact = new Batch(processConfig, createBatchTransformation(), createNewIndexedBatchConsumer());
-                        Document batch = batchFact.create(resultElem);
+                        // TODO : factory metodu
+                        // Batch batchFact = createBatch(processingConfig, resultElem);
+                        // batchFact.createForIndex();
+                        UpdateSolrBatch batchFact = new UpdateSolrBatch(processConfig, resultElem, createNewIndexedBatchConsumer());
+                        Document batch = batchFact.createBatchForInsert();
 
                         Element addDocument = batch.getDocumentElement();
                         // on index - remove element
@@ -274,9 +276,9 @@ public abstract class Worker implements Runnable {
                                 return elm.getNodeName().equals("result");
                             });
                             /** Construct final batch */
-                            Batch batch = new Batch(processConfig, createBatchTransformation(), createAlreadyIndexedBatchConsumer());
-                            destBatch = batch.create(resultElem2);
-
+                            //    public UpdateSolrBatch(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
+                            UpdateSolrBatch batch = new UpdateSolrBatch(processConfig, resultElem2, createAlreadyIndexedBatchConsumer());
+                            destBatch = batch.createBatchForUpdate();
 
                         } else {
                             /** If there is no update list, then no update */
@@ -360,8 +362,5 @@ public abstract class Worker implements Runnable {
     }
 
 
-    protected CopyTransformation createBatchTransformation() {
-        return new CopyTransformation();
-    }
 
 }

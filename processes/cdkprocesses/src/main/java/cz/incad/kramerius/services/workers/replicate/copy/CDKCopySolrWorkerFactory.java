@@ -3,13 +3,10 @@ package cz.incad.kramerius.services.workers.replicate.copy;
 import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.workers.Worker;
-import cz.inovatika.kramerius.services.workers.copy.SimpleCopySolrFinisher;
-import cz.inovatika.kramerius.services.workers.copy.SimpleCopyWorker;
 import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
 import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
 
 import java.util.List;
@@ -27,6 +24,6 @@ public class CDKCopySolrWorkerFactory extends WorkerFactory {
     }
 
     public BatchTransformation createTransform() {
-        return new CopyTransformation();
+        return null;
     }
 }

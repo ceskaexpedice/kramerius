@@ -18,7 +18,6 @@ import cz.incad.kramerius.services.workers.replicate.*;
 import cz.incad.kramerius.services.workers.replicate.records.IndexedRecord;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
-import cz.inovatika.kramerius.services.workers.batch.impl.CopyTransformation;
 import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
@@ -521,16 +520,17 @@ public class CDKCopyWorker extends Worker {
                 .collect(Collectors.toList());
     }
 
+    //TODO:  REMOVE
     private static BatchTransformation getTransform(WorkerConfig config) {
         String transform = config.getRequestConfig().getTransform();
         if (transform != null) {
             switch (transform.toLowerCase()) {
-                case "copy": return new CopyTransformation();
+                case "copy": return null;
                 case "k7": return new K7SourceToDestTransform();
-                default: return new CopyTransformation();
+                default: return null;
             }
         }
-        return new CopyTransformation();
+        return null;
     }
 
 
