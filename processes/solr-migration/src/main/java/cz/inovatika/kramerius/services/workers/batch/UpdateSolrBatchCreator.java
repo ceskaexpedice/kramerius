@@ -11,7 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.util.Arrays;
 import java.util.List;
 
-public class UpdateSolrBatch {
+public class UpdateSolrBatchCreator {
 
     private static final List<String> PRIMITIVE_FIELD_TYPES = Arrays.asList("str", "int", "bool", "date");
 
@@ -19,7 +19,7 @@ public class UpdateSolrBatch {
     protected Element resultElWithDocs;
     protected BatchConsumer consumer;
 
-    public UpdateSolrBatch(ProcessConfig processConfig, Element resultElWithDocs, BatchConsumer consumer) {
+    public UpdateSolrBatchCreator(ProcessConfig processConfig, Element resultElWithDocs, BatchConsumer consumer) {
         this.config = processConfig;
         this.resultElWithDocs = resultElWithDocs;
         this.consumer = consumer;

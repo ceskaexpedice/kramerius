@@ -3,7 +3,7 @@ package cz.incad.kramerius.services.workers.batch;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
-import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatch;
+import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatchCreator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -13,9 +13,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CDKUpdateSolrBatch extends UpdateSolrBatch {
+public class CDKUpdateSolrBatchCreator extends UpdateSolrBatchCreator {
 
-    public CDKUpdateSolrBatch(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
+    public CDKUpdateSolrBatchCreator(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
         super(processConfig, resultElem, consumer);
     }
 

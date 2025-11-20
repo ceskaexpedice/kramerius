@@ -6,7 +6,7 @@ import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
-import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatch;
+import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatchCreator;
 import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
 import cz.inovatika.kramerius.services.utils.ResultsUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
@@ -241,8 +241,8 @@ public abstract class Worker implements Runnable {
                             return elm.getNodeName().equals("result");
                         });
 
-                        UpdateSolrBatch updateSolrBatch = new UpdateSolrBatch(processConfig, resultElWithDocsToAdd, createNewIndexedBatchConsumer());
-                        Document batchForInsert = updateSolrBatch.createBatchForInsert();
+                        UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(processConfig, resultElWithDocsToAdd, createNewIndexedBatchConsumer());
+                        Document batchForInsert = updateSolrBatchCreator.createBatchForInsert();
 
                         Element addDocument = batchForInsert.getDocumentElement();
                         // on index - remove element
@@ -273,8 +273,8 @@ public abstract class Worker implements Runnable {
                                 return elm.getNodeName().equals("result");
                             });
                             /** Construct final batch */
-                            UpdateSolrBatch updateSolrBatch = new UpdateSolrBatch(processConfig, resultElWithDocsToUpdate, createAlreadyIndexedBatchConsumer());
-                            batchForUpdate = updateSolrBatch.createBatchForUpdate();
+                            UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(processConfig, resultElWithDocsToUpdate, createAlreadyIndexedBatchConsumer());
+                            batchForUpdate = updateSolrBatchCreator.createBatchForUpdate();
 
                         } else {
                             /** If there is no update list, then no update */

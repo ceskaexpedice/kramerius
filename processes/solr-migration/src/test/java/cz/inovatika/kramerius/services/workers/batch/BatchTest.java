@@ -31,8 +31,8 @@ public class BatchTest {
         Document configDoc = XMLUtils.parseDocument(configStream);
         ProcessConfig config = ProcessConfigParser.parse(configDoc.getDocumentElement());
 
-        UpdateSolrBatch updateSolrBatch = new UpdateSolrBatch(config, result, null);
-        Document batchForInsert = updateSolrBatch.createBatchForInsert();
+        UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(config, result, null);
+        Document batchForInsert = updateSolrBatchCreator.createBatchForInsert();
         List<Element> docs = XMLUtils.getElementsRecursive(batchForInsert.getDocumentElement(), paramElement -> paramElement.getNodeName().equals("doc"));
         for (Element doc : docs) {
             List<Element> fields = XMLUtils.getElements(doc, paramElement -> paramElement.getNodeName().equals("field"));
@@ -57,8 +57,8 @@ public class BatchTest {
         ProcessConfig config = ProcessConfigParser.parse(configDoc.getDocumentElement());
 
 
-        UpdateSolrBatch updateSolrBatch = new UpdateSolrBatch(config, result, null);
-        Document batchForUpdate = updateSolrBatch.createBatchForUpdate();
+        UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(config, result, null);
+        Document batchForUpdate = updateSolrBatchCreator.createBatchForUpdate();
         List<Element> docs = XMLUtils.getElementsRecursive(batchForUpdate.getDocumentElement(), paramElement -> paramElement.getNodeName().equals("doc"));
         for (Element doc : docs) {
             List<Element> fields = XMLUtils.getElements(doc, paramElement -> paramElement.getNodeName().equals("field"));
