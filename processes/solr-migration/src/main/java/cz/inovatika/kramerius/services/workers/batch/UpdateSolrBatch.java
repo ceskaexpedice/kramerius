@@ -16,12 +16,12 @@ public class UpdateSolrBatch {
     private static final List<String> PRIMITIVE_FIELD_TYPES = Arrays.asList("str", "int", "bool", "date");
 
     protected ProcessConfig config;
-    protected Element resultElement;
+    protected Element resultElWithDocs;
     protected BatchConsumer consumer;
 
-    public UpdateSolrBatch(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
+    public UpdateSolrBatch(ProcessConfig processConfig, Element resultElWithDocs, BatchConsumer consumer) {
         this.config = processConfig;
-        this.resultElement = resultElem;
+        this.resultElWithDocs = resultElWithDocs;
         this.consumer = consumer;
     }
 
@@ -35,7 +35,7 @@ public class UpdateSolrBatch {
 
     protected Document createBatch(boolean editMode) throws ParserConfigurationException {
         Document destBatch = XMLUtils.crateDocument("add");
-        List<Element> docs = XMLUtils.getElements(this.resultElement, new XMLUtils.ElementsFilter() {
+        List<Element> docs = XMLUtils.getElements(this.resultElWithDocs, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element elm) {
                 return  (elm.getNodeName().equals("doc"));

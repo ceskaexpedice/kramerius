@@ -223,9 +223,9 @@ public abstract class Worker implements Runnable {
                 int from = i*batchSize;
                 int to = from + batchSize;
                 try {
-                    List<IterationItem> subitems = itemsToBeProcessed.subList(from, Math.min(to,itemsToBeProcessed.size() ));
+                    List<IterationItem> subItems = itemsToBeProcessed.subList(from, Math.min(to,itemsToBeProcessed.size() ));
                     /** Fetching documents from remote library */
-                    WorkerContext simpleCopyContext = createContext(subitems);
+                    WorkerContext simpleCopyContext = createContext(subItems);
 
                     if (!simpleCopyContext.getNotIndexed().isEmpty()) {
 
@@ -237,24 +237,21 @@ public abstract class Worker implements Runnable {
                         //List<String> identifiers = getNotIndexedIdentifiers(simpleCopyContext);
 
                         Element response = fetchDocumentFromRemoteSOLR( this.client,  getNotIndexedIdentifiers(simpleCopyContext) , fl);
-                        Element resultElem = XMLUtils.findElement(response, (elm) -> {
+                        Element resultElWithDocsToAdd = XMLUtils.findElement(response, (elm) -> {
                             return elm.getNodeName().equals("result");
                         });
 
-                        // TODO : factory metodu
-                        // Batch batchFact = createBatch(processingConfig, resultElem);
-                        // batchFact.createForIndex();
-                        UpdateSolrBatch batchFact = new UpdateSolrBatch(processConfig, resultElem, createNewIndexedBatchConsumer());
-                        Document batch = batchFact.createBatchForInsert();
+                        UpdateSolrBatch updateSolrBatch = new UpdateSolrBatch(processConfig, resultElWithDocsToAdd, createNewIndexedBatchConsumer());
+                        Document batchForInsert = updateSolrBatch.createBatchForInsert();
 
-                        Element addDocument = batch.getDocumentElement();
+                        Element addDocument = batchForInsert.getDocumentElement();
                         // on index - remove element
                         onIndexRemoveEvent(addDocument);
                         // on index update element
                         onIndexUpdateEvent(addDocument);
 
                         String destinationUrl = processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl();
-                        String s = SolrUtils.sendToDest(destinationUrl, this.client, batch);
+                        String s = SolrUtils.sendToDest(destinationUrl, this.client, batchForInsert);
                         LOGGER.info(s);
                     }
 
@@ -266,32 +263,31 @@ public abstract class Worker implements Runnable {
                         /** Updating fields */
                         String fl = config.getDestinationConfig().getOnUpdateFieldList() != null ? config.getDestinationConfig().getOnUpdateFieldList() : null;
                         /** Destinatination batch */
-                        Document destBatch = null;
+                        Document batchForUpdate = null;
                         if (fl != null) {
                             /** already indexed pids */
                             List<String> identifiers = getIndexedIdentifiers(simpleCopyContext);
                             /** Fetch documents from source library */
                             Element response2 = fetchDocumentFromRemoteSOLR( this.client,  identifiers, fl);
-                            Element resultElem2 = XMLUtils.findElement(response2, (elm) -> {
+                            Element resultElWithDocsToUpdate = XMLUtils.findElement(response2, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
                             /** Construct final batch */
-                            //    public UpdateSolrBatch(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
-                            UpdateSolrBatch batch = new UpdateSolrBatch(processConfig, resultElem2, createAlreadyIndexedBatchConsumer());
-                            destBatch = batch.createBatchForUpdate();
+                            UpdateSolrBatch updateSolrBatch = new UpdateSolrBatch(processConfig, resultElWithDocsToUpdate, createAlreadyIndexedBatchConsumer());
+                            batchForUpdate = updateSolrBatch.createBatchForUpdate();
 
                         } else {
                             /** If there is no update list, then no update */
                             Document db = XMLUtils.crateDocument("add");
-                            destBatch = db;
+                            batchForUpdate = db;
                         }
 
                         // do only if fl != null ||
                         boolean doUpdate = !config.getDestinationConfig().getOnUpdateUpdateElements().isEmpty() || StringUtils.isAnyString(fl);
                         if (doUpdate) {
-                            Element addDocument = destBatch.getDocumentElement();
+                            Element addDocument = batchForUpdate.getDocumentElement();
                             onUpdateEvent(addDocument);
-                            String s = SolrUtils.sendToDest(this.config.getDestinationConfig().getDestinationUrl(), this.client, destBatch);
+                            String s = SolrUtils.sendToDest(this.config.getDestinationConfig().getDestinationUrl(), this.client, batchForUpdate);
                             LOGGER.info(s);
                         } else {
                             LOGGER.info("No update");
