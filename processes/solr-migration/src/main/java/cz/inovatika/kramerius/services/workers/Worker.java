@@ -76,12 +76,12 @@ public abstract class Worker implements Runnable {
     }
 
     // --- Events --
-    protected void onUpdateEvent(Element addDocument) {
+    protected void onUpdateEvent(Element batchWithSolrAdds) {
         List<Element> onUpdateUpdateElements = config.getDestinationConfig().getOnUpdateUpdateElements();
         onUpdateUpdateElements.stream().forEach(f->{
             synchronized (f.getOwnerDocument()) {
                 String name = f.getAttribute("name");
-                List<Element> docs = XMLUtils.getElements(addDocument);
+                List<Element> docs = XMLUtils.getElements(batchWithSolrAdds);
                 for (int j = 0,ll=docs.size(); j < ll; j++) {
                     Element doc = docs.get(j);
                     Node node = f.cloneNode(true);
@@ -92,11 +92,11 @@ public abstract class Worker implements Runnable {
         });
     }
 
-    protected void onIndexUpdateEvent(Element addDocument) {
+    protected void onIndexUpdateEvent(Element batchWithSolrAdds) {
         List<Element> onIndexEventUpdateElms = config.getDestinationConfig().getOnIndexEventUpdateElms();
         onIndexEventUpdateElms.stream().forEach(f->{
             synchronized (f.getOwnerDocument()) {
-                List<Element> docs = XMLUtils.getElements(addDocument);
+                List<Element> docs = XMLUtils.getElements(batchWithSolrAdds);
                 for (int j = 0,ll=docs.size(); j < ll; j++) {
                     Element doc = docs.get(j);
                     Node node = f.cloneNode(true);
@@ -107,13 +107,13 @@ public abstract class Worker implements Runnable {
         });
     }
 
-    protected void onIndexRemoveEvent(Element addDocument) {
+    protected void onIndexRemoveEvent(Element batchWithSolrAdds) {
         List<Element> onIndexEventRemoveElms = config.getDestinationConfig().getOnIndexEventRemoveElms();
         onIndexEventRemoveElms.stream().forEach(f->{
             synchronized (f.getOwnerDocument()) {
                 String name = f.getAttribute("name");
                 // iterating over doc
-                List<Element> docs = XMLUtils.getElements(addDocument);
+                List<Element> docs = XMLUtils.getElements(batchWithSolrAdds);
                 for (int j = 0,ll=docs.size(); j < ll; j++) {
                     Element doc = docs.get(j);
                     List<Element> fields = XMLUtils.getElements(doc);
@@ -128,7 +128,7 @@ public abstract class Worker implements Runnable {
         });
     }
 
-    protected Element fetchDocumentFromRemoteSOLR(Client client, List<String> pids, String fieldlist)
+    protected Element fetchDocsFromSourceSolr(Client client, List<String> pids, String fieldlist)
             throws IOException, SAXException, ParserConfigurationException {
         String idIdentifier = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
 
@@ -234,9 +234,7 @@ public abstract class Worker implements Runnable {
                         String fieldList = config.getRequestConfig().getFieldList();
                         String fl =  onIndexedFieldList != null ? onIndexedFieldList : fieldList;
 
-                        //List<String> identifiers = getNotIndexedIdentifiers(simpleCopyContext);
-
-                        Element response = fetchDocumentFromRemoteSOLR( this.client,  getNotIndexedIdentifiers(simpleCopyContext) , fl);
+                        Element response = fetchDocsFromSourceSolr( this.client,  getNotIndexedIdentifiers(simpleCopyContext) , fl);
                         Element resultElWithDocsToAdd = XMLUtils.findElement(response, (elm) -> {
                             return elm.getNodeName().equals("result");
                         });
@@ -244,11 +242,9 @@ public abstract class Worker implements Runnable {
                         UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(processConfig, resultElWithDocsToAdd, createNewIndexedBatchConsumer());
                         Document batchForInsert = updateSolrBatchCreator.createBatchForInsert();
 
-                        Element addDocument = batchForInsert.getDocumentElement();
-                        // on index - remove element
-                        onIndexRemoveEvent(addDocument);
-                        // on index update element
-                        onIndexUpdateEvent(addDocument);
+                        Element batchForInsertEl = batchForInsert.getDocumentElement();
+                        onIndexRemoveEvent(batchForInsertEl);
+                        onIndexUpdateEvent(batchForInsertEl);
 
                         String destinationUrl = processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl();
                         String s = SolrUtils.sendToDest(destinationUrl, this.client, batchForInsert);
@@ -268,11 +264,10 @@ public abstract class Worker implements Runnable {
                             /** already indexed pids */
                             List<String> identifiers = getIndexedIdentifiers(simpleCopyContext);
                             /** Fetch documents from source library */
-                            Element response2 = fetchDocumentFromRemoteSOLR( this.client,  identifiers, fl);
+                            Element response2 = fetchDocsFromSourceSolr( this.client,  identifiers, fl);
                             Element resultElWithDocsToUpdate = XMLUtils.findElement(response2, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
-                            /** Construct final batch */
                             UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(processConfig, resultElWithDocsToUpdate, createAlreadyIndexedBatchConsumer());
                             batchForUpdate = updateSolrBatchCreator.createBatchForUpdate();
 

@@ -85,7 +85,7 @@ public class CDKCopyWorker extends Worker {
                         String fl = onIndexedFieldList != null ? onIndexedFieldList : fieldList;
 
                         /** Fetching documents from remote library */
-                        Element response = fetchDocumentFromRemoteSOLR( this.client,  cdkReplicateContext.getNotIndexed().stream().map(IterationItem::getPid).collect(Collectors.toList()), fl);
+                        Element response = fetchDocsFromSourceSolr( this.client,  cdkReplicateContext.getNotIndexed().stream().map(IterationItem::getPid).collect(Collectors.toList()), fl);
                         Element resultElem = XMLUtils.findElement(response, (elm) -> {
                             return elm.getNodeName().equals("result");
                         });
@@ -205,7 +205,7 @@ public class CDKCopyWorker extends Worker {
                                 /** Indexed records as map */
                                 Map<String, IndexedRecord> alreadyIndexedAsMap = cdkReplicateContext.getAlreadyIndexedAsMap();
                                 /** Fetch documents from source library */
-                                Element response = fetchDocumentFromRemoteSOLR( this.client,  pids, fl);
+                                Element response = fetchDocsFromSourceSolr( this.client,  pids, fl);
                                 Element resultElem = XMLUtils.findElement(response, (elm) -> {
                                     return elm.getNodeName().equals("result");
                                 });

@@ -65,7 +65,7 @@ public class UpdateSolrBatchCreator {
         return destBatch;
     }
 
-    public void simpleValue(boolean edit, Document feedDoc, Element feedDocElm, Node node, String derivedName, BatchConsumer consumer) {
+    private void simpleValue(boolean edit, Document feedDoc, Element feedDocElm, Node node, String derivedName, BatchConsumer consumer) {
         boolean compositeId = this.config.getWorkerConfig().getRequestConfig().isCompositeId();
         String idIdentifier = this.config.getWorkerConfig().getRequestConfig().getIdIdentifier();
 
@@ -107,7 +107,7 @@ public class UpdateSolrBatchCreator {
         }
     }
 
-    public void convertSourceToTargetFields(boolean edit, Element sourceDocElm, Document destDocument, Element destDocElem, BatchConsumer consumer)  {
+    private void convertSourceToTargetFields(boolean edit, Element sourceDocElm, Document destDocument, Element destDocElem, BatchConsumer consumer)  {
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
             for (int j = 0,lj=childNodes.getLength(); j < lj; j++) {
