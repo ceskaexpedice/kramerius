@@ -8,7 +8,7 @@ import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.utils.ResultsUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
 import cz.inovatika.kramerius.services.workers.*;
-import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatch;
+import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatchCreator;
 import cz.inovatika.kramerius.services.workers.copy.CopyWorker;
 import cz.inovatika.kramerius.services.workers.copy.CopyWorkerContext;
 import org.w3c.dom.Document;
@@ -106,7 +106,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
                             return elm.getNodeName().equals("result");
                         });
 
-                        UpdateSolrBatch batchFact = new UpdateSolrBatch(processConfig, resultElem, null);
+                        UpdateSolrBatchCreator batchFact = new UpdateSolrBatchCreator(processConfig, resultElem, null);
                         Document batch = batchFact.createBatchForInsert();
 
                         Element addDocument = batch.getDocumentElement();
@@ -130,7 +130,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
                             Element resultElem2 = XMLUtils.findElement(response2, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
-                            UpdateSolrBatch batch = new UpdateSolrBatch(processConfig, resultElem2, null);
+                            UpdateSolrBatchCreator batch = new UpdateSolrBatchCreator(processConfig, resultElem2, null);
                             destBatch = batch.createBatchForUpdate();
 
                         } else {

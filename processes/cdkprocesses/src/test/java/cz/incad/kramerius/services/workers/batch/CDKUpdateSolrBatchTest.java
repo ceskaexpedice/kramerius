@@ -39,7 +39,7 @@ public class CDKUpdateSolrBatchTest {
             } else return false;
         });
 
-        CDKUpdateSolrBatch updateSolrBatch = new CDKUpdateSolrBatch(null, config,result);
+        CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(null, config,result);
         Document batch = updateSolrBatch.createBatchForInsert();
 
 
@@ -132,7 +132,7 @@ public class CDKUpdateSolrBatchTest {
 
         CDKWorkerIndexedItem indexedItem = new CDKWorkerIndexedItem("uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf!uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf", cdkDoc);
         CDKCopyContext ctx = new CDKCopyContext(Arrays.asList(item), Arrays.asList(indexedItem), new ArrayList<>(), new ArrayList<>());
-        CDKUpdateSolrBatch updateSolrBatch = new CDKUpdateSolrBatch(ctx, config,result);
+        CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(ctx, config,result);
         Document batch = updateSolrBatch.createBatchForUpdate();
 
 

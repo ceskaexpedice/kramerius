@@ -2,7 +2,7 @@ package cz.incad.kramerius.services.workers.copy.cdk;
 
 import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.utils.ResultsUtils;
-import cz.incad.kramerius.services.workers.batch.CDKUpdateSolrBatch;
+import cz.incad.kramerius.services.workers.batch.CDKUpdateSolrBatchCreator;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictWorkerItem;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.StringUtils;
@@ -20,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyContext> {
 
-    private static Logger LOGGER = Logger.getLogger(CDKCopyWorker.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CDKCopyWorker.class.getName());
 
     public CDKCopyWorker(ProcessConfig processConfig, Client client, List<IterationItem> items, WorkerFinisher finisher) {
         super(processConfig, client, items, finisher);
@@ -74,7 +75,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                         });
 
                         // Create batch; no trasnformers
-                        CDKUpdateSolrBatch updateSolrBatch = new CDKUpdateSolrBatch(cdkReplicateContext, processConfig,resultElem);
+                        CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(cdkReplicateContext, processConfig,resultElem);
                         Document batch = updateSolrBatch.createBatchForInsert();
 
                         Element addDocument = batch.getDocumentElement();
@@ -98,14 +99,13 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                         // On update elements must not be empty
                         if (!onUpdateUpdateElements.isEmpty()) {
                             /** Updating fields */
-                            String fl = onUpdateFieldList != null ? onUpdateFieldList : null;
+                            String fl = onUpdateFieldList;
                             /** Destinatination batch */
                             Document destBatch = null;
                             if (fl != null) {
                                 /** already indexed pids */
                                 List<String> pids = cdkReplicateContext.getAlreadyIndexed().stream().map(ir->{
-                                    String string = ir.getPid();
-                                    return string;
+                                    return ir.getPid();
                                 }).collect(Collectors.toList());
                                 /** Indexed records as map */
                                 Map<String, CDKWorkerIndexedItem> alreadyIndexedAsMap = cdkReplicateContext.getAlreadyIndexedAsMap();
@@ -115,17 +115,21 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                                     return elm.getNodeName().equals("result");
                                 });
 
-                                CDKUpdateSolrBatch updateSolrBatch = new CDKUpdateSolrBatch(cdkReplicateContext, processConfig,resultElem);
+                                CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(cdkReplicateContext, processConfig,resultElem);
                             } else {
                                 /** If there is no update list, then no update */
                                 Document db = XMLUtils.crateDocument("add");
                                 destBatch = db;
                         	}
 
-                            Element addDocument = destBatch.getDocumentElement();
-                            onUpdateEvent(addDocument);
-                            CDKCopyFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
-                            String s = KubernetesSolrUtils.sendToDest(config.getDestinationConfig().getDestinationUrl() , this.client, destBatch);
+                            if (destBatch != null) {
+                                Element addDocument = destBatch.getDocumentElement();
+                                onUpdateEvent(addDocument);
+                                CDKCopyFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
+                                String s = KubernetesSolrUtils.sendToDest(config.getDestinationConfig().getDestinationUrl() , this.client, destBatch);
+                            } else {
+                                LOGGER.warning("No batch for update");
+                            }
                         } else {
                             // no update
                             LOGGER.info("No update element ");
@@ -145,15 +149,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                             newConflictRecord.reharvestConflict(client, "-reharvest api-");
                         });
                     }
-                } catch (ParserConfigurationException e) {
-                    LOGGER.log(Level.SEVERE,"Informing about exception");
-                    finisher.exceptionDuringCrawl(e);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } catch (SAXException e) {
-                    LOGGER.log(Level.SEVERE,"Informing about exception");
-                    finisher.exceptionDuringCrawl(e);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                } catch (IOException e) {
+                } catch (ParserConfigurationException | SAXException | IOException e) {
                     LOGGER.log(Level.SEVERE,"Informing about exception");
                     finisher.exceptionDuringCrawl(e);
                     LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -166,9 +162,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
         } finally {
             try {
                 this.barrier.await();
-            } catch (InterruptedException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            } catch (BrokenBarrierException e) {
+            } catch (InterruptedException | BrokenBarrierException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(),e);
             }
             LOGGER.info(String.format("Worker finished; All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  CDKCopyFinisher.WORKERS.get(), CDKCopyFinisher.BATCHES.get(), CDKCopyFinisher.NEWINDEXED.get(), CDKCopyFinisher.UPDATED.get(), CDKCopyFinisher.NOT_INDEXED_COMPOSITEID.get()));
@@ -188,13 +182,13 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
         boolean compositeId = this.config.getRequestConfig().isCompositeId();
 
         List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
-        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+computedFields.stream().collect(Collectors.joining(" "));
+        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+ String.join(" ", computedFields);
         if (compositeId) {
             fieldlist = fieldlist + " " + " root.pid compositeId";
         }
 
-        String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, "UTF-8")
-                + ")&fl=" + URLEncoder.encode(fieldlist, "UTF-8") + "&wt=xml&rows=" + subitems.size();
+        String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, StandardCharsets.UTF_8)
+                + ")&fl=" + URLEncoder.encode(fieldlist, StandardCharsets.UTF_8) + "&wt=xml&rows=" + subitems.size();
 
         String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
         Element resultElem = XMLUtils.findElement(KubernetesSolrUtils.executeQueryJersey(client, checkUrl, query),
@@ -203,10 +197,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                 });
 
         List<Element> docElms = XMLUtils.getElements(resultElem);
-        List<Map<String, Object>>  docs = docElms.stream().map(d -> {
-            Map<String, Object> map = ResultsUtils.doc(d);
-            return map;
-        }).collect(Collectors.toList());
+        List<Map<String, Object>>  docs = docElms.stream().map(ResultsUtils::doc).collect(Collectors.toList());
 
 
         List<CDKWorkerIndexedItem> indexedRecordList = new ArrayList<>();
@@ -214,10 +205,10 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
         List<CDKExistingConflictWorkerItem> econflicts = findIndexConflict(docs);
         removePids(econflicts, docs);
 
-        List<String> econflictPids = econflicts.stream().map(CDKExistingConflictWorkerItem::getPid).collect(Collectors.toList());
+        List<String> econflictPids = econflicts.stream().map(CDKExistingConflictWorkerItem::getPid).toList();
 
         // found indexed & not indexed records
-        docElms.stream().forEach(d -> {
+        docElms.forEach(d -> {
             Map<String, Object> map = ResultsUtils.doc(d);
 
             Element collection = XMLUtils.findElement(d, e -> {
@@ -229,7 +220,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
             }
 
             // computed fields
-            computedFields.stream().forEach(it-> computedField(d, map,it));
+            computedFields.forEach(it-> computedField(d, map,it));
 
             CDKWorkerIndexedItem record = new CDKWorkerIndexedItem((String)map.get("pid"), map);
             if (!econflictPids.contains(record.getPid())) {
@@ -237,9 +228,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
             }
         });
 
-        List<String> pidsFromLocalSolr = indexedRecordList.stream().map(m -> {
-            return m.getPid();
-        }).collect(Collectors.toList());
+        List<String> pidsFromLocalSolr = indexedRecordList.stream().map(CDKWorkerIndexedItem::getPid).toList();
 
         List<IterationItem> notindexed = new ArrayList<>();
         subitems.forEach(item -> {

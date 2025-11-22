@@ -31,9 +31,9 @@ public class BatchTest {
         Document configDoc = XMLUtils.parseDocument(configStream);
         ProcessConfig config = ProcessConfigParser.parse(configDoc.getDocumentElement());
 
-        UpdateSolrBatch batch = new UpdateSolrBatch(config, result, null);
-        Document batchDocument = batch.createBatchForInsert();
-        List<Element> docs = XMLUtils.getElementsRecursive(batchDocument.getDocumentElement(), paramElement -> paramElement.getNodeName().equals("doc"));
+        UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(config, result, null);
+        Document batchForInsert = updateSolrBatchCreator.createBatchForInsert();
+        List<Element> docs = XMLUtils.getElementsRecursive(batchForInsert.getDocumentElement(), paramElement -> paramElement.getNodeName().equals("doc"));
         for (Element doc : docs) {
             List<Element> fields = XMLUtils.getElements(doc, paramElement -> paramElement.getNodeName().equals("field"));
             for (Element field : fields) {
@@ -57,9 +57,9 @@ public class BatchTest {
         ProcessConfig config = ProcessConfigParser.parse(configDoc.getDocumentElement());
 
 
-        UpdateSolrBatch batch = new UpdateSolrBatch(config, result, null);
-        Document batchDocument = batch.createBatchForUpdate();
-        List<Element> docs = XMLUtils.getElementsRecursive(batchDocument.getDocumentElement(), paramElement -> paramElement.getNodeName().equals("doc"));
+        UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(config, result, null);
+        Document batchForUpdate = updateSolrBatchCreator.createBatchForUpdate();
+        List<Element> docs = XMLUtils.getElementsRecursive(batchForUpdate.getDocumentElement(), paramElement -> paramElement.getNodeName().equals("doc"));
         for (Element doc : docs) {
             List<Element> fields = XMLUtils.getElements(doc, paramElement -> paramElement.getNodeName().equals("field"));
             for (Element field : fields) {
@@ -74,6 +74,6 @@ public class BatchTest {
         }
 
 
-        XMLUtils.print(batchDocument, System.out);
+        XMLUtils.print(batchForUpdate, System.out);
     }
 }

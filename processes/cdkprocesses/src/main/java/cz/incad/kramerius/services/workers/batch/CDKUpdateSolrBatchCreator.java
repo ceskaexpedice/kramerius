@@ -4,7 +4,8 @@ import cz.incad.kramerius.services.workers.copy.cdk.CDKCopyContext;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatch;
+import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
+import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatchCreator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,11 +17,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CDKUpdateSolrBatch extends UpdateSolrBatch {
+public class CDKUpdateSolrBatchCreator extends UpdateSolrBatchCreator {
 
     private CDKCopyContext context;
 
-    public CDKUpdateSolrBatch(CDKCopyContext context, ProcessConfig processConfig, Element resultElem) {
+    public CDKUpdateSolrBatchCreator(CDKCopyContext context, ProcessConfig processConfig, Element resultElem) {
         super(processConfig, resultElem, null);
         this.context = context;
     }

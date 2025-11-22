@@ -12,7 +12,7 @@ import javax.xml.transform.TransformerException;
 import java.util.Arrays;
 import java.util.List;
 
-public class UpdateSolrBatch {
+public class UpdateSolrBatchCreator {
 
     private static final List<String> PRIMITIVE_FIELD_TYPES = Arrays.asList("str", "int", "bool", "date");
 
@@ -20,7 +20,7 @@ public class UpdateSolrBatch {
     protected Element resultElement;
     protected BatchConsumer consumer;
 
-    public UpdateSolrBatch(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
+    public UpdateSolrBatchCreator(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
         this.config = processConfig;
         this.resultElement = resultElem;
         this.consumer = consumer;
