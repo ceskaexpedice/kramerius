@@ -9,7 +9,6 @@ import cz.inovatika.kramerius.services.config.ProcessConfigParser;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
