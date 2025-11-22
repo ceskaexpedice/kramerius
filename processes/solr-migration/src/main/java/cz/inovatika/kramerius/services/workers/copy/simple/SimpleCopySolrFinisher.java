@@ -1,8 +1,7 @@
-package cz.inovatika.kramerius.services.workers.copy;
+package cz.inovatika.kramerius.services.workers.copy.simple;
 
 import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 

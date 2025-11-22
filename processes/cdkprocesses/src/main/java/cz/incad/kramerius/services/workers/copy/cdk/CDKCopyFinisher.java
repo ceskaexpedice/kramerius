@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.replicate;
+package cz.incad.kramerius.services.workers.copy.cdk;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -7,11 +7,8 @@ import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 
-import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,22 +17,17 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
 
-public class ReplicateFinisher   extends WorkerFinisher {
+public class CDKCopyFinisher extends WorkerFinisher {
 
-    public static final Logger LOGGER = Logger.getLogger(ReplicateFinisher.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(CDKCopyFinisher.class.getName());
 
-    // celkova prace predena workerum
     public static AtomicInteger WORKERS = new AtomicInteger(0);
 
-    // rozdeleno do davek
     public static AtomicInteger BATCHES = new AtomicInteger(0);
 
-    // indexovano
     public static AtomicInteger NEWINDEXED = new AtomicInteger(0);
 
-    // updatovano
     public static AtomicInteger UPDATED = new AtomicInteger(0);
-    
 
     // not indexed - composite id
     public static AtomicInteger NOT_INDEXED_COMPOSITEID = new AtomicInteger(0);
@@ -51,7 +43,7 @@ public class ReplicateFinisher   extends WorkerFinisher {
     //protected String typeOfCrawl;
 
     
-    public ReplicateFinisher(ProcessConfig config, Client client) {
+    public CDKCopyFinisher(ProcessConfig config, Client client) {
         super(config, client);
 
 //        Element typeElm = XMLUtils.findElement((Element)workerElm.getParentNode(), "type");

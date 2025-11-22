@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +45,6 @@ public class UpdateSolrBatch {
 
         for (Element sourceDocElm : docs) {
             Element destDocElement = destBatch.createElement("doc");
-
             this.convertSourceToTargetFields(editMode, sourceDocElm, destBatch, destDocElement,consumer);
 
             boolean compositeId = config.getWorkerConfig().getRequestConfig().isCompositeId();
@@ -53,9 +53,7 @@ public class UpdateSolrBatch {
 
             if (compositeId && root != null && child != null) {
                 boolean b = enhanceByCompositeId(destBatch, destDocElement, root, child);
-                if (b) {
-                    destBatch.getDocumentElement().appendChild(destDocElement);
-                }
+                destBatch.getDocumentElement().appendChild(destDocElement);
             } else {
                 destBatch.getDocumentElement().appendChild(destDocElement);
             }
@@ -107,7 +105,7 @@ public class UpdateSolrBatch {
         }
     }
 
-    public void convertSourceToTargetFields(boolean edit, Element sourceDocElm, Document destDocument, Element destDocElem, BatchConsumer consumer)  {
+    public void convertSourceToTargetFields(boolean edit, Element sourceDocElm, Document destBatch, Element destDocElem, BatchConsumer consumer)  {
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
             for (int j = 0,lj=childNodes.getLength(); j < lj; j++) {
@@ -115,14 +113,15 @@ public class UpdateSolrBatch {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     List<String> primitiveVals = Arrays.asList("str","int","bool", "date");
                     if (primitiveVals.contains(node.getNodeName())) {
-                        simpleValue(edit, destDocument,destDocElem, node,null,  consumer);
+                        simpleValue(edit, destBatch,destDocElem, node,null,  consumer);
                     } else {
-                        arrayValue(edit, sourceDocElm, destDocument,destDocElem,node, consumer);
+                        arrayValue(edit, sourceDocElm, destBatch,destDocElem,node, consumer);
                     }
                 }
             }
         }
     }
+
 
 
     private static boolean enhanceByCompositeId(Document ndoc,Element docElm, String root, String child) {

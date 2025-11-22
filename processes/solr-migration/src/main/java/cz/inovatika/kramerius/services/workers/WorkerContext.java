@@ -2,27 +2,17 @@ package cz.inovatika.kramerius.services.workers;
 
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-public class WorkerContext {
+public abstract class WorkerContext {
 
-    protected List<WorkerIndexedItem> workerIndexedItems = new ArrayList<>();
-    protected List<IterationItem> notIndexed= new ArrayList<>();
+    protected List<IterationItem> batchItems;
 
-    public WorkerContext(List<WorkerIndexedItem> alreadyIndexed, List<IterationItem> notIndexed) {
-        this.workerIndexedItems = alreadyIndexed;
-        this.notIndexed = notIndexed;
+    public WorkerContext(List<IterationItem> allItems) {
+        this.batchItems = allItems;
     }
 
-    public List<WorkerIndexedItem> getAlreadyIndexed() {
-        return workerIndexedItems;
-    }
-
-
-    public List<IterationItem> getNotIndexed() {
-        return notIndexed;
+    public List<IterationItem> getBatchItems() {
+        return batchItems;
     }
 }

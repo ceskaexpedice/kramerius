@@ -26,7 +26,7 @@
     </iteration>
 	
 
-    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CDKCopySolrWorkerFactory"></workerFactory>
+    <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
     <worker>
         <request>
 

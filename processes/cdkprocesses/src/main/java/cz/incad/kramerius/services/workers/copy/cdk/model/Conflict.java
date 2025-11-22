@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.services.workers.replicate.records;
+package cz.incad.kramerius.services.workers.copy.cdk.model;
 
 import com.sun.jersey.api.client.Client;
 

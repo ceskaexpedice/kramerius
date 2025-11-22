@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services.workers.replicate.copy;
+package cz.incad.kramerius.services.workers.copy.cdk;
 
 import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
@@ -12,12 +12,10 @@ import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
 import java.util.List;
 
 public class CDKCopySolrWorkerFactory extends WorkerFactory {
-
     @Override
     public Worker createWorker(ProcessConfig processConfig, ProcessIterator iteratorInstance, Client client, List<IterationItem> pids, WorkerFinisher finisher) {
         return new CDKCopyWorker(processConfig, client, pids, finisher);
     }
-
     @Override
     public WorkerFinisher createFinisher(ProcessConfig processConfig, Client client) {
         return null;

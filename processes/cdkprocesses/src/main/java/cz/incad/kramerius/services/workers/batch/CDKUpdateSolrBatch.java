@@ -1,13 +1,16 @@
 package cz.incad.kramerius.services.workers.batch;
 
+import cz.incad.kramerius.services.workers.copy.cdk.CDKCopyContext;
+import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
 import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatch;
+import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -15,8 +18,15 @@ import java.util.stream.Collectors;
 
 public class CDKUpdateSolrBatch extends UpdateSolrBatch {
 
-    public CDKUpdateSolrBatch(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
-        super(processConfig, resultElem, consumer);
+    private CDKCopyContext context;
+
+    public CDKUpdateSolrBatch(CDKCopyContext context, ProcessConfig processConfig, Element resultElem) {
+        super(processConfig, resultElem, null);
+        this.context = context;
+    }
+
+    public CDKCopyContext getContext() {
+        return context;
     }
 
     @Override
@@ -79,13 +89,13 @@ public class CDKUpdateSolrBatch extends UpdateSolrBatch {
 
             //--- Licenses; preparing data for cdk.licenses ---
             List<String> licenses = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
-
                 @Override
                 public boolean acceptElement(Element element) {
                     String attribute = element.getAttribute("name");
                     return "licenses".equals(attribute);
                 }
             }).stream().map(Element::getTextContent).collect(Collectors.toList());
+
             for (String license : licenses) {
                 Document document = doc.getOwnerDocument();
                 Element cdkLicenses = document.createElement("field");
@@ -94,6 +104,59 @@ public class CDKUpdateSolrBatch extends UpdateSolrBatch {
                 doc.appendChild(cdkLicenses);
             }
             // ----
+
+            // --- has_tiles; count_*
+            List<String> hasTiles = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String attribute = element.getAttribute("name");
+                    return "has_tiles".equals(attribute);
+                }
+            }).stream().map(Element::getTextContent).collect(Collectors.toList());
+            if (!hasTiles.isEmpty()) {
+                Document document = doc.getOwnerDocument();
+                Element cdkHastiles = document.createElement("field");
+                cdkHastiles.setAttribute("name", "cdk."+"has_tiles_"+config.getSourceName());
+                cdkHastiles.setTextContent(hasTiles.getFirst());
+                doc.appendChild(cdkHastiles);
+
+            }
+
+            List<Element> count_fields = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String attribute = element.getAttribute("name");
+                    return attribute.startsWith("count_");
+                }
+            }).stream().collect(Collectors.toList());
+
+            for (Element count_field : count_fields) {
+                String name = "cdk."+count_field.getAttribute("name")+"_"+config.getSourceName();
+                String value =  count_field.getTextContent();
+
+                Document document = doc.getOwnerDocument();
+                Element cdkCountFields = document.createElement("field");
+                cdkCountFields.setAttribute("name", name);
+                cdkCountFields.setTextContent(value);
+                doc.appendChild(cdkCountFields);
+            }
+            // ---
+
+
+
+            // --- cdk leader & cdk.collection
+            Document document = doc.getOwnerDocument();
+            Element cdkLeader = document.createElement("field");
+            cdkLeader.setAttribute("name", "cdk.leader");
+            cdkLeader.setTextContent(config.getSourceName());
+            doc.appendChild(cdkLeader);
+
+            Element cdkCollection = document.createElement("field");
+            cdkCollection.setAttribute("name", "cdk.collection");
+            cdkCollection.setTextContent(config.getSourceName());
+            doc.appendChild(cdkCollection);
+            // ---
+
         }
         return batch;
     }
@@ -116,6 +179,8 @@ public class CDKUpdateSolrBatch extends UpdateSolrBatch {
                 "authors",
                 "authors.search",
                 "authors.facet",
+                "authors.aut.identifiers",
+                "authors.aut.facet",
 
                 "cdk.k5.license.translated",
                 "cdk.licenses");
@@ -132,12 +197,192 @@ public class CDKUpdateSolrBatch extends UpdateSolrBatch {
 
     @Override
     public Document createBatchForUpdate() throws ParserConfigurationException {
+
         Document batch = super.createBatchForUpdate();
+
+
         List<Element> docs = XMLUtils.getElementsRecursive(batch.getDocumentElement(), element -> {
             return element.getNodeName().equals("doc");
         });
-        // From batch utils
+        for (Element doc : docs) {
+
+            Element compositeIdElm = XMLUtils.findElement(doc, field -> {
+                return field.getAttribute("name").equals("compositeId");
+            });
+            Element pidElm = XMLUtils.findElement(doc, field -> {
+                return field.getAttribute("name").equals("pid");
+            });
+
+            // indexed
+            Instant instant = new Date().toInstant();
+            Element fieldDate = doc.getOwnerDocument().createElement("field");
+            fieldDate.setAttribute("name", "indexed");
+            fieldDate.setAttribute("update", "set");
+            fieldDate.setTextContent(DateTimeFormatter.ISO_INSTANT.format(instant));
+            doc.appendChild(fieldDate);
+
+
+            Element cdkCollection = doc.getOwnerDocument().createElement("field");
+            cdkCollection.setAttribute("name", "cdk.collection");
+            cdkCollection.setAttribute("update", "add-distinct");
+            cdkCollection.setTextContent(config.getSourceName());
+            doc.appendChild(cdkCollection);
+
+
+            // --- has_tiles; count_*
+            List<String> hasTiles = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String attribute = element.getAttribute("name");
+                    return "has_tiles".equals(attribute);
+                }
+            }).stream().map(Element::getTextContent).collect(Collectors.toList());
+            if (!hasTiles.isEmpty()) {
+                Document document = doc.getOwnerDocument();
+                Element cdkHastiles = document.createElement("field");
+                cdkHastiles.setAttribute("name", "cdk."+"has_tiles_"+config.getSourceName());
+                cdkHastiles.setAttribute("update", "set");
+                cdkHastiles.setTextContent(hasTiles.getFirst());
+                doc.appendChild(cdkHastiles);
+
+            }
+
+            List<Element> count_fields = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String attribute = element.getAttribute("name");
+                    return attribute.startsWith("count_");
+                }
+            }).stream().collect(Collectors.toList());
+
+            for (Element count_field : count_fields) {
+                String name = "cdk."+count_field.getAttribute("name")+"_"+config.getSourceName();
+                String value =  count_field.getTextContent();
+
+                Document document = doc.getOwnerDocument();
+                Element cdkCountFields = document.createElement("field");
+                cdkCountFields.setAttribute("name", name);
+                cdkCountFields.setAttribute("update", "set");
+                cdkCountFields.setTextContent(value);
+                doc.appendChild(cdkCountFields);
+            }
+            // ---
+
+
+
+            List<Pair<String,String>> comparingFields = Arrays.asList(
+                    Pair.of("licenses", "cdk.licenses"),
+                    Pair.of("contains_licenses", "cdk.contains_licenses"),
+                    Pair.of("licenses_of_ancestors", "cdk.licenses_of_ancestors")
+            );
+            CDKWorkerIndexedItem cdkItem = null;
+            if (pidElm != null) {
+                cdkItem = this.context.getAlreadyIndexedAsItem(pidElm.getTextContent().trim());
+            } else if (compositeIdElm != null) {
+                String compositeId = compositeIdElm.getTextContent();
+                String[] splitted = compositeId.split("!");
+                if (splitted.length > 1) {
+                    cdkItem = this.context.getAlreadyIndexedAsItem(splitted[1].trim());
+                }
+            }
+            if (cdkItem != null) {
+                String id = cdkItem.getId();
+                if (compositeIdElm == null) {
+                    Document document = doc.getOwnerDocument();
+                    Element cdkCountFields = document.createElement("field");
+                    cdkCountFields.setAttribute("name", "compositeId");
+                    cdkCountFields.setTextContent(id);
+                    doc.appendChild(cdkCountFields);
+                }
+            }
+
+            Map<String, Object> cdkDoc = cdkItem.getDocument();
+            for (Pair<String,String> cpField : comparingFields) {
+
+                String sourceField = cpField.getLeft();
+                String specificCDKField = cpField.getRight();
+                List<Element> newIndexedField = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+                    @Override
+                    public boolean acceptElement(Element element) {
+                        String attribute = element.getAttribute("name");
+                        return sourceField.equals(attribute);
+                    }
+                });
+
+                Set<String> newCDKValues = new HashSet<>();
+                newCDKValues =  newIndexedField.stream().map(Element::getTextContent).map(cnt-> {
+                    return this.config.getSourceName()+"_"+cnt;
+                }).collect(Collectors.toSet());
+
+
+                Set<String> indexedCDKLicenses = cdkDoc.get(specificCDKField) != null ?  new HashSet<String>((List<String>)cdkDoc.get(specificCDKField)) : new HashSet<>();
+                indexedCDKLicenses.removeIf(item -> !item.startsWith(this.config.getSourceName() + "_"));
+                if (!indexedCDKLicenses.equals(newCDKValues)) {
+                    List<String> newList = new ArrayList<String>( cdkDoc.get(specificCDKField)  != null ?  (List<String>)cdkDoc.get(specificCDKField) : new ArrayList<>() );
+                    // remove everything what is prefixed
+                    newList.removeIf(item -> item.startsWith(this.config.getSourceName() + "_"));
+
+                    // add new indexed values
+                    newList.addAll(newCDKValues);
+
+
+                    for (Element nIF : newIndexedField) {
+                        doc.removeChild(nIF);
+                    }
+
+                    Set<String> tempSet = new HashSet<>();
+                    Document document = doc.getOwnerDocument();
+                    if (newList.size() > 0) {
+                        newList.stream().forEach(lic-> {
+
+                            Element cdkSpecific = document.createElement("field");
+                            cdkSpecific.setAttribute("name", specificCDKField);
+                            cdkSpecific.setAttribute("update", "set");
+                            cdkSpecific.setTextContent(lic);
+                            doc.appendChild(cdkSpecific);
+
+                            Pair<String, String> divided = divideLibraryAndLicense(lic);
+                            if (divided != null) {
+
+                                String rv = divided.getRight();
+                                if (!tempSet.contains(rv)) {
+                                    Element changedField = document.createElement("field");
+                                    changedField.setAttribute("name", sourceField);
+                                    changedField.setAttribute("update", "set");
+
+                                    changedField.setTextContent(rv);
+                                    doc.appendChild(changedField);
+
+                                    tempSet.add(rv);
+                                }
+                            }
+                        });
+                    } else {
+                        Element cdkSpecific = document.createElement("field");
+                        cdkSpecific.setAttribute("name", specificCDKField);
+                        cdkSpecific.setAttribute("update", "set");
+                        cdkSpecific.setAttribute("null", "true");
+                        doc.appendChild(cdkSpecific);
+
+                        Element changedField = document.createElement("field");
+                        changedField.setAttribute("name", sourceField);
+                        changedField.setAttribute("update", "set");
+                        changedField.setAttribute("null", "true");
+                        doc.appendChild(changedField);
+
+                    }
+                }
+            }
+        }
         return batch;
+    }
+
+    public static Pair<String,String> divideLibraryAndLicense(String cdklicense) {
+        if (cdklicense.contains("_")) {
+            int index = cdklicense.indexOf("_");
+            return Pair.of(cdklicense.substring(0, index), cdklicense.substring(index+1));
+        }
+        return null;
     }
 }
 

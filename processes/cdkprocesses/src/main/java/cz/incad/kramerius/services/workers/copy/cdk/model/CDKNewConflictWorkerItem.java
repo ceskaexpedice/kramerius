@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.services.workers.replicate.records;
+package cz.incad.kramerius.services.workers.copy.cdk.model;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -23,45 +23,22 @@ import cz.incad.kramerius.utils.StringUtils;
 
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Represents a newly detected conflict that arises during the indexing process.
- * <p>
- * A new conflict typically occurs when a PID (primary identifier) being indexed
- * is already used by a different model in the target system — i.e., the PID is already known,
- * but the related root object(s) (e.g., intellectual entities) differ.
- * </p>
- * This class extends {@link ReplicateRecord}, carrying the conflicting PID,
- * and adds information about the root PIDs of the models involved in the conflict.
- * These root PIDs help identify which models (e.g., monographs, periodicals) are in conflict.
- */
-public class NewConflictRecord extends ReplicateRecord implements Conflict {
+public class CDKNewConflictWorkerItem extends CDKWorkerIndexedItem implements Conflict {
 
-    public static final  Logger LOGGER = Logger.getLogger(NewConflictRecord.class.getName());
+    public static final  Logger LOGGER = Logger.getLogger(CDKNewConflictWorkerItem.class.getName());
 
-    /** List of root PIDs (e.g., top-level objects) related to the PID in conflict. */
     private List<String> rootPids;
 
-    /**
-     * Constructs a new conflict record
-     *
-     * @param pid The PID that is in conflict.
-     * @param rootPids The list of root PIDs (top-level models) associated with this conflict.
-     */
-    public NewConflictRecord(String pid, List<String> rootPids) {
-        super(pid);
+    public CDKNewConflictWorkerItem(String idField, List<String> rootPids, Map<String, Object> document) {
+        super(idField, document);
         this.rootPids = rootPids;
     }
 
-    /**
-     * Returns the list of root PIDs involved in this conflict.
-     * These typically identify the conflicting models sharing the same PID.
-     *
-     * @return List of root PIDs.
-     */
     public List<String> getRootPids() {
         return rootPids;
     }

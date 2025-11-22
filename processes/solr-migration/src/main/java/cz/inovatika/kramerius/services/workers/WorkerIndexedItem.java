@@ -4,13 +4,13 @@ import java.util.Map;
 
 public class WorkerIndexedItem {
 
-    private String id;
-    private Map<String, Object> document;
+    private final String id;
+    private final Map<String, Object> document;
 
-    public WorkerIndexedItem(String idField, Map<String,Object> document) {
+    public WorkerIndexedItem(String id, Map<String,Object> document) {
         this.document = document;
-
-        this.id = document.containsKey(idField) ? (String)document.get(idField) : null;
+        //this.id = document.containsKey(idField) ? (String)document.get(idField) : null;
+        this.id = id;
     }
 
     public String getId() {

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="q">pid:"uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf"</str>
+            <str name="rows">1</str>
+            <arr name="wt">
+                <str>xml</str>
+                <str>xml</str>
+            </arr>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" numFoundExact="true" start="0">
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="contains_licenses">
+                <str>public</str>
+            </arr>
+            <int name="count_monograph_unit">3</int>
+            <bool name="has_tiles">false</bool>
+            <str name="pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <arr name="titles.search">
+                <str>Don Juan lorda Byrona: satirický román ve verších</str>
+                <str>Don Juan. Česky</str>
+            </arr>
+        </doc>
+    </result>
+</response>
