@@ -107,42 +107,10 @@ public class CDKUpdateSolrBatchCreator extends UpdateSolrBatchCreator {
             // ----
 
             // --- has_tiles; count_*
-            List<String> hasTiles = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String attribute = element.getAttribute("name");
-                    return "has_tiles".equals(attribute);
-                }
-            }).stream().map(Element::getTextContent).collect(Collectors.toList());
-            if (!hasTiles.isEmpty()) {
-                Document document = doc.getOwnerDocument();
-                Element cdkHastiles = document.createElement("field");
-                cdkHastiles.setAttribute("name", "cdk."+"has_tiles_"+config.getSourceName());
-                cdkHastiles.setTextContent(hasTiles.getFirst());
-                doc.appendChild(cdkHastiles);
-
-            }
-
-            List<Element> count_fields = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String attribute = element.getAttribute("name");
-                    return attribute.startsWith("count_");
-                }
-            }).stream().collect(Collectors.toList());
-
-            for (Element count_field : count_fields) {
-                String name = "cdk."+count_field.getAttribute("name")+"_"+config.getSourceName();
-                String value =  count_field.getTextContent();
-
-                Document document = doc.getOwnerDocument();
-                Element cdkCountFields = document.createElement("field");
-                cdkCountFields.setAttribute("name", name);
-                cdkCountFields.setTextContent(value);
-                doc.appendChild(cdkCountFields);
-            }
+            hasTilesField(doc, false);
+            countFields(doc, false);
+            hasTextAndAlto(doc,false);
             // ---
-
 
 
             // --- cdk leader & cdk.collection
@@ -160,6 +128,74 @@ public class CDKUpdateSolrBatchCreator extends UpdateSolrBatchCreator {
 
         }
         return batch;
+    }
+
+    private void hasTextAndAlto(Element doc, boolean edit) {
+        List<Element> hasContent = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String attribute = element.getAttribute("name");
+                return attribute.startsWith("has_text_") || attribute.startsWith("has_alto_");
+            }
+        }).stream().collect(Collectors.toList());
+
+        for (Element hasContentField : hasContent) {
+            String name = "cdk."+hasContentField.getAttribute("name")+"_"+config.getSourceName();
+            String value =  hasContentField.getTextContent();
+
+            Document document = doc.getOwnerDocument();
+            Element cdkHasContentField = document.createElement("field");
+            cdkHasContentField.setAttribute("name", name);
+            if (edit) {
+                cdkHasContentField.setAttribute("update", "set");
+            }
+            cdkHasContentField.setTextContent(value);
+            doc.appendChild(cdkHasContentField);
+        }
+    }
+
+    private void countFields(Element doc, boolean edit) {
+        List<Element> count_fields = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String attribute = element.getAttribute("name");
+                return attribute.startsWith("count_");
+            }
+        }).stream().collect(Collectors.toList());
+
+        for (Element count_field : count_fields) {
+            String name = "cdk."+count_field.getAttribute("name")+"_"+config.getSourceName();
+            String value =  count_field.getTextContent();
+
+            Document document = doc.getOwnerDocument();
+            Element cdkCountFields = document.createElement("field");
+            cdkCountFields.setAttribute("name", name);
+            if (edit) {
+                cdkCountFields.setAttribute("update", "set");
+            }
+            cdkCountFields.setTextContent(value);
+            doc.appendChild(cdkCountFields);
+        }
+    }
+
+    private void hasTilesField(Element doc, boolean edit) {
+        List<String> hasTiles = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String attribute = element.getAttribute("name");
+                return "has_tiles".equals(attribute);
+            }
+        }).stream().map(Element::getTextContent).collect(Collectors.toList());
+        if (!hasTiles.isEmpty()) {
+            Document document = doc.getOwnerDocument();
+            Element cdkHastiles = document.createElement("field");
+            cdkHastiles.setAttribute("name", "cdk."+"has_tiles_"+config.getSourceName());
+            if (edit) {
+                cdkHastiles.setAttribute("update", "set");
+            }
+            cdkHastiles.setTextContent(hasTiles.getFirst());
+            doc.appendChild(cdkHastiles);
+        }
     }
 
 
@@ -229,47 +265,9 @@ public class CDKUpdateSolrBatchCreator extends UpdateSolrBatchCreator {
             cdkCollection.setTextContent(config.getSourceName());
             doc.appendChild(cdkCollection);
 
-
-            // --- has_tiles; count_*
-            List<String> hasTiles = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String attribute = element.getAttribute("name");
-                    return "has_tiles".equals(attribute);
-                }
-            }).stream().map(Element::getTextContent).collect(Collectors.toList());
-            if (!hasTiles.isEmpty()) {
-                Document document = doc.getOwnerDocument();
-                Element cdkHastiles = document.createElement("field");
-                cdkHastiles.setAttribute("name", "cdk."+"has_tiles_"+config.getSourceName());
-                cdkHastiles.setAttribute("update", "set");
-                cdkHastiles.setTextContent(hasTiles.getFirst());
-                doc.appendChild(cdkHastiles);
-
-            }
-
-            List<Element> count_fields = XMLUtils.getElements(doc, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String attribute = element.getAttribute("name");
-                    return attribute.startsWith("count_");
-                }
-            }).stream().collect(Collectors.toList());
-
-            for (Element count_field : count_fields) {
-                String name = "cdk."+count_field.getAttribute("name")+"_"+config.getSourceName();
-                String value =  count_field.getTextContent();
-
-                Document document = doc.getOwnerDocument();
-                Element cdkCountFields = document.createElement("field");
-                cdkCountFields.setAttribute("name", name);
-                cdkCountFields.setAttribute("update", "set");
-                cdkCountFields.setTextContent(value);
-                doc.appendChild(cdkCountFields);
-            }
-            // ---
-
-
+            hasTilesField(doc, true);
+            countFields(doc, true);
+            hasTextAndAlto(doc,true);
 
             List<Pair<String,String>> comparingFields = Arrays.asList(
                     Pair.of("licenses", "cdk.licenses"),

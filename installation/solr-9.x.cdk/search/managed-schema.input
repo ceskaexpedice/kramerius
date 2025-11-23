@@ -23,6 +23,8 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 		
 		<!-- has tiles -->
 		<dynamicField name="cdk.has_tiles_*" type="boolean" indexed="true" stored="true" multiValued="false" docValues="true"/>		
+		<dynamicField name="cdk.has_alto_content_*" type="boolean" indexed="true" stored="true" multiValued="false" docValues="true"/>		
+		<dynamicField name="cdk.has_text_ocr_content_*" type="boolean" indexed="true" stored="true" multiValued="false" docValues="true"/>		
 		<dynamicField name="cdk.count_*" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>		
 
 		<!-- contains licenses -->
