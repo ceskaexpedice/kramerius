@@ -15,10 +15,7 @@ import java.util.stream.Collectors;
 public class CDKCopyContext extends CopyWorkerContext<CDKWorkerIndexedItem> {
 
     /** Documents that are already indexed (i.e., present both in source and in local index). */
-    private List<CDKWorkerIndexedItem> alreadyIndexed;
-
-    /** Documents found in the source library but not yet indexed locally. */
-    private List<IterationItem> notIndexed= new ArrayList<>();
+    //private List<CDKWorkerIndexedItem> alreadyIndexed;
 
     /**
      * Existing indexing conflicts discovered during the initial iteration.
@@ -42,18 +39,9 @@ public class CDKCopyContext extends CopyWorkerContext<CDKWorkerIndexedItem> {
      */
     public CDKCopyContext(List<IterationItem> allBachItems, List<CDKWorkerIndexedItem> alreadyIndexed, List<CDKExistingConflictWorkerItem> conflictRecords, List<IterationItem> notIndexed) {
         super(allBachItems, alreadyIndexed, notIndexed);
-        this.alreadyIndexed = alreadyIndexed;
+        this.workerIndexedItems = alreadyIndexed;
         this.notIndexed = notIndexed;
         this.existingConflictRecords = conflictRecords;
-    }
-
-    /**
-     * Returns the list of already indexed documents.
-     *
-     * @return List of IndexedRecord objects.
-     */
-    public List<CDKWorkerIndexedItem> getAlreadyIndexed() {
-        return alreadyIndexed;
     }
 
     /**
@@ -62,27 +50,17 @@ public class CDKCopyContext extends CopyWorkerContext<CDKWorkerIndexedItem> {
      * @return Map of PID to IndexedRecord.
      */
     public Map<String, CDKWorkerIndexedItem> getAlreadyIndexedAsMap() {
-        return alreadyIndexed.stream()
+        return workerIndexedItems.stream()
                 .collect(Collectors.toMap(CDKWorkerIndexedItem::getPid, r -> r));
     }
 
     public CDKWorkerIndexedItem getAlreadyIndexedAsItem(String p) {
-        CDKWorkerIndexedItem indexedItem = this.alreadyIndexed.stream().filter((i) -> {
+        CDKWorkerIndexedItem indexedItem = this.workerIndexedItems.stream().filter((i) -> {
             String iPid =  i.getPid();
             return iPid.equals(p);
         }).findFirst().orElse(null);
         return indexedItem;
     }
-
-    /**
-     * Returns the list of PIDs of documents that have not yet been indexed.
-     *
-     * @return List of not indexed PIDs.
-     */
-    public List<IterationItem> getNotIndexed() {
-        return notIndexed;
-    }
-
 
     /**
      * Returns the list of existing conflicts detected during replication.

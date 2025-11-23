@@ -17,8 +17,8 @@ public class UpdateSolrBatchCreator {
     private static final List<String> PRIMITIVE_FIELD_TYPES = Arrays.asList("str", "int", "bool", "date");
 
     protected ProcessConfig config;
-    protected Element resultElement;
-    protected BatchConsumer consumer;
+    private Element resultElement;
+    private BatchConsumer consumer;
 
     public UpdateSolrBatchCreator(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
         this.config = processConfig;
@@ -34,7 +34,7 @@ public class UpdateSolrBatchCreator {
         return createBatch(true);
     }
 
-    protected Document createBatch(boolean editMode) throws ParserConfigurationException {
+    private Document createBatch(boolean editMode) throws ParserConfigurationException {
         Document destBatch = XMLUtils.crateDocument("add");
         List<Element> docs = XMLUtils.getElements(this.resultElement, new XMLUtils.ElementsFilter() {
             @Override
@@ -63,7 +63,7 @@ public class UpdateSolrBatchCreator {
         return destBatch;
     }
 
-    public void simpleValue(boolean edit, Document feedDoc, Element feedDocElm, Node node, String derivedName, BatchConsumer consumer) {
+    private void simpleValue(boolean edit, Document feedDoc, Element feedDocElm, Node node, String derivedName, BatchConsumer consumer) {
         boolean compositeId = this.config.getWorkerConfig().getRequestConfig().isCompositeId();
         String idIdentifier = this.config.getWorkerConfig().getRequestConfig().getIdIdentifier();
 
@@ -94,7 +94,7 @@ public class UpdateSolrBatchCreator {
         strElm.setAttribute("update", "set");
     }
 
-    public void arrayValue(boolean edit,  Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, BatchConsumer consumer) {
+    private void arrayValue(boolean edit,  Element sourceDocElement, Document feedDoc, Element feedDocElement, Node node, BatchConsumer consumer) {
         String attributeName = ((Element) node).getAttribute("name");
         NodeList childNodes = node.getChildNodes();
         for (int i = 0,ll=childNodes.getLength(); i < ll; i++) {
@@ -105,7 +105,7 @@ public class UpdateSolrBatchCreator {
         }
     }
 
-    public void convertSourceToTargetFields(boolean edit, Element sourceDocElm, Document destBatch, Element destDocElem, BatchConsumer consumer)  {
+    private void convertSourceToTargetFields(boolean edit, Element sourceDocElm, Document destBatch, Element destDocElem, BatchConsumer consumer)  {
         if (sourceDocElm.getNodeName().equals("doc")) {
             NodeList childNodes = sourceDocElm.getChildNodes();
             for (int j = 0,lj=childNodes.getLength(); j < lj; j++) {

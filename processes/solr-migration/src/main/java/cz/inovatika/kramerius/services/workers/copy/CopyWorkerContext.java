@@ -9,8 +9,8 @@ import java.util.List;
 
 public class CopyWorkerContext<T extends WorkerIndexedItem> extends WorkerContext {
 
-    protected List<T> workerIndexedItems = new ArrayList<>();
-    protected List<IterationItem> notIndexed= new ArrayList<>();
+    protected List<T> workerIndexedItems;
+    protected List<IterationItem> notIndexed;
 
     public CopyWorkerContext(List<IterationItem> allItems, List<T> alreadyIndexed, List<IterationItem> notIndexed) {
         super(allItems);

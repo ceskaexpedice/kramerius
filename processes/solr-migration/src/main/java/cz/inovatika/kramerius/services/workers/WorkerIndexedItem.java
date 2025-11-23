@@ -9,7 +9,6 @@ public class WorkerIndexedItem {
 
     public WorkerIndexedItem(String id, Map<String,Object> document) {
         this.document = document;
-        //this.id = document.containsKey(idField) ? (String)document.get(idField) : null;
         this.id = id;
     }
 

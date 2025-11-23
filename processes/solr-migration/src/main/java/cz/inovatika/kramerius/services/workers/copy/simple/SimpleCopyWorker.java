@@ -28,13 +28,14 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
         super(processConfig, client, items, finisher);
     }
 
-        protected SimpleCopyWorkerContext createContext(List<IterationItem> subitems) throws UnsupportedEncodingException {// throws ParserConfigurationException, SAXException, IOException {
-        String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
+    @Override
+    protected SimpleCopyWorkerContext createContext(List<IterationItem> subItems) {
+        String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ? this.config.getRequestConfig().getIdIdentifier() : this.processConfig.getIteratorConfig().getIdField();
 
-        String reduce = subitems.stream().map(it -> {
+        String reduce = subItems.stream().map(it -> {
             Map<String, Object> doc = it.getDoc();
             if (doc.containsKey(identifierField)) {
-                return  '"'+(String) doc.get(identifierField) + '"';
+                return '"' + (String) doc.get(identifierField) + '"';
             } else {
                 return '"' + it.getId() + '"';
             }
@@ -51,57 +52,56 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
         String fieldList = this.config.getRequestConfig().getFieldList();
         if (compositeId) {
             if (!fieldList.contains(childOfComposite)) {
-                throw new IllegalArgumentException("Field list must contain '"+childOfComposite+"'");
+                throw new IllegalArgumentException("Field list must contain '" + childOfComposite + "'");
             }
             if (!fieldList.contains(rootOfComposite)) {
-                throw new IllegalArgumentException("Field list must contain '"+rootOfComposite+"'");
+                throw new IllegalArgumentException("Field list must contain '" + rootOfComposite + "'");
             }
         }
 
         String query = "?q=" + identifierField + ":(" + URLEncoder.encode(reduce, StandardCharsets.UTF_8)
-                + ")&fl=" + URLEncoder.encode(fieldList, StandardCharsets.UTF_8) + "&wt=xml&rows=" + subitems.size();
+                + ")&fl=" + URLEncoder.encode(fieldList, StandardCharsets.UTF_8) + "&wt=xml&rows=" + subItems.size();
 
         List<Element> docElms = solrResult(checkUrlC, checkEndpoint, query);
         List<WorkerIndexedItem> workerIndexedItemList = new ArrayList<>();
         docElms.forEach(d -> {
             Map<String, Object> map = ResultsUtils.doc(d);
-            String id = map.containsKey(identifierField) ? (String)map.get(identifierField) : null;
-            WorkerIndexedItem record = new WorkerIndexedItem(id,  map);
+            String id = map.containsKey(identifierField) ? (String) map.get(identifierField) : null;
+            WorkerIndexedItem record = new WorkerIndexedItem(id, map);
             workerIndexedItemList.add(record);
         });
 
         List<String> identifierFromOriginalSolr = workerIndexedItemList.stream().map(WorkerIndexedItem::getId).toList();
 
-        List<IterationItem> notindexed = new ArrayList<>();
-        subitems.forEach(item -> {
+        List<IterationItem> notIndexed = new ArrayList<>();
+        subItems.forEach(item -> {
             if (!identifierFromOriginalSolr.contains(item.getId()))
-                notindexed.add(item);
+                notIndexed.add(item);
         });
-        return new SimpleCopyWorkerContext(subitems, workerIndexedItemList, notindexed);
+        return new SimpleCopyWorkerContext(subItems, workerIndexedItemList, notIndexed);
     }
 
-    // Basic implemenation
     @Override
     public void run() {
         try {
             int batchSize = this.config.getRequestConfig().getBatchSize();
-            LOGGER.info("["+Thread.currentThread().getName()+"] processing list of items "+this.itemsToBeProcessed.size());
-            int batches = this.itemsToBeProcessed.size() / batchSize + (this.itemsToBeProcessed.size() % batchSize == 0 ? 0 :1);
-            LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
-            for (int i=0;i<batches;i++) {
-                int from = i*batchSize;
+            LOGGER.info("[" + Thread.currentThread().getName() + "] processing list of items " + this.itemsToBeProcessed.size());
+            int batches = this.itemsToBeProcessed.size() / batchSize + (this.itemsToBeProcessed.size() % batchSize == 0 ? 0 : 1);
+            LOGGER.info("[" + Thread.currentThread().getName() + "] creating  " + batches + " batch ");
+            for (int i = 0; i < batches; i++) {
+                int from = i * batchSize;
                 int to = from + batchSize;
                 try {
-                    List<IterationItem> subitems = itemsToBeProcessed.subList(from, Math.min(to,itemsToBeProcessed.size() ));
+                    List<IterationItem> subitems = itemsToBeProcessed.subList(from, Math.min(to, itemsToBeProcessed.size()));
                     CopyWorkerContext<WorkerIndexedItem> simpleCopyContext = createContext(subitems);
 
                     if (!simpleCopyContext.getNotIndexed().isEmpty()) {
 
                         String onIndexedFieldList = config.getDestinationConfig().getOnIndexedFieldList();
                         String fieldList = config.getRequestConfig().getFieldList();
-                        String fl =  onIndexedFieldList != null ? onIndexedFieldList : fieldList;
+                        String fl = onIndexedFieldList != null ? onIndexedFieldList : fieldList;
 
-                        Element response = fetchDocumentFromRemoteSOLR( this.client,  getNotIndexedIdentifiers(simpleCopyContext) , fl);
+                        Element response = fetchDocumentFromRemoteSOLR(this.client, getNotIndexedIdentifiers(simpleCopyContext), fl);
                         Element resultElem = XMLUtils.findElement(response, (elm) -> {
                             return elm.getNodeName().equals("result");
                         });
@@ -126,7 +126,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
                         Document destBatch = null;
                         if (fl != null) {
                             List<String> identifiers = getIndexedIdentifiers(simpleCopyContext);
-                            Element response2 = fetchDocumentFromRemoteSOLR( this.client,  identifiers, fl);
+                            Element response2 = fetchDocumentFromRemoteSOLR(this.client, identifiers, fl);
                             Element resultElem2 = XMLUtils.findElement(response2, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
@@ -149,20 +149,20 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
                         }
                     }
                 } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE,"Informing about exception");
+                    LOGGER.log(Level.SEVERE, "Informing about exception");
                     finisher.exceptionDuringCrawl(e);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
-        } catch(Exception ex) {
-            LOGGER.log(Level.SEVERE,"Informing about exception");
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Informing about exception");
             finisher.exceptionDuringCrawl(ex);
-            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
         } finally {
             try {
                 this.barrier.await();
             } catch (InterruptedException | BrokenBarrierException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
