@@ -4,7 +4,6 @@ import cz.incad.kramerius.services.workers.copy.cdk.CDKCopyContext;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.workers.batch.BatchConsumer;
 import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatchCreator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
