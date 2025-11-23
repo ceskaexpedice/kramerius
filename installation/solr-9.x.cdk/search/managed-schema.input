@@ -15,13 +15,15 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 		<!-- cdk fields; leader where original data came from --> 
         <field name="cdk.leader" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
 		
+		<!--
 		<field name="cdk.contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>
 		<field name="cdk.licenses" type="string" docValues="true" multiValued="true" stored="true"/>
 		<field name="cdk.licenses_of_ancestors" type="string" docValues="true" multiValued="true" stored="true"/>
-
+		-->
+		
 		<!-- has tiles -->
-		<dynamicField name="cdk.has_tiles_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>		
-		<dynamicField name="cdk.count_*" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>		
+		<dynamicField name="cdk.has_tiles_*" type="boolean" indexed="true" stored="true" multiValued="false" docValues="true"/>		
+		<dynamicField name="cdk.count_*" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>		
 
 		<!-- contains licenses -->
 		<field name="cdk.contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>

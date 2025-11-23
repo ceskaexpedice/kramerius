@@ -69,7 +69,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                         String fl = onIndexedFieldList != null ? onIndexedFieldList : fieldList;
 
                         /** Fetching documents from remote library */
-                        Element response = fetchDocumentFromRemoteSOLR( this.client,  cdkReplicateContext.getAlreadyIndexed().stream().map(CDKWorkerIndexedItem::getPid).collect(Collectors.toList()), fl);
+                        Element response = fetchDocumentFromRemoteSOLR( this.client,  cdkReplicateContext.getNotIndexed().stream().map(IterationItem::getPid).collect(Collectors.toList()), fl);
                         Element resultElem = XMLUtils.findElement(response, (elm) -> {
                             return elm.getNodeName().equals("result");
                         });
@@ -96,8 +96,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                     String onUpdateFieldList =  config.getDestinationConfig().getOnUpdateFieldList();
 
                     if (!cdkReplicateContext.getAlreadyIndexed().isEmpty()) {
-                        // On update elements must not be empty
-                        if (!onUpdateUpdateElements.isEmpty()) {
+                        if (!onUpdateUpdateElements.isEmpty() || StringUtils.isAnyString(onUpdateFieldList)) {
                             /** Updating fields */
                             String fl = onUpdateFieldList;
                             /** Destinatination batch */
@@ -116,6 +115,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                                 });
 
                                 CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(cdkReplicateContext, processConfig,resultElem);
+                                destBatch = updateSolrBatch.createBatchForUpdate();
                             } else {
                                 /** If there is no update list, then no update */
                                 Document db = XMLUtils.crateDocument("add");
