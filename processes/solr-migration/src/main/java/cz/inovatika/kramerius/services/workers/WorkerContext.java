@@ -6,13 +6,13 @@ import java.util.List;
 
 public abstract class WorkerContext {
 
-    protected List<IterationItem> batchItems;
+    protected List<IterationItem> allItems;
 
     public WorkerContext(List<IterationItem> allItems) {
-        this.batchItems = allItems;
+        this.allItems = allItems;
     }
 
-    public List<IterationItem> getBatchItems() {
-        return batchItems;
+    public List<IterationItem> getAllItems() {
+        return allItems;
     }
 }
