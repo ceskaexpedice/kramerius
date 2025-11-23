@@ -9,7 +9,7 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.workers.copy.CopyWorker;
 import org.w3c.dom.Document;
@@ -85,7 +85,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                         onIndexUpdateEvent(addDocument);
 
                         CDKCopyFinisher.NEWINDEXED.addAndGet(XMLUtils.getElements(addDocument).size());
-                        String s = KubernetesSolrUtils.sendToDest(processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl(), this.client, batch);
+                        String s = HTTPSolrUtils.sendToDest(processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl(), this.client, batch);
                         LOGGER.info(s);
                     }
 
@@ -126,7 +126,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                                 Element addDocument = destBatch.getDocumentElement();
                                 onUpdateEvent(addDocument);
                                 CDKCopyFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
-                                String s = KubernetesSolrUtils.sendToDest(config.getDestinationConfig().getDestinationUrl() , this.client, destBatch);
+                                String s = HTTPSolrUtils.sendToDest(config.getDestinationConfig().getDestinationUrl() , this.client, destBatch);
                             } else {
                                 LOGGER.warning("No batch for update");
                             }
@@ -191,7 +191,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                 + ")&fl=" + URLEncoder.encode(fieldlist, StandardCharsets.UTF_8) + "&wt=xml&rows=" + subitems.size();
 
         String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
-        Element resultElem = XMLUtils.findElement(KubernetesSolrUtils.executeQueryJersey(client, checkUrl, query),
+        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryJersey(client, checkUrl, query),
                 (elm) -> {
                     return elm.getNodeName().equals("result");
                 });
@@ -201,13 +201,11 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
 
 
         List<CDKWorkerIndexedItem> indexedRecordList = new ArrayList<>();
-        // Existing conficts - remove from docElms
         List<CDKExistingConflictWorkerItem> econflicts = findIndexConflict(docs);
         removePids(econflicts, docs);
 
         List<String> econflictPids = econflicts.stream().map(CDKExistingConflictWorkerItem::getPid).toList();
 
-        // found indexed & not indexed records
         docElms.forEach(d -> {
             Map<String, Object> map = ResultsUtils.doc(d);
 
@@ -219,7 +217,6 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                 map.put(collectionField, collection.getTextContent());
             }
 
-            // computed fields
             computedFields.forEach(it-> computedField(d, map,it));
 
             CDKWorkerIndexedItem record = new CDKWorkerIndexedItem((String)map.get("pid"), map);

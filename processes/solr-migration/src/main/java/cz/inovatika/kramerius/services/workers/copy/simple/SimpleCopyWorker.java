@@ -28,7 +28,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
         super(processConfig, client, items, finisher);
     }
 
-        protected SimpleCopyWorkerContext createContext(List<IterationItem> subitems) throws UnsupportedEncodingException {// throws ParserConfigurationException, SAXException, IOException {
+    protected SimpleCopyWorkerContext createContext(List<IterationItem> subitems) throws UnsupportedEncodingException {// throws ParserConfigurationException, SAXException, IOException {
         String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
 
         String reduce = subitems.stream().map(it -> {

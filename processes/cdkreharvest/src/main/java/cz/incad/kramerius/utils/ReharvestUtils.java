@@ -51,7 +51,7 @@ import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrCursorIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrFilterQueryIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrPageIterator;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 
 public class ReharvestUtils {
     
@@ -84,7 +84,7 @@ public class ReharvestUtils {
                 if (!onlyDisplayCommand) {
                     LOGGER.info(String.format("Deleting identifiers (%d):%s", batchPids.size(), batchPids.toString()));
                     String destinationUrl = destinationMap.get("url")+"/update?commit=true";
-                    String s = KubernetesSolrUtils.sendToDest(destinationUrl, closeableHttpClient, deleteBatch);
+                    String s = HTTPSolrUtils.sendToDest(destinationUrl, closeableHttpClient, deleteBatch);
                     retBuilder.append(s).append("\n");
                 } else {
                     StringWriter writer = new StringWriter();
@@ -114,15 +114,15 @@ public class ReharvestUtils {
             ProcessIterator processIterator = null;
             switch (typeOfIteration) {
                 case CURSOR: {
-                    processIterator =  new SolrCursorIterator(iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    processIterator =  new SolrCursorIterator(iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
                     break;
                 }
                 case FILTER: {
-                    processIterator  = new SolrFilterQueryIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    processIterator  = new SolrFilterQueryIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
                     break;
                 }
                 case PAGINATION: {
-                    processIterator = new SolrPageIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    processIterator = new SolrPageIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
                     break;
                 }
             }

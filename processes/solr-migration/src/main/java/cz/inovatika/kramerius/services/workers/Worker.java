@@ -4,22 +4,14 @@ import com.sun.jersey.api.client.*;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
 import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
-import cz.inovatika.kramerius.services.workers.copy.CopyWorkerContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public abstract class Worker<C extends WorkerContext>  implements Runnable  {
 

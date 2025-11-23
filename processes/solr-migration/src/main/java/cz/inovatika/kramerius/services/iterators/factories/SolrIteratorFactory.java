@@ -5,6 +5,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
 import cz.incad.kramerius.utils.StringUtils;
@@ -55,11 +56,13 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
         int rowSize = config.getRows();
         TypeOfIteration typeOfIteration = config.getTypeOfIteration();
 
+        ResponseHandlingConfig responseHandling = config.getResponseHandlingConfig();
+
 
         switch (typeOfIteration) {
-            case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize, fieldList);
-            case FILTER: return new SolrFilterQueryIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize, fieldList);
-            case PAGINATION: return new SolrPageIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize,fieldList);
+            case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize, fieldList, responseHandling);
+            case FILTER: return new SolrFilterQueryIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize, fieldList, responseHandling);
+            case PAGINATION: return new SolrPageIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize,fieldList, responseHandling);
         }
 
         return null;

@@ -1,5 +1,6 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 
 public abstract class AbstractSolrIterator implements ProcessIterator {
@@ -13,9 +14,11 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
     protected String sorting;
     protected String[] fieldList;
 
+    protected ResponseHandlingConfig responseHandlingConfig;
 
 
-    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList) {
+
+    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
         this.id = id;
         this.rows = rows;
 
@@ -25,11 +28,11 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
         this.address = address;
         this.masterQuery = masterQuery;
         this.fieldList = fieldList;
-
+        this.responseHandlingConfig = responseHandlingConfig;
     }
 
-    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows) {
-        this( address,masterQuery, filterQuery, endpoint, id, sorting, rows, new String[]{});
+    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
+        this( address,masterQuery, filterQuery, endpoint, id, sorting, rows, new String[]{}, responseHandlingConfig);
     }
 
 

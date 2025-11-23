@@ -5,7 +5,7 @@ import com.sun.jersey.api.client.WebResource;
 
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
 
 import org.json.JSONObject;
@@ -90,7 +90,7 @@ public class CDKCopyFinisher extends WorkerFinisher {
         if (StringUtils.isAnyString(this.processConfig.getTimestampUrl()) && EXCEPTION_DURING_CRAWL.isEmpty()) {
     		storeTimestamp();
     	}
-    	KubernetesSolrUtils.commitJersey(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
+    	HTTPSolrUtils.commitJersey(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
         LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
     }
 }

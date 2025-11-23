@@ -1,11 +1,12 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
 import com.sun.jersey.api.client.Client;
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -20,23 +21,23 @@ import java.util.stream.Collectors;
 
 public class SolrPageIterator extends AbstractSolrIterator {
 
-    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
+    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig);
     }
 
-    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows,fieldList);
+    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig);
     }
 
-    public static Element paginationJersey(Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList) throws IOException, SAXException, ParserConfigurationException {
+    public static Element paginationJersey(Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) throws IOException, SAXException, ParserConfigurationException {
         String query = parinationQuery(mq, offset, rows, filterQuery, endpoint, identifierField, sorting, fieldList);
-        return KubernetesSolrUtils.executeQueryJersey(client, url, query);
+        return HTTPSolrUtils.executeQueryJersey(client, url, query, responseHandlingConfig);
     }
 
 
     public static Element paginationApache(CloseableHttpClient client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList) throws IOException, SAXException, ParserConfigurationException {
         String query = parinationQuery(mq, offset, rows, filterQuery, endpoint, identifierField, sorting,fieldList);
-        return KubernetesSolrUtils.executeQueryApache(client, url, query);
+        return HTTPSolrUtils.executeQueryApache(client, url, query);
     }
 
     private static String parinationQuery(String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList) throws UnsupportedEncodingException {
@@ -80,7 +81,7 @@ public class SolrPageIterator extends AbstractSolrIterator {
                     numberOfResult = findNumberOfResults(element);
                 }
                 //List<String> allPids = findAllPids(element);
-                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
+                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
                 offset += rows;
             }while(offset < numberOfResult);
             // callback after iteration
@@ -99,11 +100,11 @@ public class SolrPageIterator extends AbstractSolrIterator {
             int offset = 0;
             int numberOfResult = Integer.MAX_VALUE;
             do {
-                Element element =  paginationJersey( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.sorting, this.fieldList);
+                Element element =  paginationJersey( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.sorting, this.fieldList, this.responseHandlingConfig);
                 if (numberOfResult == Integer.MAX_VALUE) {
                     numberOfResult = findNumberOfResults(element);
                 }
-                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
+                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
                 offset += rows;
             }while(offset < numberOfResult);
             // callback after iteration

@@ -4,7 +4,7 @@ import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.inovatika.kramerius.services.workers.Worker;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.workers.WorkerIndexedItem;
@@ -41,12 +41,12 @@ public abstract class CopyWorker<T extends WorkerIndexedItem, C extends CopyWork
         String query = "?q=" + idIdentifier + ":(" + URLEncoder.encode(reduce, StandardCharsets.UTF_8) + ")&fl="
                 + URLEncoder.encode(fieldlist, StandardCharsets.UTF_8) + "&wt=xml&rows=" + pids.size();
         LOGGER.info(String.format("Requesting uri %s, %s",requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint, query));
-        return KubernetesSolrUtils.executeQueryJersey(client,requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint , query);
+        return HTTPSolrUtils.executeQueryJersey(client,requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint , query);
     }
 
     protected List<Element> solrResult(String checkUrlC, String checkEndpoint, String query) {
         String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
-        Element resultElem = XMLUtils.findElement(KubernetesSolrUtils.executeQueryJersey(client, checkUrl, query),
+        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryJersey(client, checkUrl, query),
                 (elm) -> {
                     return elm.getNodeName().equals("result");
                 });

@@ -1,11 +1,12 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
 import com.sun.jersey.api.client.Client;
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Element;
 
@@ -19,14 +20,15 @@ import java.util.stream.Collectors;
 
 public class SolrCursorIterator extends AbstractSolrIterator {
 
-
-    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows);
+    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig);
     }
 
-    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fields) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fields);
+    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig);
     }
+
+
 
     private static String pidCursorQuery(String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String...flFields)  {
         try {
@@ -89,11 +91,13 @@ public class SolrCursorIterator extends AbstractSolrIterator {
             String queryCursorMark = null;
             do {
                 String query = pidCursorQuery(masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
-                Element element = KubernetesSolrUtils.executeQueryJersey(client, address, query);
+
+
+                Element element = HTTPSolrUtils.executeQueryJersey(client, address, query, this.responseHandlingConfig);
 
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
-                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
+                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
             } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
             // callback after iteration
             endCallback.end();
@@ -109,11 +113,11 @@ public class SolrCursorIterator extends AbstractSolrIterator {
             String queryCursorMark = null;
             do {
                 String query = pidCursorQuery(masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
-                Element element = KubernetesSolrUtils.executeQueryApache(client, address, query);
+                Element element = HTTPSolrUtils.executeQueryApache(client, address, query);
 
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);
-                iterationCallback.call( KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
+                iterationCallback.call( HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
             } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
             // callback after iteration
             endCallback.end();
