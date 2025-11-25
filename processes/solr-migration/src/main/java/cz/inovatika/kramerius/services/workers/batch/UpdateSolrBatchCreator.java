@@ -125,19 +125,25 @@ public class UpdateSolrBatchCreator {
 
 
     private static boolean enhanceByCompositeId(Document ndoc,Element docElm, String root, String child) {
+        Element compositeId = XMLUtils.findElement(docElm, paramElement -> paramElement.getAttribute("name").equals("compositeId"));
+
         Element childComponent = XMLUtils.findElement(docElm, paramElement -> paramElement.getAttribute("name").equals(child));
         Element rootComponent = XMLUtils.findElement(docElm, paramElement -> paramElement.getAttribute("name").equals(root));
 
-        if (rootComponent != null && childComponent != null) {
+        if (compositeId == null) {
+            if (rootComponent != null && childComponent != null) {
 
-            String txt = rootComponent.getTextContent().trim()+"!"+childComponent.getTextContent().trim();
-            Element compositeIdElm = ndoc.createElement("field");
-            String compositeIdName = System.getProperty("compositeId.field.name","compositeId");
-            compositeIdElm.setAttribute("name", compositeIdName);
-            compositeIdElm.setTextContent(txt);
-            docElm.appendChild(compositeIdElm);
-            return true;
-        }  else {
+                String txt = rootComponent.getTextContent().trim()+"!"+childComponent.getTextContent().trim();
+                Element compositeIdElm = ndoc.createElement("field");
+                String compositeIdName = System.getProperty("compositeId.field.name","compositeId");
+                compositeIdElm.setAttribute("name", compositeIdName);
+                compositeIdElm.setTextContent(txt);
+                docElm.appendChild(compositeIdElm);
+                return true;
+            }  else {
+                return  false;
+            }
+        } else {
             return  false;
         }
     }

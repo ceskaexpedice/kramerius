@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class IterationItem {
 
-    /** Iteration idetifier; pid or compositeId. */
+    /** Iteration identifier; pid or compositeId. */
     private String id;
 
     /** Source from which the identifier originates. */

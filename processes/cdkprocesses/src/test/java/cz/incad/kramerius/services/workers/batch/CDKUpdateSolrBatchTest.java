@@ -90,11 +90,48 @@ public class CDKUpdateSolrBatchTest {
         });
 
         Assert.assertTrue(!compositeIdElm.isEmpty());
+        Assert.assertTrue(compositeIdElm.size() == 1);
+
         Assert.assertTrue(!cdkContainsLicenses.isEmpty());
         Assert.assertTrue(!cdkLeader.isEmpty());
         Assert.assertTrue(!cdkCollection.isEmpty());
         Assert.assertTrue(!cdkHasTiles.isEmpty());
         Assert.assertTrue(!cdkHasMonographUnit.isEmpty());
+    }
+
+
+    @Test
+    public void testBatchCloudInsertSolr() throws ParserConfigurationException, IOException, SAXException, TransformerException {
+        InputStream conf = CDKUpdateSolrBatchTest.class.getResourceAsStream("migrate.conf");
+        Document parsedConf = XMLUtils.parseDocument(conf);
+        ProcessConfig config = ProcessConfigParser.parse(parsedConf.getDocumentElement());
+        Assert.assertNotNull(config);
+
+        InputStream solrData = CDKUpdateSolrBatchTest.class.getResourceAsStream("solr-cloud-source-insert.xml");
+        Assert.assertNotNull(solrData);
+        Document parsedSolrData = XMLUtils.parseDocument(solrData);
+        Element result = XMLUtils.findElement(parsedSolrData.getDocumentElement(), (elm) -> {
+            if (elm.getNodeName().equals("result")) {
+                return true;
+            } else return false;
+        });
+
+        CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(null, config,result);
+        Document batch = updateSolrBatch.createBatchForInsert();
+
+        Assert.assertEquals("add", batch.getDocumentElement().getNodeName());
+        Assert.assertEquals(1, XMLUtils.getElements( batch.getDocumentElement()).size());
+
+        // compositeId
+        List<Element> compositeIdElm = XMLUtils.getElementsRecursive(batch.getDocumentElement(), (e) -> {
+            String name = e.getAttribute("name");
+            boolean cLicensesFound = name.equals("compositeId");
+            boolean f = e.getNodeName().equals("field");
+            return f && cLicensesFound ;
+        });
+
+        Assert.assertTrue(!compositeIdElm.isEmpty());
+        Assert.assertTrue(compositeIdElm.size() == 1);
 
     }
 

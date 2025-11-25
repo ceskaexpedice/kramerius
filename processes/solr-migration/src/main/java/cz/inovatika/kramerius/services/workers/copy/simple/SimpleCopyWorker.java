@@ -59,6 +59,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
             }
         }
 
+        //
         String query = "?q=" + identifierField + ":(" + URLEncoder.encode(reduce, StandardCharsets.UTF_8)
                 + ")&fl=" + URLEncoder.encode(fieldList, StandardCharsets.UTF_8) + "&wt=xml&rows=" + subItems.size();
 

@@ -18,7 +18,7 @@ public class CDKCopySolrWorkerFactory extends WorkerFactory {
     }
     @Override
     public WorkerFinisher createFinisher(ProcessConfig processConfig, Client client) {
-        return null;
+        return new CDKCopyFinisher(processConfig, client);
     }
 
     public BatchTransformation createTransform() {

@@ -40,17 +40,9 @@ public class CDKCopyFinisher extends WorkerFinisher {
     
     long start = System.currentTimeMillis();
 
-    //protected String typeOfCrawl;
 
-    
     public CDKCopyFinisher(ProcessConfig config, Client client) {
         super(config, client);
-
-//        Element typeElm = XMLUtils.findElement((Element)workerElm.getParentNode(), "type");
-//        if (typeElm != null) {
-//            typeOfCrawl = typeElm.getTextContent();
-//        }
-
     }
 
 	private JSONObject storeTimestamp() {

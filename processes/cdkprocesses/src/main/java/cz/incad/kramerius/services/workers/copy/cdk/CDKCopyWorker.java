@@ -106,8 +106,6 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                                 List<String> pids = cdkReplicateContext.getAlreadyIndexed().stream().map(ir->{
                                     return ir.getPid();
                                 }).collect(Collectors.toList());
-                                /** Indexed records as map */
-                                Map<String, CDKWorkerIndexedItem> alreadyIndexedAsMap = cdkReplicateContext.getAlreadyIndexedAsMap();
                                 /** Fetch documents from source library */
                                 Element response = fetchDocumentFromRemoteSOLR( this.client,  pids, fl);
                                 Element resultElem = XMLUtils.findElement(response, (elm) -> {

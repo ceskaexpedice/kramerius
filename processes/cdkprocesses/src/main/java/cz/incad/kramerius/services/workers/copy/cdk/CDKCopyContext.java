@@ -44,15 +44,6 @@ public class CDKCopyContext extends CopyWorkerContext<CDKWorkerIndexedItem> {
         this.existingConflictRecords = conflictRecords;
     }
 
-    /**
-     * Returns the list of already indexed documents as a map, keyed by PID.
-     *
-     * @return Map of PID to IndexedRecord.
-     */
-    public Map<String, CDKWorkerIndexedItem> getAlreadyIndexedAsMap() {
-        return workerIndexedItems.stream()
-                .collect(Collectors.toMap(CDKWorkerIndexedItem::getPid, r -> r));
-    }
 
     public CDKWorkerIndexedItem getAlreadyIndexedAsItem(String p) {
         CDKWorkerIndexedItem indexedItem = this.workerIndexedItems.stream().filter((i) -> {
