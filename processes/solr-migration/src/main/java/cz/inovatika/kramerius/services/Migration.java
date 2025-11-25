@@ -64,7 +64,6 @@
             Document document = XMLUtils.parseDocument(new FileInputStream(configFile));
             ProcessConfig config = ProcessConfigParser.parse(document.getDocumentElement());
 
-            // Iterator factory
             ProcessIteratorFactory processIteratorFactory = ProcessIteratorFactory.create(config.getIteratorConfig().getFactoryClz());
 
             this.iterator = processIteratorFactory.createProcessIterator( config.getIteratorConfig(), this.client);
@@ -135,7 +134,6 @@
             try {
                 LocalDate now = LocalDate.now();
                 LocalDateTime current = LocalDateTime.now();
-
                 return isWorkingTimeImpl(startTime, endTime, now, current);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);

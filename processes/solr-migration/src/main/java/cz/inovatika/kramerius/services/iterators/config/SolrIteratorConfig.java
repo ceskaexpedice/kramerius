@@ -1,5 +1,7 @@
 package cz.inovatika.kramerius.services.iterators.config;
 
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
+
 import java.util.Arrays;
 
 /**
@@ -29,6 +31,9 @@ public class SolrIteratorConfig {
     private final TypeOfIteration typeOfIteration;
     /** The list of fields to retrieve ('fl' parameter). If empty, all fields might be returned, depending on Solr settings. */
     private final String[] fieldList;
+
+    /** Response handling configration */
+    private ResponseHandlingConfig responseHandlingConfig;
 
     /**
      * The fully qualified class name of the Factory responsible for creating
@@ -62,6 +67,7 @@ public class SolrIteratorConfig {
         this.timestampUrl = builder.timestampUrl;
         this.timestampField = builder.timestampField;
         this.factoryClz= builder.factoryClz;
+        this.responseHandlingConfig = builder.responseHandlingConfig;
     }
 
     /**
@@ -127,6 +133,10 @@ public class SolrIteratorConfig {
      */
     public String getFactoryClz() { return factoryClz; }
 
+    public ResponseHandlingConfig getResponseHandlingConfig() {
+        return responseHandlingConfig;
+    }
+
     @Override
     public String toString() {
         return "SolrIteratorConfig{" +
@@ -164,6 +174,7 @@ public class SolrIteratorConfig {
         private String timestampField;
 
         private String factoryClz;
+        private ResponseHandlingConfig responseHandlingConfig;
 
         public Builder(String url, String idField) {
             this.url = url;
@@ -234,5 +245,9 @@ public class SolrIteratorConfig {
             return this;
         }
 
+        public Builder responseHandlingConfig(ResponseHandlingConfig responseHandlingConfig) {
+            this.responseHandlingConfig = responseHandlingConfig;
+            return this;
+        }
     }
 }

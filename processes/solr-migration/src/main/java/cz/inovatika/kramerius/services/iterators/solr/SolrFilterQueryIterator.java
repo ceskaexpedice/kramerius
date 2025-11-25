@@ -1,11 +1,12 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
 import com.sun.jersey.api.client.Client;
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.iterators.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -28,25 +29,24 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
     public static final String DEFAULT_SORT_FIELD = "PID asc";
 
 
-    public SolrFilterQueryIterator(  String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting,int rows ) {
-        super( address, masterQuery, filterQuery, endpoint, id, sorting, rows);
+    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig);
     }
 
-
-    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldsParam) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldsParam);
+    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig);
     }
 
-    public static Element pidsFilterApache(CloseableHttpClient client, String url, String mq, String lastPid, int rows, String fq, String endpoint,String[] fieldsParam)
+    public static Element pidsFilterApache(CloseableHttpClient client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String[] fieldsParam)
             throws ParserConfigurationException, SAXException, IOException {
         String query = pidsFilterQuery(mq, lastPid, rows, fq, endpoint, fieldsParam);
-        return KubernetesSolrUtils.executeQueryApache(client, url, query);
+        return HTTPSolrUtils.executeQueryApache(client, url, query);
     }
 
     public static Element pidsFilterJersey(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint,String[] fieldsParam)
             throws ParserConfigurationException, SAXException, IOException {
         String query = pidsFilterQuery(mq, lastPid, rows, fq, endpoint, fieldsParam);
-        return KubernetesSolrUtils.executeQueryJersey(client, url, query);
+        return HTTPSolrUtils.executeQueryJersey(client, url, query);
     }
 
     private static String pidsFilterQuery(String mq, String lastPid, int rows, String fq, String endpoint, String[] fieldsList) throws UnsupportedEncodingException {
@@ -105,7 +105,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
                 Element element = pidsFilterApache( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.fieldList);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
-                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
+                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
             }while(lastPid != null  && !lastPid.equals(previousPid));
             // callback after iteration
             endCallback.end();
@@ -125,7 +125,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
                 Element element = pidsFilterJersey( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, fieldList);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
-                iterationCallback.call(KubernetesSolrUtils.prepareIterationItems(element, this.address, this.id));
+                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
             }while(lastPid != null  && !lastPid.equals(previousPid));
             // callback after iteration
             endCallback.end();

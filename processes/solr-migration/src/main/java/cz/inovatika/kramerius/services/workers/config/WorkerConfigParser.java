@@ -1,6 +1,8 @@
 package cz.inovatika.kramerius.services.workers.config;
 
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
+import cz.inovatika.kramerius.services.config.ResponseHandlingParserUtil;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import cz.inovatika.kramerius.services.workers.config.destination.DestinationConfig;
 import cz.inovatika.kramerius.services.workers.config.destination.DestinationConfigParser;
@@ -46,12 +48,16 @@ public class WorkerConfigParser {
         // ==========================================================
         Element requestElm = XMLUtils.findElement(workerElm, "request");
         if (requestElm != null) {
-
             requestConfig = RequestConfigParser.parse(config, requestElm);
             builder.requestConfig(requestConfig);
-
         }
-        
+
+        Element responseHandlingElm = XMLUtils.findElement(workerElm, "response-handling");
+        if (responseHandlingElm != null) {
+            ResponseHandlingConfig responseHandling = ResponseHandlingParserUtil.parse(responseHandlingElm);
+            builder.responseHandlingConfig(responseHandling);
+        }
+
         return builder.build();
     }
     

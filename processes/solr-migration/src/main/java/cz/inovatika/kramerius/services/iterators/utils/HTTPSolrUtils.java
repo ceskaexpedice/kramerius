@@ -3,6 +3,7 @@ package cz.inovatika.kramerius.services.iterators.utils;
 import com.sun.jersey.api.client.*;
 
 //import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -26,20 +27,20 @@ import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
-public class KubernetesSolrUtils {
+public class HTTPSolrUtils {
 
-    public static final Logger LOGGER = Logger.getLogger(KubernetesSolrUtils.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(HTTPSolrUtils.class.getName());
 
-    private KubernetesSolrUtils() {}
+    private HTTPSolrUtils() {}
 
     // TODO: Replace by SolrUpdateUtils.sendToDest
     public static String sendToDest(String destSolr, Client jerseyClient, Document batchDoc) {
@@ -208,6 +209,15 @@ public class KubernetesSolrUtils {
         }
     }
 
+    public static Element executeQueryJersey(Client jerseyClient, String url, String query, ResponseHandlingConfig responseHandlingConfig) {
+        try {
+            String t = executeSolrRequestJersey(jerseyClient, url, query, responseHandlingConfig);
+            return getElement(t);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Element executeQueryJersey(Client jerseyClient, String url, String query) {
         try {
             String t = executeSolrRequestJersey(jerseyClient, url, query);
@@ -250,13 +260,57 @@ public class KubernetesSolrUtils {
     }
 
     private static String executeSolrRequestJersey(Client client, String url, String query) {
-        String u = url +(url.endsWith("/") ? "" : "/")+ query;
-        LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] url %s", u));
+        return executeSolrRequestJersey(client, url, query, null);
+    }
+
+    private static String executeSolrRequestJersey(Client client, String url, String query, ResponseHandlingConfig config) {
+        int maxRetries = (config != null) ? config.getMaxRetries() : 0;
+        int delayMs = (config != null) ? config.getDelayMs() : 0;
+        int[] retryStatusCodes = (config != null) ? config.getRetryStatusCodes() : new int[0];
+        String u = url + (url.endsWith("/") ? "" : "/")+ query;
         WebResource r = client.resource(u);
 
+        for (int attempt = 0; attempt <= maxRetries; attempt++) {
+            ClientResponse clientResponse = null;
+            try {
+                if (attempt > 0 && delayMs > 0) {
+                    LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] sleeping %d before attempt %d", delayMs, attempt + 1));
+                    Thread.sleep(delayMs);
+                }
 
-        LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] processing %s", r.getURI().toString()));
-        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-        return t;
+                LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] Attempt %d/%d to URL: %s",
+                        attempt + 1, maxRetries + 1, u));
+                clientResponse = r.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
+                final int currentStatusCode = clientResponse.getStatus();
+
+                if (currentStatusCode == 200) {
+                    LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] Request successful (Status: 200)."));
+                    return clientResponse.getEntity(String.class);
+                }
+
+                boolean shouldRetry = false;
+                if (config != null) {
+                    shouldRetry = Arrays.stream(retryStatusCodes)
+                            .anyMatch(code -> code == currentStatusCode);
+                }
+
+                if (shouldRetry && attempt < maxRetries) {
+                    LOGGER.warning(String.format("[" + Thread.currentThread().getName() + "] Status %d received. Preparing for retry...", currentStatusCode));
+                    continue;
+                }
+
+                throw new RuntimeException("Request failed after " + (attempt + 1) +
+                        " attempts with status code: " + currentStatusCode);
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Retry sleep interrupted", e);
+            } finally {
+                if (clientResponse != null) {
+                    clientResponse.close();
+                }
+            }
+        }
+        throw new RuntimeException("Internal error: Retry loop finished unexpectedly.");
     }
 }

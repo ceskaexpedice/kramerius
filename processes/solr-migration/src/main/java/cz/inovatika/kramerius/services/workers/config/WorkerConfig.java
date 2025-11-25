@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.services.workers.config;
 
 
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.workers.config.destination.DestinationConfig;
 import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
 
@@ -16,13 +17,14 @@ public class WorkerConfig {
     // --- Encapsulated Configuration Objects ---
     private final RequestConfig requestConfig;
     private final DestinationConfig destinationConfig;
+    private final ResponseHandlingConfig responseHandlingConfig;
 
 
     // --- Constructor (used only by Builder) ---
     private WorkerConfig(Builder builder) {
         this.requestConfig = builder.requestConfig;
         this.destinationConfig = builder.destinationConfig;
-
+        this.responseHandlingConfig = builder.responseHandlingConfig;
         this.factoryClz = builder.factoryClz;
     }
 
@@ -31,6 +33,10 @@ public class WorkerConfig {
     // Gettery pro zapouzdřené objekty
     public RequestConfig getRequestConfig() { return requestConfig; }
     public DestinationConfig getDestinationConfig() { return destinationConfig; }
+    public ResponseHandlingConfig getResponseHandlingConfig() {
+        return responseHandlingConfig;
+    }
+
     public String getFactoryClz() { return factoryClz; }
 
 
@@ -42,6 +48,7 @@ public class WorkerConfig {
         // --- Encapsulated Configuration Objects (REQUIRED) ---
         private RequestConfig requestConfig;
         private DestinationConfig destinationConfig;
+        private ResponseHandlingConfig responseHandlingConfig;
 
         // --- Remaining Fields with Default Values ---
         private String factoryClz = null;
@@ -61,6 +68,11 @@ public class WorkerConfig {
         public Builder destinationConfig(DestinationConfig destinationConfig) {
             this.destinationConfig = destinationConfig;
             return this;
+        }
+
+        public Builder responseHandlingConfig(ResponseHandlingConfig responseHandlingConfig) {
+            this.responseHandlingConfig = responseHandlingConfig;
+            return  this;
         }
 
 

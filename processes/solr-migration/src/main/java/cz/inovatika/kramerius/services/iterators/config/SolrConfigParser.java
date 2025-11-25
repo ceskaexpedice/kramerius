@@ -2,6 +2,8 @@ package cz.inovatika.kramerius.services.iterators.config;
 
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
+import cz.inovatika.kramerius.services.config.ResponseHandlingParserUtil;
 import org.w3c.dom.Element;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,6 +82,13 @@ public class SolrConfigParser {
         if (timstampFieldElm != null) {
             builder.timestampField(timstampFieldElm.getTextContent());
         }
+
+        Element responseHandlingElm = XMLUtils.findElement(iteration, "response-handling");
+        if (responseHandlingElm != null) {
+            ResponseHandlingConfig responseHandling = ResponseHandlingParserUtil.parse(responseHandlingElm);
+            builder.responseHandlingConfig(responseHandling);
+        }
+
         return builder.build();
     }
 }

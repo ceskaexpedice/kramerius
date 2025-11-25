@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <lst name="responseHeader">
+        <int name="status">0</int>
+        <int name="QTime">0</int>
+        <lst name="params">
+            <str name="q">pid:"uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf"</str>
+            <str name="rows">1</str>
+            <arr name="wt">
+                <str>xml</str>
+                <str>xml</str>
+            </arr>
+        </lst>
+    </lst>
+    <result name="response" numFound="1" numFoundExact="true" start="0">
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Byron, George Gordon Byron, Baron, 1788-1824</str>
+                <str>Jung, Václav Alois, 1858-1927</str>
+            </arr>
+            <arr name="authors.aut.facet">
+                <str>jn19990001284_Byron, George Gordon Byron, Baron_1788-1824</str>
+                <str>jk01052161_Jung, Václav Alois_1858-1927</str>
+            </arr>
+            <arr name="authors.aut.identifiers">
+                <str>jn19990001284</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>Jung, Václav Alois</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Byron, George Gordon Byron, Baron</str>
+                <str>jn19990001284</str>
+                <str>Jung, Václav Alois</str>
+                <str>jk01052161</str>
+            </arr>
+            <arr name="contains_licenses">
+                <str>public</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>public</str>
+            </arr>
+            <int name="count_monograph_unit">3</int>
+            <date name="created">2025-07-08T13:21:52.781Z</date>
+            <date name="date.max">1905-12-31T23:59:59.999Z</date>
+            <date name="date.min">1904-01-01T00:00:00.001Z</date>
+            <str name="date.str">1904-1905</str>
+            <int name="date_range_end.year">1905</int>
+            <int name="date_range_start.year">1904</int>
+            <arr name="genres.facet">
+                <str>Text</str>
+                <str>Anglická poezie</str>
+                <str>Epická poezie</str>
+                <str>Satirická poezie</str>
+            </arr>
+            <arr name="genres.search">
+                <str>text</str>
+                <str>anglická poezie</str>
+                <str>epická poezie</str>
+                <str>satirická poezie</str>
+            </arr>
+            <bool name="has_tiles">false</bool>
+            <arr name="id_ccnb">
+                <str>cnb002167224</str>
+                <str>cnb001043046</str>
+                <str>cnb001043047</str>
+                <str>cnb000564418</str>
+                <str>cnb001525524</str>
+            </arr>
+            <arr name="id_all">
+                <str>cnb002167224</str>
+                <str>cnb001043046</str>
+                <str>cnb001043047</str>
+                <str>cnb000564418</str>
+                <str>cnb001525524</str>
+                <str>707610255</str>
+                <str>85474166</str>
+                <str>85649043</str>
+                <str>85649046</str>
+                <str>50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            </arr>
+            <arr name="id_oclc">
+                <str>707610255</str>
+                <str>85474166</str>
+                <str>85649043</str>
+                <str>85649046</str>
+            </arr>
+            <arr name="id_uuid">
+                <str>50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            </arr>
+            <date name="indexed">2025-11-11T10:23:46.586Z</date>
+            <int name="indexer_version">21</int>
+            <arr name="keywords.facet">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Anglická poezie, anglicky psaná</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+            </arr>
+            <int name="level">0</int>
+            <arr name="mdt">
+                <str>821.111-1</str>
+            </arr>
+            <str name="model">monograph</str>
+            <date name="modified">2025-08-27T14:35:51.145Z</date>
+            <str name="own_model_path">monograph</str>
+            <str name="own_pid_path">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <arr name="physical_locations.facet">
+                <str>ABA007</str>
+            </arr>
+            <arr name="physical_locations.search">
+                <str>ABA007</str>
+                <str>ABA007</str>
+            </arr>
+            <str name="pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <arr name="pid_paths">
+                <str>uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            </arr>
+            <arr name="publication_places.facet">
+                <str>V Praze</str>
+            </arr>
+            <arr name="publication_places.search">
+                <str>V Praze</str>
+            </arr>
+            <arr name="publishers.facet">
+                <str>Nakladatelství J. Otty</str>
+            </arr>
+            <arr name="publishers.search">
+                <str>Nakladatelství J. Otty</str>
+            </arr>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:50be5fb2-0694-47b4-be28-e6e189d9a6cf</str>
+            <str name="root.title">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="root.title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <arr name="shelf_locators">
+                <str>GK 757</str>
+            </arr>
+            <str name="title.search">Don Juan lorda Byrona: satirický román ve verších</str>
+            <str name="title.sort">DON JUAN LORDA BYRONA SATIRICKY| ROMA|N VE VERS|I|H|</str>
+            <arr name="titles.search">
+                <str>Don Juan lorda Byrona: satirický román ve verších</str>
+                <str>Don Juan. Česky</str>
+            </arr>
+            <long name="_version_">1848489155626008576</long>
+        </doc>
+    </result>
+</response>

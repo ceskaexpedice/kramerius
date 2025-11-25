@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+    <lst name="responseHeader">
+        <bool name="zkConnected">true</bool>
+        <int name="status">0</int>
+        <int name="QTime">8</int>
+        <lst name="params">
+            <str name="q">pid:"uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b"</str>
+            <str name="rows">1</str>
+            <arr name="wt">
+                <str>xml</str>
+                <str>xml</str>
+            </arr>
+        </lst>
+    </lst>
+    <result maxScore="5.830641" name="response" numFound="1" numFoundExact="true" start="0">
+        <doc>
+            <str name="accessibility">private</str>
+            <arr name="authors">
+                <str>Šrámek-Hušek, Rudolf, 1907-1962</str>
+                <str>Biologický ústav (Československá akademie věd)</str>
+            </arr>
+            <arr name="authors.facet">
+                <str>Šrámek-Hušek, Rudolf</str>
+                <str>Biologický ústav (Československá akademie věd)</str>
+            </arr>
+            <arr name="authors.search">
+                <str>Šrámek-Hušek, Rudolf</str>
+                <str>Biologický ústav (Československá akademie věd)</str>
+            </arr>
+            <str name="compositeId">uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b!uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b</str>
+            <int name="count_page">36</int>
+            <date name="created">2025-11-24T13:06:24.714Z</date>
+            <date name="date.max">1961-12-31T23:59:59.999Z</date>
+            <date name="date.min">1961-01-01T00:00:00.001Z</date>
+            <str name="date.str">1961</str>
+            <int name="date_range_end.year">1961</int>
+            <int name="date_range_start.year">1961</int>
+            <str name="ds.img_full.mime">image/jpeg</str>
+            <arr name="foster_parents.pids">
+                <str>uuid:7252befa-0e8c-4875-af64-882b6ed328ef</str>
+            </arr>
+            <arr name="genres.facet">
+                <str>Adresáře</str>
+            </arr>
+            <arr name="genres.search">
+                <str>adresáře</str>
+            </arr>
+            <arr name="geographic_names.facet">
+                <str>Československo</str>
+            </arr>
+            <arr name="geographic_names.search">
+                <str>Československo</str>
+            </arr>
+            <bool name="has_tiles">true</bool>
+            <arr name="id_ccnb">
+                <str>cnb000611879</str>
+            </arr>
+            <arr name="id_other">
+                <str>barcode:26006413626</str>
+            </arr>
+            <arr name="id_urnnbn">
+                <str>urn:nbn:cz:aba007-000n0c</str>
+            </arr>
+            <arr name="id_uuid">
+                <str>0eb84db4-984b-41c6-8d99-4fead0b14f8b</str>
+            </arr>
+            <arr name="in_collections">
+                <str>uuid:7252befa-0e8c-4875-af64-882b6ed328ef</str>
+            </arr>
+            <arr name="in_collections.direct">
+                <str>uuid:7252befa-0e8c-4875-af64-882b6ed328ef</str>
+            </arr>
+            <date name="indexed">2025-11-24T12:13:54.609Z</date>
+            <int name="indexer_version">20</int>
+            <arr name="keywords.facet">
+                <str>Obecná ekologie</str>
+                <str>Hydrobiologie</str>
+                <str>Hydrobiologové</str>
+            </arr>
+            <arr name="keywords.search">
+                <str>Obecná ekologie</str>
+                <str>hydrobiologie</str>
+                <str>hydrobiologové</str>
+            </arr>
+            <arr name="languages.facet">
+                <str>cze</str>
+                <str>eng</str>
+            </arr>
+            <int name="level">0</int>
+            <arr name="licenses">
+                <str>onsite</str>
+            </arr>
+            <arr name="licenses.facet">
+                <str>onsite</str>
+            </arr>
+            <arr name="mdt">
+                <str>574.5</str>
+            </arr>
+            <str name="model">monograph</str>
+            <date name="modified">2025-11-24T13:06:33.280Z</date>
+            <str name="own_model_path">monograph</str>
+            <str name="own_pid_path">uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b</str>
+            <arr name="physical_locations.facet">
+                <str>ABA007</str>
+            </arr>
+            <str name="pid">uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b</str>
+            <arr name="pid_paths">
+                <str>uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b</str>
+                <str>uuid:7252befa-0e8c-4875-af64-882b6ed328ef/uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b</str>
+            </arr>
+            <arr name="publication_places.facet">
+                <str>Praha</str>
+            </arr>
+            <arr name="publication_places.search">
+                <str>Praha</str>
+            </arr>
+            <arr name="publishers.facet">
+                <str>Nakladatelství ČSAV</str>
+            </arr>
+            <arr name="publishers.search">
+                <str>Nakladatelství ČSAV</str>
+            </arr>
+            <str name="root.model">monograph</str>
+            <str name="root.pid">uuid:0eb84db4-984b-41c6-8d99-4fead0b14f8b</str>
+            <str name="root.title">Hydrobiologie a příbuzné vědní obory v Československu: přehled ústavů a adresář pracovníků</str>
+            <str name="root.title.sort">HYDROBIOLOGIE A PR|I|BUZNE| VE|DNI| OBORY V C|ESKOSLOVENSKU PR|EHLED U|STAVU| A ADRESA|R| PRACOVNI|KU|</str>
+            <arr name="shelf_locators">
+                <str>F 66897</str>
+            </arr>
+            <str name="title.search">Hydrobiologie a příbuzné vědní obory v Československu: přehled ústavů a adresář pracovníků</str>
+            <str name="title.sort">HYDROBIOLOGIE A PR|I|BUZNE| VE|DNI| OBORY V C|ESKOSLOVENSKU PR|EHLED U|STAVU| A ADRESA|R| PRACOVNI|KU|</str>
+            <arr name="titles.search">
+                <str>Hydrobiologie a příbuzné vědní obory v Československu: přehled ústavů a adresář pracovníků</str>
+                <str>Hydrobiology and related scientific branches in Czechoslovakia</str>
+            </arr>
+            <long name="_version_">1849673842275909632</long>
+        </doc>
+    </result>
+</response>
