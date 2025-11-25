@@ -8,7 +8,7 @@
     <timestamp>$timestamp.url$</timestamp>
 
     <!-- Iteration part -->
-    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
     <iteration>
         <url>$iteration.url$</url>
         <user>$iteration.user$</user>
@@ -26,7 +26,7 @@
 
     <threads>2</threads>
 
-    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
     <worker>
         <request>
             <url>$iteration.url$</url>

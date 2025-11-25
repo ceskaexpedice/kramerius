@@ -1,0 +1,85 @@
+<!--  Metska knihovna Praha/mlp   -->
+<migration>
+
+    <source-name>mlp</source-name>
+    <name>mlp-full</name>
+
+    <iteration>
+
+        <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
+
+        <url>$iteration.url$</url>
+        <endpoint>select</endpoint>
+
+        <id>PID</id>
+        <rows>4000</rows>
+        <type>CURSOR</type>
+
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
+    </iteration>
+
+    <threads>1</threads>
+
+
+    <worker>
+        <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
+        <request>
+
+            <endpoint>select</endpoint>
+            <batchsize>20</batchsize>
+
+            <url>$iteration.url$</url>
+
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+
+
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+
+            <checkUrl>$destination.url$</checkUrl>
+            <checkEndpoint>select</checkEndpoint>
+
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
+            <trasfrom>K7</trasfrom>
+
+            <fieldlist>indexer_version pid root.pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* titles.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr licenses contains_licenses licenses_of_ancestors</fieldlist>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="cdk.collection">mlp</field>
+                    <field name="cdk.leader">mlp</field>
+
+                </update.dest.field>
+            </onindex>
+
+            <!-- on update -->
+            <onupdate>
+                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr</fieldlist>
+
+                <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">mlp</field>
+
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</migration>
+ 

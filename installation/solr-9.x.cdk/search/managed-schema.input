@@ -10,15 +10,31 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
 
 		<!-- composite field for solr cloud -->	
         <field name="compositeId" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
-
-		<!-- cdk fields --> 
+		<!-- all libraries -->
         <field name="cdk.collection" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
+		<!-- cdk fields; leader where original data came from --> 
         <field name="cdk.leader" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
+		
+		<!--
 		<field name="cdk.contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>
-		<field name="cdk.k5.license.translated" type="string" docValues="true" multiValued="true" stored="true"/>
-		<field name="cdk.k5.marked_for_contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>
 		<field name="cdk.licenses" type="string" docValues="true" multiValued="true" stored="true"/>
 		<field name="cdk.licenses_of_ancestors" type="string" docValues="true" multiValued="true" stored="true"/>
+		-->
+		
+		<!-- has tiles -->
+		<dynamicField name="cdk.has_tiles_*" type="boolean" indexed="true" stored="true" multiValued="false" docValues="true"/>		
+		<dynamicField name="cdk.has_alto_content_*" type="boolean" indexed="true" stored="true" multiValued="false" docValues="true"/>		
+		<dynamicField name="cdk.has_text_ocr_content_*" type="boolean" indexed="true" stored="true" multiValued="false" docValues="true"/>		
+		<dynamicField name="cdk.count_*" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>		
+
+		<!-- contains licenses -->
+		<field name="cdk.contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>
+		<field name="cdk.licenses" type="string" docValues="true" multiValued="true" stored="true"/>
+		<field name="cdk.licenses_of_ancestors" type="string" docValues="true" multiValued="true" stored="true"/>
+		
+		<!-- obsolete: license translation K5 flag to license -->
+		<field name="cdk.k5.license.translated" type="string" docValues="true" multiValued="true" stored="true"/>
+		<field name="cdk.k5.marked_for_contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>
 	</fields>
 
 

@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.inovatika.kramerius.services.iterators.config.TypeOfIteration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.IOUtils;
@@ -44,14 +45,13 @@ import cz.incad.kramerius.TooBigException;
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.incad.kramerius.services.ParallelProcessImpl;
-import cz.incad.kramerius.services.iterators.IterationItem;
-import cz.incad.kramerius.services.iterators.ProcessIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrCursorIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrFilterQueryIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrPageIterator;
-import cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory.TypeOfIteration;
-import cz.incad.kramerius.services.utils.KubernetesSolrUtils;
+import cz.inovatika.kramerius.services.Migration;
+import cz.inovatika.kramerius.services.iterators.IterationItem;
+import cz.inovatika.kramerius.services.iterators.ProcessIterator;
+import cz.inovatika.kramerius.services.iterators.solr.SolrCursorIterator;
+import cz.inovatika.kramerius.services.iterators.solr.SolrFilterQueryIterator;
+import cz.inovatika.kramerius.services.iterators.solr.SolrPageIterator;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 
 public class ReharvestUtils {
     
@@ -84,7 +84,7 @@ public class ReharvestUtils {
                 if (!onlyDisplayCommand) {
                     LOGGER.info(String.format("Deleting identifiers (%d):%s", batchPids.size(), batchPids.toString()));
                     String destinationUrl = destinationMap.get("url")+"/update?commit=true";
-                    String s = KubernetesSolrUtils.sendToDest(destinationUrl, closeableHttpClient, deleteBatch);
+                    String s = HTTPSolrUtils.sendToDest(destinationUrl, closeableHttpClient, deleteBatch);
                     retBuilder.append(s).append("\n");
                 } else {
                     StringWriter writer = new StringWriter();
@@ -114,15 +114,15 @@ public class ReharvestUtils {
             ProcessIterator processIterator = null;
             switch (typeOfIteration) {
                 case CURSOR: {
-                    processIterator =  new SolrCursorIterator(iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    processIterator =  new SolrCursorIterator(iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
                     break;
                 }
                 case FILTER: {
-                    processIterator  = new SolrFilterQueryIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    processIterator  = new SolrFilterQueryIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
                     break;
                 }
                 case PAGINATION: {
-                    processIterator = new SolrPageIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows));
+                    processIterator = new SolrPageIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
                     break;
                 }
             }
@@ -489,7 +489,7 @@ public class ReharvestUtils {
             } else {
                 // safra ?? 
                 try {
-                    ParallelProcessImpl reharvest = new ParallelProcessImpl();
+                    Migration reharvest = new Migration();
                     String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
                     LOGGER.info(String.format("Configuration %s" ,config));
                     reharvest.migrate(harvestFile);

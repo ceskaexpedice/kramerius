@@ -8,7 +8,9 @@ dependencies {
     //api project(':security-core')
     //api project(':fedora-api')
     api project(':shared:common')
-    
+
+    api project(':processes:solr-migration')
+
     //api project(':processes:indexer')
     api project(':bridge')
 

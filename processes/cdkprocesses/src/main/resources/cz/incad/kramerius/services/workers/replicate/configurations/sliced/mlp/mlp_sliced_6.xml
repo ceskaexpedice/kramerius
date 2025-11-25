@@ -9,7 +9,7 @@
      <name>full-crawl-mlp</name>
  
     <!-- Iteration part -->
-    <iteratorFactory class="cz.incad.kramerius.services.iterators.solr.SolrIteratorFactory"></iteratorFactory>
+    <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
     <iteration>
     
         <fquery>created:[2019-01-01T00:00:00.000Z TO 2020-01-01T00:00:00.000Z]</fquery>
@@ -28,7 +28,7 @@
     <threads>1</threads>
 
 
-    <workerFactory class="cz.incad.kramerius.services.workers.replicate.copy.CopyReplicateSolrWorkerFactory"></workerFactory>
+    <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
     <worker>
         <request>
 
