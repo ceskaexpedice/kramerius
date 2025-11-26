@@ -1,0 +1,11 @@
+[
+  {
+    "profileId": "migrationCDK",
+    "description": "Migration CDK",
+    "jvmArgs": [
+      "-Xms1g",
+      "-Xmx16g"
+    ]
+  }
+]
+
