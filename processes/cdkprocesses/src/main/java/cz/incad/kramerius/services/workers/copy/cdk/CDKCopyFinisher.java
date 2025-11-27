@@ -10,9 +10,12 @@ import cz.incad.kramerius.utils.StringUtils;
 
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.MediaType;
@@ -84,5 +87,14 @@ public class CDKCopyFinisher extends WorkerFinisher {
     	}
     	HTTPSolrUtils.commitJersey(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
         LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
+
+        if (!EXCEPTION_DURING_CRAWL.isEmpty()) {
+            LOGGER.log(Level.SEVERE, "Exception during crawl :");
+            EXCEPTION_DURING_CRAWL.forEach(ex -> {
+                StringWriter stringWriter = new StringWriter();
+                PrintWriter pw = new PrintWriter(stringWriter);
+                ex.printStackTrace(pw);
+            });
+        }
     }
 }

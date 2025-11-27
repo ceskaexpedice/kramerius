@@ -4,7 +4,7 @@
 	<name>$iteration.dl$-full</name>
 	<type>full</type>
 	
-	<workingtime>$iteration.workingtime$</workingtime>
+	<working-time>$iteration.workingtime$</working-time>
 	<timestamp>$timestamp.url$</timestamp>
 	
 
