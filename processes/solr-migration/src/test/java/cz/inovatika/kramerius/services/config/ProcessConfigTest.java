@@ -26,6 +26,7 @@ public class ProcessConfigTest {
         String filterQuery = config.getIteratorConfig().getFilterQuery();
         Assert.assertEquals(filterQuery, "$iteration.fquery$");
 
+        String workingTime = config.getWorkingTime();
+        Assert.assertEquals(workingTime, "$iteration.workingtime$");
     }
-
 }

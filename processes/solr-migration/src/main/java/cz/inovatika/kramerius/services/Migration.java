@@ -108,6 +108,7 @@
 
         protected void startWorkers(List<Worker> worksWhasHasToBeDone, String workingtime) throws BrokenBarrierException, InterruptedException {
             if (workingtime != null && workingtime.contains("-")) {
+                LOGGER.info(String.format("Working time for this worker %s", workingtime));
                 String[] intervalParts = workingtime.split("-");
                 String startTime = intervalParts[0];
                 String endTime = intervalParts[1];

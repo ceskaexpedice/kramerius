@@ -159,7 +159,10 @@ public class  ProcessConfig {
         public Builder threads(int threads) { this.threads = threads; return this; }
         public Builder type(String type) { this.type = type; return this; }
 
-        public Builder workingTime(String workingTime) { this.workingTime = workingTime; return this; }
+        public Builder workingTime(String workingTime) {
+            this.workingTime = workingTime;
+            return this;
+        }
         public Builder timestampUrl(String timestampUrl) { this.timestampUrl = timestampUrl; return this; }
         public Builder introspectUrl(String introspectUrl) { this.introspectUrl = introspectUrl; return this; }
 
