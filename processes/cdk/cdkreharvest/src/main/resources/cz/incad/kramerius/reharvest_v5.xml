@@ -1,0 +1,90 @@
+<!--  Reharvest k5 -->
+<cdkprocess>
+
+    <source-name>$iteration.dl$</source-name>
+	<name>$iteration.dl$-reharvest</name>
+	<type>reharvest</type>
+
+    <introspect>$introspect.url$</introspect>
+
+
+    <!-- Iteration part -->
+    <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
+    <iteration>
+        <url>$iteration.url$</url>
+        <endpoint>select</endpoint>
+
+        <id>PID</id>
+        <rows>5000</rows>
+        <type>CURSOR</type>
+
+        <user>$iteration.user$</user>
+        <pass>$iteration.pass$</pass>
+
+        <fquery>$iteration.fquery$</fquery>
+        
+
+    </iteration>
+
+    <threads>1</threads>
+
+
+    <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
+    <worker>
+        <request>
+
+            <endpoint>select</endpoint>
+            
+            <batchsize>$iteration.batch$</batchsize>
+
+            <url>$iteration.url$</url>
+
+            <user>$iteration.user$</user>
+            <pass>$iteration.pass$</pass>
+
+
+            <composite.id>true</composite.id>
+            <composite.root>root_pid</composite.root>
+            <composite.child>PID</composite.child>
+
+
+            <checkUrl>$destination.url$</checkUrl>
+
+            <checkEndpoint>select</checkEndpoint>
+
+            <!-- cdk source field -->
+            <collection>cdk.collection</collection>
+
+            <trasfrom>K7</trasfrom>
+
+        </request>
+
+        <destination>
+            <url>$destination.url$/update</url>
+
+            <!-- on index -->
+            <onindex>
+                <!-- remove from batch document -->
+                <remove.dest.field>
+                    <field name="collection"></field>
+                </remove.dest.field>
+                <!-- append to batch document -->
+                <update.dest.field>
+                    <field name="cdk.collection">$iteration.dl$</field>
+                    <field name="cdk.leader">$iteration.dl$</field>
+
+                </update.dest.field>
+            </onindex>
+
+            <!-- on update -->
+            <onupdate>
+               <fieldlist>PID root_pid dnnt-labels contains-dnnt-labels dostupnost fedora.model</fieldlist>
+               <update.dest.field>
+                    <field name="cdk.collection" update="add-distinct">$iteration.dl$</field>
+                </update.dest.field>
+            </onupdate>
+
+        </destination>
+    </worker>
+</cdkprocess>
+ 

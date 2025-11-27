@@ -12,7 +12,7 @@ dependencies {
 processWorker {
 	workerName = "cdkworker"
 
-	warArtifact = "org.ceskaexpedice:process-worker:1.0-dev"
+	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
 
     plugins = [
         project(":processes:cdk:cdkprocesses")

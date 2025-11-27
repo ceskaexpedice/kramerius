@@ -9,7 +9,8 @@ processPlugin {
 }
 
 dependencies {
-    implementation 'org.ceskaexpedice:process-api:1.0-dev'
+	api "org.ceskaexpedice:process-api:${processapiversion}"
+	
     api project(':shared:common')
     api project(':processes:solr-migration')
     api project(':bridge')
