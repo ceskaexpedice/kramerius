@@ -26,6 +26,15 @@ import java.util.logging.Logger;
 public class CDKMigration {
     private static final Logger LOGGER = Logger.getLogger(CDKMigration.class.getName());
 
+    // Factory methods that we can override/mock if needed
+    static Migration createMigration() throws MigrateSolrIndexException {
+        return new Migration();
+    }
+
+    static File createTempFile() throws IOException {
+        return File.createTempFile("temp", "file");
+    }
+
     @ProcessMethod
     public static void migrateMain(
             @ParameterName("configSource") String configSource,
@@ -34,7 +43,10 @@ public class CDKMigration {
             @ParameterName("iterationId") String iterationId,
             @ParameterName("iterationUrl") String iterationUrl,
             @ParameterName("showConfigurationOnly") Boolean showConfigurationOnly
-    ) throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException {
+    ) throws MigrateSolrIndexException, IOException, ParserConfigurationException,
+            ClassNotFoundException, IllegalAccessException, InstantiationException,
+            SAXException, NoSuchMethodException {
+
         Map<String, String> env = createEnvMapFromPars(destinationUrl, iterationDl, iterationId, iterationUrl);
         InputStream stream = CDKMigration.class.getResourceAsStream(configSource);
         if (configSource.trim().startsWith("file:///")) {
@@ -58,12 +70,11 @@ public class CDKMigration {
             String configuration = template.toString();
             LOGGER.info("Loading configuration " + configuration);
 
-            File tmpFile = File.createTempFile("temp", "file");
+            File tmpFile = createTempFile();
             FileUtils.write(tmpFile, configuration, "UTF-8");
 
-
             if (!showConfigurationOnly) {
-                Migration migr = new Migration();
+                Migration migr = createMigration();
                 migr.migrate(tmpFile);
             }
 
@@ -81,4 +92,5 @@ public class CDKMigration {
         // TODO add all other supported pars
         return envMap;
     }
+
 }

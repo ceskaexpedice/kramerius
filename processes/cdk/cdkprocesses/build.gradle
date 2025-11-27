@@ -17,7 +17,8 @@ dependencies {
     testImplementation 'org.xmlunit:xmlunit-core:2.8.4'
     testImplementation group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.8.4'
     testImplementation group: 'org.xmlunit',	 name: 'xmlunit-assertj', version: '2.8.4'
-
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
 }
 
 configurations.api {
