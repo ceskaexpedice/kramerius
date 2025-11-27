@@ -6,9 +6,18 @@ pluginManagement {
         maven {
             url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-worker-plugin-gradle/docs")
         }
+		maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/refs/heads/main/process-plugin-gradle/docs")
+        }
+        maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/refs/heads/main/process-worker-plugin-gradle/docs")
+        }
         gradlePluginPortal()
     }
 }
+
+
+
 
 // cdk bridge
 
@@ -53,8 +62,11 @@ include 'security:authfilters'
 include 'security:oauth'
 
 // CDK Reharvest module
-include 'processes:cdkreharvest'
-include 'processes:cdkprocesses'
+include 'processes:cdk:cdkreharvest'
+include 'processes:cdk:cdkprocesses'
+include 'processes:cdk:worker'
+
+
 
 // test worker - only for testing (contains mock plugin
 include 'nprocesses:test:worker'

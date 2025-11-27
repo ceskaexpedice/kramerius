@@ -1,0 +1,21 @@
+
+plugins {
+    id 'org.ceskaexpedice.processplatform.worker' version '1.0.3'
+}
+
+dependencies {
+    api project(':shared:common')
+    api project(':processes:cdk:cdkprocesses')
+}
+
+
+processWorker {
+	workerName = "cdkworker"
+
+	warArtifact = "org.ceskaexpedice:process-worker:1.0-dev"
+
+    plugins = [
+        project(":processes:cdk:cdkprocesses")
+    ]
+	
+}
