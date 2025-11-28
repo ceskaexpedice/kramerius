@@ -1,5 +1,5 @@
-
 plugins {
+	id 'com.google.cloud.tools.jib'
     id 'org.ceskaexpedice.processplatform.worker' version '1.0.3'
 }
 
@@ -17,5 +17,35 @@ processWorker {
     plugins = [
         project(":processes:cdk:cdkprocesses")
     ]
-	
+}
+
+
+jib {
+    from {
+        image = 'tomcat:9.0.87-jdk21-temurin-jammy' 
+    }
+    to {
+        image = "ceskaexpedice/cdk-worker:${version}"
+    }
+
+    extraDirectories {
+        paths {
+            path {
+                from = project.file('build/worker/webapps').path
+                into = '/usr/local/tomcat/webapps' 
+            }
+        }
+        
+        paths {
+            path {
+                from = project.file('build/worker/lib/plugins')
+                into = '/usr/local/tomcat/lib/plugins' 
+            }
+        }
+    }
+	container {
+		entrypoint = ['/usr/local/tomcat/bin/catalina.sh', 'run']
+        appRoot = '/usr/local/tomcat/webapps/worker'
+        user = '0'
+    }
 }
