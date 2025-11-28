@@ -260,6 +260,19 @@ allprojects {
                 }
             }
 		}
+		maven {
+			url "https://maven.pkg.github.com/ceskaexpedice/process-platform"
+            credentials {
+                if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
+                    println "Using project properties for GitHub credentials"
+                    username = "$githubRepositoryUser"
+                    password = "$githubRepositoryToken"
+                } else {
+                    username = System.getenv("USERNAME")
+                    password = System.getenv("TOKEN")
+                }
+            }
+		}
     }
 
     tasks.withType(Javadoc) {
