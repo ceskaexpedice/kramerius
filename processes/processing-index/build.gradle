@@ -3,6 +3,6 @@ description "Processing index"
 
 dependencies {
     implementation project(':shared:common')
-    implementation 'org.ceskaexpedice:process-api:1.0-dev'
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
 

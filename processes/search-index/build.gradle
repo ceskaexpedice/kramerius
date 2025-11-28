@@ -41,7 +41,7 @@ dependencies {
         }
     }
 
-    implementation 'org.ceskaexpedice:process-api:1.0-dev'
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
 
 
     //  testCompile group: 'junit', name: 'junit', version: '4.12'

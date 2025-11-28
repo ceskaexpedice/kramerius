@@ -6,7 +6,7 @@ plugins {
 processWorker {
 	workerName = "testworker"
 
-	warArtifact = 'org.ceskaexpedice:process-worker:1.0-dev'
+	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
 	
     plugins = [
 		// import process - foxml a ndkmets

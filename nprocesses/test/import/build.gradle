@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'org.ceskaexpedice:process-api:1.0-dev'
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
     implementation 'org.ceskaexpedice:process-common:1.0-dev'
 	api project(':shared:common')
 

@@ -3,7 +3,7 @@ dependencies {
     // implementation project(':processes:indexer')
     implementation project(':processes:import')
     implementation project(':processes:solr-migration')
-    implementation 'org.ceskaexpedice:process-api:1.0-dev'
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
 
     implementation project(':processes:search-index')
 

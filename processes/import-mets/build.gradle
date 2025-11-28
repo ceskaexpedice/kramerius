@@ -21,7 +21,7 @@ dependencies {
 
     api 'commons-codec:commons-codec:1.5'
     api 'org.safehaus.jug:jug:2.0.0:lgpl@jar'
-    implementation 'org.ceskaexpedice:process-api:1.0-dev'
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
 
 }
 
