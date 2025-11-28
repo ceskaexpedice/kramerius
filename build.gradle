@@ -189,9 +189,10 @@ allprojects {
 		}
 		
 		
+		/* tls handshake error
         maven {
             url "https://maven.geotoolkit.org/"
-        }
+        }*/
 
         maven {
             url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases"
