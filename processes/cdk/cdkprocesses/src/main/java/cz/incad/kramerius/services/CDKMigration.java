@@ -7,6 +7,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.xml.sax.SAXException;
@@ -37,12 +38,12 @@ public class CDKMigration {
 
     @ProcessMethod
     public static void migrateMain(
-            @ParameterName("configSource") String configSource,
-            @ParameterName("destinationUrl") String destinationUrl,
-            @ParameterName("iterationDl") String iterationDl,
-            @ParameterName("iterationId") String iterationId,
-            @ParameterName("iterationUrl") String iterationUrl,
-            @ParameterName("showConfigurationOnly") Boolean showConfigurationOnly
+            @ParameterName("configSource") @IsRequired String configSource,
+            @ParameterName("destinationUrl") @IsRequired String destinationUrl,
+            @ParameterName("iterationDl") @IsRequired String iterationDl,
+            @ParameterName("iterationId") @IsRequired String iterationId,
+            @ParameterName("iterationUrl") @IsRequired String iterationUrl,
+            @ParameterName("showConfigurationOnly") @IsRequired Boolean showConfigurationOnly
     ) throws MigrateSolrIndexException, IOException, ParserConfigurationException,
             ClassNotFoundException, IllegalAccessException, InstantiationException,
             SAXException, NoSuchMethodException {

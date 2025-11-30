@@ -1,11 +1,29 @@
 plugins {
     id 'application'
     id 'java-library'
-    id 'org.ceskaexpedice.processplatform.process' version '1.0.0'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
 }
 
+description = 'Project for migration data from remote kramerius to cdk index'
+
+
+
+
+
+
 processPlugin {
-    pluginName = "migrationCDK"
+    //pluginName = "${project.name}"
+	spiImplementation='cz.incad.kramerius.plugin.CDKMigrationSPI'
+	
+	/*	
+	profiles = [
+		[
+			"profileId": "${project.name}",
+			"description": "${project.description}",
+			jvmArgs: ["-Xms1g","-Xmx32g"]
+        ]
+    ]*/
+
 }
 
 dependencies {
@@ -13,7 +31,7 @@ dependencies {
 	
     api project(':shared:common')
     api project(':processes:solr-migration')
-    api project(':bridge')
+    //api project(':bridge')
     testImplementation 'org.xmlunit:xmlunit-core:2.8.4'
     testImplementation group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.8.4'
     testImplementation group: 'org.xmlunit',	 name: 'xmlunit-assertj', version: '2.8.4'

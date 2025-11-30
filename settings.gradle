@@ -62,7 +62,7 @@ include 'security:authfilters'
 include 'security:oauth'
 
 // CDK Reharvest module
-include 'processes:cdk:cdkreharvest'
+//include 'processes:cdk:cdkreharvest'
 include 'processes:cdk:cdkprocesses'
 include 'processes:cdk:worker'
 

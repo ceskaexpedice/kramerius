@@ -3,7 +3,6 @@ package cz.incad.kramerius.services.utils;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import org.easymock.EasyMock;
-import org.jetbrains.annotations.NotNull;
 
 import javax.ws.rs.core.MediaType;
 import java.net.MalformedURLException;
@@ -27,7 +26,6 @@ public class SolrMockWebCall {
         return webCallExpectMimeType(client, firstReq, firstResp, MediaType.APPLICATION_JSON);
     }
 
-    @NotNull
     private static List<Object> webCallExpectMimeType(Client client, String firstReq, String firstResp, String mimeType) throws URISyntaxException, MalformedURLException {
         WebResource firstResource = EasyMock.createMock(WebResource.class);
         WebResource.Builder firstResourceBuilder = EasyMock.createMock(WebResource.Builder.class);

@@ -2,7 +2,6 @@ package cz.incad.kramerius.services.utils;
 
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -58,7 +57,6 @@ public class ResultsUtils {
         }).collect(Collectors.toList());
     }
 
-    @NotNull
     public static Map<String, Object> doc(Element d) {
         List<String> simpleFields = Arrays.asList("str","date","int");
         Map<String, Object> map = new HashMap<>();

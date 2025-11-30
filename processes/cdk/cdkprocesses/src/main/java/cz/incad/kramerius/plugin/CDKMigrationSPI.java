@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.plugin;
 
+import org.ceskaexpedice.processplatform.api.AbstractPluginSpi;
 import org.ceskaexpedice.processplatform.api.PluginSpi;
 import org.ceskaexpedice.processplatform.common.model.PayloadFieldSpec;
 import org.ceskaexpedice.processplatform.common.model.PayloadFieldType;
@@ -28,38 +29,11 @@ import java.util.Set;
  * ImportSPI
  * @author ppodsednik
  */
-public class CDKMigrationSPI implements PluginSpi {
-
-    @Override
-    public String getPluginId() {
-        return "migrationCDK";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Migration CDK";
-    }
+public class CDKMigrationSPI extends AbstractPluginSpi {
 
     @Override
     public String getMainClass() {
         return "cz.incad.kramerius.services.CDKMigration";
-    }
-
-    @Override
-    public Map<String, PayloadFieldSpec> getPayloadSpec() {
-        Map<String, PayloadFieldSpec>  map = new HashMap<>();
-        map.put("configSource", new PayloadFieldSpec(PayloadFieldType.STRING, true));
-        map.put("destinationUrl", new PayloadFieldSpec(PayloadFieldType.BOOLEAN, true));
-        map.put("iterationDl", new PayloadFieldSpec(PayloadFieldType.STRING, true));
-        map.put("iterationId", new PayloadFieldSpec(PayloadFieldType.STRING, true));
-        map.put("iterationUrl", new PayloadFieldSpec(PayloadFieldType.STRING, true));
-        map.put("showConfigurationOnly", new PayloadFieldSpec(PayloadFieldType.STRING, false));
-        return map;
-    }
-
-    @Override
-    public Set<String> getScheduledProfiles() {
-        return null;
     }
 
 }
