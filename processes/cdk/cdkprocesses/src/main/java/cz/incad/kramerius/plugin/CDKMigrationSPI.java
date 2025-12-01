@@ -17,16 +17,9 @@
 package cz.incad.kramerius.plugin;
 
 import org.ceskaexpedice.processplatform.api.AbstractPluginSpi;
-import org.ceskaexpedice.processplatform.api.PluginSpi;
-import org.ceskaexpedice.processplatform.common.model.PayloadFieldSpec;
-import org.ceskaexpedice.processplatform.common.model.PayloadFieldType;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
- * ImportSPI
+ * CDKMigrationSPI
  * @author ppodsednik
  */
 public class CDKMigrationSPI extends AbstractPluginSpi {
