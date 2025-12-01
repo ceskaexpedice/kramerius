@@ -7,23 +7,8 @@ plugins {
 description = 'Project for migration data from remote kramerius to cdk index'
 
 
-
-
-
-
 processPlugin {
-    //pluginName = "${project.name}"
 	spiImplementation='cz.incad.kramerius.plugin.CDKMigrationSPI'
-	
-	/*	
-	profiles = [
-		[
-			"profileId": "${project.name}",
-			"description": "${project.description}",
-			jvmArgs: ["-Xms1g","-Xmx32g"]
-        ]
-    ]*/
-
 }
 
 dependencies {
