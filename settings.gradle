@@ -64,7 +64,12 @@ include 'security:oauth'
 
 
 // Curator platform module
-include 'processes:platform:curator:import-plugin'
+include 'processes:platform:curator:import-ndkmets'
+include 'processes:platform:curator:import-foxml'
+include 'processes:platform:curator:search-index-model'
+include 'processes:platform:curator:search-index-object'
+include 'processes:platform:curator:processing-index-repository'
+include 'processes:platform:curator:processing-index-object'
 include 'processes:platform:curator:worker'
 
 
@@ -72,18 +77,10 @@ include 'processes:platform:curator:worker'
 include 'processes:platform:cdk:cdk-migration-plugin'
 include 'processes:platform:cdk:worker'
 
-// CDK Reharvest module
-//include 'processes:cdk:cdkreharvest'
-//include 'processes:cdk:worker'
 
 
 
-// test worker - only for testing (contains mock plugin
-//include 'nprocesses:test:worker'
 
-// mock plugin
-//include 'nprocesses:test:mock'
-//include 'nprocesses:test:import'
 
 
 

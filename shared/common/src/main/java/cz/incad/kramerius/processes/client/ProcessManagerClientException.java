@@ -21,23 +21,31 @@ package cz.incad.kramerius.processes.client;
  * @author ppodsednik
  */
 public class ProcessManagerClientException extends RuntimeException {
-    private ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 
-    public ProcessManagerClientException(String message, ErrorCode errorCode) {
+    private ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+    private int statusCode = -1;
+    public ProcessManagerClientException(String message, ErrorCode errorCode,  int statusCode) {
         super(message);
         this.errorCode = errorCode;
+        this.statusCode = statusCode;
     }
 
     public ErrorCode getErrorCode() {
         return errorCode;
     }
 
-    public ProcessManagerClientException(String message, Throwable cause) {
-        super(message, cause);
+    public int getStatusCode() {
+        return statusCode;
     }
 
-    public ProcessManagerClientException(String message) {
+    public ProcessManagerClientException(String message, Throwable cause, int statusCode) {
+        super(message, cause);
+        this.statusCode = statusCode;
+    }
+
+    public ProcessManagerClientException(String message, int statusCode) {
         super(message);
+        this.statusCode = statusCode;
     }
 
 }

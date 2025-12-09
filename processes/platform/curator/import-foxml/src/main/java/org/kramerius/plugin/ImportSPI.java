@@ -14,26 +14,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.incad.kramerius.plugin;
+package org.kramerius.plugin;
 
 import org.ceskaexpedice.processplatform.api.AbstractPluginSpi;
 
 import java.util.Set;
 
 /**
- * CDKMigrationSPI
+ * ImportSPI
  * @author ppodsednik
  */
-public class CDKMigrationSPI extends AbstractPluginSpi {
+public class ImportSPI extends AbstractPluginSpi {
+
 
     @Override
     public String getMainClass() {
-        return "cz.incad.kramerius.services.CDKMigration";
+        return ImportPlatformStarter.class.getName();
     }
 
     @Override
     public Set<String> getScheduledProfiles() {
-        return Set.of();
+        return Set.of(
+            "new_indexer_index_object",
+            "new_indexer_index_model"
+        );
     }
 
 }

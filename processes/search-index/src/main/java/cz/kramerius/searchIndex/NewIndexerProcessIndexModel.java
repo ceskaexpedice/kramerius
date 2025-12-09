@@ -50,16 +50,15 @@ public class NewIndexerProcessIndexModel {
      * args[7] - index objects that indexed with current version of indexer
      * args[8]  - optional - if false, do not update Process name, just log (for running as standalone process)
      */
-    @ProcessMethod
     public static void indexMain(
-            @ParameterName("indexationType") String indexationType,
-            @ParameterName("modelPid") String modelPid,
-            @ParameterName("indexNotIndexed") Boolean indexNotIndexed,
-            @ParameterName("indexRunningOrError") Boolean indexRunningOrError,
-            @ParameterName("indexIndexedOutdated") Boolean indexIndexedOutdated,
-            @ParameterName("indexIndexed") Boolean indexIndexed,
-            @ParameterName("ignoreInconsistentObjects") Boolean ignoreInconsistentObjects,
-            @ParameterName("updateProcessName") Boolean updateProcessName
+            String indexationType,
+            String modelPid,
+            Boolean indexNotIndexed,
+            Boolean indexRunningOrError,
+            Boolean indexIndexedOutdated,
+            Boolean indexIndexed,
+            Boolean ignoreInconsistentObjects,
+            Boolean updateProcessName
     ) throws IOException {
         PluginContext pluginContext = PluginContextHolder.getContext();
         //process params

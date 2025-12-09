@@ -6,7 +6,6 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputField;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
@@ -54,9 +53,8 @@ public class ProcessingIndexRebuildFromFoxmlByPid {
      * args[0] - authToken
      * args[1] - pid ; pidslist
      */
-    @ProcessMethod
-    public static void setLicenseMain(
-            @ParameterName("pids") String pidsP
+    public static void processingMain(
+            String pidsP
     ) {
         PluginContext pluginContext = PluginContextHolder.getContext();
         List<String> pids = extractPids(pidsP); // pid muze byt pidslist  pid1;pid2;pid3;pid4

@@ -111,8 +111,7 @@ public class Import {
             String scheduleStrategyS
     ) throws IOException, SolrServerException {
 
-        log.info(String.format("Import directory %s", importDirFromArgs));
-
+        log.info(String.format("Import directory %s, start indexer %b", importDirFromArgs, startIndexerFromArgs));
         ScheduleStrategy indexationType = ScheduleStrategy.indexRoots;
         if (startIndexerFromArgs) {
             indexationType = ScheduleStrategy.fromArg(scheduleStrategyS);
@@ -136,7 +135,9 @@ public class Import {
         if (startIndexerFromArgs) {
             startIndexer = true;
         } else if (System.getProperties().containsKey("ingest.startIndexer")) {
-            startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
+            String sysProp = System.getProperty("ingest.startIndexer");
+            log.info("Starting indexer loaded from sys prop " + sysProp);
+            startIndexer = Boolean.valueOf(sysProp);
         }
 
         try {
@@ -312,7 +313,7 @@ public class Import {
                             payload.put("type", "object");
                             payload.put("ignoreInconsistentObjects", "true");
 
-                            ScheduleSubProcess subProcess = new ScheduleSubProcess("indexer", payload);
+                            ScheduleSubProcess subProcess = new ScheduleSubProcess("new_indexer_index_object", payload);
                             PluginContext pluginContext = PluginContextHolder.getContext();
                             pluginContext.scheduleSubProcess(subProcess);
 
@@ -341,7 +342,54 @@ public class Import {
                             payload.put("type", "object");
                             payload.put("ignoreInconsistentObjects", "true");
 
-                            ScheduleSubProcess subProcess = new ScheduleSubProcess("indexer", payload);
+
+//                            //TODO: cleanup
+//                            public static void scheduleIndexation(String pid, String title, boolean includingDescendants, String parentProcessAuthToken) {
+//                                JSONObject data = new JSONObject();
+//                                data.put("defid", "new_indexer_index_object");
+//                                JSONObject params = new JSONObject();
+//                                params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+//                                params.put("pid", pid);
+//                                params.put("title", title);
+//                                params.put("ignoreInconsistentObjects", true);
+//                                data.put("params", params);
+//                                schedule(data.toString(), parentProcessAuthToken);
+//                            }
+//
+//                            //TODO: cleanup
+//                            public static void scheduleIndexation(List<String> pidlist, String title, boolean includingDescendants, String parentProcessAuthToken) {
+//                                JSONObject data = new JSONObject();
+//                                data.put("defid", "new_indexer_index_object");
+//                                JSONObject params = new JSONObject();
+//                                params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+//
+//                                JSONArray jsonArray = new JSONArray();
+//                                pidlist.stream().forEach(jsonArray::add);
+//
+//                                params.put("pidlist", jsonArray);
+//                                params.put("title", title);
+//                                params.put("ignoreInconsistentObjects", true);
+//                                data.put("params", params);
+//                                schedule(data.toString(), parentProcessAuthToken);
+//                            }
+//
+//                            //TODO: cleanup
+//                            public static void scheduleIndexation(File pidListFile, String title, boolean includingDescendants, String parentProcessAuthToken) {
+//                                JSONObject data = new JSONObject();
+//                                data.put("defid", "new_indexer_index_object");
+//                                JSONObject params = new JSONObject();
+//                                params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+//
+//                                params.put("pidlist_file", pidListFile.getAbsolutePath());
+//                                params.put("title", title);
+//                                params.put("ignoreInconsistentObjects", true);
+//                                data.put("params", params);
+//                                schedule(data.toString(), parentProcessAuthToken);
+//                            }
+
+
+
+                            ScheduleSubProcess subProcess = new ScheduleSubProcess("new_indexer_index_object", payload);
                             PluginContext pluginContext = PluginContextHolder.getContext();
                             pluginContext.scheduleSubProcess(subProcess);
 
@@ -370,7 +418,7 @@ public class Import {
                             payload.put("type", schedule == ImportInventoryItem.TypeOfSchedule.TREE ? "tree" : "object");
                             payload.put("ignoreInconsistentObjects", "true");
 
-                            ScheduleSubProcess subProcess = new ScheduleSubProcess("indexer", payload);
+                            ScheduleSubProcess subProcess = new ScheduleSubProcess("new_indexer_index_object", payload);
                             PluginContext pluginContext = PluginContextHolder.getContext();
                             pluginContext.scheduleSubProcess(subProcess);
 

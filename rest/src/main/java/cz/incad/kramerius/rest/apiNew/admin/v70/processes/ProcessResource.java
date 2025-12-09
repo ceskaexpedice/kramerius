@@ -306,6 +306,14 @@ public class ProcessResource extends AdminApiResource {
             JSONObject result = new JSONObject();
             result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
             return Response.ok().entity(result.toString()).build();
+        } catch (ProcessManagerClientException e) {
+            if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
+                throw new NotFoundException(e.getMessage());
+            } else if  (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
+                throw new BadRequestException(e.getMessage());
+            } else {
+                throw e;
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

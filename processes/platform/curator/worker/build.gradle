@@ -4,15 +4,35 @@ plugins {
 }
 
 dependencies {
-    api project(":processes:platform:curator:import-plugin")
+	// imports
+    implementation project(":processes:platform:curator:import-foxml")
+    implementation project(":processes:platform:curator:import-ndkmets")
+
+    // search index - indexation
+    implementation project(":processes:platform:curator:search-index-model")
+    implementation project(":processes:platform:curator:search-index-object")
+
+    // processing index - indexation
+    implementation project(":processes:platform:curator:processing-index-repository")
+    implementation project(":processes:platform:curator:processing-index-object")
 }
+
 
 
 processWorker {
 	workerName = "curatorworker"
 	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
 	plugins = [
-		project(":processes:platform:curator:import-plugin")
+        // imports
+        project(":processes:platform:curator:import-ndkmets"),
+		project(":processes:platform:curator:import-foxml"),
+        // search index - indexation
+        project(":processes:platform:curator:search-index-model"),
+        project(":processes:platform:curator:search-index-object"),
+        // processing index - indexation
+        project(":processes:platform:curator:processing-index-repository"),
+        project(":processes:platform:curator:processing-index-object")
+
     ]
 }
 

@@ -46,9 +46,8 @@ public class ProcessingIndexRebuild {
     private volatile static long counter = 0;
 
 
-    @ProcessMethod
     public static void rebuildMain(
-            @ParameterName("action") String action
+            String action
     ) throws IOException {
         PluginContext pluginContext = PluginContextHolder.getContext();
         if ("REBUILDPROCESSING".equalsIgnoreCase(action)){

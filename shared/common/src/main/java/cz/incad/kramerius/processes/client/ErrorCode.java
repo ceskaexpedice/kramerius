@@ -21,7 +21,33 @@ package cz.incad.kramerius.processes.client;
  * @author ppodsednik
  */
 public enum ErrorCode {
-    NOT_FOUND,
-    INVALID_INPUT,
-    INTERNAL_SERVER_ERROR,
+
+
+    NOT_FOUND{
+        public boolean accept(int statusCode) {
+            return statusCode == 404;
+        }
+    },
+    INVALID_INPUT {
+        public boolean accept(int statusCode) {
+            return statusCode == 400;
+        }
+    },
+    INTERNAL_SERVER_ERROR {
+        public boolean accept(int statusCode) {
+            return statusCode != 400 && statusCode != 404;
+        }
+
+    };
+
+    public abstract boolean accept(int statusCode);
+
+    public static ErrorCode findByStatusCode(int statusCode) {
+        for (ErrorCode errorCode : ErrorCode.values()) {
+            if (errorCode.accept(statusCode))
+                return errorCode;
+        }
+        return null;
+    }
+
 }

@@ -47,17 +47,16 @@ public class NewIndexerProcessIndexObject {
      * args[3] - ignore inconsistent objects - if indexer should continue, or fail when meeting object that is inconsistent in repository
      * args[4...] - optional title
      */
-    @ProcessMethod
     public static void indexerMain(
-            @ParameterName("type") String type,
-            @ParameterName("pids") String pidsP,
-            @ParameterName("ignoreInconsistentObjects") Boolean ignoreInconsistentObjects,
-            @ParameterName("title") String title
+            String type,
+            String pidsP,
+            Boolean ignoreInconsistentObjects,
+            String title
     ) {
         LOGGER.info(String.format("Type of indexation %s",type));
         PluginContext pluginContext = PluginContextHolder.getContext();
 
-        LOGGER.info("Extracting argument");
+        LOGGER.info(String.format( "Extracting argument %s", pidsP));
         List<String> pids = extractPids(pidsP);
         
         //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.

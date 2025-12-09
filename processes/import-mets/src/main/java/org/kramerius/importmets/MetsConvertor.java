@@ -137,7 +137,7 @@ public class MetsConvertor {
         }
     }
 
-    private MetsConvertor() {
+    public MetsConvertor() {
         try { //init marshallers
             JAXBContext jaxbContext = JAXBContext.newInstance(Mets.class, DigitalObject.class);
             marshaller = jaxbContext.createMarshaller();
@@ -156,7 +156,7 @@ public class MetsConvertor {
         }
     }
 
-    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license, String addToCollections, ScheduleStrategy strategy) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+    public void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license, String addToCollections, ScheduleStrategy strategy) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
         checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");

@@ -32,8 +32,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
@@ -67,10 +65,13 @@ public class ProcessManagerClient {
             if (statusCode == 200 || statusCode == 204) {
                 return new JSONObject(body).getString("processId");
             } else {
-                throw new ProcessManagerClientException("Failed to fetch process. HTTP code" + ": " + statusCode);
+                JSONObject errorBody = new JSONObject(body);
+                throw new ProcessManagerClientException(errorBody.has("error") ? errorBody.optString("error") : body, ErrorCode.findByStatusCode(statusCode), statusCode);
             }
+        } catch (ProcessManagerClientException e) {
+            throw e;
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e,-1);
         }
     }
 
@@ -85,10 +86,10 @@ public class ProcessManagerClient {
             if (code == 200) {
                 return new JSONObject(body);
             } else {
-                throw new ProcessManagerClientException("Failed to fetch owners. HTTP code" + ": " + code);
+                throw new ProcessManagerClientException("Failed to fetch owners. HTTP code" + ": " + code, ErrorCode.findByStatusCode(code), code);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -105,10 +106,10 @@ public class ProcessManagerClient {
             } else if (code == 404) {
                 return null;
             } else {
-                throw new ProcessManagerClientException("Failed to fetch process. HTTP code" + ": " + code);
+                throw new ProcessManagerClientException("Failed to fetch process. HTTP code" + ": " + code, ErrorCode.findByStatusCode(code), code);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -132,13 +133,13 @@ public class ProcessManagerClient {
                 if (code == 200) {
                     return new JSONObject(body);
                 } else if (code == 400) {
-                    throw new ProcessManagerClientException("Invalid input: " + body, ErrorCode.INVALID_INPUT);
+                    throw new ProcessManagerClientException("Invalid input: " + body, ErrorCode.INVALID_INPUT, code);
                 } else {
-                    throw new ProcessManagerClientException("Failed to fetch batches. HTTP code" + ": " + code);
+                    throw new ProcessManagerClientException("Failed to fetch batches. HTTP code" + ": " + code, ErrorCode.findByStatusCode(code), code);
                 }
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -155,10 +156,10 @@ public class ProcessManagerClient {
             } else if (code == 404) {
                 return null;
             } else {
-                throw new ProcessManagerClientException("Failed to fetch logs. HTTP " + code);
+                throw new ProcessManagerClientException("Failed to fetch logs. HTTP " + code, ErrorCode.findByStatusCode(code), code);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -178,13 +179,13 @@ public class ProcessManagerClient {
                 if (code == 200) {
                     return new JSONObject(body);
                 } else if (code == 400) {
-                    throw new ProcessManagerClientException("Invalid input: " + body, ErrorCode.INVALID_INPUT);
+                    throw new ProcessManagerClientException("Invalid input: " + body, ErrorCode.INVALID_INPUT, code);
                 } else {
-                    throw new ProcessManagerClientException("Failed to fetch logs. HTTP " + code);
+                    throw new ProcessManagerClientException("Failed to fetch logs. HTTP " + code,ErrorCode.findByStatusCode(code), code);
                 }
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -198,14 +199,14 @@ public class ProcessManagerClient {
             if (statusCode == 200) {
                 return new JSONObject(body).getInt("deleted");
             } else if (statusCode == 400) {
-                throw new ProcessManagerClientException("Invalid state", ErrorCode.INVALID_INPUT);
+                throw new ProcessManagerClientException("Invalid state", ErrorCode.INVALID_INPUT,statusCode);
             } else if (statusCode == 404) {
-                throw new ProcessManagerClientException("Batch not found", ErrorCode.NOT_FOUND);
+                throw new ProcessManagerClientException("Batch not found", ErrorCode.NOT_FOUND, statusCode);
             } else {
-                throw new ProcessManagerClientException("Failed to delete batch. HTTP " + statusCode);
+                throw new ProcessManagerClientException("Failed to delete batch. HTTP " + statusCode,ErrorCode.findByStatusCode(statusCode), statusCode);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -219,14 +220,14 @@ public class ProcessManagerClient {
             if (statusCode == 200) {
                 return new JSONObject(body).getInt("killed");
             } else if (statusCode == 400) {
-                throw new ProcessManagerClientException("Invalid state", ErrorCode.INVALID_INPUT);
+                throw new ProcessManagerClientException("Invalid state", ErrorCode.INVALID_INPUT, statusCode);
             } else if (statusCode == 404) {
-                throw new ProcessManagerClientException("Batch not found", ErrorCode.NOT_FOUND);
+                throw new ProcessManagerClientException("Batch not found", ErrorCode.NOT_FOUND,  statusCode);
             } else {
-                throw new ProcessManagerClientException("Failed to kill batch. HTTP " + statusCode);
+                throw new ProcessManagerClientException("Failed to kill batch. HTTP " + statusCode,ErrorCode.findByStatusCode(statusCode), statusCode);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -243,10 +244,10 @@ public class ProcessManagerClient {
             } else if (code == 404) {
                 return null;
             } else {
-                throw new ProcessManagerClientException("Failed to fetch profile. HTTP code" + ": " + code);
+                throw new ProcessManagerClientException("Failed to fetch profile. HTTP code" + ": " + code,ErrorCode.findByStatusCode(code), code);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e,-1);
         }
     }
 
@@ -261,10 +262,10 @@ public class ProcessManagerClient {
             if (code == 200) {
                 return new JSONArray(body);
             } else {
-                throw new ProcessManagerClientException("Failed to fetch profiles. HTTP code" + ": " + code);
+                throw new ProcessManagerClientException("Failed to fetch profiles. HTTP code" + ": " + code,ErrorCode.findByStatusCode(code), code);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -281,10 +282,10 @@ public class ProcessManagerClient {
             } else if (code == 404) {
                 return null;
             } else {
-                throw new ProcessManagerClientException("Failed to fetch plugin. HTTP code" + ": " + code);
+                throw new ProcessManagerClientException("Failed to fetch plugin. HTTP code" + ": " + code,ErrorCode.findByStatusCode(code), code);
             }
         } catch (Exception e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
@@ -297,10 +298,10 @@ public class ProcessManagerClient {
         try (CloseableHttpResponse response = closeableHttpClient.execute(put)) {
             int statusCode = response.getCode();
             if (statusCode != 200 && statusCode != 204) {
-                throw new ProcessManagerClientException("Failed to update profile. HTTP code" + ": " + statusCode);
+                throw new ProcessManagerClientException("Failed to update profile. HTTP code" + ": " + statusCode, ErrorCode.findByStatusCode(statusCode), statusCode);
             }
         } catch (IOException e) {
-            throw new ProcessManagerClientException("I/O error while calling " + url, e);
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
         }
     }
 
