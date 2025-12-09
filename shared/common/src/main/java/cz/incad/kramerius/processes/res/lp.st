@@ -186,4 +186,11 @@
         <securedaction>a_collections_edit</securedaction>
     </process>
 
+    <process>
+        <id>solr-migration-plugin</id>
+        <description>(re)indexace modelu v novém vyhledávacím indexu</description>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
+        <securedaction>a_migration</securedaction>
+    </process>
+
 </processes>

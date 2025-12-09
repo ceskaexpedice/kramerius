@@ -65,6 +65,7 @@ include 'security:oauth'
 
 // Curator platform module
 include 'processes:platform:curator:import-plugin'
+include 'processes:platform:curator:solr-migration-plugin'
 include 'processes:platform:curator:worker'
 
 

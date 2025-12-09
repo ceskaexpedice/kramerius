@@ -1,5 +1,5 @@
 plugins {
-	id 'com.google.cloud.tools.jib'
+    id 'com.google.cloud.tools.jib'
     id 'org.ceskaexpedice.processplatform.worker' version '1.0.4'
 }
 
@@ -9,17 +9,18 @@ dependencies {
 
 
 processWorker {
-	workerName = "curatorworker"
-	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
-	plugins = [
-		project(":processes:platform:curator:import-plugin")
+    workerName = "curatorworker"
+    warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
+    plugins = [
+            project(":processes:platform:curator:import-plugin"),
+            project(":processes:platform:curator:solr-migration-plugin")
     ]
 }
 
 
 jib {
     from {
-        image = 'tomcat:9.0.87-jdk21-temurin-jammy' 
+        image = 'tomcat:9.0.87-jdk21-temurin-jammy'
     }
     to {
         image = "ceskaexpedice/curator-worker:${version}"
@@ -28,20 +29,20 @@ jib {
     extraDirectories {
         paths {
             path {
-				from = project.file('build/worker/webapps').path
-                into = '/usr/local/tomcat/webapps' 
-            }            
-		}
-        
+                from = project.file('build/worker/webapps').path
+                into = '/usr/local/tomcat/webapps'
+            }
+        }
+
         paths {
             path {
                 from = project.file('build/worker/lib/plugins')
-                into = '/usr/local/tomcat/lib/plugins' 
+                into = '/usr/local/tomcat/lib/plugins'
             }
         }
     }
-	container {
-		entrypoint = ['/usr/local/tomcat/bin/catalina.sh', 'run']
+    container {
+        entrypoint = ['/usr/local/tomcat/bin/catalina.sh', 'run']
         user = '0'
     }
 }
