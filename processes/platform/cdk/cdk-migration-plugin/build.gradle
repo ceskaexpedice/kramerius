@@ -1,12 +1,17 @@
 plugins {
     id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
 }
 
 description = 'Project for migration data from remote kramerius to cdk index'
 
+processPlugin {
+	spiImplementation='cz.incad.kramerius.plugin.CDKMigrationSPI'
+}
 
 dependencies {
     api "org.ceskaexpedice:process-api:${processapiversion}"
+    api project(':processes:cdk:cdkprocesses')
     api project(':shared:common')
     api project(':processes:solr-migration')
     testImplementation 'org.xmlunit:xmlunit-core:2.8.4'
@@ -24,4 +29,3 @@ configurations.api {
     exclude group: 'org.apache.solr:solr-solrj'
     //exclude group: 'com.sun.jersey:jersey-json'
 }
-

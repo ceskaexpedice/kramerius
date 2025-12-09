@@ -54,6 +54,7 @@ include 'processes:statistics'
 include 'processes:sdnnt'
 include 'processes:licenses'
 include 'processes:collections-backup'
+include 'processes:cdk:cdkprocesses'
 
 include 'installation'
 
@@ -61,19 +62,28 @@ include 'installation'
 include 'security:authfilters'
 include 'security:oauth'
 
+
+// Curator platform module
+include 'processes:platform:curator:import-plugin'
+include 'processes:platform:curator:worker'
+
+
+// CDK platform module
+include 'processes:platform:cdk:cdk-migration-plugin'
+include 'processes:platform:cdk:worker'
+
 // CDK Reharvest module
 //include 'processes:cdk:cdkreharvest'
-include 'processes:cdk:cdkprocesses'
-include 'processes:cdk:worker'
+//include 'processes:cdk:worker'
 
 
 
 // test worker - only for testing (contains mock plugin
-include 'nprocesses:test:worker'
+//include 'nprocesses:test:worker'
 
 // mock plugin
-include 'nprocesses:test:mock'
-include 'nprocesses:test:import'
+//include 'nprocesses:test:mock'
+//include 'nprocesses:test:import'
 
 
 

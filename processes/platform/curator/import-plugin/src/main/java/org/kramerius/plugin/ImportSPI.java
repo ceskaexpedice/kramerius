@@ -16,10 +16,12 @@
  */
 package org.kramerius.plugin;
 
+import org.ceskaexpedice.processplatform.api.AbstractPluginSpi;
 import org.ceskaexpedice.processplatform.api.PluginSpi;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.common.model.PayloadFieldSpec;
 import org.ceskaexpedice.processplatform.common.model.PayloadFieldType;
+import org.kramerius.Import;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,37 +31,11 @@ import java.util.Set;
  * ImportSPI
  * @author ppodsednik
  */
-public class ImportSPI implements PluginSpi {
+public class ImportSPI extends AbstractPluginSpi {
 
-    @Override
-    public String getPluginId() {
-        return "import";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Import";
-    }
 
     @Override
     public String getMainClass() {
-        return "org.kramerius.Import";
+        return PlatformStarter.class.getName();
     }
-
-    @Override
-    public Map<String, PayloadFieldSpec> getPayloadSpec() {
-        Map<String, PayloadFieldSpec>  map = new HashMap<>();
-        map.put("importDir", new PayloadFieldSpec(PayloadFieldType.STRING, false));
-        map.put("startIndexer", new PayloadFieldSpec(PayloadFieldType.BOOLEAN, false));
-        map.put("license", new PayloadFieldSpec(PayloadFieldType.STRING, false));
-        map.put("addCollection", new PayloadFieldSpec(PayloadFieldType.STRING, false));
-        map.put("scheduleStrategy", new PayloadFieldSpec(PayloadFieldType.STRING, false));
-        return map;
-    }
-
-    @Override
-    public Set<String> getScheduledProfiles() {
-        return Set.of("???");
-    } // TODO
-
 }

@@ -1,0 +1,20 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+description "Import FOXML and NDKMETS format"
+
+processPlugin {
+	spiImplementation='org.kramerius.plugin.ImportSPI'
+}
+
+dependencies{
+   api project(':shared:common')
+   //api project(':processes:import-jaxb')
+   //api project(':processes:import-cmdtool')
+   api project(':processes:service')
+   api project(':processes:import')
+   api "commons-codec:commons-codec:1.5"
+   implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+

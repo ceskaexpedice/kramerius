@@ -4,16 +4,15 @@ plugins {
 }
 
 dependencies {
-    api project(':shared:common')
-    api project(':processes:cdk:cdkprocesses')
+    api project(":processes:platform:curator:import-plugin")
 }
 
 
 processWorker {
-	workerName = "cdkworker"
+	workerName = "curatorworker"
 	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
 	plugins = [
-        project(":processes:cdk:cdkprocesses")
+		project(":processes:platform:curator:import-plugin")
     ]
 }
 
@@ -23,7 +22,7 @@ jib {
         image = 'tomcat:9.0.87-jdk21-temurin-jammy' 
     }
     to {
-        image = "ceskaexpedice/cdk-worker:${version}"
+        image = "ceskaexpedice/curator-worker:${version}"
     }
 
     extraDirectories {

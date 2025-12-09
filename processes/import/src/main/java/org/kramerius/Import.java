@@ -103,14 +103,14 @@ public class Import {
         }
     }
 
-    @ProcessMethod
     public static void importMain(
-            @ParameterName("importDir") String importDirFromArgs,
-            @ParameterName("startIndexer") Boolean startIndexerFromArgs,
-            @ParameterName("license") String license,
-            @ParameterName("addCollection") String addCollection,
-            @ParameterName("scheduleStrategy") String scheduleStrategyS
+            String importDirFromArgs,
+            Boolean startIndexerFromArgs,
+            String license,
+            String addCollection,
+            String scheduleStrategyS
     ) throws IOException, SolrServerException {
+
         log.info(String.format("Import directory %s", importDirFromArgs));
 
         ScheduleStrategy indexationType = ScheduleStrategy.indexRoots;
