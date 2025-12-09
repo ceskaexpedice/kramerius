@@ -178,7 +178,7 @@ public class MetsConvertor {
         }
 
         try {
-            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
+            Import.run(akubraRepository, akubraRepository.pi(),sortingServiceLocal,
                     KConfiguration.getInstance().getProperty("ingest.url"),
                     KConfiguration.getInstance().getProperty("ingest.user"),
                     KConfiguration.getInstance().getProperty("ingest.password"),

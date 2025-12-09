@@ -15,12 +15,14 @@ public class PlatformStarter {
 
     @ProcessMethod
     public static void importMain(
-            @ParameterName("importDir") @IsRequired String importDirFromArgs,
+            @ParameterName("inputDataDir") @IsRequired String importDirFromArgs,
             @ParameterName("startIndexer") @IsRequired Boolean startIndexerFromArgs,
             @ParameterName("license") @IsRequired String license,
-            @ParameterName("addCollection") @IsRequired String addCollection,
-            @ParameterName("scheduleStrategy") @IsRequired String scheduleStrategy
+            @ParameterName("collections") @IsRequired String addCollection,
+            @ParameterName("pathtype") String pathtype,
+            @ParameterName("indexationType") @IsRequired String scheduleStrategy
     ) throws IOException, SolrServerException {
+        //TODO: Pathtype - check
         Import.importMain(importDirFromArgs, startIndexerFromArgs, license, addCollection, scheduleStrategy);
     }
 }

@@ -51,7 +51,7 @@ public final class ProcessManagerMapper {
     public static final String PCP_TOTAL_SIZE = "totalSize";
     public static final String PCP_OWNERS = "owners";
     public static final String PCP_OWNER_ID = "owner";
-    public static final String PCP_OWNER_ID_SCH = "ownerID";
+    public static final String PCP_OWNER_ID_SCH = "ownerId";
     public static final String PCP_OWNER_NAME = "owner";
     public static final String PCP_MAIN_PROCESS_ID = "mainProcessId";
     public static final String PCP_BATCH_ID = "batchId";

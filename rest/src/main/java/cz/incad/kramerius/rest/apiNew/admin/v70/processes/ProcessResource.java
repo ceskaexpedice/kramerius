@@ -300,7 +300,8 @@ public class ProcessResource extends AdminApiResource {
                 scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
             }
             ForbiddenCheck.checkByProfileAndParamsPids(userProvider.get(), rightsResolver, definitionManager,
-                    profileId, processDefinition.getJSONObject(ProcessManagerMapper.PCP_PAYLOAD), scheduledProfiles, solrAccess);
+                    profileId, pcpSchedule.getJSONObject(ProcessManagerMapper.PCP_PAYLOAD), scheduledProfiles, solrAccess);
+
             String processId = processManagerClient.scheduleProcess(pcpSchedule);
             JSONObject result = new JSONObject();
             result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);

@@ -120,7 +120,8 @@ public class Import {
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        //SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        SortingService sortingServiceLocal = null;
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         //priority: 1. args, 2. System property, 3. KConfiguration, 4. explicit defalut value
@@ -268,10 +269,14 @@ public class Import {
                 if (sortRelations.isEmpty()) {
                     log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
                 } else {
-                    for (String sortPid : sortRelations) {
-                        sortingService.sortRelations(sortPid, false);
+                    if (sortingService != null) {
+                        for (String sortPid : sortRelations) {
+                            sortingService.sortRelations(sortPid, false);
+                        }
+                        log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
+                    } else {
+                        log.warning("NO SORTING SERVICE FOUND.");
                     }
-                    log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
                 }
             } else {
                 log.info("RELATIONS SORTING DISABLED.");

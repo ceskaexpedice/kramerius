@@ -116,7 +116,7 @@ public class Download {
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
             try {
-                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory, ScheduleStrategy.indexRoots);
+                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,  KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory, ScheduleStrategy.indexRoots);
             }finally {
                 akubraRepository.shutdown();
             }
