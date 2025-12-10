@@ -1,0 +1,8 @@
+description "Processing index"
+
+
+dependencies {
+    implementation project(':shared:common')
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+

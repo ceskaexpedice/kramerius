@@ -5,7 +5,7 @@ dependencies {
 
     api project(':shared:common')
     api project(':security:oauth')
-	api project(':search-index')
+	api project(':processes:search-index')
 	
     api project(':folders')
 	
@@ -32,11 +32,19 @@ dependencies {
     //dom4j
     implementation 'jaxen:jaxen:1.2.0'
     implementation 'org.dom4j:dom4j:2.1.1'
+
+    testImplementation 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.39'
+    testImplementation 'org.glassfish.jersey.inject:jersey-hk2:2.39'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
+
+
 }
 
 configurations.findAll {!it.name.endsWith('json-lib')}.each { conf ->
     conf.exclude group: "net.sf.json-lib", module: "json-lib"
 }
+
 
 
 

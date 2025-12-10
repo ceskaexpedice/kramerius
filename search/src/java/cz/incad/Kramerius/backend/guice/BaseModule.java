@@ -9,31 +9,26 @@ import com.google.inject.name.Names;
 
 import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.MostDesirable;
-import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
 import cz.incad.kramerius.impl.*;
-import cz.incad.kramerius.processes.GCScheduler;
-import cz.incad.kramerius.processes.ProcessScheduler;
-import cz.incad.kramerius.processes.database.CDKCacheConnectionProvider;
-import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
-import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
-import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
+import cz.incad.kramerius.processes.scheduler.ProcessScheduler;
+import cz.incad.kramerius.database.provider.CDKCacheConnectionProvider;
+import cz.incad.kramerius.database.provider.Kramerius4ConnectionProvider;
+import cz.incad.kramerius.processes.scheduler.ProcessSchedulerImpl;
 import cz.incad.kramerius.relation.RelationService;
 import cz.incad.kramerius.relation.impl.RelationServiceImpl;
 import cz.incad.kramerius.rest.api.guice.HttpAsyncClientLifeCycleHook;
 import cz.incad.kramerius.rest.api.guice.HttpAsyncClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.impl.DeleteTriggerSupportImpl;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.incad.kramerius.rest.apiNew.monitoring.impl.SolrAPICallMonitor;
 import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
 import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
-import cz.incad.kramerius.service.impl.METSServiceImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
@@ -84,8 +79,6 @@ public class BaseModule extends AbstractModule {
         
         //bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
 
-        bind(METSService.class).to(METSServiceImpl.class);
-
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
 
         // bind vzdy, vraci connection pouze v server modu
@@ -95,7 +88,6 @@ public class BaseModule extends AbstractModule {
         bind(Locale.class).toProvider(LocalesProvider.class);
 
         bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
-        bind(GCScheduler.class).to(GCSchedulerImpl.class).in(Scopes.SINGLETON);
 
         // TODO: MOVE
         bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);

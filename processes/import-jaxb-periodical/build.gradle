@@ -1,20 +1,5 @@
-apply plugin: 'jaxb'
-
-description "Import JAXB stubs - for periodical models"
-
-jaxbconf {
-	packageName 'com.qbizm.kramerius.imp.jaxb.periodical'
-}
-
-configurations {
-    xjc
-}
+description "JAXB for periodical models"
 
 dependencies {
-	//xjc 'com.sun.xml.bind:jaxb-xjc:2.2.7'
-	xjc 'com.sun.xml.bind:jaxb-xjc:2.3.6'
 }
 
-clean {
-    delete "generated-src"
-}

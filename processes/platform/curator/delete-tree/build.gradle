@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+
+description "Delete tree"
+
+
+
+processPlugin {
+	spiImplementation='org.kramerius.plugin.DeleteTreeSPI'
+    profiles = [ [profileId: "delete_tree",
+                  description: "Delete object tree from akubra repo - legacy name of process",
+                  jvmArgs: ["-Xms1g","-Xmx16g"]] ]
+}
+
+dependencies{
+    implementation project(':shared:common')
+    implementation project(':processes:dnntflag')
+    implementation "commons-codec:commons-codec:1.5"
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+
+

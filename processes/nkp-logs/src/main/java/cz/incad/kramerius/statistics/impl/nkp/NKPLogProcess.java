@@ -1,25 +1,17 @@
 package cz.incad.kramerius.statistics.impl.nkp;
 
-import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.gdpr.AnonymizationSupport;
-import cz.incad.kramerius.processes.States;
-import cz.incad.kramerius.processes.annotations.ParameterName;
-import cz.incad.kramerius.processes.annotations.Process;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.Mailer;
 import cz.incad.kramerius.service.impl.MailerImpl;
-import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.filters.StatisticsFilter;
-import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.json.JSONObject;
 
 import javax.mail.Message;
@@ -29,12 +21,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.core.MediaType;
 import java.io.*;
-import java.rmi.ServerException;
 import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -119,19 +107,18 @@ public class NKPLogProcess {
         Transport.send(msg);
     }
 
-    public static void process(String from,
-                               String to,
-                               String folder,
-                               String institution,
-                               String visibility,
+    @ProcessMethod
+    public static void process(@ParameterName("from") String from,
+                               @ParameterName("to") String to,
+                               @ParameterName("folder") String folder,
+                               @ParameterName("institution") String institution,
+                               @ParameterName("visibility") String visibility,
                                List<Object> anonymization
                               
     ) throws ParseException, IOException, NoSuchAlgorithmException {
         List<String> logs = new ArrayList<>();
-        
-        //TODO: I18N
-        ProcessStarter.updateName(String.format("Generování NKP logů pro období %s - %s", from, to));
-
+        PluginContext pluginContext = PluginContextHolder.getContext();
+        pluginContext.updateProcessName(String.format("Generování NKP logů pro období %s - %s", from, to));
         // folder, institution, visibility from configuration
         LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to, folder, institution, visibility, anonymization));
         

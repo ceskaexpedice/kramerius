@@ -1,0 +1,23 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+
+
+description "Rebuild processing index for repository"
+
+
+processPlugin {
+    spiImplementation='org.kramerius.plugin.ProcessingIndexRepositorySPI'
+    profiles = [
+            [profileId: "processing_rebuild",description: "Rebuild processing index for repository - legacy name of process",jvmArgs: ["-Xms1g","-Xmx32g"]]
+    ]
+}
+
+dependencies{
+    implementation project(':shared:common')
+    implementation project(':processes:processing-index')
+    implementation "commons-codec:commons-codec:1.5"
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+

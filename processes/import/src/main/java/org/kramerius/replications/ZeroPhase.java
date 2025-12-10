@@ -21,11 +21,12 @@ public class ZeroPhase extends AbstractPhase {
 
     @Override
     public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
-        validate(url, replicationCollections);
+       // TODO  validate(url, replicationCollections);
     }
 
 
 
+   /* TODO
     private void validate(String url, String replicationCollections) throws PhaseException {
         try {
             if (Boolean.parseBoolean(replicationCollections)) {
@@ -45,7 +46,7 @@ public class ZeroPhase extends AbstractPhase {
             throw new PhaseException(this, e.getMessage());
         }
     }
-
+*/
 
 
     protected void validate(int[] version) throws PhaseException {
@@ -99,7 +100,7 @@ public class ZeroPhase extends AbstractPhase {
     @Override
     public void restart(String previousProcessUUID, File previousProcessRoot, boolean phaseCompleted, String url,
             String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
-        validate(url, replicationCollections);
+        // TODO validate(url, replicationCollections);
     }
 
 }

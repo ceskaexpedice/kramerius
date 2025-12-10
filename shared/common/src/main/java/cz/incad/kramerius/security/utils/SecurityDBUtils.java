@@ -21,12 +21,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import com.google.inject.Provider;
-import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
+import cz.incad.kramerius.database.provider.Kramerius4ConnectionProvider;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;

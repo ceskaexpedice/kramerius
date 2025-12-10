@@ -1,0 +1,48 @@
+plugins {
+	id 'com.google.cloud.tools.jib'
+    id 'org.ceskaexpedice.processplatform.worker' version '1.0.4'
+}
+
+dependencies {
+    api project(':shared:common')
+    api project(":processes:platform:cdk:cdk-migration-plugin")
+}
+
+
+processWorker {
+	workerName = "cdkworker"
+	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
+	plugins = [
+        project(":processes:platform:cdk:cdk-migration-plugin")
+    ]
+}
+
+
+jib {
+    from {
+        image = 'tomcat:9.0.87-jdk21-temurin-jammy' 
+    }
+    to {
+        image = "ceskaexpedice/cdk-worker:${version}"
+    }
+
+    extraDirectories {
+        paths {
+            path {
+				from = project.file('build/worker/webapps').path
+                into = '/usr/local/tomcat/webapps' 
+            }            
+		}
+        
+        paths {
+            path {
+                from = project.file('build/worker/lib/plugins')
+                into = '/usr/local/tomcat/lib/plugins' 
+            }
+        }
+    }
+	container {
+		entrypoint = ['/usr/local/tomcat/bin/catalina.sh', 'run']
+        user = '0'
+    }
+}

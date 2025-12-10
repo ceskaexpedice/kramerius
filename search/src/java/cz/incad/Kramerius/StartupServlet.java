@@ -16,9 +16,7 @@
  */
 package cz.incad.Kramerius;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
@@ -32,8 +30,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.database.VersionDbInitializer;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.processes.database.MostDesirableDbInitializer;
-import cz.incad.kramerius.processes.database.ProcessDbInitializer;
+import cz.incad.kramerius.database.MostDesirableDbInitializer;
 import cz.incad.kramerius.rest.oai.db.OAIDBInitializer;
 import cz.incad.kramerius.security.database.SecurityDbInitializer;
 import cz.incad.kramerius.service.LifeCycleHookRegistry;
@@ -105,10 +102,6 @@ public class StartupServlet extends GuiceServlet {
 
             // all security tables
             SecurityDbInitializer.initDatabase(k7dbConnection, versionService);
-
-            // process tables - > must be after security tables and must be
-            // after logged user tables
-            ProcessDbInitializer.initDatabase(k7dbConnection, versionService);
 
             // statistics tables
             StatisticDbInitializer.initDatabase(k7dbConnection, versionService);

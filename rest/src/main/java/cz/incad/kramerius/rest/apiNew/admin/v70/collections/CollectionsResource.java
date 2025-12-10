@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection.ThumbnailbStateEnum;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ClientIIIFGenerator;
@@ -112,12 +113,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response createCollection(JSONObject collectionDefinition) {
         try {
             checkReadOnlyWorkMode();
-            //authentication
-
             User user1 = this.userProvider.get();
-            List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
-            //authorization
-
             if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
@@ -130,8 +126,11 @@ public class CollectionsResource extends AdminApiResource {
             Document foxml = foxmlBuilder.buildFoxml(collection, null);
             akubraRepository.ingest(Dom4jUtils.foxmlDocToDigitalObject(foxml, akubraRepository));
             //schedule reindexation - new collection (only object)
-            scheduleReindexation(collection.pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
-            return Response.status(Response.Status.CREATED).entity(collection.toJson().toString()).build();
+            JSONObject scheduleReindexationPar = getScheduleReindexationPar(collection.pid, user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
+            JSONObject result = new JSONObject();
+            result.put("collection", collection.toJson());
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
+            return Response.status(Response.Status.CREATED).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -347,6 +346,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
             checkObjectExists(pid);
+            final JSONObject[] scheduleReindexationPar = new JSONObject[1];
             akubraRepository.doWithWriteLock(pid, () -> {
                 Collection current = null;
                 try {
@@ -374,11 +374,13 @@ public class CollectionsResource extends AdminApiResource {
                     bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.re().update(pid, bis);
                     //schedule reindexation - (only collection object)
-                    scheduleReindexation(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+                    scheduleReindexationPar[0] = getScheduleReindexationPar(pid, user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
                 }
                 return null;
             });
-            return Response.ok().build();
+            JSONObject result = new JSONObject();
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar[0]);
+            return Response.status(Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -473,14 +475,15 @@ public class CollectionsResource extends AdminApiResource {
             });
             //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
             //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
+            JSONObject scheduleReindexationPar = null;
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                scheduleReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
             }
-
-            //LOGGER.info("addItemToCollection end, Thread " + Thread.currentThread().getName());
-            return Response.status(Response.Status.CREATED).build();
+            JSONObject result = new JSONObject();
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
+            return Response.status(Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -554,6 +557,7 @@ public class CollectionsResource extends AdminApiResource {
 
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
+            final JSONObject[] scheduleReindexationPar = {null};
             akubraRepository.doWithWriteLock(collectionPid, new LockOperation<Object>() {
                 @Override
                 public Object execute() {
@@ -577,8 +581,7 @@ public class CollectionsResource extends AdminApiResource {
                             LOGGER.info("Ommiting indexation");
                         } else {
                             for (String itemPid : pidsAdded) {
-                                //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                                scheduleReindexation(itemPid, user.getLoginname(), user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                                scheduleReindexationPar[0] = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
                             }
                         }
 
@@ -597,6 +600,7 @@ public class CollectionsResource extends AdminApiResource {
             JSONObject result = new JSONObject();
             result.put("added", pidsAdded.size());
             result.put("ignored", ignored);
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar[0]);
             return Response.ok(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -656,10 +660,10 @@ public class CollectionsResource extends AdminApiResource {
     public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, JSONObject batch) {
         List<String> reindexCollection = new ArrayList<>();
         checkSupportedObjectPid(collectionPid);
+        JSONArray scheduleMainProcesses = new JSONArray();
         try {
             checkReadOnlyWorkMode();
             User user1 = this.userProvider.get();
-            // TODO List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
             akubraRepository.doWithWriteLock(collectionPid, () -> {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
 
@@ -699,15 +703,11 @@ public class CollectionsResource extends AdminApiResource {
                 akubraRepository.re().update(collectionPid, bis);
                 return null;
             });
-
             reindexCollection.forEach(itemPid -> {
                 // schedule reindexations - 1. item that was removed (whole tree and foster
                 // trees), 2. no need to re-index collection
-                // TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS
-                // (neimplementovana)
-                scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES",
-                        false, itemPid);
-
+                JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                scheduleMainProcesses.put(scheduleReindexationPar);
             });
 
         } catch (WebApplicationException e) {
@@ -720,9 +720,9 @@ public class CollectionsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
-
-        return Response.status(Response.Status.OK).build();
-
+        JSONObject result = new JSONObject();
+        result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleMainProcesses);
+        return Response.status(Response.Status.OK).entity(result.toString()).build();
     }
 
 
@@ -777,9 +777,10 @@ public class CollectionsResource extends AdminApiResource {
                 }
             });
             //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
-            //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-            scheduleReindexation(itemPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
-            return Response.status(Response.Status.OK).build();
+            JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+            JSONObject result = new JSONObject();
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
+            return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -842,15 +843,18 @@ public class CollectionsResource extends AdminApiResource {
                 ;
                 return null;
             });
+            JSONArray scheduleMainProcesses = new JSONArray();
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
-            String batchToken = UUID.randomUUID().toString();
-            scheduleReindexationInBatch(pid, user1.getLoginname(), user1.getLoginname(), "OBJECT", batchToken, false, "sbírka " + pid);
+            JSONObject scheduleReindexationPar = getScheduleReindexationPar(pid, user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+            scheduleMainProcesses.put(scheduleReindexationPar);
 
             for (String childPid : childrenPids) {
-                //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-                scheduleReindexationInBatch(childPid, user1.getLoginname(), user1.getLoginname(), "TREE_AND_FOSTER_TREES", batchToken, true, childPid);
+                JSONObject scheduleReindexationPar1 = getScheduleReindexationPar(childPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, childPid);
+                scheduleMainProcesses.put(scheduleReindexationPar1);
             }
-            return Response.ok().build();
+            JSONObject result = new JSONObject();
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleMainProcesses);
+            return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {

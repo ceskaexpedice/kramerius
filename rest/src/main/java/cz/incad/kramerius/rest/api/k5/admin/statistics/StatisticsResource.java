@@ -40,11 +40,9 @@ import javax.ws.rs.core.StreamingOutput;
 
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.LRProcessManager;
-import cz.incad.kramerius.processes.*;
+//import cz.incad.kramerius.processes.*;
 
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.rest.api.processes.LRResource;
 import cz.incad.kramerius.statistics.filters.*;
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
@@ -93,9 +91,6 @@ public class StatisticsResource {
     Set<StatisticsReportFormatter> reportFormatters;
 
     @Inject
-    LRProcessManager lrProcessManager;
-
-    @Inject
     LoggedUsersSingleton loggedUsersSingleton;
 
     @Inject
@@ -106,7 +101,7 @@ public class StatisticsResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response cleanData(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo) {
         // mel by byt nekdo jiny nez ten kdo resi prohlizeni statistik
-        if (permit(SecuredActions.A_STATISTICS_EDIT)) {
+        if (permit(userProvider.get(), SecuredActions.A_STATISTICS_EDIT)) {
             try {
                 // kontrola datumu / break /pokud je vetsi nez break, chybny dotaz
                 if (StringUtils.isAnyString(dateFrom) && StringUtils.isAnyString(dateTo)) {
@@ -136,7 +131,7 @@ public class StatisticsResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response reports() {
-        if (permit(SecuredActions.A_STATISTICS)) {
+        if (permit(userProvider.get(), SecuredActions.A_STATISTICS)) {
             StatisticReport[] allReports = this.statisticsAccessLog.getAllReports();
             List<String> ids = Arrays.asList(allReports).stream().map(StatisticReport::getReportId)
                     .collect(Collectors.toList());
@@ -165,7 +160,7 @@ public class StatisticsResource {
             @DefaultValue("ALL") @QueryParam("visibility") String visibility,
             @QueryParam("offset") String filterOffset,
             @QueryParam("pids") String pids) {
-        if (permit(SecuredActions.A_STATISTICS)) {
+        if (permit(userProvider.get(), SecuredActions.A_STATISTICS)) {
                 try {
                     StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
                             pids, license, models, identifier);
@@ -211,7 +206,7 @@ public class StatisticsResource {
             @QueryParam("pids") String pids,
             @QueryParam("resultSize") String filterResultSize) {
         
-        if (permit(SecuredActions.A_STATISTICS)) {
+        if (permit(userProvider.get(), SecuredActions.A_STATISTICS)) {
             try {
                 StatisticsFiltersContainer container = container(dateFrom, dateTo, model, visibility,
                         pids, license, models, identifier);
@@ -447,7 +442,7 @@ public class StatisticsResource {
         VisibilityFilter visFilter = new VisibilityFilter();
 		visFilter.setSelected(VisbilityType.valueOf(visibilityValue));
 
-        if (permit(SecuredActions.A_STATISTICS)) {
+        if (permit(userProvider.get(), SecuredActions.A_STATISTICS)) {
             if (rip != null && (!rip.equals(""))) {
             	StatisticReport report = this.statisticsAccessLog.getReportById(rip);
             	Optional<StatisticsReportFormatter> opts = reportFormatters.stream().filter(formatter -> {
@@ -502,27 +497,6 @@ public class StatisticsResource {
             throw new ActionNotAllowed("not allowed");
        }
 	}
-
-	
-	
-	
-
-    boolean permit(SecuredActions action) {
-        User user = null;
-        String authToken = this.requestProvider.get().getHeader(LRResource.AUTH_TOKEN_HEADER_KEY);
-        if (authToken != null && !lrProcessManager.isAuthTokenClosed(authToken)) {
-            String sessionKey = lrProcessManager.getSessionKey(authToken);
-            if (sessionKey != null) {
-                user =  this.loggedUsersSingleton.getUser(sessionKey);
-            } else {
-                user = this.userProvider.get();
-            }
-        } else {
-            user = this.userProvider.get();
-        }
-        return permit(user,action);
-    }
-
 
     boolean permit(User user, SecuredActions action) {
         if (user != null)

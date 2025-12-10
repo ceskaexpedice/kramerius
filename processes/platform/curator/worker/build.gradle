@@ -1,0 +1,77 @@
+plugins {
+	id 'com.google.cloud.tools.jib'
+    id 'org.ceskaexpedice.processplatform.worker' version '1.0.4'
+}
+
+dependencies {
+	// imports
+    implementation project(":processes:platform:curator:import-foxml")
+    implementation project(":processes:platform:curator:import-ndkmets")
+
+    // search index - indexation
+    implementation project(":processes:platform:curator:search-index-model")
+    implementation project(":processes:platform:curator:search-index-object")
+
+    // processing index - indexation
+    implementation project(":processes:platform:curator:processing-index-repository")
+    implementation project(":processes:platform:curator:processing-index-object")
+
+	//delete tree
+    implementation project(":processes:platform:curator:delete-tree")
+
+    // licenses
+    implementation project(":processes:platform:curator:license-add")
+    implementation project(":processes:platform:curator:license-remove")
+}
+
+
+processWorker {
+	workerName = "curatorworker"
+	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
+	plugins = [
+        // imports
+        project(":processes:platform:curator:import-ndkmets"),
+		project(":processes:platform:curator:import-foxml"),
+        // search index - indexation
+        project(":processes:platform:curator:search-index-model"),
+        project(":processes:platform:curator:search-index-object"),
+        // processing index - indexation
+        project(":processes:platform:curator:processing-index-repository"),
+        project(":processes:platform:curator:processing-index-object"),
+		//delete tree
+		project(":processes:platform:curator:delete-tree"),
+        // licnses
+        project(":processes:platform:curator:license-add"),
+        project(":processes:platform:curator:license-remove")
+    ]
+}
+
+
+jib {
+    from {
+        image = 'tomcat:9.0.87-jdk21-temurin-jammy' 
+    }
+    to {
+        image = "ceskaexpedice/curator-worker:${version}"
+    }
+
+    extraDirectories {
+        paths {
+            path {
+				from = project.file('build/worker/webapps').path
+                into = '/usr/local/tomcat/webapps' 
+            }            
+		}
+        
+        paths {
+            path {
+                from = project.file('build/worker/lib/plugins')
+                into = '/usr/local/tomcat/lib/plugins' 
+            }
+        }
+    }
+	container {
+		entrypoint = ['/usr/local/tomcat/bin/catalina.sh', 'run']
+        user = '0'
+    }
+}

@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cz.incad.kramerius.resourceindex.ProcessingIndexRebuild.rebuildProcessingIndex;
+import static cz.incad.kramerius.processingindex.ProcessingIndexRebuild.rebuildProcessingIndex;
 import static cz.incad.migration.Utils.DOMIMPL;
 import static cz.incad.migration.Utils.SERIALIZER;
 

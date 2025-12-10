@@ -6,9 +6,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
@@ -20,6 +18,10 @@ import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -68,47 +70,28 @@ public class SetLicenseProcess {
 
     /**
      * args[0] - action (ADD/REMOVE), from lp.st process/parameters
-     * args[1] - authToken
      * args[2] - target (pid:uuid:123, or pidlist:uuid:123;uuid:345;uuid:789, or pidlist_file:/home/kramerius/.kramerius/import-dnnt/grafiky.txt
      * In case of pidlist pids must be separated with ';'. Convenient separator ',' won't work due to way how params are stored in database and transferred to process.
      * <p>
      * args[3] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
      */
-    public static void main(String[] args) throws IOException, SolrServerException {
-        //args
-        /*LOGGER.info("args: " + Arrays.asList(args));
-        for (String arg : args) {
-            System.out.println(arg);
-        }*/
-        if (args.length < 4) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-        int argsIndex = 0;
-        //params from lp.st
-        Action action = Action.valueOf(args[argsIndex++]);
-        //token for keeping possible following processes in same batch
-        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //process params
-        String license = args[argsIndex++];
-        String target = args[argsIndex++];
-
-
+    public static void setLicenseMain(
+            String actionP,
+            String license,
+            String target
+    ) {
+        Action action = Action.valueOf(actionP);
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-
         SolrAccess searchIndex = injector.getInstance(Key.get(SolrAccess.class, Names.named("new-index")));
-
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
-
-        // IResourceIndex resourceIndex = new ResourceIndexImplByKrameriusNewApis(repository, ProcessUtils.getCoreBaseUrl());
-        //ProcessingIndex processingIndex = new ProcessingIndexImplByKrameriusNewApis(akubraRepository, ProcessUtils.getCoreBaseUrl());
-
+        PluginContext pluginContext = PluginContextHolder.getContext();
         List<String> brokenPids = new ArrayList<>();
         try {
             switch (action) {
                 case ADD:
-                    ProcessStarter.updateName(String.format("Přidání licence '%s' pro %s", license, target));
-                    for (String pid : extractPids(target)) {
+                    pluginContext.updateProcessName(String.format("Přidání licence '%s' pro %s", license, target));
+                    for (String pid : ProcessUtils.extractPids(target)) {
                         try {
                             addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
                         } catch (DistributedLocksException ex) {
@@ -127,10 +110,10 @@ public class SetLicenseProcess {
                     }
                     break;
                 case REMOVE:
-                    ProcessStarter.updateName(String.format("Odebrání licence '%s' pro %s", license, target));
-                    for (String pid : extractPids(target)) {
+                    pluginContext.updateProcessName(String.format("Odebrání licence '%s' pro %s", license, target));
+                    for (String pid : ProcessUtils.extractPids(target)) {
                         try {
-                            removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess, authToken);
+                            removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
                         } catch (DistributedLocksException ex) {
                             if(ex.getCode().equals(DistributedLocksException.LOCK_TIMEOUT)){
                                 brokenPids.add(pid);
@@ -155,32 +138,6 @@ public class SetLicenseProcess {
             throw new RuntimeException("All problematic pids:" + brokenPids);
         }
 
-    }
-
-    private static List<String> extractPids(String target) {
-        if (target.startsWith("pid:")) {
-            String pid = target.substring("pid:".length());
-            List<String> result = new ArrayList<>();
-            result.add(pid);
-            return result;
-        } else if (target.startsWith("pidlist:")) {
-            List<String> pids = Arrays.stream(target.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
-            return pids;
-        } else if (target.startsWith("pidlist_file:")) {
-            String filePath = target.substring("pidlist_file:".length());
-            File file = new File(filePath);
-            if (file.exists()) {
-                try {
-                    return IOUtils.readLines(new FileInputStream(file), Charset.forName("UTF-8"));
-                } catch (IOException e) {
-                    throw new RuntimeException("IOException " + e.getMessage());
-                }
-            } else {
-                throw new RuntimeException("file " + file.getAbsolutePath() + " doesnt exist ");
-            }
-        } else {
-            throw new RuntimeException("invalid target " + target);
-        }
     }
 
     private static void addLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws IOException {
@@ -296,7 +253,7 @@ public class SetLicenseProcess {
         });
     }
 
-    private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess, String authToken) throws RepositoryException, IOException {
+    private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException {
         LOGGER.info(String.format("Removing license '%s' from %s", license, targetPid));
 
         //1. Z rels-ext ciloveho objektu se odebere license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
@@ -355,7 +312,7 @@ public class SetLicenseProcess {
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
-            ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
+            // TODO pepo scheduleSub ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
         //commit changes in index
         try {

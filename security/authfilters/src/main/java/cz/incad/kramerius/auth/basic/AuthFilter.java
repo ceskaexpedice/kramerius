@@ -42,7 +42,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
 import cz.incad.kramerius.security.jaas.K4User;
 
@@ -64,10 +63,6 @@ public class AuthFilter  implements Filter {
     @Named("kramerius4")
     Provider<Connection> connectionProvider = null;
 
-    @Inject
-    LRProcessManager lrProcessManager;
-
-    
     @Override
     public void destroy() {
     }
@@ -77,8 +72,7 @@ public class AuthFilter  implements Filter {
         try {
             HttpServletRequest request = (HttpServletRequest) arg0;
             HttpServletResponse response = (HttpServletResponse) arg1;
-            String authToken = request.getHeader(AUTH_TOKEN_HEADER_KEY);
-            boolean authTokenDefined = (authToken != null && (!this.lrProcessManager.isAuthTokenClosed(authToken)));
+            boolean authTokenDefined = false;
             if (authTokenDefined) {
                 // authtoken - forward 
                 filterChain.doFilter(request, response);

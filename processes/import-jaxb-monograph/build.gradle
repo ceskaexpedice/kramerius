@@ -1,20 +1,5 @@
-apply plugin: 'jaxb'
-
-description "Import JAXB stubs"
-
-jaxbconf {
-	packageName 'com.qbizm.kramerius.imp.jaxb.monograph'
-}
-
-configurations {
-    xjc
-}
+description "JAXB sMonograph"
 
 dependencies {
-	//xjc 'com.sun.xml.bind:jaxb-xjc:2.2.7'
-	xjc 'com.sun.xml.bind:jaxb-xjc:2.3.6'
 }
 
-clean {
-    delete "generated-src"
-}

@@ -1,8 +1,6 @@
 package cz.inovatika.licenses;
 
 import com.sun.jersey.api.client.Client;
-import cz.incad.kramerius.processes.SetPolicyProcess.Scope;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
 import cz.incad.kramerius.utils.IterationUtils;
 import cz.incad.kramerius.utils.IterationUtils.Endpoint;
@@ -63,9 +61,12 @@ public class FlagToLicenseProcess {
             "graphic",
             "archive",
             "convolute");
-    
-    
-    
+    public enum Scope {
+        OBJECT, TREE
+    }
+
+
+
     /**
      * Iterates over search index and add public or onsite licenses according accessibility flag 
      * 
@@ -240,7 +241,7 @@ public class FlagToLicenseProcess {
             parameters.put("scope", Scope.TREE.name());
             json.put("params", parameters);
 
-            ProcessScheduler.schedule(json.toString(), parentAuthToken);
+            // TODO pepo scheduleSub ProcessScheduler.schedule(json.toString(), parentAuthToken);
             
         }
     }
@@ -266,7 +267,7 @@ public class FlagToLicenseProcess {
             parameters.put("pidlist_file", pidlistFile(pids.subList(start, end)).getAbsoluteFile());
             json.put("params", parameters);
 
-            ProcessScheduler.schedule(json.toString(), parentAuthToken);
+            // TODO pepo scheduleSub ProcessScheduler.schedule(json.toString(), parentAuthToken);
             
         }
     }

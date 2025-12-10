@@ -126,7 +126,7 @@ public class SecondPhase extends AbstractPhase  {
                 InputStream inputStream = null;
                 try {
                     long foxmlStart = System.currentTimeMillis();
-                    inputStream = rawFOXMLData(pid, url, userName, pswd);
+                   // TODO  inputStream = rawFOXMLData(pid, url, userName, pswd);
                     foxmlfile = pidParseAndGetObjectId(inputStream, pid);
                     long foxmlStop = System.currentTimeMillis();
                     if (this.replicationImages) {
@@ -162,6 +162,7 @@ public class SecondPhase extends AbstractPhase  {
     }
 
     private void replicateImg(String pid, String url, File foxml) throws PhaseException {
+        /* TODO
         try {
             String handlePid = K4ReplicationProcess.pidFrom(url);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -201,6 +202,8 @@ public class SecondPhase extends AbstractPhase  {
                 | TransformerException e) {
             throw new PhaseException(this, e);
         }
+
+         */
     }
 
     /**
@@ -243,6 +246,7 @@ public class SecondPhase extends AbstractPhase  {
         }
     }
 
+    /* TODO
     public InputStream rawFOXMLData(String pid, String url, String userName, String pswd) throws PhaseException {
         Client c = Client.create();
         WebResource r = c.resource(K4ReplicationProcess.foxmlURL(url, pid, this.replicationCollections));
@@ -258,6 +262,8 @@ public class SecondPhase extends AbstractPhase  {
         InputStream t = r.accept("image/jp2").get(InputStream.class); // memory?
         return t;
     }
+
+     */
     
 
     public File createFOXMLFile(String pid) throws LexerException, IOException, PhaseException {

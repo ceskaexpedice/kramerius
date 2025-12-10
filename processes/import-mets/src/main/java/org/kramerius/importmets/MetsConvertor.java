@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -20,6 +19,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.pid.LexerException;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.kramerius.Import;
 import org.kramerius.ImportModule;
 import org.kramerius.importmets.convertor.MetsPeriodicalConvertor;
@@ -75,7 +76,7 @@ public class MetsConvertor {
         }*/
 
         log.info(String.format("Arguments :%s", Arrays.asList(args).toString()));
-        
+        PluginContext pluginContext = PluginContextHolder.getContext();
 
         if (args.length < 2 || args[0].equalsIgnoreCase("true") || args[0].equalsIgnoreCase("false")) { //through CLI with 0-3 args
             System.out.println("ANL METS to FOXML conversion tool.\n");
@@ -127,7 +128,7 @@ public class MetsConvertor {
             strategy = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : ScheduleStrategy.indexRoots;
 
             try {
-                ProcessStarter.updateName(String.format("Import NDK METS z %s ", importRoot));
+                pluginContext.updateProcessName(String.format("Import NDK METS z %s ", importRoot));
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -136,8 +137,9 @@ public class MetsConvertor {
         }
     }
 
-    private MetsConvertor() {
+    public MetsConvertor() {
         try { //init marshallers
+            log.info(" -- Creating MetsConvertor -- ");
             JAXBContext jaxbContext = JAXBContext.newInstance(Mets.class, DigitalObject.class);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
@@ -155,14 +157,15 @@ public class MetsConvertor {
         }
     }
 
-    private void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license, String addToCollections, ScheduleStrategy strategy) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
+    public void run(String importRoot, String exportRoot, boolean policyPublic, boolean startIndexer, String authToken, String license, String addToCollections, ScheduleStrategy strategy) throws JAXBException, IOException, InterruptedException, SAXException, SolrServerException {
         checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
         }
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        //SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        SortingService sortingServiceLocal = null;
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         
@@ -177,13 +180,11 @@ public class MetsConvertor {
         }
 
         try {
-            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
+            Import.run(akubraRepository, akubraRepository.pi(),sortingServiceLocal,
                     KConfiguration.getInstance().getProperty("ingest.url"),
                     KConfiguration.getInstance().getProperty("ingest.user"),
                     KConfiguration.getInstance().getProperty("ingest.password"),
-                    exportRoot, startIndexer, authToken,addToCollections, strategy);
-
-
+                    exportRoot, startIndexer, addToCollections, strategy);
             if (deleteContractSubfolder()) {
                 File exportFolder = new File(exportRoot);
                 FileUtils.deleteDirectory(exportFolder);
@@ -195,6 +196,7 @@ public class MetsConvertor {
     }
 
     private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+        log.info(String.format("Checking import directory %s", importRoot));
         File importFolder = new File(importRoot);
 
         if (!importFolder.exists()) {
@@ -211,10 +213,12 @@ public class MetsConvertor {
             for (File child : importFolder.listFiles()) {
                 if (child.isDirectory()) {
                     String subFolder = System.getProperty("file.separator") + child.getName();
+                    log.info(String.format("Going to subfolder %s", subFolder));
                     checkAndConvertDirectory(importRoot + subFolder, exportRoot + subFolder, policyPublic);
                 }
             }
         } else {
+            log.info(String.format("Converting directory %s", importRoot));
             convert(importRoot, exportRoot, policyPublic);
         }
     }

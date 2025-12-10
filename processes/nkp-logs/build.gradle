@@ -7,6 +7,6 @@ dependencies {
 
     implementation 'org.json:json:20140107'
     implementation 'commons-codec:commons-codec:1.5'
-
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
 

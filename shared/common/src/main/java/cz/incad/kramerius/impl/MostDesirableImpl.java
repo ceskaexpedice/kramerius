@@ -1,8 +1,7 @@
 package cz.incad.kramerius.impl;
 
-import static cz.incad.kramerius.processes.database.MostDesirableDatabaseUtils.LOGGER;
+import static cz.incad.kramerius.database.utils.MostDesirableDatabaseUtils.LOGGER;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -9,8 +9,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.processes.starter.ProcessStarter;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
@@ -29,6 +27,11 @@ import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.pid.LexerException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.fedoramodel.*;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
+import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
+import org.ceskaexpedice.processplatform.common.model.ScheduleSubProcess;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kramerius.importer.ImporterCommons;
@@ -100,46 +103,24 @@ public class Import {
         }
     }
 
-    /**
-     * args[0] - authToken
-     * args[1] - import dir, optional
-     * args[2] - start indexer, optional
-     */
-    public static void main(String[] args) throws IOException, RepositoryException, SolrServerException {
-        LOGGER.info("Parameters:"+Arrays.asList(args));
-        // normalize arguments
-        args = Arrays.stream(args).map(arg -> {
-            if (arg.trim().equals("null")) return null;
-            else return arg.trim();
-        }).toArray(String[]::new);
+    public static void importMain(
+            String importDirFromArgs,
+            Boolean startIndexerFromArgs,
+            String license,
+            String addCollection,
+            String scheduleStrategyS
+    ) throws IOException, SolrServerException {
 
-        if (args.length < 1) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-        int argsIndex = 0;
-        //token for keeping possible following processes in same batch
-        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //process params
-        String importDirFromArgs = args.length > argsIndex ? args[argsIndex++] : null;
-        log.info(String.format("Import directory %s", importDirFromArgs));
-
-        Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
-
-        String license = null;
-        String addCollection = null;
-
-        String  configuredIndexType = KConfiguration.getInstance().getProperty("ingest.indexType",ScheduleStrategy.indexRoots.name());
-        ScheduleStrategy indexationType =   null;
-
-        if (startIndexerFromArgs != null && startIndexerFromArgs) {
-            license = args.length > argsIndex ? args[argsIndex++] : null;
-            addCollection = args.length > argsIndex ? args[argsIndex++] : null;
-            indexationType = args.length > argsIndex ? ScheduleStrategy.fromArg(args[argsIndex++]) : ScheduleStrategy.fromArg(configuredIndexType);
+        log.info(String.format("Import directory %s, start indexer %b", importDirFromArgs, startIndexerFromArgs));
+        ScheduleStrategy indexationType = ScheduleStrategy.indexRoots;
+        if (startIndexerFromArgs) {
+            indexationType = ScheduleStrategy.fromArg(scheduleStrategyS);
         }
 
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        //SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        SortingService sortingServiceLocal = null;
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         //priority: 1. args, 2. System property, 3. KConfiguration, 4. explicit defalut value
@@ -151,10 +132,12 @@ public class Import {
         }
 
         Boolean startIndexer = Boolean.valueOf(KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
-        if (startIndexerFromArgs != null) {
-            startIndexer = startIndexerFromArgs;
+        if (startIndexerFromArgs) {
+            startIndexer = true;
         } else if (System.getProperties().containsKey("ingest.startIndexer")) {
-            startIndexer = Boolean.valueOf(System.getProperty("ingest.startIndexer"));
+            String sysProp = System.getProperty("ingest.startIndexer");
+            log.info("Starting indexer loaded from sys prop " + sysProp);
+            startIndexer = Boolean.valueOf(sysProp);
         }
 
         try {
@@ -175,39 +158,42 @@ public class Import {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
 
-                ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+
+                PluginContext pluginContext = PluginContextHolder.getContext();
+                pluginContext.updateProcessName(String.format("Import FOXML z %s ", importDirectory));
+
                 log.info("import dir: " + licensesImportFile);
                 log.info("start indexer: " + startIndexer);
                 log.info("license : " + license);
-                log.info("IndexationType: " + indexationType);
 
-                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, authToken, addCollection, indexationType);
+                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), licensesImportFile.getAbsolutePath(), startIndexer, addCollection, indexationType);
 
                 log.info(String.format("Deleting import folder %s", licensesImportFile));
                 FileUtils.deleteDirectory(licensesImportFile);
 
             } else {
-                ProcessStarter.updateName(String.format("Import FOXML z %s ", importDirectory));
+
+
+                PluginContext pluginContext = PluginContextHolder.getContext();
+                pluginContext.updateProcessName(String.format("Import FOXML z %s ", importDirectory));
+
                 log.info("import dir: " + importDirectory);
                 log.info("start indexer: " + startIndexer);
-                log.info("IndexationType: " + indexationType);
 
-
-                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, authToken, addCollection, indexationType);
+                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), importDirectory, startIndexer, addCollection, indexationType);
             }
-        }finally {
+        } finally {
             akubraRepository.shutdown();
         }
     }
 
 
-
     public static void run(AkubraRepository akubraRepository, ProcessingIndex feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, ScheduleStrategy strategy) throws IOException, SolrServerException {
-        run(akubraRepository, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, null, strategy);
+        run(akubraRepository, feeder, sortingServiceParam, url, user, pwd, importRoot, true, null, strategy);
     }
 
-    public static void run(AkubraRepository akubraRepository, ProcessingIndex feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String authToken, String addcollections, ScheduleStrategy strategy) throws IOException, SolrServerException {
-        log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot +" "+ "startIndexer:" + startIndexer + " addcollections:" + addcollections + " strategy:" + strategy);
+    public static void run(AkubraRepository akubraRepository, ProcessingIndex feeder, SortingService sortingServiceParam, final String url, final String user, final String pwd, String importRoot, boolean startIndexer, String addcollections, ScheduleStrategy strategy) throws IOException, SolrServerException {
+        log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot + " " + "startIndexer:" + startIndexer + " addcollections:" + addcollections + " strategy:" + strategy);
         sortingService = sortingServiceParam;
         // system property 
         try {
@@ -284,10 +270,14 @@ public class Import {
                 if (sortRelations.isEmpty()) {
                     log.info("NO MERGED OBJECTS FOR RELATIONS SORTING FOUND.");
                 } else {
-                    for (String sortPid : sortRelations) {
-                        sortingService.sortRelations(sortPid, false);
+                    if (sortingService != null) {
+                        for (String sortPid : sortRelations) {
+                            sortingService.sortRelations(sortPid, false);
+                        }
+                        log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
+                    } else {
+                        log.warning("NO SORTING SERVICE FOUND.");
                     }
-                    log.info("ALL MERGED OBJECTS RELATIONS SORTED.");
                 }
             } else {
                 log.info("RELATIONS SORTING DISABLED.");
@@ -300,7 +290,7 @@ public class Import {
                     Arrays.stream(addcollections.split(";")).forEach(addCollectionList::add);
                     for (String pid : addCollectionList) {
                         if (!pid.trim().equals(NON_KEYWORD)) {
-                            addCollection(akubraRepository, pid, importInventory, collections, authToken);
+                            addCollection(akubraRepository, pid, importInventory, collections);
                         }
                     }
                 }
@@ -315,14 +305,20 @@ public class Import {
                         log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
                         Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
-                        if (authToken != null) {
-                            for (TitlePidTuple col : collections) {
-                                ProcessScheduler.scheduleIndexation(col.pid, col.title, false, authToken);
-                            }
-                            log.info("ALL COLLECTIONS SCHEDULED FOR INDEXING.");
-                        } else {
-                            log.warning("cannot schedule indexation due to missing process credentials");
+                        for (TitlePidTuple col : collections) {
+
+                            Map<String, String> payload = new HashMap<>();
+                            payload.put("pid", col.pid);
+                            payload.put("title", col.title);
+                            payload.put("type", "object");
+                            payload.put("ignoreInconsistentObjects", "true");
+
+                            ScheduleSubProcess subProcess = new ScheduleSubProcess("new_indexer_index_object", payload);
+                            PluginContext pluginContext = PluginContextHolder.getContext();
+                            pluginContext.scheduleSubProcess(subProcess);
+
                         }
+                        log.info("ALL COLLECTIONS SCHEDULED FOR INDEXING.");
                     } catch (Exception e) {
                         log.log(Level.WARNING, e.getMessage(), e);
                     }
@@ -338,14 +334,68 @@ public class Import {
                         log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
                         Thread.sleep(Integer.parseInt(waitIndexerProperty));
 
-                        if (authToken != null) {
-                            for (TitlePidTuple convolute : convolutes) {
-                                ProcessScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
-                            }
-                            log.info("ALL CONVOLUTES SCHEDULED FOR INDEXING.");
-                        } else {
-                            log.warning("cannot schedule indexation due to missing process credentials");
+                        for (TitlePidTuple convolute : convolutes) {
+
+                            Map<String, String> payload = new HashMap<>();
+                            payload.put("pid", convolute.pid);
+                            payload.put("title", convolute.title);
+                            payload.put("type", "object");
+                            payload.put("ignoreInconsistentObjects", "true");
+
+
+//                            //TODO: cleanup
+//                            public static void scheduleIndexation(String pid, String title, boolean includingDescendants, String parentProcessAuthToken) {
+//                                JSONObject data = new JSONObject();
+//                                data.put("defid", "new_indexer_index_object");
+//                                JSONObject params = new JSONObject();
+//                                params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+//                                params.put("pid", pid);
+//                                params.put("title", title);
+//                                params.put("ignoreInconsistentObjects", true);
+//                                data.put("params", params);
+//                                schedule(data.toString(), parentProcessAuthToken);
+//                            }
+//
+//                            //TODO: cleanup
+//                            public static void scheduleIndexation(List<String> pidlist, String title, boolean includingDescendants, String parentProcessAuthToken) {
+//                                JSONObject data = new JSONObject();
+//                                data.put("defid", "new_indexer_index_object");
+//                                JSONObject params = new JSONObject();
+//                                params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+//
+//                                JSONArray jsonArray = new JSONArray();
+//                                pidlist.stream().forEach(jsonArray::add);
+//
+//                                params.put("pidlist", jsonArray);
+//                                params.put("title", title);
+//                                params.put("ignoreInconsistentObjects", true);
+//                                data.put("params", params);
+//                                schedule(data.toString(), parentProcessAuthToken);
+//                            }
+//
+//                            //TODO: cleanup
+//                            public static void scheduleIndexation(File pidListFile, String title, boolean includingDescendants, String parentProcessAuthToken) {
+//                                JSONObject data = new JSONObject();
+//                                data.put("defid", "new_indexer_index_object");
+//                                JSONObject params = new JSONObject();
+//                                params.put("type", includingDescendants ? "TREE_AND_FOSTER_TREES" : "OBJECT");
+//
+//                                params.put("pidlist_file", pidListFile.getAbsolutePath());
+//                                params.put("title", title);
+//                                params.put("ignoreInconsistentObjects", true);
+//                                data.put("params", params);
+//                                schedule(data.toString(), parentProcessAuthToken);
+//                            }
+
+
+
+                            ScheduleSubProcess subProcess = new ScheduleSubProcess("new_indexer_index_object", payload);
+                            PluginContext pluginContext = PluginContextHolder.getContext();
+                            pluginContext.scheduleSubProcess(subProcess);
+
+                            //ProcessScheduler.scheduleIndexation(convolute.pid, convolute.title, false, authToken);
                         }
+                        log.info("ALL CONVOLUTES SCHEDULED FOR INDEXING.");
                     } catch (Exception e) {
                         log.log(Level.WARNING, e.getMessage(), e);
                     }
@@ -359,16 +409,22 @@ public class Import {
                         // should wait
                         log.info("Waiting for soft commit :" + waitIndexerProperty + " s");
                         Thread.sleep(Integer.parseInt(waitIndexerProperty));
-                        if (authToken != null) {
+                        for (ImportInventoryItem scheduleItem : strategy.scheduleItems(importInventory)) {
+                            ImportInventoryItem.TypeOfSchedule schedule = scheduleItem.getIndexationPlanType();
 
-                            for (ImportInventoryItem scheduleItem : strategy.scheduleItems(importInventory)) {
-                                ImportInventoryItem.TypeOfSchedule schedule = scheduleItem.getIndexationPlanType();
-                                ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
-                            }
-                            log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
-                        } else {
-                            log.warning("cannot schedule indexation due to missing process credentials");
+                            Map<String, String> payload = new HashMap<>();
+                            payload.put("pid", scheduleItem.getPid());
+                            payload.put("title", scheduleItem.getTitle());
+                            payload.put("type", schedule == ImportInventoryItem.TypeOfSchedule.TREE ? "tree" : "object");
+                            payload.put("ignoreInconsistentObjects", "true");
+
+                            ScheduleSubProcess subProcess = new ScheduleSubProcess("new_indexer_index_object", payload);
+                            PluginContext pluginContext = PluginContextHolder.getContext();
+                            pluginContext.scheduleSubProcess(subProcess);
+
+                            //ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
                         }
+                        log.info("ALL ROOT OBJECTS SCHEDULED FOR INDEXING.");
                     } catch (Exception e) {
                         log.log(Level.WARNING, e.getMessage(), e);
                     }
@@ -485,7 +541,7 @@ public class Import {
                         }
                     }
                     if (importInventory != null) {
-                        importInventory.addIndexationPlanItem(new ImportInventoryItem(importFile,dobj.getPID(), dobj.getPID(), new ArrayList<>(), false));
+                        importInventory.addIndexationPlanItem(new ImportInventoryItem(importFile, dobj.getPID(), dobj.getPID(), new ArrayList<>(), false));
                         TitlePidTuple npt = new TitlePidTuple("", dobj.getPID());
                         //classicRoots.add(npt);
                         log.info("Added updated object for indexing:" + dobj.getPID());
@@ -592,10 +648,10 @@ public class Import {
                                 log.info("Added merged object for sorting relations:" + pid);
                             }
                             /**
-                            if (indexationPlan != null) {
-                                indexationPlan.addIndexationPlanItem(new IndexationPlanItem(pid, pid, new ArrayList<>(), false));
-                                log.info("Added merged object for indexing:" + pid);
-                            }*/
+                             if (indexationPlan != null) {
+                             indexationPlan.addIndexationPlanItem(new IndexationPlanItem(pid, pid, new ArrayList<>(), false));
+                             log.info("Added merged object for indexing:" + pid);
+                             }*/
                         }
                     }
                 } else {
@@ -636,7 +692,7 @@ public class Import {
             }
             IOUtils.copyStreams(repo.re().get(pid).asInputStream(), bos);
         } catch (Exception e) {
-            log.log(Level.SEVERE, "Cannot copy foxml streams in merge for pid '"+pid+"'", e);
+            log.log(Level.SEVERE, "Cannot copy foxml streams in merge for pid '" + pid + "'", e);
             throw new RuntimeException(e);
         }
         byte[] existingBytes = bos.toByteArray();
@@ -894,23 +950,22 @@ public class Import {
 //            log.log(Level.WARNING, "Error in Ingest.checkRoot for file " + dobj.getPID() + ", file cannot be checked for auto-indexing : " + ex);
 //        }
 //    }
-
-    private static void addCollection(AkubraRepository akubraRepository, String collectionPid, ImportInventory plan, Set<TitlePidTuple> collectionsToReindex, String authToken) {
+    private static void addCollection(AkubraRepository akubraRepository, String collectionPid, ImportInventory plan, Set<TitlePidTuple> collectionsToReindex) {
         Client c = Client.create();
 
         List<String> rootPids = new ArrayList<>();
         List<String> pidsToCollection = new ArrayList<>();
 
         // find all roots; necessary for add to collection
-        ScheduleStrategy.indexRoots.scheduleItems(plan).forEach(p-> {
-                rootPids.add(p.getPid());
+        ScheduleStrategy.indexRoots.scheduleItems(plan).forEach(p -> {
+            rootPids.add(p.getPid());
         });
 
         String adminPoint = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point");
         if (!adminPoint.endsWith("/")) adminPoint = adminPoint + "/";
         String collectionDescUrl = adminPoint + String.format("collections/%s", collectionPid);
         WebResource collectionResource = c.resource(collectionDescUrl);
-        String collectionJSON = collectionResource.header("parent-process-auth-token", authToken).accept(MediaType.APPLICATION_JSON).get(String.class);
+        String collectionJSON = collectionResource.accept(MediaType.APPLICATION_JSON).get(String.class);
         JSONObject collectionObject = new JSONObject(collectionJSON);
 
         // polozky v kolekci
@@ -932,7 +987,7 @@ public class Import {
         WebResource r = c.resource(collectionsUrl);
         for (String pidToCollection : pidsToCollection) {
             LOGGER.info(String.format("Adding %s  to collection %s", pidToCollection, collectionPid));
-            ClientResponse clientResponse = r.accept(MediaType.TEXT_PLAIN_TYPE).header("parent-process-auth-token", authToken).entity(pidToCollection, MediaType.TEXT_PLAIN_TYPE).post(ClientResponse.class);
+            ClientResponse clientResponse = r.accept(MediaType.TEXT_PLAIN_TYPE).entity(pidToCollection, MediaType.TEXT_PLAIN_TYPE).post(ClientResponse.class);
             if (clientResponse.getStatus() != 200 && clientResponse.getStatus() != 201) {
                 String responseBody = clientResponse.getEntity(String.class);
                 throw new RuntimeException(String.format("Status code %d, %s", clientResponse.getStatus(), responseBody));

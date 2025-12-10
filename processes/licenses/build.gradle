@@ -4,7 +4,7 @@ dependencies {
     implementation project(':processes:import')
     implementation project(':processes:solr-migration')
 
-    implementation project(':search-index')
+    implementation project(':processes:search-index')
 
     implementation "org.apache.commons:commons-csv:1.6"
 

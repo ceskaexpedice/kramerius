@@ -46,6 +46,7 @@ public class FirstPhase extends AbstractPhase  {
 
     @Override
     public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
+        /* TODO
         try {
             String prepareURL = K4ReplicationProcess.prepareURL(url,replicationCollections);
             String descriptionURL = K4ReplicationProcess.descriptionURL(url);
@@ -61,6 +62,8 @@ public class FirstPhase extends AbstractPhase  {
         } catch (IOException e) {
             throw new PhaseException(this,e);
         }
+
+         */
     }
 
 

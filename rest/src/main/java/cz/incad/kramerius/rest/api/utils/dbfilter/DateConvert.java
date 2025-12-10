@@ -22,16 +22,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 
-import cz.incad.kramerius.rest.api.processes.LRResource;
 
 public class DateConvert implements Convert {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DateConvert.class.getName());
-    
+    public static SimpleDateFormat FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss:SSS");
+
     @Override
     public Object convert(String str) {
         try {
-            Date parsed = LRResource.FORMAT.parse(str);
+            Date parsed = FORMAT.parse(str);
             return new Timestamp(parsed.getTime());
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);

@@ -20,19 +20,14 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
-import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.commons.logging.Log;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.fedoramodel.DatastreamType;
 import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
-import org.kramerius.importer.ImporterCommons;
 import org.kramerius.importer.inventory.ImportInventory;
 import org.kramerius.importer.inventory.ImportInventoryFactory;
 import org.kramerius.importer.inventory.ImportInventoryItem;
@@ -48,13 +43,14 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import static cz.incad.kramerius.utils.XMLUtils.findElement;
-import static org.ceskaexpedice.akubra.RepositoryNamespaces.DC_NAMESPACE_URI;
-import static org.kramerius.importer.ImporterCommons.*;
+import static org.kramerius.importer.ImporterCommons.marshallingLock;
+import static org.kramerius.importer.ImporterCommons.unmarshaller;
 
 public class UpdateStreams {
 
@@ -137,7 +133,7 @@ public class UpdateStreams {
             if (startIndexer) {
                 for (ImportInventoryItem scheduleItem :  ScheduleStrategy.indexRoots.scheduleItems(importInventory)) {
                     ImportInventoryItem.TypeOfSchedule schedule = scheduleItem.getIndexationPlanType();
-                    ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
+                    // TODO pepo scheduleSub ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
                 }
             }
         }

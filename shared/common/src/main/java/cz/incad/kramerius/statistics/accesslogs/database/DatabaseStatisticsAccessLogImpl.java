@@ -62,7 +62,6 @@ import com.google.inject.name.Named;
 
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.utils.ModsUtils;
-import cz.incad.kramerius.processes.NotReadyException;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.ReportedAction;
@@ -129,8 +128,9 @@ public class DatabaseStatisticsAccessLogImpl extends AbstractStatisticsAccessLog
         Connection connection = null;
         try {
             connection = connectionProvider.get();
-            if (connection == null)
-                throw new NotReadyException("connection not ready");
+            if (connection == null) {
+               throw new IllegalStateException("connection not ready");
+            }
 
             List<JDBCCommand> commands = new ArrayList<>();
 

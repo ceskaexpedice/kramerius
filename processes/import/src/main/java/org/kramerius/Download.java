@@ -8,7 +8,6 @@ import com.qbizm.kramerius.imptool.poc.valueobj.ServiceException;
 
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.service.SortingService;
-import cz.incad.kramerius.service.impl.IndexerProcessStarter;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IOUtils;
@@ -117,7 +116,7 @@ public class Download {
             AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
             SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
             try {
-                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal, KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory, ScheduleStrategy.indexRoots);
+                Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,  KConfiguration.getInstance().getProperty("ingest.url"), KConfiguration.getInstance().getProperty("ingest.user"), KConfiguration.getInstance().getProperty("ingest.password"), targetDirectory, ScheduleStrategy.indexRoots);
             }finally {
                 akubraRepository.shutdown();
             }
@@ -199,7 +198,7 @@ public class Download {
         int uuidStart = processedPath.indexOf("\tpid=")+5;
         if (uuidStart > -1){
             String uuid = processedPath.substring(uuidStart);
-            IndexerProcessStarter.spawnIndexer(false, title, uuid);
+            // TODO pepo scheduleSub IndexerProcessStarter.spawnIndexer(false, title, uuid);
         }
     }
 

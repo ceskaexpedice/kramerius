@@ -1,0 +1,63 @@
+plugins {
+    id 'org.ceskaexpedice.processplatform.worker' version '1.0.3'
+	id 'com.google.cloud.tools.jib'
+}
+
+processWorker {
+	workerName = "testworker"
+
+	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
+	
+    plugins = [
+		// import process - foxml a ndkmets
+        //project(":nprocesses:test:import"),
+		// mock process
+        project(":nprocesses:test:mock"),
+    ]
+}
+
+
+jib {
+    from {
+        image = 'tomcat:9.0.87-jdk21-temurin-jammy'
+        platforms {
+            platform {
+                architecture = 'amd64'
+                os = 'linux'
+            }
+            platform {
+                architecture = 'arm64'
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = "ceskaexpedice/worker:${version}"
+    }
+    container {
+	
+        environment = [
+            'WORKER_ID': 'testworker'
+        ]
+	
+		entrypoint = ["/usr/local/tomcat/bin/catalina.sh", "run"]
+        user = '0'
+    }
+
+	extraDirectories {
+        paths {
+            path {
+                from = file("$buildDir/worker/webapps")
+                into = "/usr/local/tomcat/webapps"
+            }
+            path {
+                from = file("$buildDir/worker/lib")
+                into = "/usr/local/tomcat/lib"
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    jib.to.image = "ceskaexpedice/${processWorker.workerName}:${version}"
+}

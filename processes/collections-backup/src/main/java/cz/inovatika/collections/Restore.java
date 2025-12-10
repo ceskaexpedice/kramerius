@@ -34,9 +34,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.xml.sax.SAXException;
 
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.processes.new_api.ProcessScheduler;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.collections.migrations.FromK5Instance;
 

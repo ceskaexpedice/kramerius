@@ -16,17 +16,14 @@
  */
 package cz.incad.kramerius.security;
 
-import java.sql.SQLException;
-import java.util.List;
-
-import cz.incad.kramerius.processes.LRProcess;
-import cz.incad.kramerius.processes.LRProcessOrdering;
 import cz.incad.kramerius.security.database.TypeOfOrdering;
 import cz.incad.kramerius.security.jaas.K4LoginModule;
-import cz.incad.kramerius.users.UserProfile;
 import cz.incad.kramerius.utils.database.Offset;
 import cz.incad.kramerius.utils.database.Ordering;
 import cz.incad.kramerius.utils.database.SQLFilter;
+
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * User's and group's manager

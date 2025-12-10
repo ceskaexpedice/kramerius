@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
-import cz.incad.kramerius.processes.starter.ProcessStarter;
-import cz.incad.kramerius.processes.starter.ProcessUpdatingChannel;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -46,6 +44,7 @@ public class ProcessUtils {
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessUtils.class.getName());
 
     /** Lr servlet name.  This coresponds with web.xml  */
+    /*
     public static final String LR_SERVLET_NAME="lr";
 
     public static String getCoreBaseUrl() {
@@ -56,11 +55,15 @@ public class ProcessUtils {
         return applicationURL;
     }
 
+     */
+
+    /*
     public static String getNewAdminApiEndpoint() {
         String api = getCoreBaseUrl() + "/api/admin/v7.0";
         return api;
-    }
+    }*/
 
+    /*
     public static String getOldApiEndpointProcesses() {
         String applicationURL = KConfiguration.getInstance().getApplicationURL();
         if (applicationURL.endsWith("/")) { //normalize to "../search", not "../search/"
@@ -70,14 +73,19 @@ public class ProcessUtils {
         return api;
     }
 
+     */
+
     /**
      * Returns URL to LR servlet
      * @return
      */
+    /*
     public static String getLrServlet() {
         String lrServlet = KConfiguration.getInstance().getApplicationURL() + '/' + LR_SERVLET_NAME;
         return lrServlet;
     }
+
+     */
 
     /**
      * Start new process
@@ -85,6 +93,7 @@ public class ProcessUtils {
      * @param nparams nparams parameter
      * @throws Exception Any Error has been occured
      */
+    /*
     public static void startProcess(String processDef, String nparams) throws Exception{
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();
@@ -97,11 +106,14 @@ public class ProcessUtils {
         }
     }
 
+     */
+
     /**
      * Start new process
      * @param processDef Process definition
      * @param params Process parameters
      */
+    /*
     public static void startProcess(String processDef, String[] params) throws UnsupportedEncodingException {
         LOGGER.info(" spawn process '"+processDef+"'");
         String base = ProcessUtils.getLrServlet();
@@ -113,10 +125,13 @@ public class ProcessUtils {
         }
     }
 
+     */
+
     /**
      * Close auth token
      * @param processUuid Process uuid
      */
+    /*
     public static void closeToken(String processUuid) {
         LOGGER.info(" close token for '"+processUuid+"'");
         String base = ProcessUtils.getLrServlet();
@@ -128,11 +143,14 @@ public class ProcessUtils {
         }
     }
 
+     */
+
     /**
      * Helper method creates nparams string from given params parameters
      * @param params Params parameters
      * @return crated string
      */
+    /*
     public static String nparams(String[] params) throws UnsupportedEncodingException {
         StringBuffer buffer = new StringBuffer(URLEncoder.encode("{", "UTF-8"));
         for (int i = 0; i < params.length; i++) {
@@ -145,11 +163,14 @@ public class ProcessUtils {
         return buffer.toString();
     }
 
+     */
+
     /**
      * Returns parametr with escape sequence
      * @param string String to be escaped
      * @return String with escape sequence
      */
+   /*
     public static String nparam(String string) {
         String[] escapeChars = {"\\",":",";","{","}"};
         for (String toEscape : escapeChars) {
@@ -160,7 +181,10 @@ public class ProcessUtils {
         return string;
     }
 
+    */
 
+
+   /*
     public static byte[] httpGet(String restURL) throws MalformedURLException, IOException {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -184,6 +208,8 @@ public class ProcessUtils {
         }
     }
 
+
+    */
     public static List<String> extractPids(String argument) {
         if (argument.startsWith("pid:")) {
             String pid = argument.substring("pid:".length());

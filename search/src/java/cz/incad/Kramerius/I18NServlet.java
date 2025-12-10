@@ -22,10 +22,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.intconfig.InternalConfiguration;
 import cz.incad.kramerius.pdf.GeneratePDFService;
-import cz.incad.kramerius.processes.DefinitionManager;
-import cz.incad.kramerius.processes.LRProcessManager;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.ApplicationURL;
@@ -61,11 +58,6 @@ public class I18NServlet extends GuiceServlet {
         Actions selectedAction = Actions.valueOf(action);
         selectedAction.doAction(getServletContext(), req, resp,
                 this.textsService, this.resourceBundleService, this.provider);
-    }
-
-    public static String i18nServlet(HttpServletRequest request) {
-        return ApplicationURL.urlOfPath(request, InternalConfiguration.get()
-                .getProperties().getProperty("servlets.mapping.i18n"));
     }
 
     static enum Formats {

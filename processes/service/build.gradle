@@ -1,0 +1,8 @@
+description "Imaging"
+
+
+dependencies {
+    implementation project(':shared:common')
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+

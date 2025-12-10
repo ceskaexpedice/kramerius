@@ -209,12 +209,12 @@
 	</servlet>
 
 	<!-- lr processes -->
-	<servlet>
+	<!--servlet>
 		<servlet-name>lr</servlet-name>
 		<servlet-class>cz.incad.Kramerius.LongRunningProcessServlet
 		</servlet-class>
 		<load-on-startup>2</load-on-startup>
-	</servlet>
+	</servlet-->
 
 
 	<!-- METS export -->
@@ -374,10 +374,10 @@
 		<url-pattern>/mets</url-pattern>
 	</servlet-mapping>
 
-	<servlet-mapping>
+	<!--servlet-mapping>
 		<servlet-name>lr</servlet-name>
 		<url-pattern>/lr</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping-->
 
 	<servlet-mapping>
 		<servlet-name>i18n</servlet-name>

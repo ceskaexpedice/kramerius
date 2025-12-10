@@ -36,7 +36,6 @@ import org.json.JSONObject;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import cz.incad.kramerius.processes.new_api.ProcessManager;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;
@@ -153,23 +152,6 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 }
             }
             // from process authentication
-        } else if (httpServletRequest.getHeader("parent-process-auth-token") != null) {
-            String parentProcessAuthToken = httpServletRequest.getHeader("parent-process-auth-token");
-            LOGGER.info(String.format("Authentication by parent-process-auth-token: %s", parentProcessAuthToken));
-            ProcessManager.ProcessAboutToScheduleSibling parentProcess = processManager.getProcessAboutToScheduleSiblingByAuthToken(parentProcessAuthToken);
-            if (parentProcess != null) {
-                String userId = parentProcess.getOwnerId();
-                User foundUser = this.userManager.findUserByLoginName(userId);
-                LOGGER.info(String.format("Found user: %s", foundUser.getLoginname()));
-                if (foundUser != null) {
-                    UserUtils.associateGroups(foundUser, userManager);
-                    UserUtils.associateCommonGroup(foundUser, userManager);
-                    storeLoggedUser(foundUser,  new HashMap<String, Object>(){{
-                    }});
-                }
-            } else {
-                LOGGER.warning("No parent process found");
-            }
         }
     }
 

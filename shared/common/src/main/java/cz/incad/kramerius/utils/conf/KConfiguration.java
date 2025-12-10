@@ -254,6 +254,11 @@ public class KConfiguration {
         return normalizeURL(applicationUrl);
     }
 
+    public String getProcessManagerURL() {
+        String applicationUrl = getProperty("processManagerUrl");
+        return normalizeURL(applicationUrl);
+    }
+
     public String getUsersEditorURL() {
         String url = getProperty("usersEditorUrl", "/rightseditor");
         return url;

@@ -174,40 +174,40 @@
         pro sekundární řazení (date_min/date_max + issue.type_sort), hodnoty na základe DMF periodika 1.8 (https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42)
         0: normal, 1: morning, 2: afternoon, 3: evening, 4: corrected, 5: special, 6: supplement, 10+X: sequence_X
         -->
-        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--kód typu, pro zobrazení v náhledech/seznamech; možné hodnoty: normal, morning, afternoon, evening, corrected, special, supplement, sequence_X-->
-        <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"  docValues="true"/>
 
         <!--page-->
         <!--NormalPage, TitlePage, etc.-->
-        <field name="page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--1, [1a], etc.-->
-        <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--0, 1, 2, ...-->
-        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--left, right, single-->
-        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--track-->
         <!--delka audia v sekundach (zaokrouhleno nahoru)-->
-        <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--identifiers-->
-        <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_uuid" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_oclc" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_sysno" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_barcode" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_isbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_issn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-        <field name="id_ismn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_uuid" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_oclc" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_sysno" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_barcode" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_isbn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_issn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_ismn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
         <!--value in id_other is prefixed with type (if found in mods:identifier/@type) and colon, e.g. "sici:84987580"-->
-        <field name="id_other" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_other" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
         <!--possible other identifiers for special field: sici, coden-->
 		
 		<!-- all identifiers in one field -->
-        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 		
 
 		<copyField source="id_urnnbn" dest="id_all"/>

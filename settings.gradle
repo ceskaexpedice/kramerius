@@ -1,4 +1,26 @@
+pluginManagement {
+    repositories {
+		maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-plugin-gradle/docs")
+        }
+        maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-worker-plugin-gradle/docs")
+        }
+		maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/refs/heads/main/process-plugin-gradle/docs")
+        }
+        maven {
+            url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/refs/heads/main/process-worker-plugin-gradle/docs")
+        }
+        gradlePluginPortal()
+    }
+}
+
+
+
+
 // cdk bridge
+
 include ':bridge'
 
 
@@ -14,12 +36,6 @@ include	'processes:import-cmdtool'
 // include	'processes:import-jaxb'
 include	'processes:import-jaxb-periodical'
 include 'processes:import-jaxb-monograph'
-include	'processes:import-jaxb-alto'
-include	'processes:import-jaxb-mets'
-include	'processes:import-jaxb-mods'
-include	'processes:import-jaxb-dc'
-include	'processes:import-jaxb-mets'
-include	'processes:import-jaxb-srwdc'
 include	'processes:import-mets'
 // include 'processes:mw-process'
 // include	'processes:indexer'
@@ -28,13 +44,17 @@ include 'processes:solr-migration'
 include 'processes:data-migration'
 include 'processes:migration'
 include 'processes:dnntflag'
-include	'search-index'
+include	'processes:search-index'
+include	'processes:processing-index'
+include	'processes:imaging'
+include	'processes:service'
 // statistics resources
 include 'processes:nkp-logs'
 include 'processes:statistics'
 include 'processes:sdnnt'
 include 'processes:licenses'
 include 'processes:collections-backup'
+include 'processes:cdk:cdkprocesses'
 
 include 'installation'
 
@@ -42,13 +62,30 @@ include 'installation'
 include 'security:authfilters'
 include 'security:oauth'
 
-// CDK Reharvest module
-include 'processes:cdkreharvest'
-include 'processes:cdkprocesses'
+
+// Curator platform module
+include 'processes:platform:curator:import-ndkmets'
+include 'processes:platform:curator:import-foxml'
+
+include 'processes:platform:curator:search-index-model'
+include 'processes:platform:curator:search-index-object'
+
+include 'processes:platform:curator:processing-index-repository'
+include 'processes:platform:curator:processing-index-object'
+
+include 'processes:platform:curator:delete-tree'
+
+include 'processes:platform:curator:license-add'
+include 'processes:platform:curator:license-remove'
 
 
-//include 'authfilters'
-//include 'solr-migration'
+include 'processes:platform:curator:worker'
+
+
+// CDK platform module
+include 'processes:platform:cdk:cdk-migration-plugin'
+include 'processes:platform:cdk:worker'
+
 
 
 

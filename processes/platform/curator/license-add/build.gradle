@@ -1,0 +1,23 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+
+description "Adding license to object(s)"
+
+processPlugin {
+	spiImplementation='org.kramerius.plugin.AddLicenseSPI'
+
+    profiles = [ [profileId: "add_license",
+                  description: "Adding license to object(s) - legacy name of process",jvmArgs: ["-Xms1g","-Xmx32g"]] ]
+
+}
+
+dependencies{
+    implementation project(':shared:common')
+    implementation project(':processes:dnntflag')
+    implementation "commons-codec:commons-codec:1.5"
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+
+
