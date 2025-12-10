@@ -75,11 +75,10 @@ public class SetLicenseProcess {
      * <p>
      * args[3] - licence ('dnnt', 'dnnto', 'public_domain', etc.)
      */
-    @ProcessMethod
     public static void setLicenseMain(
-            @ParameterName("action") String actionP,
-            @ParameterName("license") String license,
-            @ParameterName("target") String target
+            String actionP,
+            String license,
+            String target
     ) {
         Action action = Action.valueOf(actionP);
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());

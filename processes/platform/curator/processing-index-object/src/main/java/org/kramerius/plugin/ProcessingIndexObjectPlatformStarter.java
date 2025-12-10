@@ -10,6 +10,7 @@ public class ProcessingIndexObjectPlatformStarter {
     public static void processingMain(
             @ParameterName("pids") String pidsP
     ) {
+
         ProcessingIndexRebuildFromFoxmlByPid.processingMain(pidsP);
     }
 }

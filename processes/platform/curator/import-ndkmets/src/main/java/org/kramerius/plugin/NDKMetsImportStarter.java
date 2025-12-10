@@ -38,12 +38,25 @@ public class NDKMetsImportStarter {
             @ParameterName("indexationType") String scheduleStrategy
     ) {
         try {
+
+
             File inputDataDir = null;
             if (pathtype != null && pathtype.equals("relative")) {
-                inputDataDir = new File(KConfiguration.getInstance().getProperty("import.directory"));
+                inputDataDir = new File(KConfiguration.getInstance().getProperty( "convert.directory")+File.separator+importDirFromArgs);
             } else {
                 inputDataDir = new File(importDirFromArgs);
             }
+
+            LOGGER.info("--- Starting method: ndkmets ---");
+            LOGGER.info("Parameter 'policy': " + policy);
+            LOGGER.info("Parameter 'inputDataDir': " + inputDataDir);
+            LOGGER.info("Parameter 'startIndexer': " + startIndexerFromArgs);
+            LOGGER.info("Parameter 'useIIPServer': " + (useIIPServer == null ? "N/A" : useIIPServer));
+            LOGGER.info("Parameter 'license': " + (license == null ? "N/A" : license));
+            LOGGER.info("Parameter 'collections': " + (addCollection == null ? "N/A" : addCollection));
+            LOGGER.info("Parameter 'pathtype': " + (pathtype == null ? "N/A" : pathtype));
+            LOGGER.info("Parameter 'indexationType': " + (scheduleStrategy == null ? "N/A" : scheduleStrategy));
+            LOGGER.info("---------------------------------");
 
             String exportRoot = KConfiguration.getInstance().getConfiguration().getString("convert.target.directory");
 
@@ -55,6 +68,7 @@ public class NDKMetsImportStarter {
                 System.setProperty("convert.useImageServer", useIIPServer.toString());
                 LOGGER.info(String.format("convert.useImageServer %s", useIIPServer.toString()));
             }
+            LOGGER.info(String.format("Starting convert directory %s", inputDataDir.getAbsolutePath()));
             new MetsConvertor().run(inputDataDir.getAbsolutePath(), exportRoot, policy != null ?  policy.toLowerCase().equals("private") : false, startIndexerFromArgs, null, license,addCollection, strategy);
         } catch (JAXBException | IOException | InterruptedException | SAXException | SolrServerException e) {
             throw new RuntimeException(e);

@@ -25,12 +25,22 @@ public class ImportPlatformStarter {
             @ParameterName("indexationType") String scheduleStrategy
     ) throws IOException, SolrServerException {
 
+
         File inputDataDir = null;
         if (pathtype != null && pathtype.equals("relative")) {
-            inputDataDir = new File(KConfiguration.getInstance().getProperty("import.directory"));
+            inputDataDir = new File(KConfiguration.getInstance().getProperty( "import.directory")+File.separator+importDirFromArgs);
         } else {
             inputDataDir = new File(importDirFromArgs);
         }
+
+        LOGGER.info("--- Starting method: importMain ---");
+        LOGGER.info("Parameter 'inputDataDir': " + inputDataDir);
+        LOGGER.info("Parameter 'startIndexer': " + startIndexerFromArgs);
+        LOGGER.info("Parameter 'license': " + (license == null ? "N/A" : license));
+        LOGGER.info("Parameter 'collections': " + (addCollection == null ? "N/A" : addCollection));
+        LOGGER.info("Parameter 'pathtype': " + (pathtype == null ? "N/A" : pathtype));
+        LOGGER.info("Parameter 'indexationType': " + (scheduleStrategy == null ? "N/A" : scheduleStrategy));
+        LOGGER.info("----------------------------------");
 
         LOGGER.info("Process platform " + inputDataDir.getAbsolutePath()+"; start indexer " + startIndexerFromArgs);
         //TODO: Pathtype - check

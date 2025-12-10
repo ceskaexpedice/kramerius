@@ -66,20 +66,25 @@ include 'security:oauth'
 // Curator platform module
 include 'processes:platform:curator:import-ndkmets'
 include 'processes:platform:curator:import-foxml'
+
 include 'processes:platform:curator:search-index-model'
 include 'processes:platform:curator:search-index-object'
+
 include 'processes:platform:curator:processing-index-repository'
 include 'processes:platform:curator:processing-index-object'
+
+include 'processes:platform:curator:delete-tree'
+
+include 'processes:platform:curator:license-add'
+include 'processes:platform:curator:license-remove'
+
+
 include 'processes:platform:curator:worker'
 
 
 // CDK platform module
 include 'processes:platform:cdk:cdk-migration-plugin'
 include 'processes:platform:cdk:worker'
-
-
-
-
 
 
 

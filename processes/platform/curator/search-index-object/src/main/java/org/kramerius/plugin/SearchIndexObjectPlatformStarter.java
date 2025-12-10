@@ -14,16 +14,20 @@ public class SearchIndexObjectPlatformStarter {
     @ProcessMethod
     public static void indexerMain(
             @ParameterName("type") @IsRequired String type,
-            @ParameterName("pid")  @IsRequired String pidsP,
+            @ParameterName("pid")  String pidsP,
+            @ParameterName("pidlist")  String pidsList,
+            @ParameterName("pidlist_file")  String pidListFile,
             @ParameterName("ignoreInconsistentObjects") Boolean ignoreInconsistentObjects,
             @ParameterName("title") String title
     ) {
 
-        LOGGER.info("Spouštění indexerMain s parametry:");
-        LOGGER.info(String.format("  type: %s", type.toUpperCase()));
-        LOGGER.info(String.format("  pidsP: %s", pidsP));
-        LOGGER.info(String.format("  ignoreInconsistentObjects: %b", ignoreInconsistentObjects));
-        LOGGER.info(String.format("  title: %s", title));
+        LOGGER.info("--- Starting method: indexerMain ---");
+        LOGGER.info("Parameter 'type': " + type);
+        LOGGER.info("Parameter 'pid': " + pidsP);
+        // Non-required parameters check for null
+        LOGGER.info("Parameter 'ignoreInconsistentObjects': " + (ignoreInconsistentObjects == null ? "N/A" : ignoreInconsistentObjects));
+        LOGGER.info("Parameter 'title': " + (title == null ? "N/A" : title));
+        LOGGER.info("-----------------------------------");
 
         NewIndexerProcessIndexObject.indexerMain(type.toUpperCase(), pidsP, ignoreInconsistentObjects, title);
     }

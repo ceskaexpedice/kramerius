@@ -15,6 +15,13 @@ dependencies {
     // processing index - indexation
     implementation project(":processes:platform:curator:processing-index-repository")
     implementation project(":processes:platform:curator:processing-index-object")
+
+	//delete tree
+    implementation project(":processes:platform:curator:delete-tree")
+
+    // licenses
+    implementation project(":processes:platform:curator:license-add")
+    implementation project(":processes:platform:curator:license-remove")
 }
 
 
@@ -30,8 +37,12 @@ processWorker {
         project(":processes:platform:curator:search-index-object"),
         // processing index - indexation
         project(":processes:platform:curator:processing-index-repository"),
-        project(":processes:platform:curator:processing-index-object")
-
+        project(":processes:platform:curator:processing-index-object"),
+		//delete tree
+		project(":processes:platform:curator:delete-tree"),
+        // licnses
+        project(":processes:platform:curator:license-add"),
+        project(":processes:platform:curator:license-remove")
     ]
 }
 

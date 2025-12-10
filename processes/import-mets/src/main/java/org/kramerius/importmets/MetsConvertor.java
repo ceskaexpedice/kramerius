@@ -139,6 +139,7 @@ public class MetsConvertor {
 
     public MetsConvertor() {
         try { //init marshallers
+            log.info(" -- Creating MetsConvertor -- ");
             JAXBContext jaxbContext = JAXBContext.newInstance(Mets.class, DigitalObject.class);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "utf-8");
@@ -163,7 +164,8 @@ public class MetsConvertor {
         }
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        //SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        SortingService sortingServiceLocal = null;
         FOXMLAppendLicenseService foxmlService = injector.getInstance(FOXMLAppendLicenseService.class);
 
         
@@ -194,6 +196,7 @@ public class MetsConvertor {
     }
 
     private void checkAndConvertDirectory(String importRoot, String exportRoot, boolean policyPublic) throws InterruptedException, JAXBException, FileNotFoundException, SAXException, ServiceException {
+        log.info(String.format("Checking import directory %s", importRoot));
         File importFolder = new File(importRoot);
 
         if (!importFolder.exists()) {
@@ -210,10 +213,12 @@ public class MetsConvertor {
             for (File child : importFolder.listFiles()) {
                 if (child.isDirectory()) {
                     String subFolder = System.getProperty("file.separator") + child.getName();
+                    log.info(String.format("Going to subfolder %s", subFolder));
                     checkAndConvertDirectory(importRoot + subFolder, exportRoot + subFolder, policyPublic);
                 }
             }
         } else {
+            log.info(String.format("Converting directory %s", importRoot));
             convert(importRoot, exportRoot, policyPublic);
         }
     }
