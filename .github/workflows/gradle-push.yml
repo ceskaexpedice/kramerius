@@ -36,6 +36,12 @@ jobs:
         
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
+
+    - name: Test tasks
+      run: ./gradlew :processes:platform:curator:license-add:tasks
+      env:
+        USERNAME: ${{ secrets.USER }}
+        TOKEN: ${{ secrets.PAS }}
     
     - name: Build with Gradle
       run: ./gradlew build
