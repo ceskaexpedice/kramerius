@@ -17,7 +17,7 @@ dependencies {
     implementation project(":processes:platform:curator:processing-index-object")
 
 	//delete tree
-    //implementation project(":processes:platform:curator:delete-tree")
+    implementation project(":processes:platform:curator:delete-tree")
 
     // licenses
     implementation project(":processes:platform:curator:license-add")
@@ -39,7 +39,7 @@ processWorker {
         project(":processes:platform:curator:processing-index-repository"),
         project(":processes:platform:curator:processing-index-object"),
 		//delete tree
-		//project(":processes:platform:curator:delete-tree"),
+		project(":processes:platform:curator:delete-tree"),
         // licnses
         project(":processes:platform:curator:license-add"),
         project(":processes:platform:curator:license-remove")
