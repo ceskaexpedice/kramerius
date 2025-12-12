@@ -64,8 +64,7 @@ dependencies {
 
     api 'javax.servlet:jstl:1.2'
     api 'taglibs:standard:1.1.2'
-    //api 'xalan:xalan:2.7.2'
-    api 'xalan:xalan:2.7.3'
+    api 'xalan:xalan:2.7.2'
 
 
     //api 'com.foxtrottechnologies:javadjvu:0.8.09'
