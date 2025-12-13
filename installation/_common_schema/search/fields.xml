@@ -106,7 +106,7 @@
  		
 
         <!--position of this object within it's own parent's children-->
-        <field name="rels_ext_index.sort" type="int" indexed="true" stored="true"/>
+        <field name="rels_ext_index.sort" type="int" indexed="true" stored="true" docValues="true"/>
 
         <!--foster parents-->
         <field name="foster_parents.pids" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
@@ -130,8 +130,8 @@
         <!--DATES -->
 
         <!--interval, ktery urcite obsahuje dany objekt, i kdyz jej muze presahovat (napr. pro 12.1919-3.1920 to je 1919-01-12T00:00:00.001Z - 1952-03-31T23:59:59.999Z)-->
-        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
-        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
+        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="true"/>
+        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="true"/>
 
         <!--presne hodnoty datumu, pokud je datum zapsano jako jedna hodota (ac treba zapis "6. 2012" take znamena rozsah, zde jde o zapis, je to tedy instant)-->
         <!--zruseno, namisto toho bude uvedeno oboji date_range_start.* i date_range_end.*-->
@@ -180,17 +180,17 @@
 
         <!--page-->
         <!--NormalPage, TitlePage, etc.-->
-        <field name="page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.type" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--1, [1a], etc.-->
-        <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.number" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--0, 1, 2, ...-->
-        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.index" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--left, right, single-->
-        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="page.placement" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--track-->
         <!--delka audia v sekundach (zaokrouhleno nahoru)-->
-        <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="false"/>
+        <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--identifiers-->
         <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
@@ -222,13 +222,13 @@
 		<copyField source="id_other" dest="id_all"/>
 
         <!--pocty potomku (pro zobrazeni)-->
-        <field name="count_page" type="int" indexed="true" stored="true"/>
-        <field name="count_track" type="int" indexed="true" stored="true"/>
-	    <field name="count_monograph_unit" type="int" indexed="true" stored="true"/>
-        <field name="count_sound_unit" type="int" indexed="true" stored="true"/>
-        <field name="count_issue" type="int" indexed="true" stored="true"/>
-        <field name="count_volume" type="int" indexed="true" stored="true"/>
-        <field name="count_internal_part" type="int" indexed="true" stored="true"/>
+        <field name="count_page" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_track" type="int" indexed="true" stored="true" docValues="true"/>
+	    <field name="count_monograph_unit" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_sound_unit" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_issue" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_volume" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_internal_part" type="int" indexed="true" stored="true" docValues="true"/>
 
 
 		<!-- geo coordinates -->
