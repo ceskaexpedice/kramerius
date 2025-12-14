@@ -18,6 +18,7 @@ import cz.incad.kramerius.processes.GCScheduler;
 import cz.incad.kramerius.processes.ProcessScheduler;
 import cz.incad.kramerius.processes.database.CDKCacheConnectionProvider;
 import cz.incad.kramerius.processes.database.Kramerius4ConnectionProvider;
+import cz.incad.kramerius.processes.database.UsersConnectionProvider;
 import cz.incad.kramerius.processes.impl.GCSchedulerImpl;
 import cz.incad.kramerius.processes.impl.ProcessSchedulerImpl;
 import cz.incad.kramerius.relation.RelationService;
@@ -86,7 +87,12 @@ public class BaseModule extends AbstractModule {
 
         bind(METSService.class).to(METSServiceImpl.class);
 
+        // bind kramerius4 = system database
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
+
+        // bind users = default to kramerius4 connection
+        bind(Connection.class).annotatedWith(Names.named("users")).toProvider(UsersConnectionProvider.class);
+
 
         // bind vzdy, vraci connection pouze v server modu
         bind(Connection.class).annotatedWith(Names.named("cdk/cache")).toProvider(CDKCacheConnectionProvider.class);

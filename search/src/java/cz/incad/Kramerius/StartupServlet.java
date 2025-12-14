@@ -16,9 +16,7 @@
  */
 package cz.incad.Kramerius;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.logging.Level;
 
 import javax.servlet.ServletConfig;
@@ -54,7 +52,11 @@ public class StartupServlet extends GuiceServlet {
 
     @Inject
     @Named("kramerius4")
-    Provider<Connection> connectionProvider = null;
+    Provider<Connection> systemConnectionProvider = null;
+
+    @Inject
+    @Named("users")
+    Provider<Connection> usersConnectionProvider = null;
 
     @Inject
     @Named("cdk/cache")
@@ -84,14 +86,17 @@ public class StartupServlet extends GuiceServlet {
          **/
 
         Connection k7dbConnection = null;
-
+        Connection usersConnection = null;
         // optional connection
         Connection cdkCacheConnection = null;
         try {
-            k7dbConnection = this.connectionProvider.get();
+            // system db connection
+            k7dbConnection = this.systemConnectionProvider.get();
+            usersConnection = this.usersConnectionProvider.get();
 
             // cdk cache connection
             cdkCacheConnection = this.cdkCacheConnectionManager.get();
+
 
             // -- Process database initialization --
             // read previous db version
@@ -114,8 +119,9 @@ public class StartupServlet extends GuiceServlet {
             StatisticDbInitializer.initDatabase(k7dbConnection, versionService);
 
             // folder database
-            FolderDatabaseInitializer.initDatabase(k7dbConnection, versionService);
-
+            if (usersConnection != null) {
+                FolderDatabaseInitializer.initDatabase(usersConnection, versionService);
+            }
 
 
             // delete session keys
@@ -147,6 +153,9 @@ public class StartupServlet extends GuiceServlet {
                 DatabaseUtils.tryClose(k7dbConnection);
             }
 
+            if (usersConnection != null) {
+                DatabaseUtils.tryClose(usersConnection);
+            }
             if (cdkCacheConnection != null) {
                 DatabaseUtils.tryClose(cdkCacheConnection);
             }

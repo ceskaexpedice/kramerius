@@ -12,8 +12,12 @@ import com.google.inject.name.Named;
 public class FolderDatabase {
 
 
+//    @Inject
+//    @Named("kramerius4")
+//    Provider<Connection> provider;
+
     @Inject
-    @Named("kramerius4")
+    @Named("users")
     Provider<Connection> provider;
 
 
