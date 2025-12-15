@@ -72,6 +72,7 @@ include 'processes:platform:curator:search-index-object'
 
 include 'processes:platform:curator:processing-index-repository'
 include 'processes:platform:curator:processing-index-object'
+include 'processes:platform:curator:processing-check'
 
 include 'processes:platform:curator:delete-tree'
 
@@ -82,8 +83,7 @@ include 'processes:platform:curator:backup-collections'
 include 'processes:platform:curator:restore-collections'
 
 include 'processes:platform:curator:sdnnt-sync'
-
-include 'processes:platform:curator:processing-check'
+include 'processes:platform:curator:nkp-logs-p'
 
 include 'processes:platform:curator:worker'
 

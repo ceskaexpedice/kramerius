@@ -38,72 +38,67 @@ public class NKPLogProcess {
     private static final String NKP_LOGS_VISIBILITY_KEY = "nkp.logs.visibility";
     private static final String NKP_LOGS_INSTITUTION_KEY = "nkp.logs.institution";
     private static final String NKP_LOGS_ANONYMIZATION_KEY = "nkp.logs.anonymization";
-    
+
     private static final String NKP_LOGS_EMAIL_NOTIFICATION = "nkp.logs.notification.enabled";
     private static final String NKP_LOGS_EMAIL_FROM = "nkp.logs.notification.from";
     private static final String NKP_LOGS_EMAIL_TEXT = "nkp.logs.notification.text";
     private static final String NKP_LOGS_EMAIL_SUBJECT = "nkp.logs.notification.subject";
     private static final String NKP_LOGS_EMAIL_RECIPIENTS = "nkp.logs.notification.recipients";
-    
-    
+
+
     public static Logger LOGGER = Logger.getLogger(NKPLogProcess.class.getName());
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, ParseException, IOException, MessagingException {
-        LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
-        if (args.length > 2) {
+    public static void nkpLogMainMain(String from, String to, Boolean emailNotificationPar) throws NoSuchAlgorithmException, ParseException, IOException, MessagingException {
+        String defaultInst = KConfiguration.getInstance().getConfiguration().getString("acronym");
+        String folder = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_FOLDER_KEY, System.getProperty("java.io.tmpdir"));
+        String visibility = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_VISIBILITY_KEY, "ALL");
+        String institution = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_INSTITUTION_KEY, StringUtils.isAnyString(defaultInst) ? defaultInst : "-none-");
+        List<Object> anonymization = getAnnonymizedKeys();
 
-            String from = args[1];
-            String to = args[2];
+        process(from, to, folder, institution, visibility, anonymization);
 
-            String defaultInst = KConfiguration.getInstance().getConfiguration().getString("acronym");
-            String folder = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_FOLDER_KEY, System.getProperty("java.io.tmpdir"));
-            String visibility = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_VISIBILITY_KEY, "ALL");
-            String institution = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_INSTITUTION_KEY, StringUtils.isAnyString(defaultInst) ? defaultInst :  "-none-");
-            List<Object> anonymization = getAnnonymizedKeys();
+        boolean emailNotification = KConfiguration.getInstance().getConfiguration().getBoolean(NKP_LOGS_EMAIL_NOTIFICATION, false);
+        if (emailNotificationPar) {
+            emailNotification = emailNotificationPar;
+        }
 
-            process(from, to, folder, institution, visibility, anonymization);
+        if (emailNotification) {
+            String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
+            String emailFrom = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_FROM, administratorEmail);
+            String text = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_TEXT, "NKP Logs notification");
+            String subject = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_SUBJECT, "NKP Logs notification");
+            List<Object> recipients = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_EMAIL_RECIPIENTS, new ArrayList<>());
+            if (recipients != null && recipients.size() > 0 &&
+                    StringUtils.isAnyString(emailFrom) &&
+                    StringUtils.isAnyString(text) &&
+                    StringUtils.isAnyString(subject)) {
 
-            boolean  emailNotification = KConfiguration.getInstance().getConfiguration().getBoolean(NKP_LOGS_EMAIL_NOTIFICATION,  false);
-            if (args.length > 3) { emailNotification = Boolean.parseBoolean(args[3]); }
-            
-            if (emailNotification) {
-                String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
-                String emailFrom =   KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_FROM,  administratorEmail);
-                String text  = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_TEXT,  "NKP Logs notification");
-                String subject  = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_EMAIL_SUBJECT,  "NKP Logs notification");
-                List<Object> recipients  = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_EMAIL_RECIPIENTS,  new ArrayList<>());
-                if (recipients != null && recipients.size() > 0 && 
-                        StringUtils.isAnyString(emailFrom) && 
-                        StringUtils.isAnyString(text)  && 
-                        StringUtils.isAnyString(subject)) {
-                    
-                    sendEmailNotification(emailFrom, recipients, subject, text);
-                } else {
-                    LOGGER.warning("Warning: Recipients missing, unable to send email");
-                }
+                sendEmailNotification(emailFrom, recipients, subject, text);
+            } else {
+                LOGGER.warning("Warning: Recipients missing, unable to send email");
             }
         }
     }
-    
+
     //TODO: Do it better - change configuration key
     public static List<Object> getAnnonymizedKeys() {
-        List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY, 
+        List<Object> anonymization = KConfiguration.getInstance().getConfiguration().getList(NKP_LOGS_ANONYMIZATION_KEY,
                 AnonymizationSupport.DEFAULT_ANONYMIZATION_PROPERTIES);
         return anonymization;
     }
 
     public static void sendEmailNotification(String emailFrom, List<Object> recipients, String subject, String text) throws MessagingException {
-        Mailer mailer= new MailerImpl();
+        Mailer mailer = new MailerImpl();
         javax.mail.Session sess = mailer.getSession(null, null);
         MimeMessage msg = new MimeMessage(sess);
-        
+
         msg.setHeader("Content-Type", "text/plain; charset=UTF-8");
         msg.setFrom(new InternetAddress(emailFrom));
         for (Object recp : recipients) {
             msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recp.toString()));
         }
         msg.setSubject(subject, "UTF-8");
-        msg.setText(text,"UTF-8");
+        msg.setText(text, "UTF-8");
         Transport.send(msg);
     }
 
@@ -114,14 +109,14 @@ public class NKPLogProcess {
                                @ParameterName("institution") String institution,
                                @ParameterName("visibility") String visibility,
                                List<Object> anonymization
-                              
+
     ) throws ParseException, IOException, NoSuchAlgorithmException {
         List<String> logs = new ArrayList<>();
         PluginContext pluginContext = PluginContextHolder.getContext();
         pluginContext.updateProcessName(String.format("Generování NKP logů pro období %s - %s", from, to));
         // folder, institution, visibility from configuration
         LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to, folder, institution, visibility, anonymization));
-        
+
         List<String> annonymizationKeys = anonymization != null ? anonymization.stream().map(Objects::toString).collect(Collectors.toList()) : new ArrayList<>();
 
         Client client = Client.create();
@@ -180,23 +175,23 @@ public class NKPLogProcess {
             }
             processingDate = nextDate;
         }
-        
-        
+
+
         try {
-            File zipFile = new File(new File(folder), String.format("statistics-%s-%s.zip",  StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)));
+            File zipFile = new File(new File(folder), String.format("statistics-%s-%s.zip", StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)));
             FileOutputStream fos = new FileOutputStream(zipFile);
             ZipOutputStream zos = new ZipOutputStream(fos);
-            
+
             for (String lF : logs) {
-                addFileToZip(String.format("statistics-%s-%s",  StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)), lF, zos); 
+                addFileToZip(String.format("statistics-%s-%s", StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)), lF, zos);
             }
-            
+
             zos.close();
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
     }
 
     private static void addFileToZip(String path, String srcFile, ZipOutputStream zipOut) throws IOException {
@@ -212,7 +207,7 @@ public class NKPLogProcess {
         }
         fis.close();
     }
-    
+
 }
 
 
