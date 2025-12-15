@@ -78,6 +78,8 @@ include 'processes:platform:curator:delete-tree'
 include 'processes:platform:curator:license-add'
 include 'processes:platform:curator:license-remove'
 
+include 'processes:platform:curator:backup-collections'
+
 
 include 'processes:platform:curator:worker'
 
