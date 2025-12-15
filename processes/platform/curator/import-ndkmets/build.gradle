@@ -11,11 +11,8 @@ processPlugin {
 }
 
 dependencies{
-    api project(':shared:common')
     api project(':processes:import-mets')
-    api project(':processes:service')
     api project(':processes:import')
-    api "commons-codec:commons-codec:1.5"
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
 

@@ -13,7 +13,6 @@ processPlugin {
 }
 
 dependencies{
-    implementation project(':shared:common')
     implementation project(':processes:processing-index')
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }

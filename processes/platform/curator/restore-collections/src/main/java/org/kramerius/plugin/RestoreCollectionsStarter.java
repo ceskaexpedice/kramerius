@@ -1,8 +1,6 @@
 package org.kramerius.plugin;
 
-import cz.inovatika.collections.Backup;
 import cz.inovatika.collections.Restore;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
@@ -22,7 +20,7 @@ public class RestoreCollectionsStarter {
     public static void backupMain(
             @ParameterName("authToken") @IsRequired String authToken,
             @ParameterName("target") @IsRequired String target
-    ) throws IOException, SAXException, JAXBException, SolrServerException, InterruptedException {
+    ) throws Exception {
         Restore.restoreMain(authToken, target);
     }
 }

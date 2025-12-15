@@ -48,7 +48,7 @@ public class NKPLogProcess {
 
     public static Logger LOGGER = Logger.getLogger(NKPLogProcess.class.getName());
 
-    public static void nkpLogMainMain(String from, String to, Boolean emailNotificationPar) throws NoSuchAlgorithmException, ParseException, IOException, MessagingException {
+    public static void nkpLogMainMain(String from, String to, Boolean emailNotificationPar) throws Exception {
         String defaultInst = KConfiguration.getInstance().getConfiguration().getString("acronym");
         String folder = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_FOLDER_KEY, System.getProperty("java.io.tmpdir"));
         String visibility = KConfiguration.getInstance().getConfiguration().getString(NKP_LOGS_VISIBILITY_KEY, "ALL");

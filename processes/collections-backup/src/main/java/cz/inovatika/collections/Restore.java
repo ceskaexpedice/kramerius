@@ -41,7 +41,7 @@ public class Restore {
 
     public static final Logger LOGGER = Logger.getLogger(Restore.class.getName());
 
-    public static void restoreMain(String authToken, String target) throws SAXException, IOException, JAXBException, InterruptedException, SolrServerException {
+    public static void restoreMain(String authToken, String target) throws Exception {
         String parentZipFolder = KConfiguration.getInstance().getConfiguration().getString("collections.backup.folder");
         if (parentZipFolder == null)
             throw new IllegalStateException("configuration property 'collections.backup.folder' must be set ");

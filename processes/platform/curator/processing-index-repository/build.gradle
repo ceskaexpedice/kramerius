@@ -15,9 +15,7 @@ processPlugin {
 }
 
 dependencies{
-    implementation project(':shared:common')
     implementation project(':processes:processing-index')
-    implementation "commons-codec:commons-codec:1.5"
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
 

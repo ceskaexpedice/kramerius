@@ -138,14 +138,6 @@
         <securedaction>a_rebuild_processing_index</securedaction>
     </process>
 
-    <!-- migrace dat z Krameria do Krameria -->
-    <process>
-        <id>data_migration</id>
-        <description>Repository to repository migration</description>
-        <mainClass>org.kramerius.replications.FedoraDataMigrationProcess</mainClass>
-        <securedaction>import</securedaction>
-    </process>
-
     <process>
         <id>nkplogs</id>
         <description>Generate access logs for NKP</description>

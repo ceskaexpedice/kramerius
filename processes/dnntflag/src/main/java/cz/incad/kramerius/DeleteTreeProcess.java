@@ -69,7 +69,7 @@ public class DeleteTreeProcess {
             @ParameterName("pid") String pid,
             @ParameterName("title") String titleP,
             @ParameterName("ignoreIncosistencies") Boolean ignoreIncosistencies
-    ) throws IOException, SolrServerException {
+    ) throws Exception {
         String title = ProcessHelper.shortenIfTooLong(titleP, 256);
         PluginContext pluginContext = PluginContextHolder.getContext();
         pluginContext.updateProcessName(title != null
