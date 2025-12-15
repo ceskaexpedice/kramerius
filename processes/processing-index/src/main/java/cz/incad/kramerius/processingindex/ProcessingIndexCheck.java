@@ -22,7 +22,7 @@ public class ProcessingIndexCheck {
 
     public static final Logger LOGGER = Logger.getLogger(ProcessingIndexCheck.class.getName());
 
-    public static void main(String[] args) throws IOException, SolrServerException {
+    public static void processingCheckMain() {
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
 
