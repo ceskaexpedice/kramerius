@@ -1,16 +1,16 @@
 /*
  * Copyright (C) Nov 29, 2023 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,35 +40,27 @@ import cz.inovatika.collections.migrations.FromK5Instance;
 public class Restore {
 
     public static final Logger LOGGER = Logger.getLogger(Restore.class.getName());
-    
-    public static void main(String[] args) throws TransformerException, ParserConfigurationException, SAXException, IOException, JAXBException, InterruptedException, SolrServerException {
-        LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
-        if (args.length > 1) {
-            String authToken = args[0];
-            String target = args[1];
 
-            String parentZipFolder = KConfiguration.getInstance().getConfiguration().getString("collections.backup.folder");
-            if (parentZipFolder == null) throw new IllegalStateException("configuration property 'collections.backup.folder' must be set ");
-            String zipFile = parentZipFolder + File.separator + target;
-            
-            
+    public static void restoreMain(String authToken, String target) throws SAXException, IOException, JAXBException, InterruptedException, SolrServerException {
+        String parentZipFolder = KConfiguration.getInstance().getConfiguration().getString("collections.backup.folder");
+        if (parentZipFolder == null)
+            throw new IllegalStateException("configuration property 'collections.backup.folder' must be set ");
+        String zipFile = parentZipFolder + File.separator + target;
 
-            String tmpDirPath = System.getProperty("java.io.tmpdir");
-            String subdirectoryPath = tmpDirPath + File.separator +  target;
-            FileUtils.forceMkdir(new File(subdirectoryPath));
-            unzip(zipFile, subdirectoryPath);
-            
 
-            LOGGER.info("Scheduling import "+subdirectoryPath);
-            FromK5Instance.importTmpDir(subdirectoryPath, true, authToken);
-        } else {
-            throw new IllegalArgumentException("expecting 2 arguments (authtoken, zipfile)");
-        }
+        String tmpDirPath = System.getProperty("java.io.tmpdir");
+        String subdirectoryPath = tmpDirPath + File.separator + target;
+        FileUtils.forceMkdir(new File(subdirectoryPath));
+        unzip(zipFile, subdirectoryPath);
+
+
+        LOGGER.info("Scheduling import " + subdirectoryPath);
+        FromK5Instance.importTmpDir(subdirectoryPath, true, authToken);
     }
-    
-    
+
+
     public static void unzip(String zipFile, String outputFolder) throws IOException {
-        LOGGER.info("Unzipping file to "+outputFolder);
+        LOGGER.info("Unzipping file to " + outputFolder);
 
         byte[] buffer = new byte[1024];
 

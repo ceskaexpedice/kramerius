@@ -1,0 +1,20 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+
+description "Collection restore"
+
+processPlugin {
+	spiImplementation='org.kramerius.plugin.RestoreCollectionsSPI'
+	profiles = [
+			[profileId: "restore-collections",description: "Collection restore",jvmArgs: ["-Xms1g","-Xmx32g"]]
+	]
+}
+
+dependencies{
+    implementation project(':shared:common')
+    implementation project(':processes:collections-backup')
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+
