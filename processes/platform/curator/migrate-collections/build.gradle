@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+
+description "Collections from K5 instance"
+
+processPlugin {
+	spiImplementation='org.kramerius.plugin.BackupCollectionsSPI'
+	profiles = [
+			[profileId: "migrate-collections-from-k5",description: "Collections from K5 instance",jvmArgs: ["-Xms1g","-Xmx32g"]]
+	]
+}
+
+dependencies{
+    implementation project(':processes:collections-backup')
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+

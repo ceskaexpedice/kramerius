@@ -81,6 +81,7 @@ include 'processes:platform:curator:license-remove'
 
 include 'processes:platform:curator:backup-collections'
 include 'processes:platform:curator:restore-collections'
+include 'processes:platform:curator:migrate-collections'
 
 include 'processes:platform:curator:sdnnt-sync'
 include 'processes:platform:curator:nkp-logs-p'
