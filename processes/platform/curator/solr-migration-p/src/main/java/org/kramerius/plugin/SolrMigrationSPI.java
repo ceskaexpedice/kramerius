@@ -18,6 +18,8 @@ package org.kramerius.plugin;
 
 import org.ceskaexpedice.processplatform.api.AbstractPluginSpi;
 
+import java.util.Set;
+
 /**
  * ImportSPI
  * @author ppodsednik
@@ -28,5 +30,10 @@ public class SolrMigrationSPI extends AbstractPluginSpi {
     @Override
     public String getMainClass() {
         return PlatformStarter.class.getName();
+    }
+
+    @Override
+    public Set<String> getScheduledProfiles() {
+        return Set.of();
     }
 }
