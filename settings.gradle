@@ -66,6 +66,7 @@ include 'security:oauth'
 // Curator platform module
 include 'processes:platform:curator:import-ndkmets'
 include 'processes:platform:curator:import-foxml'
+include 'processes:platform:curator:update-foxml'
 
 include 'processes:platform:curator:search-index-model'
 include 'processes:platform:curator:search-index-object'

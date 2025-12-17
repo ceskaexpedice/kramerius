@@ -28,6 +28,9 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.fedoramodel.DatastreamType;
 import org.ceskaexpedice.fedoramodel.DatastreamVersionType;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
+import org.ceskaexpedice.processplatform.common.model.ScheduleSubProcess;
 import org.kramerius.importer.inventory.ImportInventory;
 import org.kramerius.importer.inventory.ImportInventoryFactory;
 import org.kramerius.importer.inventory.ImportInventoryItem;
@@ -56,23 +59,15 @@ public class UpdateStreams {
 
     public static final Logger LOGGER = Logger.getLogger(UpdateStreams.class.getName());
 
-
-    public static void main(String[] args) {
-        if (args.length < 1) {
-            throw new RuntimeException("Not enough arguments.");
-        }
-
+    public static void updateMain(
+            String importDirFromArgs,
+            Boolean startIndexerFromArgs
+    ) {
         List<String> datastreamToUpdate = Arrays.asList(
                 FedoraUtils.BIBLIO_MODS_STREAM,
                 FedoraUtils.DC_STREAM);
-
-        int argsIndex = 0;
-        String authToken = args[argsIndex++]; //auth token always second, but still suboptimal solution, best would be if it was outside the scope of this as if ProcessHelper.scheduleProcess() similarly to changing name (ProcessStarter)
-        //process params
-        String importDirFromArgs = args.length > argsIndex ? args[argsIndex++] : null;
         LOGGER.info(String.format("Import directory %s", importDirFromArgs));
 
-        Boolean startIndexerFromArgs = args.length > argsIndex ? Boolean.valueOf(args[argsIndex++]) : null;
         Boolean startIndexer = Boolean.valueOf(KConfiguration.getInstance().getConfiguration().getString("ingest.startIndexer", "true"));
         if (startIndexerFromArgs != null) {
             startIndexer = startIndexerFromArgs;
@@ -93,7 +88,7 @@ public class UpdateStreams {
             items.forEach(item -> {
                 DigitalObject digitalObject = item.getDigitalObject();
                 Map<String, DatastreamType> datastreamTypes = new HashMap<>();
-                digitalObject.getDatastream().stream().forEach(ds-> {
+                digitalObject.getDatastream().stream().forEach(ds -> {
                     datastreamTypes.put(ds.getID().toLowerCase(), ds);
                 });
                 for (String dsName : datastreamToUpdate) {
@@ -118,7 +113,7 @@ public class UpdateStreams {
                             LOGGER.info(str);
 
                         } else if (dsVersion.getBinaryContent() != null) {
-                                throw new RuntimeException("Update of managed binary datastream content is not supported.");
+                            throw new RuntimeException("Update of managed binary datastream content is not supported.");
                         } else if (dsVersion.getContentLocation() != null) {
                             String mimeType = akubraRepository.getDatastreamMetadata(item.getPid(), dsName).getMimetype();
                             akubraRepository.updateExternalDatastream(item.getPid(), dsName, dsVersion.getContentLocation().getREF(), mimeType);
@@ -131,9 +126,18 @@ public class UpdateStreams {
             });
 
             if (startIndexer) {
-                for (ImportInventoryItem scheduleItem :  ScheduleStrategy.indexRoots.scheduleItems(importInventory)) {
+                for (ImportInventoryItem scheduleItem : ScheduleStrategy.indexRoots.scheduleItems(importInventory)) {
                     ImportInventoryItem.TypeOfSchedule schedule = scheduleItem.getIndexationPlanType();
-                    // TODO pepo scheduleSub ProcessScheduler.scheduleIndexation(scheduleItem.getPid(), scheduleItem.getTitle(), schedule == ImportInventoryItem.TypeOfSchedule.TREE , authToken);
+
+                    Map<String, String> payload = new HashMap<>();
+                    payload.put("pid", scheduleItem.getPid());
+                    payload.put("title", scheduleItem.getTitle());
+                    payload.put("type", "object");
+                    payload.put("ignoreInconsistentObjects", Boolean.toString(schedule == ImportInventoryItem.TypeOfSchedule.TREE));
+
+                    ScheduleSubProcess subProcess = new ScheduleSubProcess("new_indexer_index_object", payload);
+                    PluginContext pluginContext = PluginContextHolder.getContext();
+                    pluginContext.scheduleSubProcess(subProcess);
                 }
             }
         }
