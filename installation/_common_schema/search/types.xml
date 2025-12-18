@@ -88,7 +88,12 @@
 	<fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
 	<fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" geo="true" distErrPct="0.025" maxDistErr="0.000009"/>
 	<fieldType name="bbox" class="solr.BBoxField" geo="true" numberType="_bbox_coord" storeSubFields="false" stored="true"/>
+
+	<!-- Issue https://github.com/ceskaexpedice/kramerius/issues/1009
 	<fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="true" stored="false"/>
+	-->
+	<fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="false" stored="false"/>
+
 
    <fieldType name="children_path_hierarchy" class="solr.TextField" positionIncrementGap="100">
 		<analyzer type="index">

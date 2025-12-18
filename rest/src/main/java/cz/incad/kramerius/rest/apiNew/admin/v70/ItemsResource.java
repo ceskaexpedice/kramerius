@@ -29,6 +29,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -325,17 +326,10 @@ public class ItemsResource extends AdminApiResource {
 
             checkObjectExists(pid);
 
+
             Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
-            List<Node> licenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:license").selectNodes(relsExt);
-            JSONArray licenseArray = new JSONArray();
-            for (Node relationEl : licenseEls) {
-                licenseArray.put(relationEl.getText());
-            }
-            List<Node> containsLicenseEls = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:containsLicense").selectNodes(relsExt);
-            JSONArray containsLicenseArray = new JSONArray();
-            for (Node relationEl : containsLicenseEls) {
-                containsLicenseArray.put(relationEl.getText());
-            }
+            JSONArray licenseArray = lisensesFromRELSExt(relsExt);
+
             Element policyEl = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:policy").selectSingleNode(relsExt);
             String policy = null;
             if (policyEl != null) {
@@ -345,7 +339,7 @@ public class ItemsResource extends AdminApiResource {
             result.put("pid", pid);
             result.put("licenses", licenseArray);
             result.put("policy", policy);
-            //result.put("contains_licenses", containsLicenseArray); //tady irelevantní až matoucí
+
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -353,6 +347,25 @@ public class ItemsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    @NotNull
+    private static JSONArray lisensesFromRELSExt(Document relsExt) {
+
+        List<Node> licenseEls = Dom4jUtils.buildXpath(
+                "/rdf:RDF/rdf:Description/rel:license" +
+                        "| /rdf:RDF/rdf:Description/rel:licenses" +
+                        "| /rdf:RDF/rdf:Description/rel:licence" +
+                        "| /rdf:RDF/rdf:Description/rel:licences" +
+                        "| /rdf:RDF/rdf:Description/rel:dnnt-label" +
+                        "| /rdf:RDF/rdf:Description/rel:dnnt-labels"
+        ).selectNodes(relsExt);
+
+        JSONArray licenseArray = new JSONArray();
+        for (Node relationEl : licenseEls) {
+            licenseArray.put(relationEl.getText());
+        }
+        return licenseArray;
     }
 
     @PUT

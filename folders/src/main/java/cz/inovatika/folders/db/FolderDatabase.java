@@ -13,7 +13,7 @@ public class FolderDatabase {
 
 
     @Inject
-    @Named("kramerius4")
+    @Named("users")
     Provider<Connection> provider;
 
 

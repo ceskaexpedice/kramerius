@@ -86,8 +86,8 @@
         <!--root-->
         <field name="root.pid" type="string" indexed="true" stored="true" docValues="true"/>
         <field name="root.model" type="string" indexed="true" stored="true" docValues="true"/>
-        <field name="root.title" type="string" indexed="true" stored="true"/>
-        <field name="root.title.sort" type="string" indexed="true" stored="true"/>
+        <field name="root.title" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="root.title.sort" type="string" indexed="true" stored="true" docValues="true"/>
 
         <!--own parent-->
         <field name="own_parent.pid" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -106,7 +106,7 @@
  		
 
         <!--position of this object within it's own parent's children-->
-        <field name="rels_ext_index.sort" type="int" indexed="true" stored="true"/>
+        <field name="rels_ext_index.sort" type="int" indexed="true" stored="true" docValues="true"/>
 
         <!--foster parents-->
         <field name="foster_parents.pids" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
@@ -130,8 +130,8 @@
         <!--DATES -->
 
         <!--interval, ktery urcite obsahuje dany objekt, i kdyz jej muze presahovat (napr. pro 12.1919-3.1920 to je 1919-01-12T00:00:00.001Z - 1952-03-31T23:59:59.999Z)-->
-        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
-        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="false"/>
+        <field name="date.min" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="true"/>
+        <field name="date.max" type="date" indexed="true" stored="true" required="false" multiValued="false" docValues="true"/>
 
         <!--presne hodnoty datumu, pokud je datum zapsano jako jedna hodota (ac treba zapis "6. 2012" take znamena rozsah, zde jde o zapis, je to tedy instant)-->
         <!--zruseno, namisto toho bude uvedeno oboji date_range_start.* i date_range_end.*-->
@@ -163,7 +163,7 @@
         <!--pro model:issue muze obsahovat treba: "16.04.1948", "06.2013", "1947"-->
         <!--pro model:monographunit muze obsahovat treba: "2", "2x"-->
         <field name="part.number.str" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--monograph unit specific-->
 
@@ -176,7 +176,7 @@
         -->
         <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--kód typu, pro zobrazení v náhledech/seznamech; možné hodnoty: normal, morning, afternoon, evening, corrected, special, supplement, sequence_X-->
-        <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"  docValues="true"/>
+        <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
 
         <!--page-->
         <!--NormalPage, TitlePage, etc.-->
@@ -193,21 +193,21 @@
         <field name="track.length" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--identifiers-->
-        <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_uuid" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_oclc" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_sysno" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_barcode" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_isbn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_issn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-        <field name="id_ismn" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_urnnbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_ccnb" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_uuid" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_oclc" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_sysno" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_barcode" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_isbn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_issn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <field name="id_ismn" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <!--value in id_other is prefixed with type (if found in mods:identifier/@type) and colon, e.g. "sici:84987580"-->
-        <field name="id_other" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_other" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <!--possible other identifiers for special field: sici, coden-->
 		
 		<!-- all identifiers in one field -->
-        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
 		
 
 		<copyField source="id_urnnbn" dest="id_all"/>
@@ -222,13 +222,13 @@
 		<copyField source="id_other" dest="id_all"/>
 
         <!--pocty potomku (pro zobrazeni)-->
-        <field name="count_page" type="int" indexed="true" stored="true"/>
-        <field name="count_track" type="int" indexed="true" stored="true"/>
-	    <field name="count_monograph_unit" type="int" indexed="true" stored="true"/>
-        <field name="count_sound_unit" type="int" indexed="true" stored="true"/>
-        <field name="count_issue" type="int" indexed="true" stored="true"/>
-        <field name="count_volume" type="int" indexed="true" stored="true"/>
-        <field name="count_internal_part" type="int" indexed="true" stored="true"/>
+        <field name="count_page" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_track" type="int" indexed="true" stored="true" docValues="true"/>
+	    <field name="count_monograph_unit" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_sound_unit" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_issue" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_volume" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_internal_part" type="int" indexed="true" stored="true" docValues="true"/>
 
 
 		<!-- geo coordinates -->

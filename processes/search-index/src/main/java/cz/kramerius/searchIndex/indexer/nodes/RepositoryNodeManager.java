@@ -6,10 +6,12 @@ import cz.kramerius.shared.DateInfo;
 import cz.kramerius.shared.Dom4jUtils;
 import cz.kramerius.shared.Title;
 import org.ceskaexpedice.akubra.AkubraRepository;
+import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.akubra.relsext.RelsExtUtils;
 import org.dom4j.Document;
 
 import java.io.IOException;
@@ -302,11 +304,16 @@ public class RepositoryNodeManager {
         if (parent == null) {
             return null;
         }
-        List<String> parentsOwnChildren = parent.getPidsOfOwnChildren();
-        if (parentsOwnChildren == null || parentsOwnChildren.isEmpty()) {
+
+        if (parent.getPidsOfOwnChildren() == null || parent.getPidsOfOwnChildren().isEmpty()) {
             return null;
         }
-        int position = parentsOwnChildren.indexOf(childPid);
+        Set<String> parentsOwnChildren = new HashSet<>(parent.getPidsOfOwnChildren());
+        DatastreamContentWrapper dataStream = akubraRepository.getDatastreamContent(parent.getPid(), KnownDatastreams.RELS_EXT);
+        org.w3c.dom.Document dom = dataStream.asDom(true);
+        List<String> sortedList = RelsExtUtils.getSortedRelationsPid(dom.getDocumentElement()).stream().filter(parentsOwnChildren::contains).toList();
+
+        int position = sortedList.indexOf(childPid);
         return position == -1 ? null : Integer.valueOf(position);
     }
 

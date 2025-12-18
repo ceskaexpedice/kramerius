@@ -12,6 +12,7 @@ import cz.incad.kramerius.MostDesirable;
 import cz.incad.kramerius.audio.CacheLifeCycleHook;
 import cz.incad.kramerius.audio.urlMapping.CachingFedoraUrlManager;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
+import cz.incad.kramerius.database.provider.UsersConnectionProvider;
 import cz.incad.kramerius.impl.*;
 import cz.incad.kramerius.processes.scheduler.ProcessScheduler;
 import cz.incad.kramerius.database.provider.CDKCacheConnectionProvider;
@@ -77,9 +78,11 @@ public class BaseModule extends AbstractModule {
         reports.addBinding().to(ModelSummaryReport.class);
 
         
-        //bind(SolrAccess.class).to(SolrAccessImpl.class).in(Scopes.SINGLETON);
-
+        // bind kramerius4 = system database
         bind(Connection.class).annotatedWith(Names.named("kramerius4")).toProvider(Kramerius4ConnectionProvider.class);
+
+        // bind users = default to kramerius4 connection
+        bind(Connection.class).annotatedWith(Names.named("users")).toProvider(UsersConnectionProvider.class);
 
         // bind vzdy, vraci connection pouze v server modu
         bind(Connection.class).annotatedWith(Names.named("cdk/cache")).toProvider(CDKCacheConnectionProvider.class);
