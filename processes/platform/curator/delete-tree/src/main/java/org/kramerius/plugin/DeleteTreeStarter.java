@@ -1,7 +1,6 @@
 package org.kramerius.plugin;
 
 import cz.incad.kramerius.DeleteTreeProcess;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 
@@ -17,7 +16,7 @@ public class DeleteTreeStarter {
             @ParameterName("pid") String pid,
             @ParameterName("title") String titleP,
             @ParameterName("ignoreIncosistencies") Boolean ignoreIncosistencies
-       ) throws IOException, SolrServerException {
+       ) throws Exception {
 
         LOGGER.info("--- Starting method: deleteMain ---");
         LOGGER.info("Parameter 'pid': " + (pid == null ? "N/A" : pid));

@@ -16,40 +16,10 @@
         <securedaction>a_index</securedaction>
     </process>
 
-    <!-- K3 replication process - deprecated - it will be removed in the future -->
-    <process>
-        <id>replikator_monographs</id>
-        <description>Replikator (monografie)</description>
-        <mainClass>org.kramerius.Replicate</mainClass>
-        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
-    </process>
-
-    <!-- K3 replication process - deprecated - it will be removed in the future -->
-    <process>
-        <id>replikator_periodicals</id>
-        <description>Replikator (periodika)</description>
-        <mainClass>org.kramerius.Replicate</mainClass>
-        <javaProcessParameters>-Xmx2048m -Xms512m</javaProcessParameters>
-    </process>
-
-    <!-- K3 replication process - deprecated - it will be removed in the future -->
-    <processes>
-        <id>enumerator</id>
-        <description>Enumerator</description>
-        <mainClass>org.kramerius.Enumerator</mainClass>
-    </processes>
-
-    <!-- K3 replication process - deprecated - it will be removed in the future -->
-    <process>
-        <id>replicationrights</id>
-        <description>Replication rights</description>
-        <mainClass>org.kramerius.ReplicationRights</mainClass>
-    </process>
-
     <process>
         <id>add_license</id>
         <description>přidání licence objektu, nebo seznamu objektů, včetně aktualizace vyhledávacího indexu</description>
-        <mainClass>cz.incad.kramerius.SetLicenseProcess.addLicense - licenses - ne dnntflag</mainClass>
+        <mainClass>cz.incad.kramerius.SetLicenseProcess.addLicense</mainClass>
         <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_set_accessibility</securedaction>
     </process>
@@ -57,7 +27,7 @@
     <process>
         <id>remove_license</id>
         <description>odebrání licence objektu, nebo seznamu objektů, včetně aktualizace vyhledávacího indexu</description>
-        <mainClass>cz.incad.kramerius.SetLicenseProcess.removeLicense - licenses</mainClass>
+        <mainClass>cz.incad.kramerius.SetLicenseProcess</mainClass>
         <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_set_accessibility</securedaction>
     </process>
@@ -79,12 +49,6 @@
         <mainClass>cz.incad.kramerius.DeleteTreeProcess - dat jinam z dnntflag</mainClass>
         <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_delete</securedaction>
-    </process>
-
-    <process>
-        <id>export</id>
-        <description>Export</description>
-        <mainClass>cz.incad.kramerius.service.impl.ExportServiceImpl - issue 1215</mainClass>
     </process>
 
     <!-- Update FOXML process -->
@@ -138,14 +102,6 @@
         <securedaction>a_rebuild_processing_index</securedaction>
     </process>
 
-    <!-- migrace dat z Krameria do Krameria -->
-    <process>
-        <id>data_migration</id>
-        <description>Repository to repository migration</description>
-        <mainClass>org.kramerius.replications.FedoraDataMigrationProcess</mainClass>
-        <securedaction>import</securedaction>
-    </process>
-
     <process>
         <id>nkplogs</id>
         <description>Generate access logs for NKP</description>
@@ -187,7 +143,7 @@
     </process>
 
     <process>
-        <id>solr-migration-plugin</id>
+        <id>solr-migration</id>
         <description>(re)indexace modelu v novém vyhledávacím indexu</description>
         <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
         <securedaction>a_migration</securedaction>

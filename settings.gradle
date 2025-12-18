@@ -66,18 +66,28 @@ include 'security:oauth'
 // Curator platform module
 include 'processes:platform:curator:import-ndkmets'
 include 'processes:platform:curator:import-foxml'
+include 'processes:platform:curator:update-foxml'
 
 include 'processes:platform:curator:search-index-model'
 include 'processes:platform:curator:search-index-object'
 
 include 'processes:platform:curator:processing-index-repository'
 include 'processes:platform:curator:processing-index-object'
+include 'processes:platform:curator:processing-check'
 
 include 'processes:platform:curator:delete-tree'
 
 include 'processes:platform:curator:license-add'
 include 'processes:platform:curator:license-remove'
+include 'processes:platform:curator:flag-to-license'
 
+include 'processes:platform:curator:backup-collections'
+include 'processes:platform:curator:restore-collections'
+include 'processes:platform:curator:migrate-collections'
+
+include 'processes:platform:curator:sdnnt-sync'
+include 'processes:platform:curator:nkp-logs-p'
+include 'processes:platform:curator:solr-migration-p'
 
 include 'processes:platform:curator:worker'
 

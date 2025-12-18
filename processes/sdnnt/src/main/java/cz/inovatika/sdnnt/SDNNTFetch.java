@@ -80,7 +80,7 @@ public class SDNNTFetch {
 
     public static final Logger LOGGER = Logger.getLogger(SDNNTFetch.class.getName());
 
-    public static void main(String[] args) throws IOException, InterruptedException, SolrServerException {
+    public static void sdnntFetchMain() throws IOException, InterruptedException, SolrServerException {
         System.setProperty("solr.cloud.client.stallTime", "119999");
 
         String sdnntHost  = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");

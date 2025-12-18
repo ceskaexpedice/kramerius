@@ -67,117 +67,112 @@ public class Backup {
 
     public static final Logger LOGGER = Logger.getLogger(Backup.class.getName());
 
-    public static void main(String[] args) throws TransformerException, ParserConfigurationException, SAXException, IOException {
-        LOGGER.log(Level.INFO, "Process parameters: " + Arrays.asList(args).toString());
-        if (args.length > 2) {
-            Client client = Client.create();
+    public static void backupMain(String target, String nameOfBackup) throws TransformerException, ParserConfigurationException, SAXException, IOException {
+        Client client = Client.create();
 
-            String target = args[1];
-            String nameOfBackup = args[2];
-            String tmpDirPath = System.getProperty("java.io.tmpdir");
+        String tmpDirPath = System.getProperty("java.io.tmpdir");
 
-            String subdirectoryPath = tmpDirPath + File.separator + nameOfBackup;
-            FileUtils.forceMkdir(new File(subdirectoryPath));
+        String subdirectoryPath = tmpDirPath + File.separator + nameOfBackup;
+        FileUtils.forceMkdir(new File(subdirectoryPath));
 
 
-            for (String pid : ProcessUtils.extractPids(target)) {
-                List<String> collectionProcessed = new ArrayList<>();
-                Stack<String> processingStack = new Stack<>();
-                processingStack.add(pid);
-                while (!processingStack.isEmpty()) {
-                    String processingPid = processingStack.pop();
-                    if (collectionProcessed.contains(processingPid)) {
-                        LOGGER.warning(String.format("Found cycle on %s", processingPid));
-                        continue;
-                    }
-                    collectionProcessed.add(processingPid);
-                    if (head(client, processingPid) == 200) {
-                        Document parsed = foxml(client, processingPid);
-                        StringWriter writer = new StringWriter();
-                        XMLUtils.print(parsed, writer);
-                        LOGGER.info(String.format("Writing to %s", new File(new File(subdirectoryPath), processingPid.replace(":", "_")).getAbsolutePath()));
-                        FileUtils.writeByteArrayToFile(new File(new File(subdirectoryPath), processingPid.replace(":", "_") + ".xml"), writer.toString().getBytes("UTF-8"));
-                        List<Element> recursiveElements = XMLUtils.getElementsRecursive(parsed.getDocumentElement(), new XMLUtils.ElementsFilter() {
+        for (String pid : ProcessUtils.extractPids(target)) {
+            List<String> collectionProcessed = new ArrayList<>();
+            Stack<String> processingStack = new Stack<>();
+            processingStack.add(pid);
+            while (!processingStack.isEmpty()) {
+                String processingPid = processingStack.pop();
+                if (collectionProcessed.contains(processingPid)) {
+                    LOGGER.warning(String.format("Found cycle on %s", processingPid));
+                    continue;
+                }
+                collectionProcessed.add(processingPid);
+                if (head(client, processingPid) == 200) {
+                    Document parsed = foxml(client, processingPid);
+                    StringWriter writer = new StringWriter();
+                    XMLUtils.print(parsed, writer);
+                    LOGGER.info(String.format("Writing to %s", new File(new File(subdirectoryPath), processingPid.replace(":", "_")).getAbsolutePath()));
+                    FileUtils.writeByteArrayToFile(new File(new File(subdirectoryPath), processingPid.replace(":", "_") + ".xml"), writer.toString().getBytes("UTF-8"));
+                    List<Element> recursiveElements = XMLUtils.getElementsRecursive(parsed.getDocumentElement(), new XMLUtils.ElementsFilter() {
 
-                            @Override
-                            public boolean acceptElement(Element element) {
-                                boolean equals = element.getLocalName().equals("contains");
-                                return equals;
-                            }
-                        });
-
-
-                        List<String> pids = recursiveElements.stream().map(elm -> {
-                            String attributeNS = elm.getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
-                            if (attributeNS.contains("info:fedora/")) {
-                                String containsPid = attributeNS.substring("info:fedora/".length());
-                                return containsPid;
-                            } else return null;
-                        }).filter(Objects::nonNull).collect(Collectors.toList());
+                        @Override
+                        public boolean acceptElement(Element element) {
+                            boolean equals = element.getLocalName().equals("contains");
+                            return equals;
+                        }
+                    });
 
 
-                        if (pids.size() > 0) {
-
-                            int batchSize = 40;
-                            int numberOfIteration = pids.size() / batchSize;
-                            if (pids.size() % batchSize != 0) {
-                                numberOfIteration = numberOfIteration + 1;
-                            }
-                            for (int iteration = 0; iteration < numberOfIteration; iteration++) {
-                                int start = iteration * batchSize;
-                                int stop = Math.min((iteration + 1) * batchSize, pids.size());
-                                List<String> subPids = pids.subList(start, stop);
-
-                                String query = subPids.stream().map(it -> {
-                                    return '"' + it + '"';
-                                }).collect(Collectors.joining(" OR "));
-                                String encodedCondition = URLEncoder.encode(" AND pid:(" + query + ")", "UTF-8");
+                    List<String> pids = recursiveElements.stream().map(elm -> {
+                        String attributeNS = elm.getAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "resource");
+                        if (attributeNS.contains("info:fedora/")) {
+                            String containsPid = attributeNS.substring("info:fedora/".length());
+                            return containsPid;
+                        } else return null;
+                    }).filter(Objects::nonNull).collect(Collectors.toList());
 
 
-                                String solrSearchHost = KConfiguration.getInstance().getSolrSearchHost() + String.format("/select?fq=model:collection%s&q=*&fl=pid&wt=json", encodedCondition);
+                    if (pids.size() > 0) {
 
-                                InputStream inputStream = RESTHelper.inputStream(solrSearchHost, "", "");
-                                String string = IOUtils.toString(inputStream, "UTF-8");
-                                JSONObject object = new JSONObject(string);
-                                JSONObject response = object.getJSONObject("response");
-                                JSONArray docs = response.getJSONArray("docs");
-                                for (int i = 0; i < docs.length(); i++) {
-                                    JSONObject doc = docs.getJSONObject(i);
-                                    String collectionPid = doc.optString("pid");
-                                    processingStack.push(collectionPid);
-                                }
+                        int batchSize = 40;
+                        int numberOfIteration = pids.size() / batchSize;
+                        if (pids.size() % batchSize != 0) {
+                            numberOfIteration = numberOfIteration + 1;
+                        }
+                        for (int iteration = 0; iteration < numberOfIteration; iteration++) {
+                            int start = iteration * batchSize;
+                            int stop = Math.min((iteration + 1) * batchSize, pids.size());
+                            List<String> subPids = pids.subList(start, stop);
 
+                            String query = subPids.stream().map(it -> {
+                                return '"' + it + '"';
+                            }).collect(Collectors.joining(" OR "));
+                            String encodedCondition = URLEncoder.encode(" AND pid:(" + query + ")", "UTF-8");
+
+
+                            String solrSearchHost = KConfiguration.getInstance().getSolrSearchHost() + String.format("/select?fq=model:collection%s&q=*&fl=pid&wt=json", encodedCondition);
+
+                            InputStream inputStream = RESTHelper.inputStream(solrSearchHost, "", "");
+                            String string = IOUtils.toString(inputStream, "UTF-8");
+                            JSONObject object = new JSONObject(string);
+                            JSONObject response = object.getJSONObject("response");
+                            JSONArray docs = response.getJSONArray("docs");
+                            for (int i = 0; i < docs.length(); i++) {
+                                JSONObject doc = docs.getJSONObject(i);
+                                String collectionPid = doc.optString("pid");
+                                processingStack.push(collectionPid);
                             }
 
                         }
-                    } else {
-                        LOGGER.warning(String.format("Pid %s doesnt exists", processingPid));
+
                     }
+                } else {
+                    LOGGER.warning(String.format("Pid %s doesnt exists", processingPid));
                 }
             }
+        }
 
-            File tmpDir = new File(subdirectoryPath);
-            File[] listFiles = tmpDir.listFiles();
-            if (listFiles != null) {
-                String parentZipFolder = KConfiguration.getInstance().getConfiguration().getString("collections.backup.folder");
-                if (parentZipFolder == null)
-                    throw new IllegalStateException("configuration property 'collections.backup.folder' must be set ");
-                FileUtils.forceMkdir(new File(parentZipFolder));
+        File tmpDir = new File(subdirectoryPath);
+        File[] listFiles = tmpDir.listFiles();
+        if (listFiles != null) {
+            String parentZipFolder = KConfiguration.getInstance().getConfiguration().getString("collections.backup.folder");
+            if (parentZipFolder == null)
+                throw new IllegalStateException("configuration property 'collections.backup.folder' must be set ");
+            FileUtils.forceMkdir(new File(parentZipFolder));
 
-                String zipFile = parentZipFolder + File.separator + nameOfBackup + ".zip";
-                try {
-                    FileOutputStream fos = new FileOutputStream(zipFile);
-                    ZipOutputStream zos = new ZipOutputStream(fos);
+            String zipFile = parentZipFolder + File.separator + nameOfBackup + ".zip";
+            try {
+                FileOutputStream fos = new FileOutputStream(zipFile);
+                ZipOutputStream zos = new ZipOutputStream(fos);
 
-                    for (File lF : listFiles) {
-                        addFileToZip("", lF, zos);
-                    }
-
-                    zos.close();
-                    fos.close();
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                for (File lF : listFiles) {
+                    addFileToZip("", lF, zos);
                 }
+
+                zos.close();
+                fos.close();
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }

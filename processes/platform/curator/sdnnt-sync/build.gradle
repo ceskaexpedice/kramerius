@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+
+description "SDNNT sync"
+
+processPlugin {
+	spiImplementation='org.kramerius.plugin.SdnntSyncSPI'
+	profiles = [
+			[profileId: "sdnnt-sync",description: "SDNNT sync",jvmArgs: ["-Xms1g","-Xmx32g"]]
+	]
+}
+
+dependencies{
+    implementation project(':processes:sdnnt')
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+
