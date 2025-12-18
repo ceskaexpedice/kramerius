@@ -31,7 +31,8 @@ import java.util.logging.Logger;
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
 
-    public static final int INDEXER_VERSION = 21; //this should be updated after every change in logic, that affects full indexation
+    //public static final int INDEXER_VERSION = 21; //this should be updated after every change in logic, that affects full indexation
+    public static final int INDEXER_VERSION = 22; //this should be updated after every change in logic, that affects full indexation
 
     private final SolrConfig solrConfig;
     //only state variable
