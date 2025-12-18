@@ -86,8 +86,8 @@
         <!--root-->
         <field name="root.pid" type="string" indexed="true" stored="true" docValues="true"/>
         <field name="root.model" type="string" indexed="true" stored="true" docValues="true"/>
-        <field name="root.title" type="string" indexed="true" stored="true"/>
-        <field name="root.title.sort" type="string" indexed="true" stored="true"/>
+        <field name="root.title" type="string" indexed="true" stored="true" docValues="true"/>
+        <field name="root.title.sort" type="string" indexed="true" stored="true" docValues="true"/>
 
         <!--own parent-->
         <field name="own_parent.pid" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -163,7 +163,7 @@
         <!--pro model:issue muze obsahovat treba: "16.04.1948", "06.2013", "1947"-->
         <!--pro model:monographunit muze obsahovat treba: "2", "2x"-->
         <field name="part.number.str" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="part.number.sort" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <!--monograph unit specific-->
 
@@ -174,7 +174,7 @@
         pro sekundární řazení (date_min/date_max + issue.type_sort), hodnoty na základe DMF periodika 1.8 (https://www.ndk.cz/standardy-digitalizace/DMFperiodika_18_final.pdf str. 42)
         0: normal, 1: morning, 2: afternoon, 3: evening, 4: corrected, 5: special, 6: supplement, 10+X: sequence_X
         -->
-        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="issue.type.sort" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--kód typu, pro zobrazení v náhledech/seznamech; možné hodnoty: normal, morning, afternoon, evening, corrected, special, supplement, sequence_X-->
         <field name="issue.type.code" type="string" indexed="true" stored="true" multiValued="false"/>
 
