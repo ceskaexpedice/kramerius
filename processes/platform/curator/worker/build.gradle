@@ -22,6 +22,23 @@ dependencies {
     // licenses
     implementation project(":processes:platform:curator:license-add")
     implementation project(":processes:platform:curator:license-remove")
+
+    // backup collections
+    implementation project(":processes:platform:curator:license-add")
+    implementation project(":processes:platform:curator:license-remove")
+
+    // flag to license
+    implementation project(":processes:platform:curator:flag-to-license")
+    // backup-collections
+    implementation project(":processes:platform:curator:backup-collections")
+    // migrate-collections
+    implementation project(":processes:platform:curator:migrate-collections")
+    // sdnnt-sync
+    implementation project(":processes:platform:curator:sdnnt-sync")
+    // update-foxml
+    implementation project(":processes:platform:curator:update-foxml")
+	
+
 }
 
 
@@ -42,7 +59,14 @@ processWorker {
 		project(":processes:platform:curator:delete-tree"),
         // licnses
         project(":processes:platform:curator:license-add"),
-        project(":processes:platform:curator:license-remove")
+        project(":processes:platform:curator:license-remove"),
+
+
+        project(":processes:platform:curator:flag-to-license"),
+        project(":processes:platform:curator:backup-collections"),
+        project(":processes:platform:curator:migrate-collections"),
+        project(":processes:platform:curator:sdnnt-sync"),
+        project(":processes:platform:curator:update-foxml")
     ]
 }
 
