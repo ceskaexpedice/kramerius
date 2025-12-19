@@ -41,7 +41,7 @@ public class NDKMetsImportStarter {
 
 
             File inputDataDir = null;
-            if (pathtype == null || pathtype.equals("relative")) {
+            if (!StringUtils.isAnyString(pathtype) || pathtype.equals("relative")) {
                 inputDataDir = new File(KConfiguration.getInstance().getProperty( "convert.directory")+File.separator+importDirFromArgs);
             } else {
                 inputDataDir = new File(importDirFromArgs);

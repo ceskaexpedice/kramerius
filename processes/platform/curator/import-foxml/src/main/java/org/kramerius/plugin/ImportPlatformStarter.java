@@ -1,5 +1,6 @@
 package org.kramerius.plugin;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
@@ -27,7 +28,7 @@ public class ImportPlatformStarter {
 
 
         File inputDataDir = null;
-        if (pathtype == null || pathtype.equals("relative")) {
+        if (!StringUtils.isAnyString(pathtype) || pathtype.equals("relative")) {
             inputDataDir = new File(KConfiguration.getInstance().getProperty( "import.directory")+File.separator+importDirFromArgs);
         } else {
             inputDataDir = new File(importDirFromArgs);
