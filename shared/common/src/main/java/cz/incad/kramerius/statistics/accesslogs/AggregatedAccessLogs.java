@@ -32,7 +32,7 @@ public class AggregatedAccessLogs implements StatisticsAccessLog {
             databaseAccessLog.reportAccess(pid, streamName);
             dnntAccessLog.reportAccess(pid, streamName);
         } catch (Throwable e) {
-            //reporting failure should not block main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
+            //reporting failure should not break main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
             e.printStackTrace();
         }
     }
@@ -43,7 +43,7 @@ public class AggregatedAccessLogs implements StatisticsAccessLog {
             databaseAccessLog.reportAccess(pid, streamName, actionName);
             dnntAccessLog.reportAccess(pid, streamName, actionName);
         } catch (Throwable e) {
-            //reporting failure should not block main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
+            //reporting failure should not break main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
             e.printStackTrace();
         }
     }
