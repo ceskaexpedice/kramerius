@@ -10,7 +10,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import java.io.IOException;
 import java.util.Date;
 
-public class AggregatedAccessLogs implements StatisticsAccessLog{
+public class AggregatedAccessLogs implements StatisticsAccessLog {
 
 
     @Inject
@@ -28,14 +28,24 @@ public class AggregatedAccessLogs implements StatisticsAccessLog{
 
     @Override
     public void reportAccess(String pid, String streamName) throws IOException {
-        databaseAccessLog.reportAccess(pid,streamName);
-        dnntAccessLog.reportAccess(pid, streamName);
+        try {
+            databaseAccessLog.reportAccess(pid, streamName);
+            dnntAccessLog.reportAccess(pid, streamName);
+        } catch (Throwable e) {
+            //reporting failure should not block main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
-        databaseAccessLog.reportAccess(pid, streamName, actionName);
-        dnntAccessLog.reportAccess(pid, streamName, actionName);
+        try {
+            databaseAccessLog.reportAccess(pid, streamName, actionName);
+            dnntAccessLog.reportAccess(pid, streamName, actionName);
+        } catch (Throwable e) {
+            //reporting failure should not block main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -58,14 +68,13 @@ public class AggregatedAccessLogs implements StatisticsAccessLog{
         return this.databaseAccessLog.getReportById(reportId);
     }
 
-	@Override
-	public int cleanData(Date dateFrom, Date dateTo) {
-		throw new UnsupportedOperationException("unsupported");
-	}
+    @Override
+    public int cleanData(Date dateFrom, Date dateTo) {
+        throw new UnsupportedOperationException("unsupported");
+    }
 
-	@Override
-	public void refresh() throws IOException {
-	}
+    @Override
+    public void refresh() throws IOException {
+    }
 
-	
 }
