@@ -22,6 +22,10 @@ import org.json.JSONObject;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * ProcessManagerMapper
@@ -38,6 +42,7 @@ public final class ProcessManagerMapper {
     public static final String BATCHES = "batches";
     public static final String OFFSET = "offset";
     public static final String LIMIT = "limit";
+    public static final String WORKERS ="workers";
 
     public static final String PCP_STATUS = "status";
     public static final String PCP_DESCRIPTION = "description";
@@ -55,6 +60,7 @@ public final class ProcessManagerMapper {
     public static final String PCP_OWNER_NAME = "owner";
     public static final String PCP_MAIN_PROCESS_ID = "mainProcessId";
     public static final String PCP_BATCH_ID = "batchId";
+    public static final String PCP_WORKER_ID = "workerId";
 
     public static final String KR_PROCESS_UUID = "uuid";
     public static final String KR_PROFILE_ID = "defid";
@@ -71,6 +77,8 @@ public final class ProcessManagerMapper {
     public static final String KR_BATCH_OWNER_ID = "owner_id";
     public static final String KR_BATCH_OWNER_NAME = "owner_name";
     public static final String KR_PROCESSES_DELETED = "processes_deleted";
+
+    public static final String KR_WORKER="worker";
 
     private ProcessManagerMapper() {
     }
@@ -113,6 +121,8 @@ public final class ProcessManagerMapper {
         batch.put(KR_BATCH_OWNER_NAME, pcpBatchWithProcesses.getString(PCP_OWNER_NAME));
         json.put(BATCH, batch);
 
+        Set<String> workers = new LinkedHashSet<>();
+
         //processes
         JSONArray processArray = new JSONArray();
         JSONArray batchProcesses = pcpBatchWithProcesses.getJSONArray(PROCESSES);
@@ -133,8 +143,18 @@ public final class ProcessManagerMapper {
             if (!processInBatch.isNull(FINISHED)) {
                 process.put(FINISHED, toFormattedStringOrNull(processInBatch.getLong(FINISHED)));
             }
+            if (!processInBatch.isNull(PCP_WORKER_ID)) {
+                String wid = processInBatch.getString(PCP_WORKER_ID);
+                workers.add(wid);
+                process.put(KR_WORKER, wid);
+            }
             processArray.put(process);
         }
+
+        JSONArray workersArray = new JSONArray();
+        workers.stream().forEach(workersArray::put);
+        batch.put(WORKERS, workersArray);
+
         json.put(PROCESSES, processArray);
         return json;
     }

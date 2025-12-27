@@ -164,6 +164,31 @@ public class ProcessResource extends AdminApiResource {
         return Response.ok().entity(processLogLines.toString()).build();
     }
 
+    @GET
+    @Path("workers")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getWorkers() {
+        try {
+            ForbiddenCheck.checkGeneral(userProvider.get(), rightsResolver);
+            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+            JSONArray nodes = processManagerClient.getNodes();
+            return Response.ok().entity(nodes.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (ProcessManagerClientException e) {
+            if (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
+                throw new BadRequestException(e.getMessage());
+            } else {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new InternalErrorException(e.getMessage());
+            }
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
     /**
      * Returns filtered batches
      *
@@ -184,12 +209,14 @@ public class ProcessResource extends AdminApiResource {
             @QueryParam("owner") String filterOwner,
             @QueryParam("from") String filterFrom,
             @QueryParam("until") String filterUntil,
-            @QueryParam("state") String filterState
+            @QueryParam("state") String filterState,
+            @QueryParam("workers") String workers
+
     ) {
         try {
             ForbiddenCheck.checkGeneral(userProvider.get(), rightsResolver);
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-            JSONObject pcpBatches = processManagerClient.getBatches(offsetStr, limitStr, filterOwner, filterFrom, filterUntil, filterState);
+            JSONObject pcpBatches = processManagerClient.getBatches(offsetStr, limitStr, filterOwner, filterFrom, filterUntil, filterState, workers);
 
             JSONObject result = new JSONObject();
             result.put(ProcessManagerMapper.OFFSET, offsetStr);

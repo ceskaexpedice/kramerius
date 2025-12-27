@@ -141,7 +141,7 @@ public class TestProcessManagerClient {
     @Test
     public void testGetBatches() {
         String DATE_STRING = "2025-09-07T14:30:00";
-        JSONObject pcpBatches = processManagerClient.getBatches("0", "50", "PePo", DATE_STRING, DATE_STRING, "PLANNED");
+        JSONObject pcpBatches = processManagerClient.getBatches("0", "50", "PePo", DATE_STRING, DATE_STRING, "PLANNED", null);
         JSONArray jsonArray = pcpBatches.getJSONArray("batches");
         Assertions.assertEquals(2, jsonArray.length());
         for (int i = 0; i < jsonArray.length(); i++) {

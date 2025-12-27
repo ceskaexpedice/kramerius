@@ -6,7 +6,7 @@ plugins {
 description "Collections from K5 instance"
 
 processPlugin {
-	spiImplementation='org.kramerius.plugin.BackupCollectionsSPI'
+	spiImplementation='org.kramerius.plugin.MigrateCollectionsSPI'
 	profiles = [
 			[profileId: "migrate-collections-from-k5",description: "Collections from K5 instance",jvmArgs: ["-Xms1g","-Xmx32g"]]
 	]

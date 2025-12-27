@@ -3472,6 +3472,29 @@ paths:
                 error: "user 'username' is not allowed to manage processes"
 
 
+  /processes/workers:
+    get:
+      tags:
+        - Procesy
+      summary: Vrací všechny dávky procesů
+      description: Vrací všechny dávky procesů a umožňuje filtrování a paginaci
+      responses:
+        '200':
+          description: Nodes list
+          content:
+            application/json:
+              example: [ {
+                "nodeId": "curatorWorker",
+                "description": "Worker [curatorWorker]",
+                "type": "WORKER",
+                "tags": [
+                  "testPlugin2",
+                  "testPlugin1-small",
+                  "testPlugin1-big"
+                ] }
+              ]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
 
   /processes/batches:
     get:
@@ -3518,6 +3541,12 @@ paths:
           in: query
           required: false
           description: Filtrování dle stavu.
+          schema:
+            type: string
+        - name: workers
+          in: query
+          required: false
+          description: Filtrování dle workeru oddelenych carkami
           schema:
             type: string
       responses:

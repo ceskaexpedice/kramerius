@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.processes.client;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -113,7 +114,7 @@ public class ProcessManagerClient {
         }
     }
 
-    public JSONObject getBatches(String offset, String limit, String owner, String from, String to, String state) {
+    public JSONObject getBatches(String offset, String limit, String owner, String from, String to, String state, String workers) {
         String url = baseUrl + "process/batch";
         try {
             URIBuilder uriBuilder = new URIBuilder(url);
@@ -124,6 +125,7 @@ public class ProcessManagerClient {
             if (from != null) uriBuilder.addParameter("from", from);
             if (to != null) uriBuilder.addParameter("to", to);
             if (state != null) uriBuilder.addParameter("state", state);
+            if (StringUtils.isAnyString(workers)) uriBuilder.addParameter("workers", workers);
 
             HttpGet get = new HttpGet(uriBuilder.build());
             try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
@@ -305,4 +307,24 @@ public class ProcessManagerClient {
         }
     }
 
+    public JSONArray getNodes() {
+        String url = baseUrl + "node";
+        HttpGet get = new HttpGet(url);
+        //LOGGER.info( String.format("Getting nodes url %s", url));
+        try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+            int code = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "[]";
+            //LOGGER.info(String.format("Getting nodes json %s", body));
+            if (code == 200) {
+                return new JSONArray(body);
+            } else if (code == 404) {
+                return null;
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch nodes. HTTP code" + ": " + code,ErrorCode.findByStatusCode(code), code);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
+        }
+    }
 }
