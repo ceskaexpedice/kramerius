@@ -337,6 +337,7 @@ public class ProcessResource extends AdminApiResource {
             if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
                 throw new NotFoundException(e.getMessage());
             } else if  (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
+                LOGGER.log(Level.SEVERE, "Error message from processManagerClient", e);
                 throw new BadRequestException(e.getMessage());
             } else {
                 throw e;

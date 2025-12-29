@@ -103,8 +103,29 @@ class ForbiddenCheck {
     private static void checkParamsPids(User user, RightsResolver rightsResolver, ProcessDefinitionManager definitionManager,
                                         String profileId, JSONObject payload, Consumer<Boolean> consumer, SolrAccess solrAccess) {
         // TODO pepo pavel hardcoded logic based on specific profile, need to be carefully checked
+
+        /*
+        <id>new_indexer_index_object</id>
+        <id>new_indexer_index_model</id>
+        <id>add_license</id>
+        <id>remove_license</id>
+        <id>flag_to_license</id>
+        <id>delete_tree</id>
+        <id>update</id>
+        <id>import</id>
+        <id>convert_and_import</id>
+        <id>processing_check</id>
+        <id>processing_rebuild</id>
+        <id>processing_rebuild_for_object</id>
+        <id>nkplogs</id>
+        <id>sdnnt-sync</id>
+        <id>backup-collections</id>
+        <id>restore-collections</id>
+        <id>migrate-collections-from-k5</id>
+        <id>solr-migration</id>
+         */
         switch (profileId) {
-            case "set_policy": {
+            case "set_policy"-> {
                 String pid = extractMandatoryParamWithValuePrefixed(payload, "pid", "uuid:");
                 try {
                     ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
@@ -116,7 +137,7 @@ class ForbiddenCheck {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
-            case "remove_policy": {
+            case "remove_policy"-> {
                 String pid = extractOptionalParamString(payload, "pid", null);
                 List<String> pidlist = extractOptionalParamStringList(payload, "pidlist", null);
                 if (pid != null) {
@@ -149,13 +170,14 @@ class ForbiddenCheck {
                     consumer.accept(permit);
                 }
             }
-            case "processing_rebuild_for_object": {
+
+            case "processing_rebuild","processing_rebuild_for_object"-> {
                 boolean permitProcessingIndex = user != null ? (rightsResolver.isActionAllowed(user, SecuredActions.A_REBUILD_PROCESSING_INDEX.getFormalName(),
                         SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH)).flag() : false;
                 consumer.accept(permitProcessingIndex);
             }
-            case "add_license":
-            case "remove_license": {
+
+            case "add_license","remove_license"-> {
                 String pid = extractOptionalParamString(payload, "pid", null);
                 List<String> pidlist = extractOptionalParamStringList(payload, "pidlist", null);
                 if (pid != null) {
@@ -189,44 +211,59 @@ class ForbiddenCheck {
                     consumer.accept(permit);
                 }
             }
-            case "flag_to_license": {
+
+            case "flag_to_license" -> {
                 ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
-                ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
+                ProcessDefinition definition = definitionManager.getProcessDefinition("flag_to_license");
                 boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(),
                         pidPaths);
                 consumer.accept(permit);
             }
-            case "backup-collections": {
-                List<String> pidlist = extractOptionalParamStringList(payload, "pidlist", null);
-                if (pidlist != null) {
-                    pidlist.forEach(p -> {
-                        try {
-                            ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(p);
-                            ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
-                            boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, p, pidPaths);
-                            consumer.accept(permit);
-                        } catch (IOException e) {
-                            consumer.accept(false);
-                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                        }
-                    });
-                }
+
+            case "sdnnt-sync" -> {
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
+                ProcessDefinition definition = definitionManager.getProcessDefinition("sdnnt-sync");
+                boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(),
+                        pidPaths);
+                consumer.accept(permit);
             }
-            case "restore-collections": {
+
+            case "backup-collections" -> {
+
                 ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
                         ObjectPidsPath.REPOSITORY_PATH
                 };
-                ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
+                ProcessDefinition definition = definitionManager.getProcessDefinition("backup-collections");
                 boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                 consumer.accept(permit);
             }
-            case "migrate-collections-from-k5": {
+
+            case "restore-collections" -> {
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
+                        ObjectPidsPath.REPOSITORY_PATH
+                };
+                ProcessDefinition definition = definitionManager.getProcessDefinition("restore-collections");
+                boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                consumer.accept(permit);
+            }
+
+            case "import","convert_and_import","update" -> {
+                ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{
+                        ObjectPidsPath.REPOSITORY_PATH
+                };
+                ProcessDefinition definition = definitionManager.getProcessDefinition("import");
+                boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
+                consumer.accept(permit);
+            }
+
+            case "migrate-collections-from-k5"-> {
                 ObjectPidsPath[] pidPaths = new ObjectPidsPath[]{ObjectPidsPath.REPOSITORY_PATH};
-                ProcessDefinition definition = definitionManager.getProcessDefinition("add_license");
+                ProcessDefinition definition = definitionManager.getProcessDefinition("migrate-collections-from-k5");
                 boolean permit = SecurityProcessUtils.permitProcessByDefinedActionWithPid(rightsResolver, user, definition, SpecialObjects.REPOSITORY.getPid(), pidPaths);
                 consumer.accept(permit);
             }
-            case "delete_tree": {
+
+            case "delete_tree" -> {
                 String pid = extractMandatoryParamWithValuePrefixed(payload, "pid", "uuid:");
                 try {
                     ObjectPidsPath[] pidPaths = solrAccess.getPidPaths(pid);
@@ -237,8 +274,6 @@ class ForbiddenCheck {
                     consumer.accept(false);
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
-            }
-            default: {
             }
         }
     }

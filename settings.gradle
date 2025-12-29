@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+		mavenLocal()
 		maven {
             url = uri("https://raw.githubusercontent.com/ceskaexpedice/process-platform/main/process-plugin-gradle/docs")
         }

@@ -1,6 +1,6 @@
 plugins {
 	id 'com.google.cloud.tools.jib'
-    id 'org.ceskaexpedice.processplatform.worker' version '1.0.4'
+    id 'org.ceskaexpedice.processplatform.worker' version '1.0.5'
 }
 
 dependencies {
@@ -31,6 +31,7 @@ dependencies {
     implementation project(":processes:platform:curator:flag-to-license")
     // backup-collections
     implementation project(":processes:platform:curator:backup-collections")
+    implementation project(":processes:platform:curator:restore-collections")
     // migrate-collections
     implementation project(":processes:platform:curator:migrate-collections")
     // sdnnt-sync
@@ -45,6 +46,9 @@ dependencies {
 processWorker {
 	workerName = "curatorworker"
 	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
+
+	autoShareLibraries = true
+
 	plugins = [
         // imports
         project(":processes:platform:curator:import-ndkmets"),
@@ -57,13 +61,14 @@ processWorker {
         project(":processes:platform:curator:processing-index-object"),
 		//delete tree
 		project(":processes:platform:curator:delete-tree"),
-        // licnses
+        // licenses
         project(":processes:platform:curator:license-add"),
         project(":processes:platform:curator:license-remove"),
 
 
         project(":processes:platform:curator:flag-to-license"),
         project(":processes:platform:curator:backup-collections"),
+        project(":processes:platform:curator:restore-collections"),
         project(":processes:platform:curator:migrate-collections"),
         project(":processes:platform:curator:sdnnt-sync"),
         project(":processes:platform:curator:update-foxml")

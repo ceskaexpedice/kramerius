@@ -30,6 +30,7 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
@@ -56,6 +57,7 @@ public class ProcessManagerClient {
 
     public String scheduleProcess(JSONObject scheduleMainProcess) {
         String url = baseUrl + "process";
+        LOGGER.info("Schedule process URL: " + url+ " "+scheduleMainProcess.toString());
         HttpPost post = new HttpPost(url);
         StringEntity entity = new StringEntity(scheduleMainProcess.toString(), ContentType.APPLICATION_JSON);
         post.setEntity(entity);
@@ -66,8 +68,13 @@ public class ProcessManagerClient {
             if (statusCode == 200 || statusCode == 204) {
                 return new JSONObject(body).getString("processId");
             } else {
-                JSONObject errorBody = new JSONObject(body);
-                throw new ProcessManagerClientException(errorBody.has("error") ? errorBody.optString("error") : body, ErrorCode.findByStatusCode(statusCode), statusCode);
+                try {
+                    JSONObject errorBody = new JSONObject(body);
+                    throw new ProcessManagerClientException(errorBody.has("error") ? errorBody.optString("error") : body, ErrorCode.findByStatusCode(statusCode), statusCode);
+                } catch (JSONException e) {
+                    // syntax error
+                    throw new ProcessManagerClientException( body, ErrorCode.findByStatusCode(statusCode), statusCode);
+                }
             }
         } catch (ProcessManagerClientException e) {
             throw e;
