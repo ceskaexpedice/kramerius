@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
 }
 
 description "Check processing index"
@@ -10,6 +10,10 @@ processPlugin {
 	profiles = [
 			[profileId: "processing_check",description: "Check processing index",jvmArgs: ["-Xms1g","-Xmx32g"]]
 	]
+	excludeDependencies = [
+        'com.sun.jersey',
+        'javax.ws.rs'
+    ]
 }
 
 dependencies{

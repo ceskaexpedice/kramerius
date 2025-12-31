@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
 }
 
 description "SDNNT sync"
@@ -10,10 +10,15 @@ processPlugin {
 	profiles = [
 			[profileId: "sdnnt-sync",description: "SDNNT sync",jvmArgs: ["-Xms1g","-Xmx32g"]]
 	]
+	excludeDependencies = [
+        'com.sun.jersey',
+        'javax.ws.rs'
+    ]
 }
 
 dependencies{
     implementation project(':processes:sdnnt')
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
+
 

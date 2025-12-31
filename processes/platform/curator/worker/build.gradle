@@ -38,7 +38,6 @@ dependencies {
     implementation project(":processes:platform:curator:sdnnt-sync")
     // update-foxml
     implementation project(":processes:platform:curator:update-foxml")
-	
 
 }
 
