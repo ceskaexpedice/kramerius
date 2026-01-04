@@ -13,8 +13,8 @@ public class SearchIndexModelPlatformStarter {
 
     @ProcessMethod
     public static void indexMain(
-            @ParameterName("indexationType") String indexationType,
-            @ParameterName("modelPid") String modelPid,
+            @ParameterName("type") String indexationType,
+            @ParameterName("pid") String modelPid,
             @ParameterName("indexNotIndexed") Boolean indexNotIndexed,
             @ParameterName("indexRunningOrError") Boolean indexRunningOrError,
             @ParameterName("indexIndexedOutdated") Boolean indexIndexedOutdated,
