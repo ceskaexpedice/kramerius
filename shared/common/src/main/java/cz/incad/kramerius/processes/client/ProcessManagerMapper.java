@@ -22,9 +22,7 @@ import org.json.JSONObject;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,6 +49,7 @@ public final class ProcessManagerMapper {
     public static final String PCP_JVM_ARGS = "jvmArgs";
     public static final String PCP_SCHEDULED_PROFILES = "scheduledProfiles";
     public static final String PCP_SCHEDULE_MAIN_PROCESS = "scheduleMainProcess";
+    public static final String PCP_SCHEDULE_MAIN_PROCESS_PLANNED = "scheduleMainProcessPlanned";
     public static final String PCP_PROCESS_ID = "processId";
     public static final String PCP_PAYLOAD = "payload";
     public static final String PCP_TOTAL_SIZE = "totalSize";

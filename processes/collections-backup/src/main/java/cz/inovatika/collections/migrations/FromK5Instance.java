@@ -438,10 +438,10 @@ public class FromK5Instance {
     public static void importTmpDir(String exportRoot, boolean startIndexer) throws IOException, SolrServerException {
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-        SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        //SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
 
         try {
-            Import.run(akubraRepository, akubraRepository.pi(), sortingServiceLocal,
+            Import.run(akubraRepository, akubraRepository.pi(), null,
                     KConfiguration.getInstance().getProperty("ingest.url"),
                     KConfiguration.getInstance().getProperty("ingest.user"),
                     KConfiguration.getInstance().getProperty("ingest.password"),

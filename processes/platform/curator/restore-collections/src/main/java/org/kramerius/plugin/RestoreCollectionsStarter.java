@@ -12,7 +12,7 @@ public class RestoreCollectionsStarter {
 
     @ProcessMethod
     public static void backupMain(
-            @ParameterName("target") @IsRequired String target
+            @ParameterName("backupname") @IsRequired String target
     ) throws Exception {
         Restore.restoreMain(target);
     }
