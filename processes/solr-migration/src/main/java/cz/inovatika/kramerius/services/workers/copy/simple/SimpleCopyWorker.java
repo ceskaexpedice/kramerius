@@ -1,6 +1,5 @@
 package cz.inovatika.kramerius.services.workers.copy.simple;
 
-import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
@@ -11,6 +10,7 @@ import cz.inovatika.kramerius.services.workers.*;
 import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatchCreator;
 import cz.inovatika.kramerius.services.workers.copy.CopyWorker;
 import cz.inovatika.kramerius.services.workers.copy.CopyWorkerContext;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWorkerContext> {
 
-    public SimpleCopyWorker(ProcessConfig processConfig, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+    public SimpleCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, List<IterationItem> items, WorkerFinisher finisher) {
         super(processConfig, client, items, finisher);
     }
 

@@ -1,5 +1,6 @@
 package org.kramerius.plugin;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
@@ -25,6 +26,8 @@ public class UpdateStarter {
         } else {
             inputDataDir = new File(importDirFromArgs);
         }
+
+
 
         LOGGER.info("--- Starting method: updateMain ---");
         LOGGER.info("Parameter 'inputDataDir': " + inputDataDir);

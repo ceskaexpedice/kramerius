@@ -519,7 +519,9 @@ public class CollectionsResource extends AdminApiResource {
             }
             JSONObject result = new JSONObject();
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
-            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcess( scheduleReindexationPar));
+            if (scheduleReindexationPar != null) {
+                result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcess( scheduleReindexationPar));
+            }
 
             return Response.status(Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
@@ -898,7 +900,7 @@ public class CollectionsResource extends AdminApiResource {
             for (String childPid : childrenPids) {
                 JSONObject scheduleReindexationPar1 = getScheduleReindexationPar(childPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, childPid);
                 scheduleMainProcesses.put(scheduleReindexationPar1);
-                scheduleMainProcessesPlanned.put(scheduleMainProcess(scheduleReindexationPar));
+                scheduleMainProcessesPlanned.put(scheduleMainProcess(scheduleReindexationPar1));
             }
             JSONObject result = new JSONObject();
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleMainProcesses);

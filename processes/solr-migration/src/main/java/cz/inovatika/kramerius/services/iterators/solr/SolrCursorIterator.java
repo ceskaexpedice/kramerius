@@ -1,6 +1,5 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
@@ -84,27 +83,27 @@ public class SolrCursorIterator extends AbstractSolrIterator {
         return null;
     }
 
-    @Override
-    public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
-        try {
-            String cursorMark = null;
-            String queryCursorMark = null;
-            do {
-                String query = pidCursorQuery(masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
-
-
-                Element element = HTTPSolrUtils.executeQueryJersey(client, address, query, this.responseHandlingConfig);
-
-                cursorMark = findCursorMark(element);
-                queryCursorMark = findQueryCursorMark(element);
-                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
-            } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
-            // callback after iteration
-            endCallback.end();
-        } catch (ParserConfigurationException  |  IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Override
+//    public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+//        try {
+//            String cursorMark = null;
+//            String queryCursorMark = null;
+//            do {
+//                String query = pidCursorQuery(masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
+//
+//
+//                Element element = HTTPSolrUtils.executeQueryJersey(client, address, query, this.responseHandlingConfig);
+//
+//                cursorMark = findCursorMark(element);
+//                queryCursorMark = findQueryCursorMark(element);
+//                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
+//            } while((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
+//            // callback after iteration
+//            endCallback.end();
+//        } catch (ParserConfigurationException  |  IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     @Override
     public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
@@ -112,7 +111,7 @@ public class SolrCursorIterator extends AbstractSolrIterator {
             String cursorMark = null;
             String queryCursorMark = null;
             do {
-                String query = pidCursorQuery(masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting);
+                String query = pidCursorQuery(masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting, this.fieldList);
                 Element element = HTTPSolrUtils.executeQueryApache(client, address, query);
 
                 cursorMark = findCursorMark(element);

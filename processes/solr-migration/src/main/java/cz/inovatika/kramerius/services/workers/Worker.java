@@ -1,10 +1,10 @@
 package cz.inovatika.kramerius.services.workers;
 
-import com.sun.jersey.api.client.*;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -19,7 +19,7 @@ public abstract class Worker<C extends WorkerContext>  implements Runnable  {
 
     /** Client for external service communication. */
     //TODO: Replace by apache client
-    protected Client client;
+    protected CloseableHttpClient client;
 
     /** List of iteration items to be processed by this worker. */
     protected List<IterationItem> itemsToBeProcessed;
@@ -33,7 +33,7 @@ public abstract class Worker<C extends WorkerContext>  implements Runnable  {
     /** Finalization handler triggered when the worker completes its task. */
     protected WorkerFinisher finisher;
 
-    public Worker(ProcessConfig processConfig,  Client client, List<IterationItem> items, WorkerFinisher finisher) {
+    public Worker(ProcessConfig processConfig,  CloseableHttpClient client, List<IterationItem> items, WorkerFinisher finisher) {
         super();
         this.finisher = finisher;
         this.client = client;

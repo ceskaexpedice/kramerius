@@ -1,15 +1,13 @@
 package cz.inovatika.kramerius.services.iterators.factories;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
 import cz.incad.kramerius.utils.StringUtils;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
 import javax.ws.rs.core.MediaType;
@@ -19,6 +17,9 @@ import cz.inovatika.kramerius.services.iterators.config.TypeOfIteration;
 import cz.inovatika.kramerius.services.iterators.solr.SolrCursorIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrFilterQueryIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrPageIterator;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 
 public class SolrIteratorFactory extends ProcessIteratorFactory {
@@ -27,7 +28,7 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
 
 
     @Override
-    public ProcessIterator createProcessIterator(SolrIteratorConfig config, Client client) {
+    public ProcessIterator createProcessIterator(SolrIteratorConfig config, CloseableHttpClient client) {
         String masterQuery = config.getMasterQuery();
 
         String timestampField = config.getTimestampField();
@@ -44,7 +45,7 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
                     }
                 }
             }
-        } catch(UniformInterfaceException ex) {
+        } catch(Exception ex) {
             LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
         }
 
@@ -128,18 +129,45 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
 //        return null;
 //    }
 
-	private JSONObject timestamp(Client client,String timestampUrl) {
-        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] url %s", timestampUrl));
-    	WebResource r = client.resource(timestampUrl);
-    	ClientResponse clientResponse = r.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-    	if (clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-    		String t = clientResponse.getEntity(String.class);
-    		return new JSONObject(t);
-    	} else if (clientResponse.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode()) {
-    		return null;
-    	} else {
-            throw new UniformInterfaceException(clientResponse);
-    	}
-        
-	}
+//	private JSONObject timestamp(Client client,String timestampUrl) {
+//        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] url %s", timestampUrl));
+//    	WebResource r = client.resource(timestampUrl);
+//    	ClientResponse clientResponse = r.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+//    	if (clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
+//    		String t = clientResponse.getEntity(String.class);
+//    		return new JSONObject(t);
+//    	} else if (clientResponse.getStatus() == ClientResponse.Status.NOT_FOUND.getStatusCode()) {
+//    		return null;
+//    	} else {
+//            throw new UniformInterfaceException(clientResponse);
+//    	}
+//
+//	}
+
+    private JSONObject timestamp(CloseableHttpClient httpClient, String timestampUrl) {
+        LOGGER.info(String.format("[%s] url %s", Thread.currentThread().getName(), timestampUrl));
+
+        HttpGet request = new HttpGet(timestampUrl);
+        request.setHeader("Accept", "application/json");
+
+
+        try {
+            return httpClient.execute(request, response -> {
+                int status = response.getCode();
+
+                if (status == 200) { // Status.OK
+                    String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                    return new JSONObject(body);
+                } else if (status == 404) { // Status.NOT_FOUND
+                    return null;
+                } else {
+                    String errorBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                    throw new RuntimeException(String.format("Unexpected response status: %d. Body: %s", status, errorBody));
+                }
+            });
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Network error during timestamp fetch", e);
+            throw new RuntimeException("Connection failed to " + timestampUrl, e);
+        }
+    }
 }

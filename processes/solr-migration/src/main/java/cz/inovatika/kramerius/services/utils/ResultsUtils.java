@@ -14,8 +14,6 @@ public class ResultsUtils {
     private ResultsUtils() {}
 
 
-
-
     public static List<Pair<String, List<String>>> pidAndCollectionFromResult(Element resultElem) {
         List<Element> elements = XMLUtils.getElements(resultElem);
         return elements.stream().map(doc -> {

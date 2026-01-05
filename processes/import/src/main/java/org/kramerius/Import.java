@@ -20,6 +20,13 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.RepositoryException;
@@ -62,6 +69,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.logging.Level;
@@ -196,7 +204,11 @@ public class Import {
         log.info("INGEST - url:" + url + " user:" + user + " importRoot:" + importRoot + " " + "startIndexer:" + startIndexer + " addcollections:" + addcollections + " strategy:" + strategy);
         sortingService = sortingServiceParam;
         // system property 
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()){
+
+            String jwtToken = fetchJwtToken(httpClient);
+            LOGGER.info("JWT Token successfully obtained.");
+
             String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
             if (Boolean.valueOf(skipIngest)) {
                 log.info("INGEST CONFIGURED TO BE SKIPPED, RETURNING");
@@ -290,7 +302,7 @@ public class Import {
                     Arrays.stream(addcollections.split(";")).forEach(addCollectionList::add);
                     for (String pid : addCollectionList) {
                         if (!pid.trim().equals(NON_KEYWORD)) {
-                            addCollection(akubraRepository, pid, importInventory, collections);
+                            addCollection(akubraRepository, httpClient, jwtToken, pid, importInventory, collections);
                         }
                     }
                 }
@@ -950,8 +962,38 @@ public class Import {
 //            log.log(Level.WARNING, "Error in Ingest.checkRoot for file " + dobj.getPID() + ", file cannot be checked for auto-indexing : " + ex);
 //        }
 //    }
-    private static void addCollection(AkubraRepository akubraRepository, String collectionPid, ImportInventory plan, Set<TitlePidTuple> collectionsToReindex) {
-        Client c = Client.create();
+
+    public static String fetchJwtToken(CloseableHttpClient httpClient) throws IOException {
+        KConfiguration config = KConfiguration.getInstance();
+        String clientId = config.getConfiguration().getString("process.token.clientId");
+        String secret = config.getConfiguration().getString("process.token.secret");
+        String extsPoint = config.getConfiguration().getString("api.exts.v7.point");
+
+        if (extsPoint.endsWith("/")) extsPoint = extsPoint.substring(0, extsPoint.length() - 1);
+        String url = String.format("%s/tokens/%s?secrets=%s", extsPoint, clientId, secret);
+
+        LOGGER.info("Requesting JWT token from: " + url);
+        HttpGet request = new HttpGet(url);
+        request.setHeader("Accept", "application/json");
+
+        return httpClient.execute(request, response -> {
+            int status = response.getCode();
+            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+            if (status == 200) {
+                JSONObject jsonResponse = new JSONObject(body);
+                if (jsonResponse.has("access_token")) {
+                    return jsonResponse.getString("access_token");
+                } else {
+                    throw new IOException("Response does not contain 'access_token'. Body: " + body);
+                }
+            } else {
+                throw new IOException("Failed to fetch token. Status: " + status + ", Body: " + body);
+            }
+        });
+    }
+    private static void addCollection(AkubraRepository akubraRepository, CloseableHttpClient httpClient, String jwtToken, String collectionPid, ImportInventory plan, Set<TitlePidTuple> collectionsToReindex) {
+        //Client c = Client.create();
 
         List<String> rootPids = new ArrayList<>();
         List<String> pidsToCollection = new ArrayList<>();
@@ -964,38 +1006,68 @@ public class Import {
         String adminPoint = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point");
         if (!adminPoint.endsWith("/")) adminPoint = adminPoint + "/";
         String collectionDescUrl = adminPoint + String.format("collections/%s", collectionPid);
-        WebResource collectionResource = c.resource(collectionDescUrl);
-        String collectionJSON = collectionResource.accept(MediaType.APPLICATION_JSON).get(String.class);
-        JSONObject collectionObject = new JSONObject(collectionJSON);
 
-        // polozky v kolekci
-        JSONArray alreadyInCollection = collectionObject.getJSONArray("items");
-        List<String> alreadyInCollectionList = new ArrayList<String>();
-        for (int i = 0; i < alreadyInCollection.length(); i++) {
-            alreadyInCollectionList.add(alreadyInCollection.getString(i));
-        }
+        LOGGER.info(String.format("Adding collections %s", collectionDescUrl));
 
-        for (String pidToAdd : rootPids) {
-            if (!alreadyInCollectionList.contains(pidToAdd)) {
-                pidsToCollection.add(pidToAdd);
-            } else {
-                LOGGER.info(String.format("Pid %s has been already added to %s", pidToAdd, collectionPid));
+        HttpGet getRequest = new HttpGet(collectionDescUrl);
+        getRequest.setHeader("Accept", "application/json");
+        getRequest.setHeader("Authorization", "Bearer " + jwtToken);
+
+        try {
+            JSONObject collectionObject = httpClient.execute(getRequest, response -> {
+                if (response.getCode() != 200) {
+                    throw new IOException("Failed to fetch collection, status: " + response.getCode());
+                }
+                String json = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                return new JSONObject(json);
+            });
+            // polozky v kolekci
+            JSONArray alreadyInCollection = collectionObject.getJSONArray("items");
+            List<String> alreadyInCollectionList = new ArrayList<String>();
+            for (int i = 0; i < alreadyInCollection.length(); i++) {
+                alreadyInCollectionList.add(alreadyInCollection.getString(i));
             }
-        }
 
-        String collectionsUrl = adminPoint + String.format("collections/%s/items?indexation=false", collectionPid);
-        WebResource r = c.resource(collectionsUrl);
-        for (String pidToCollection : pidsToCollection) {
-            LOGGER.info(String.format("Adding %s  to collection %s", pidToCollection, collectionPid));
-            ClientResponse clientResponse = r.accept(MediaType.TEXT_PLAIN_TYPE).entity(pidToCollection, MediaType.TEXT_PLAIN_TYPE).post(ClientResponse.class);
-            if (clientResponse.getStatus() != 200 && clientResponse.getStatus() != 201) {
-                String responseBody = clientResponse.getEntity(String.class);
-                throw new RuntimeException(String.format("Status code %d, %s", clientResponse.getStatus(), responseBody));
+            for (String pidToAdd : rootPids) {
+                if (!alreadyInCollectionList.contains(pidToAdd)) {
+                    pidsToCollection.add(pidToAdd);
+                } else {
+                    LOGGER.info(String.format("Pid %s has been already added to %s", pidToAdd, collectionPid));
+                }
             }
+
+            String collectionsUrl = adminPoint + String.format("collections/%s/items?indexation=false", collectionPid);
+            //WebResource r = c.resource(collectionsUrl);
+            for (String pidToCollection : pidsToCollection) {
+                LOGGER.info(String.format("Adding %s  to collection %s", pidToCollection, collectionPid));
+
+                HttpPost postRequest = new HttpPost(collectionsUrl);
+                postRequest.setHeader("Accept", "text/plain");
+                postRequest.setHeader("Authorization", "Bearer " + jwtToken);
+
+                postRequest.setEntity(new StringEntity(pidToCollection, ContentType.TEXT_PLAIN));
+
+
+
+                httpClient.execute(postRequest, response -> {
+                    int status = response.getCode();
+                    if (status != 200 && status != 201) {
+                        String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                        throw new RuntimeException(String.format("Status code %d, %s", status, responseBody));
+                    }
+                    return null;
+                });
+            }
+
+            TitlePidTuple npt = new TitlePidTuple("Sbírka", collectionPid);
+            collectionsToReindex.add(npt);
+
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Network error during collection update", e);
+            throw new RuntimeException(e);
         }
 
-        TitlePidTuple npt = new TitlePidTuple("Sbírka", collectionPid);
-        collectionsToReindex.add(npt);
+
     }
 
     /**
@@ -1073,6 +1145,9 @@ public class Import {
             log.log(Level.WARNING, "Error in Ingest.checkRoot for file " + dobj.getPID() + ", file cannot be checked for auto-indexing : " + ex);
         }
     }
+
+
+
 
     /**
      * Checks if fedora contains object with given PID

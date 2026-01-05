@@ -1,17 +1,22 @@
 package cz.incad.kramerius.services.workers.copy.cdk;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
 
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,31 +49,54 @@ public class CDKCopyFinisher extends WorkerFinisher {
     long start = System.currentTimeMillis();
 
 
-    public CDKCopyFinisher(ProcessConfig config, Client client) {
+    public CDKCopyFinisher(ProcessConfig config, CloseableHttpClient client) {
         super(config, client);
     }
 
-	private JSONObject storeTimestamp() {
-	    
-	    String hostname = System.getenv("HOSTNAME");
-	    
-	    
-	    JSONObject jsonObject = new JSONObject();
-		jsonObject.put("workers", WORKERS.get());
-		jsonObject.put("batches", BATCHES.get());
-		jsonObject.put("indexed", NEWINDEXED);
-		jsonObject.put("updated", UPDATED);
-		jsonObject.put("hostname", hostname);
-		
-		String typeOfCrawl = this.processConfig.getType();
-		if (typeOfCrawl != null) {
-	        jsonObject.put("type", typeOfCrawl);
-		}
-		
-    	WebResource r = client.resource(this.processConfig.getTimestampUrl());
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObject.toString()).put(String.class);
-        return new JSONObject(t);
-	}
+    private JSONObject storeTimestamp() {
+        String hostname = System.getenv("HOSTNAME");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("workers", WORKERS.get());
+        jsonObject.put("batches", BATCHES.get());
+        jsonObject.put("indexed", NEWINDEXED);
+        jsonObject.put("updated", UPDATED);
+        jsonObject.put("hostname", hostname);
+
+        String typeOfCrawl = this.processConfig.getType();
+        if (typeOfCrawl != null) {
+            jsonObject.put("type", typeOfCrawl);
+        }
+
+        String url = this.processConfig.getTimestampUrl();
+        HttpPut putRequest = new HttpPut(url);
+
+        putRequest.setHeader("Accept", "application/json");
+
+        StringEntity entity = new StringEntity(
+                jsonObject.toString(),
+                ContentType.APPLICATION_JSON
+        );
+        putRequest.setEntity(entity);
+        try {
+            return this.client.execute(putRequest, response -> {
+                int status = response.getCode();
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+                if (status == 200 || status == 201) {
+                    return new JSONObject(responseBody);
+                } else {
+                    throw new RuntimeException(String.format(
+                            "Failed to store timestamp. HTTP status %d, Response: %s",
+                            status, responseBody));
+                }
+            });
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Network error while storing timestamp to " + url, e);
+            throw new RuntimeException("Connection failed during storeTimestamp", e);
+        }
+    }
+
 
 	
     @Override
@@ -85,7 +113,7 @@ public class CDKCopyFinisher extends WorkerFinisher {
         if (StringUtils.isAnyString(this.processConfig.getTimestampUrl()) && EXCEPTION_DURING_CRAWL.isEmpty()) {
     		storeTimestamp();
     	}
-    	HTTPSolrUtils.commitJersey(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
+    	HTTPSolrUtils.commitApache(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
         LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
 
         if (!EXCEPTION_DURING_CRAWL.isEmpty()) {

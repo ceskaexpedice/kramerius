@@ -1,6 +1,6 @@
 package cz.inovatika.kramerius.services.iterators.utils;
 
-import com.sun.jersey.api.client.*;
+//import com.sun.jersey.api.client.*;
 
 //import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
@@ -43,16 +43,16 @@ public class HTTPSolrUtils {
     private HTTPSolrUtils() {}
 
     // TODO: Replace by SolrUpdateUtils.sendToDest
-    public static String sendToDest(String destSolr, Client jerseyClient, Document batchDoc) {
-        try {
-            StringWriter writer = new StringWriter();
-            XMLUtils.print(batchDoc, writer);
-            return sendBatchToDestJersey(destSolr, jerseyClient, batchDoc, writer);
-        } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-    }
+//    public static String sendToDest(String destSolr, Client jerseyClient, Document batchDoc) {
+//        try {
+//            StringWriter writer = new StringWriter();
+//            XMLUtils.print(batchDoc, writer);
+//            return sendBatchToDestJersey(destSolr, jerseyClient, batchDoc, writer);
+//        } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     // TODO: Replace by SolrUpdateUtils.sendToDest
     public static String sendToDest(String destSolr, CloseableHttpClient apacheClient, Document batchDoc) {
@@ -60,7 +60,7 @@ public class HTTPSolrUtils {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
             return sendBatchToDestApache(destSolr, apacheClient, batchDoc, writer);
-        } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
+        } catch ( TransformerException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -100,38 +100,38 @@ public class HTTPSolrUtils {
         }
     }
 
-    private static String sendBatchToDestJersey(String destSolr, Client client, Document batchDoc, StringWriter writer) throws TransformerException, IOException {
-        WebResource r = client.resource(destSolr);
-        ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
-        if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
+//    private static String sendBatchToDestJersey(String destSolr, Client client, Document batchDoc, StringWriter writer) throws TransformerException, IOException {
+//        WebResource r = client.resource(destSolr);
+//        ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
+//        if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
+//
+//            StringWriter stringWriter = new StringWriter();
+//            XMLUtils.print(batchDoc,stringWriter);
+//            LOGGER.warning("Problematic batch: ");
+//            LOGGER.warning(stringWriter.toString());
+//
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            InputStream entityInputStream = resp.getEntityInputStream();
+//            IOUtils.copyStreams(entityInputStream, bos);
+//            return new String(bos.toByteArray(), "UTF-8");
+//        } else {
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            InputStream entityInputStream = resp.getEntityInputStream();
+//            IOUtils.copyStreams(entityInputStream, bos);
+//            return new String(bos.toByteArray(), "UTF-8");
+//        }
+//    }
 
-            StringWriter stringWriter = new StringWriter();
-            XMLUtils.print(batchDoc,stringWriter);
-            LOGGER.warning("Problematic batch: ");
-            LOGGER.warning(stringWriter.toString());
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            InputStream entityInputStream = resp.getEntityInputStream();
-            IOUtils.copyStreams(entityInputStream, bos);
-            return new String(bos.toByteArray(), "UTF-8");
-        } else {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            InputStream entityInputStream = resp.getEntityInputStream();
-            IOUtils.copyStreams(entityInputStream, bos);
-            return new String(bos.toByteArray(), "UTF-8");
-        }
-    }
-
-    public static void printToConsole(Document batchDoc)  {
-        try {
-            StringWriter writer = new StringWriter();
-            XMLUtils.print(batchDoc, writer);
-            System.out.println(writer.toString());
-        } catch (UniformInterfaceException | ClientHandlerException | TransformerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-    }
+//    public static void printToConsole(Document batchDoc)  {
+//        try {
+//            StringWriter writer = new StringWriter();
+//            XMLUtils.print(batchDoc, writer);
+//            System.out.println(writer.toString());
+//        } catch (UniformInterfaceException | ClientHandlerException | TransformerException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 
 
@@ -149,29 +149,30 @@ public class HTTPSolrUtils {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } catch (UniformInterfaceException | ClientHandlerException | ParserConfigurationException | TransformerException e) {
+        } catch (ParserConfigurationException | TransformerException e) {
             throw new RuntimeException(e);
         }
     }
 
 
-    public static void commitJersey(Client client, String destServer)  {
-        try {
-            String destSolr = destServer + "?commit=true";
-            WebResource r = client.resource(destSolr);
-            Document document = XMLUtils.crateDocument("add");
-            StringWriter strWriter = new StringWriter();
-            XMLUtils.print(document, strWriter);
-            String t = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(strWriter.toString(), MediaType.TEXT_XML).post(String.class);
-        } catch (UniformInterfaceException | ClientHandlerException | ParserConfigurationException | TransformerException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public static void commitJersey(Client client, String destServer)  {
+//        try {
+//            String destSolr = destServer + "?commit=true";
+//            WebResource r = client.resource(destSolr);
+//            Document document = XMLUtils.crateDocument("add");
+//            StringWriter strWriter = new StringWriter();
+//            XMLUtils.print(document, strWriter);
+//            String t = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(strWriter.toString(), MediaType.TEXT_XML).post(String.class);
+//        } catch (UniformInterfaceException | ClientHandlerException | ParserConfigurationException | TransformerException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     
 
 
     public static List<IterationItem> prepareIterationItems(Element elm, String source, String identKey) {
+
         Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
@@ -201,6 +202,7 @@ public class HTTPSolrUtils {
 
 
     public static Element executeQueryApache(CloseableHttpClient apacheClient, String url, String query) {
+        LOGGER.info(String.format("Executing url,query: %s, %s " ,url, query));
         try {
             String t = executeSolrRequestApache(apacheClient, url, query);
             return getElement(t);
@@ -209,23 +211,23 @@ public class HTTPSolrUtils {
         }
     }
 
-    public static Element executeQueryJersey(Client jerseyClient, String url, String query, ResponseHandlingConfig responseHandlingConfig) {
-        try {
-            String t = executeSolrRequestJersey(jerseyClient, url, query, responseHandlingConfig);
-            return getElement(t);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Element executeQueryJersey(Client jerseyClient, String url, String query) {
-        try {
-            String t = executeSolrRequestJersey(jerseyClient, url, query);
-            return getElement(t);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public static Element executeQueryJersey(Client jerseyClient, String url, String query, ResponseHandlingConfig responseHandlingConfig) {
+//        try {
+//            String t = executeSolrRequestJersey(jerseyClient, url, query, responseHandlingConfig);
+//            return getElement(t);
+//        } catch (ParserConfigurationException | SAXException | IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public static Element executeQueryJersey(Client jerseyClient, String url, String query) {
+//        try {
+//            String t = executeSolrRequestJersey(jerseyClient, url, query);
+//            return getElement(t);
+//        } catch (ParserConfigurationException | SAXException | IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     private static Element getElement(String t) throws ParserConfigurationException, SAXException, IOException {
         Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
@@ -259,58 +261,58 @@ public class HTTPSolrUtils {
         }
     }
 
-    private static String executeSolrRequestJersey(Client client, String url, String query) {
-        return executeSolrRequestJersey(client, url, query, null);
-    }
-
-    private static String executeSolrRequestJersey(Client client, String url, String query, ResponseHandlingConfig config) {
-        int maxRetries = (config != null) ? config.getMaxRetries() : 0;
-        int delayMs = (config != null) ? config.getDelayMs() : 0;
-        int[] retryStatusCodes = (config != null) ? config.getRetryStatusCodes() : new int[0];
-        String u = url + (url.endsWith("/") ? "" : "/")+ query;
-        WebResource r = client.resource(u);
-
-        for (int attempt = 0; attempt <= maxRetries; attempt++) {
-            ClientResponse clientResponse = null;
-            try {
-                if (attempt > 0 && delayMs > 0) {
-                    LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] sleeping %d before attempt %d", delayMs, attempt + 1));
-                    Thread.sleep(delayMs);
-                }
-
-                LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] Attempt %d/%d to URL: %s",
-                        attempt + 1, maxRetries + 1, u));
-                clientResponse = r.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
-                final int currentStatusCode = clientResponse.getStatus();
-
-                if (currentStatusCode == 200) {
-                    LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] Request successful (Status: 200)."));
-                    return clientResponse.getEntity(String.class);
-                }
-
-                boolean shouldRetry = false;
-                if (config != null) {
-                    shouldRetry = Arrays.stream(retryStatusCodes)
-                            .anyMatch(code -> code == currentStatusCode);
-                }
-
-                if (shouldRetry && attempt < maxRetries) {
-                    LOGGER.warning(String.format("[" + Thread.currentThread().getName() + "] Status %d received. Preparing for retry...", currentStatusCode));
-                    continue;
-                }
-
-                throw new RuntimeException("Request failed after " + (attempt + 1) +
-                        " attempts with status code: " + currentStatusCode);
-
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Retry sleep interrupted", e);
-            } finally {
-                if (clientResponse != null) {
-                    clientResponse.close();
-                }
-            }
-        }
-        throw new RuntimeException("Internal error: Retry loop finished unexpectedly.");
-    }
+//    private static String executeSolrRequestJersey(Client client, String url, String query) {
+//        return executeSolrRequestJersey(client, url, query, null);
+//    }
+//
+//    private static String executeSolrRequestJersey(Client client, String url, String query, ResponseHandlingConfig config) {
+//        int maxRetries = (config != null) ? config.getMaxRetries() : 0;
+//        int delayMs = (config != null) ? config.getDelayMs() : 0;
+//        int[] retryStatusCodes = (config != null) ? config.getRetryStatusCodes() : new int[0];
+//        String u = url + (url.endsWith("/") ? "" : "/")+ query;
+//        WebResource r = client.resource(u);
+//
+//        for (int attempt = 0; attempt <= maxRetries; attempt++) {
+//            ClientResponse clientResponse = null;
+//            try {
+//                if (attempt > 0 && delayMs > 0) {
+//                    LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] sleeping %d before attempt %d", delayMs, attempt + 1));
+//                    Thread.sleep(delayMs);
+//                }
+//
+//                LOGGER.fine(String.format("[" + Thread.currentThread().getName() + "] Attempt %d/%d to URL: %s",
+//                        attempt + 1, maxRetries + 1, u));
+//                clientResponse = r.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
+//                final int currentStatusCode = clientResponse.getStatus();
+//
+//                if (currentStatusCode == 200) {
+//                    LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] Request successful (Status: 200)."));
+//                    return clientResponse.getEntity(String.class);
+//                }
+//
+//                boolean shouldRetry = false;
+//                if (config != null) {
+//                    shouldRetry = Arrays.stream(retryStatusCodes)
+//                            .anyMatch(code -> code == currentStatusCode);
+//                }
+//
+//                if (shouldRetry && attempt < maxRetries) {
+//                    LOGGER.warning(String.format("[" + Thread.currentThread().getName() + "] Status %d received. Preparing for retry...", currentStatusCode));
+//                    continue;
+//                }
+//
+//                throw new RuntimeException("Request failed after " + (attempt + 1) +
+//                        " attempts with status code: " + currentStatusCode);
+//
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//                throw new RuntimeException("Retry sleep interrupted", e);
+//            } finally {
+//                if (clientResponse != null) {
+//                    clientResponse.close();
+//                }
+//            }
+//        }
+//        throw new RuntimeException("Internal error: Retry loop finished unexpectedly.");
+//    }
 }

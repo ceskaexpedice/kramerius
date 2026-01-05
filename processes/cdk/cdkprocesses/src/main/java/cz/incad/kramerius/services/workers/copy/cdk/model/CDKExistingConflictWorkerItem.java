@@ -20,8 +20,13 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.utils.StringUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,29 +67,46 @@ public class CDKExistingConflictWorkerItem  implements Conflict {
     }
 
     @Override
-    public void reharvestConflict(Client client, String reharvestApi) {
+    public void reharvestConflict(CloseableHttpClient client, String reharvestApi) {
         if (StringUtils.isAnyString(reharvestApi)) {
             LinkedHashSet<String> compositeRootPids = new LinkedHashSet<>();
 
-            this.compositeIds.stream().forEach(c-> {
-                if (c.contains("!")) {
-                    String[] splitted = c.split("!");
-                    String croot = splitted[0];
-                    compositeRootPids.add(croot);
-                }
-            });
+            // Extrakce root PIDů z kompozitních ID (formát root!child)
+            if (this.compositeIds != null) {
+                this.compositeIds.forEach(c -> {
+                    if (c.contains("!")) {
+                        String[] splitted = c.split("!");
+                        compositeRootPids.add(splitted[0]);
+                    }
+                });
+            }
 
-            String pids = compositeRootPids.stream().collect(Collectors.joining(","));
-            String resolveConflicts = String.format("%s/resolveconflicts/%s", reharvestApi,pids);
-            WebResource resharvestResource = client.resource(resolveConflicts);
-            ClientResponse resolveConflictResp = resharvestResource.accept(MediaType.APPLICATION_JSON)
-                    .get(ClientResponse.class);
-            if (resolveConflictResp.getStatus() == ClientResponse.Status.OK.getStatusCode()) {
-                LOGGER.log(Level.INFO, String.format("Resolving conflict for %s has been planned", pids));
-            } else {
-                int status = resolveConflictResp.getStatus();
-                String err = resolveConflictResp.getEntity(String.class);
-                throw new RuntimeException(String.format("Cannot resolve conflict. HTTP status %d, Error message %s", status, err));
+            if (compositeRootPids.isEmpty()) {
+                LOGGER.fine("No composite root PIDs found to resolve.");
+                return;
+            }
+
+            String pids = String.join(",", compositeRootPids);
+            String resolveConflictsUrl = String.format("%s/resolveconflicts/%s", reharvestApi, pids);
+
+            HttpGet request = new HttpGet(resolveConflictsUrl);
+            request.setHeader("Accept", "application/json");
+
+
+            try {
+                client.execute(request, response -> {
+                    int status = response.getCode();
+                    if (status == 200) { // OK
+                        LOGGER.log(Level.INFO, String.format("Resolving conflict for %s has been planned", pids));
+                    } else {
+                        String err = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                        throw new RuntimeException(String.format("Cannot resolve conflict. HTTP status %d, Error message %s", status, err));
+                    }
+                    return null;
+                });
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Network error during reharvest conflict resolution for PIDs: " + pids, e);
+                throw new RuntimeException("Failed to contact reharvest API", e);
             }
         } else {
             LOGGER.warning("Reharvest API not defined");

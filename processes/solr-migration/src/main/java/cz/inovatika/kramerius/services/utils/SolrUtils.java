@@ -1,6 +1,5 @@
 package cz.inovatika.kramerius.services.utils;
 
-import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -28,17 +27,17 @@ public class SolrUtils {
 
     private SolrUtils() {}
 
-    // TODO: Replace by SolrUpdateUtils.sendToDest
-    public static String sendToDest(String destSolr, Client jerseyClient, Document batchDoc) {
-        try {
-            StringWriter writer = new StringWriter();
-            XMLUtils.print(batchDoc, writer);
-            return sendBatchToDestJersey(destSolr, jerseyClient, batchDoc, writer);
-        } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
-    }
+//    // TODO: Replace by SolrUpdateUtils.sendToDest
+//    public static String sendToDest(String destSolr, Client jerseyClient, Document batchDoc) {
+//        try {
+//            StringWriter writer = new StringWriter();
+//            XMLUtils.print(batchDoc, writer);
+//            return sendBatchToDestJersey(destSolr, jerseyClient, batchDoc, writer);
+//        } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     // TODO: Replace by SolrUpdateUtils.sendToDest
     public static String sendToDest(String destSolr, CloseableHttpClient apacheClient, Document batchDoc) {
@@ -46,7 +45,7 @@ public class SolrUtils {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
             return sendBatchToDestApache(destSolr, apacheClient, batchDoc, writer);
-        } catch (UniformInterfaceException | ClientHandlerException  | TransformerException | IOException e) {
+        } catch ( TransformerException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -86,34 +85,34 @@ public class SolrUtils {
         }
     }
 
-    private static String sendBatchToDestJersey(String destSolr, Client client, Document batchDoc, StringWriter writer) throws TransformerException, IOException {
-        WebResource r = client.resource(destSolr);
-        ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
-        if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
-
-            StringWriter stringWriter = new StringWriter();
-            XMLUtils.print(batchDoc,stringWriter);
-            LOGGER.warning("Problematic batch: ");
-            LOGGER.warning(stringWriter.toString());
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            InputStream entityInputStream = resp.getEntityInputStream();
-            IOUtils.copyStreams(entityInputStream, bos);
-            return new String(bos.toByteArray(), "UTF-8");
-        } else {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            InputStream entityInputStream = resp.getEntityInputStream();
-            IOUtils.copyStreams(entityInputStream, bos);
-            return new String(bos.toByteArray(), "UTF-8");
-        }
-    }
+//    private static String sendBatchToDestJersey(String destSolr, Client client, Document batchDoc, StringWriter writer) throws TransformerException, IOException {
+//        WebResource r = client.resource(destSolr);
+//        ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
+//        if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
+//
+//            StringWriter stringWriter = new StringWriter();
+//            XMLUtils.print(batchDoc,stringWriter);
+//            LOGGER.warning("Problematic batch: ");
+//            LOGGER.warning(stringWriter.toString());
+//
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            InputStream entityInputStream = resp.getEntityInputStream();
+//            IOUtils.copyStreams(entityInputStream, bos);
+//            return new String(bos.toByteArray(), "UTF-8");
+//        } else {
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            InputStream entityInputStream = resp.getEntityInputStream();
+//            IOUtils.copyStreams(entityInputStream, bos);
+//            return new String(bos.toByteArray(), "UTF-8");
+//        }
+//    }
 
     public static void printToConsole(Document batchDoc)  {
         try {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
             System.out.println(writer.toString());
-        } catch (UniformInterfaceException | ClientHandlerException | TransformerException e) {
+        } catch (TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
@@ -135,23 +134,23 @@ public class SolrUtils {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } catch (UniformInterfaceException | ClientHandlerException | ParserConfigurationException | TransformerException e) {
+        } catch ( ParserConfigurationException | TransformerException e) {
             throw new RuntimeException(e);
         }
     }
 
 
-    public static void commitJersey(Client client, String destServer)  {
-        try {
-            String destSolr = destServer + "?commit=true";
-            WebResource r = client.resource(destSolr);
-            Document document = XMLUtils.crateDocument("add");
-            StringWriter strWriter = new StringWriter();
-            XMLUtils.print(document, strWriter);
-            String t = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(strWriter.toString(), MediaType.TEXT_XML).post(String.class);
-        } catch (UniformInterfaceException | ClientHandlerException | ParserConfigurationException | TransformerException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public static void commitJersey(Client client, String destServer)  {
+//        try {
+//            String destSolr = destServer + "?commit=true";
+//            WebResource r = client.resource(destSolr);
+//            Document document = XMLUtils.crateDocument("add");
+//            StringWriter strWriter = new StringWriter();
+//            XMLUtils.print(document, strWriter);
+//            String t = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(strWriter.toString(), MediaType.TEXT_XML).post(String.class);
+//        } catch (UniformInterfaceException | ClientHandlerException | ParserConfigurationException | TransformerException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 }

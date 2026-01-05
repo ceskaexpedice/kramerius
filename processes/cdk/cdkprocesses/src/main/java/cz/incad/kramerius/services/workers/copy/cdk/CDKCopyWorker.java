@@ -12,6 +12,7 @@ import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.workers.copy.CopyWorker;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -35,7 +36,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
 
     private static final Logger LOGGER = Logger.getLogger(CDKCopyWorker.class.getName());
 
-    public CDKCopyWorker(ProcessConfig processConfig, Client client, List<IterationItem> items, WorkerFinisher finisher) {
+    public CDKCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, List<IterationItem> items, WorkerFinisher finisher) {
         super(processConfig, client, items, finisher);
     }
 
@@ -189,10 +190,10 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                 + ")&fl=" + URLEncoder.encode(fieldlist, StandardCharsets.UTF_8) + "&wt=xml&rows=" + subitems.size();
 
         String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
-        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryJersey(client, checkUrl, query),
+        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryApache(client, checkUrl, query),
                 (elm) -> {
                     return elm.getNodeName().equals("result");
-                });
+        });
 
         List<Element> docElms = XMLUtils.getElements(resultElem);
         List<Map<String, Object>>  docs = docElms.stream().map(ResultsUtils::doc).collect(Collectors.toList());

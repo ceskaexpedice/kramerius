@@ -16,9 +16,10 @@
  */
 package cz.incad.kramerius.services.workers.copy.cdk.model;
 
-import com.sun.jersey.api.client.Client;
+
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 public interface Conflict {
 
-    public void reharvestConflict(Client client, String apiUrl);
+    public void reharvestConflict(CloseableHttpClient client, String apiUrl);
 }

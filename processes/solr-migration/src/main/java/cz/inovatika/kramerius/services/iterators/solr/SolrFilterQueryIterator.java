@@ -1,6 +1,5 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
@@ -43,11 +42,6 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
         return HTTPSolrUtils.executeQueryApache(client, url, query);
     }
 
-    public static Element pidsFilterJersey(Client client, String url, String mq, String lastPid, int rows, String fq, String endpoint,String[] fieldsParam)
-            throws ParserConfigurationException, SAXException, IOException {
-        String query = pidsFilterQuery(mq, lastPid, rows, fq, endpoint, fieldsParam);
-        return HTTPSolrUtils.executeQueryJersey(client, url, query);
-    }
 
     private static String pidsFilterQuery(String mq, String lastPid, int rows, String fq, String endpoint, String[] fieldsList) throws UnsupportedEncodingException {
         String fullQuery = null;
@@ -115,22 +109,22 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
 
     }
 
-    @Override
-    public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
-        try {
-            String lastPid = null;
-            String previousPid = null;
-            do {
-                //    private static Element pidsFilterQuery(ConfigurationBase configuration, Client client, String url, String mq, String lastPid, int rows, String fq)
-                Element element = pidsFilterJersey( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, fieldList);
-                previousPid = lastPid;
-                lastPid = findLastPid(element);
-                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
-            }while(lastPid != null  && !lastPid.equals(previousPid));
-            // callback after iteration
-            endCallback.end();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Override
+//    public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+//        try {
+//            String lastPid = null;
+//            String previousPid = null;
+//            do {
+//                //    private static Element pidsFilterQuery(ConfigurationBase configuration, Client client, String url, String mq, String lastPid, int rows, String fq)
+//                Element element = pidsFilterJersey( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, fieldList);
+//                previousPid = lastPid;
+//                lastPid = findLastPid(element);
+//                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
+//            }while(lastPid != null  && !lastPid.equals(previousPid));
+//            // callback after iteration
+//            endCallback.end();
+//        } catch (ParserConfigurationException | SAXException | IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

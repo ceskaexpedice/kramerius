@@ -216,7 +216,7 @@ public class ProcessUtils {
             List<String> result = new ArrayList<>();
             result.add(pid);
             return result;
-            } else if (argument.startsWith("pidlist:")) {
+        } else if (argument.startsWith("pidlist:")) {
             List<String> pids = Arrays.stream(argument.substring("pidlist:".length()).split(";")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
             return pids;
         } else if (argument.startsWith(PIDLIST_FILE_PREFIX)) {

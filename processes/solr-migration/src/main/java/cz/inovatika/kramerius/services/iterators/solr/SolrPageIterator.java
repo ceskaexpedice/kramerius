@@ -29,10 +29,6 @@ public class SolrPageIterator extends AbstractSolrIterator {
         super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig);
     }
 
-    public static Element paginationJersey(Client client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) throws IOException, SAXException, ParserConfigurationException {
-        String query = parinationQuery(mq, offset, rows, filterQuery, endpoint, identifierField, sorting, fieldList);
-        return HTTPSolrUtils.executeQueryJersey(client, url, query, responseHandlingConfig);
-    }
 
 
     public static Element paginationApache(CloseableHttpClient client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList) throws IOException, SAXException, ParserConfigurationException {
@@ -94,23 +90,23 @@ public class SolrPageIterator extends AbstractSolrIterator {
 
 
 
-    @Override
-    public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
-        try {
-            int offset = 0;
-            int numberOfResult = Integer.MAX_VALUE;
-            do {
-                Element element =  paginationJersey( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.sorting, this.fieldList, this.responseHandlingConfig);
-                if (numberOfResult == Integer.MAX_VALUE) {
-                    numberOfResult = findNumberOfResults(element);
-                }
-                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
-                offset += rows;
-            }while(offset < numberOfResult);
-            // callback after iteration
-            endCallback.end();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Override
+//    public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+//        try {
+//            int offset = 0;
+//            int numberOfResult = Integer.MAX_VALUE;
+//            do {
+//                Element element =  paginationJersey( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.sorting, this.fieldList, this.responseHandlingConfig);
+//                if (numberOfResult == Integer.MAX_VALUE) {
+//                    numberOfResult = findNumberOfResults(element);
+//                }
+//                iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));
+//                offset += rows;
+//            }while(offset < numberOfResult);
+//            // callback after iteration
+//            endCallback.end();
+//        } catch (ParserConfigurationException | SAXException | IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

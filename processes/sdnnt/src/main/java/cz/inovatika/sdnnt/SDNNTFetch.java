@@ -31,6 +31,9 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -43,9 +46,9 @@ import org.apache.solr.common.SolrInputField;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+//import com.sun.jersey.api.client.Client;
+//import com.sun.jersey.api.client.ClientResponse;
+//import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.sdnnt.utils.SDNNTCheckUtils;
@@ -104,266 +107,267 @@ public class SDNNTFetch {
 
 
 
-    public static void process(HttpSolrClient client, SyncConfig config) throws IOException, InterruptedException, SolrServerException {
+    public static void process(HttpSolrClient solrClient, SyncConfig config) throws IOException, InterruptedException, SolrServerException {
             long start = System.currentTimeMillis();
-            
-            //Map<String,String> pids2idents = new HashMap<>();
-            Map<String,List<String>> pids2idents = new HashMap<>();
-            
-            
-            LOGGER.info("Connecting sdnnt list and iterating serials ");
-            iterateSDNNTFormat(client, config, config.getSdnntEndpoint(),  "SE", start, pids2idents);
-            LOGGER.info("Connecting sdnnt list and iterating books ");
-            iterateSDNNTFormat(client, config, config.getSdnntEndpoint(),  "BK", start, pids2idents);
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                Map<String, List<String>> pids2idents = new HashMap<>();
 
-            Map<String, String> idents2pid = new HashMap<>();
-            pids2idents.keySet().stream().forEach(pid-> {
-                List<String> idents = pids2idents.get(pid);
-                idents.forEach(ident-> {  idents2pid.put(ident, pid); });
-            });
-            
-            long stop = System.currentTimeMillis();
-            LOGGER.info("SDNNT List fetched; It took " + (stop - start) + " ms");
-            
-            OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(new Date(start).toInstant(), ZoneId.systemDefault());
-            String format = DateTimeFormatter.ISO_INSTANT.format(offsetDateTime);
-            // one minute before process start
-            client.deleteByQuery(config.getSyncCollection(), String.format("fetched:[* TO %s-1MINUTE] AND type:(main OR granularity)", format));
-            
-            if (config.getSyncCollection() != null) client.commit(config.getSyncCollection());
+                LOGGER.info("Connecting sdnnt list and iterating serials ");
+                iterateSDNNTFormat(solrClient, httpClient, config, config.getSdnntEndpoint(), "SE", start, pids2idents);
+                LOGGER.info("Connecting sdnnt list and iterating books ");
+                iterateSDNNTFormat(solrClient, httpClient, config, config.getSdnntEndpoint(), "BK", start, pids2idents);
 
-            if (config.getBaseUrl() != null) {
-                LicenseAPIFetcher apiFetcher = LicenseAPIFetcher.Versions.valueOf(config.getVersion()).build(config.getBaseUrl(), config.getVersion(), true);
+                Map<String, String> idents2pid = new HashMap<>();
+                pids2idents.keySet().stream().forEach(pid -> {
+                    List<String> idents = pids2idents.get(pid);
+                    idents.forEach(ident -> {
+                        idents2pid.put(ident, pid);
+                    });
+                });
 
-                long kstart = System.currentTimeMillis();
-                Map<String, Map<String, Object>> fetchedObject = apiFetcher.check(pids2idents.keySet());
-                LOGGER.info("Kramerius documents fetched; It took " + (System.currentTimeMillis() - kstart) + " ms");
-                List<String> fetchedPids = new ArrayList<>(fetchedObject.keySet());
-                
-                int setsize = fetchedObject.size();
-                int batchsize = 5000;
-                int numberofiteration = setsize / batchsize;
+                long stop = System.currentTimeMillis();
+                LOGGER.info("SDNNT List fetched; It took " + (stop - start) + " ms");
 
-                List<String> allChangedIds = new ArrayList<>(100000);
-                Map<String, SolrInputDocument> allChanges = new HashMap<>(100000);
+                OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(new Date(start).toInstant(), ZoneId.systemDefault());
+                String format = DateTimeFormatter.ISO_INSTANT.format(offsetDateTime);
+                // one minute before process start
+                solrClient.deleteByQuery(config.getSyncCollection(), String.format("fetched:[* TO %s-1MINUTE] AND type:(main OR granularity)", format));
 
-                if (setsize % batchsize != 0) numberofiteration = numberofiteration + 1;
-                LOGGER.info(String.format("Updating data;  Number of iteration %d", numberofiteration));
-                long ustart = System.currentTimeMillis();
-                for (int i = 0; i < numberofiteration; i++) {
-                  
-                  List<String> batchChangedIds = new ArrayList<>();
-                    
-                  int from = i*batchsize;
-                  int to = Math.min((i+1)*batchsize, setsize);
-                  List<String> subList = fetchedPids.subList(from, to);
+                if (config.getSyncCollection() != null) solrClient.commit(config.getSyncCollection());
 
-                  for (int j = 0; j < subList.size(); j++) {
-                      
-                      String pid = subList.get(j);
-                      List<String> idents = pids2idents.get(pid);
-                      if (idents != null) {
-                          for (String ident : idents) {
-                              SolrInputDocument idoc =  null;
-                              if (allChanges.containsKey(ident)) {
-                                  idoc = allChanges.get(ident.toString());
-                              } else {
-                                  idoc = new SolrInputDocument();
-                                  idoc.setField("id", ident);
-                              }
-                              
-                              
-                              List<String> pidLicenses = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_LICENSES_KEY);
-                              if (pidLicenses != null && !pidLicenses.isEmpty()) {
-                                  for (String lic : pidLicenses) {
-                                      atomicAddDistinct(idoc, lic, "real_kram_licenses");
-                                  }
-                              }
-                              
-                              // titles
-                              List<String> titles = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
-                              if (titles != null && !titles.isEmpty()) {
-                                  for (String lic : titles) {
-                                      atomicAddDistinct(idoc, lic, "real_kram_titles_search");
-                                  }
-                              }
+                if (config.getBaseUrl() != null) {
+                    LicenseAPIFetcher apiFetcher = LicenseAPIFetcher.Versions.valueOf(config.getVersion()).build(config.getBaseUrl(), config.getVersion(), true);
 
-                              atomicOneValSet(idoc, true, "real_kram_exists");
-                              
-                              String date = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_DATE_KEY);
-                              if (date != null) {
-                                  atomicOneValSet(idoc, date, "real_kram_date");
-                              }
-                              
-                              String model = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
-                              if (model != null) {
-                                  atomicOneValSet(idoc, model, "real_kram_model");
-                              }
+                    long kstart = System.currentTimeMillis();
+                    Map<String, Map<String, Object>> fetchedObject = apiFetcher.check(pids2idents.keySet());
+                    LOGGER.info("Kramerius documents fetched; It took " + (System.currentTimeMillis() - kstart) + " ms");
+                    List<String> fetchedPids = new ArrayList<>(fetchedObject.keySet());
 
-                              if (!allChangedIds.contains(ident.toString())) {
-                                  allChangedIds.add(ident);
-                                  batchChangedIds.add(ident);
-                                  allChanges.put(ident, idoc);
-                              }
-                          }
-                          
-                      }
-                      
-                  }
+                    int setsize = fetchedObject.size();
+                    int batchsize = 5000;
+                    int numberofiteration = setsize / batchsize;
 
-                  LOGGER.info("Batch number "+i+"; Data updated;  It took " + (System.currentTimeMillis() - ustart) + " ms");
-                  LOGGER.info("Batch number "+i+"; Calculating differences");
-                  List<String> identifiers = subList.stream().map(pids2idents::get).flatMap(Collection::stream).collect(Collectors.toList());
+                    List<String> allChangedIds = new ArrayList<>(100000);
+                    Map<String, SolrInputDocument> allChanges = new HashMap<>(100000);
 
-                  String collection = config.getSyncCollection();
-                  SolrDocumentList list = getById(client, identifiers, collection);
-                  for (SolrDocument rDoc : list) {
-                    Object ident = rDoc.getFieldValue("id");
-                    SolrInputDocument in = allChanges.get(ident.toString());
+                    if (setsize % batchsize != 0) numberofiteration = numberofiteration + 1;
+                    LOGGER.info(String.format("Updating data;  Number of iteration %d", numberofiteration));
+                    long ustart = System.currentTimeMillis();
+                    for (int i = 0; i < numberofiteration; i++) {
 
-                    Collection<Object> fieldValues = in.getFieldValues("real_kram_licenses");
-                    
-                    List<String> realKramLicenses = distinctValues(fieldValues);
-                    
-                    Collection<Object> syncMasterActions = in.getFieldValues("sync_actions");
-                    List<String> masterActions = distinctValues(syncMasterActions);
+                        List<String> batchChangedIds = new ArrayList<>();
 
-                    Object type = rDoc.getFieldValue("type");
+                        int from = i * batchsize;
+                        int to = Math.min((i + 1) * batchsize, setsize);
+                        List<String> subList = fetchedPids.subList(from, to);
 
-                    boolean hasGranularity = rDoc.getFieldValue("has_granularity") != null ? (boolean) rDoc.getFieldValue("has_granularity") : false;
-                    boolean granularityItem = type != null ? type.toString().equals("granularity") : false;
-                    boolean dirty = false;
+                        for (int j = 0; j < subList.size(); j++) {
 
-                    Object rDocState = rDoc.getFieldValue("state");
-                    if (rDocState!= null &&  rDocState.toString().equals("A")) {
-                        // polozka granularity nebo samostatny titul
-                        if (granularityItem || !hasGranularity) {
-                            Object expectedLicense = rDoc.getFieldValue("license");
-                            if (expectedLicense != null) {
-                                if (expectedLicense.toString().equals("dnntt") && !realKramLicenses.contains("dnntt")) {
-                                    // ocekavana licence dnntt; kram licence dnnto -> zmena dnnto->dnntt
-                                    if (realKramLicenses.contains("dnnto")) {
-                                        atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name(), "sync_actions");
-                                        atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
-                                        dirty = true;
+                            String pid = subList.get(j);
+                            List<String> idents = pids2idents.get(pid);
+                            if (idents != null) {
+                                for (String ident : idents) {
+                                    SolrInputDocument idoc = null;
+                                    if (allChanges.containsKey(ident)) {
+                                        idoc = allChanges.get(ident.toString());
                                     } else {
-                                        atomicAddDistinct(in, SyncActionEnum.add_dnntt.name(), "sync_actions");
-                                        atomicOneValSet(in, SyncActionEnum.add_dnntt.getValue(), "sync_sort");
-                                        dirty = true;
+                                        idoc = new SolrInputDocument();
+                                        idoc.setField("id", ident);
                                     }
-                                }
 
-                                if (expectedLicense.toString().equals("dnnto") && !realKramLicenses.contains("dnnto")) {
-                                    // ocekavana licence dnnto; kram licence dnntt -> zmena dnntt->dnnto
-                                    if (realKramLicenses.contains("dnntt")) {
-                                        atomicAddDistinct(in, SyncActionEnum.change_dnntt_dnnto.name() /*"change_dnnto_dnntt"*/, "sync_actions");
-                                        atomicOneValSet(in, SyncActionEnum.change_dnntt_dnnto.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
-                                        dirty = true;
-                                    } else {
-                                        atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
-                                        atomicOneValSet(in, SyncActionEnum.add_dnnto.getValue() /*"add_dnnto"*/, "sync_sort");
-                                        dirty = true;
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        if (granularityItem || !hasGranularity) {
-                            
-                            if (realKramLicenses.contains("dnntt")) {
-                                atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
-                                atomicOneValSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
-                                dirty = true;
-                            }
-                            if (realKramLicenses.contains("dnnto")) {
-                                atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
-                                if (!realKramLicenses.contains("dnntt")) {
-                                    atomicOneValSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
-                                }
-                                dirty = true;
-                            }
-                        }
-                    }
-                    
-                    // ja vim ze mam polozku granulairity ... tak menim parenta 
-                    if (dirty && granularityItem) {
-                        Object field = rDoc.getFieldValue("parent_id"); 
-                        if (field!= null) {
-                            if (allChangedIds.contains(field.toString())) {
-                                SolrInputDocument masterIn = allChanges.get(field.toString());
 
-                                Collection<Object> masterInSyncActions = masterIn.getFieldValues("sync_actions");
-                                List<String> actions = distinctValues(masterInSyncActions);
-
-                                if (!actions.contains(SyncActionEnum.partial_change.name())) {
-                                    atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
-                                    atomicOneValSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
-                                }
-                                //if (fieldValue.con)
-                            } else {
-                                
-                                String masterId = field.toString();
-                                String pid = idents2pid.get(masterId);
-                                        
-                                SolrInputDocument masterIn = new SolrInputDocument();
-                                masterIn.setField("id", masterId);
-                                atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
-                                atomicOneValSet(masterIn,  SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
-
-                                if (fetchedObject.keySet().contains(pid)) {
-                                    atomicOneValSet(masterIn,  true, "real_kram_exists");
-                                    
                                     List<String> pidLicenses = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_LICENSES_KEY);
                                     if (pidLicenses != null && !pidLicenses.isEmpty()) {
                                         for (String lic : pidLicenses) {
-                                            atomicAddDistinct(masterIn, lic, "real_kram_licenses");
+                                            atomicAddDistinct(idoc, lic, "real_kram_licenses");
                                         }
                                     }
-                                    
+
                                     // titles
                                     List<String> titles = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
                                     if (titles != null && !titles.isEmpty()) {
                                         for (String lic : titles) {
-                                            atomicAddDistinct(masterIn, lic, "real_kram_titles_search");
+                                            atomicAddDistinct(idoc, lic, "real_kram_titles_search");
                                         }
                                     }
 
+                                    atomicOneValSet(idoc, true, "real_kram_exists");
+
                                     String date = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_DATE_KEY);
                                     if (date != null) {
-                                        atomicOneValSet(masterIn, date, "real_kram_date");
+                                        atomicOneValSet(idoc, date, "real_kram_date");
                                     }
-                                    
+
                                     String model = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
                                     if (model != null) {
-                                        atomicOneValSet(masterIn, model, "real_kram_model");
+                                        atomicOneValSet(idoc, model, "real_kram_model");
+                                    }
+
+                                    if (!allChangedIds.contains(ident.toString())) {
+                                        allChangedIds.add(ident);
+                                        batchChangedIds.add(ident);
+                                        allChanges.put(ident, idoc);
                                     }
                                 }
 
-                                allChangedIds.add(field.toString());
-                                batchChangedIds.add(field.toString());
-                                allChanges.put(field.toString(), masterIn);
+                            }
+
+                        }
+
+                        LOGGER.info("Batch number " + i + "; Data updated;  It took " + (System.currentTimeMillis() - ustart) + " ms");
+                        LOGGER.info("Batch number " + i + "; Calculating differences");
+                        List<String> identifiers = subList.stream().map(pids2idents::get).flatMap(Collection::stream).collect(Collectors.toList());
+
+                        String collection = config.getSyncCollection();
+                        SolrDocumentList list = getById(solrClient, identifiers, collection);
+                        for (SolrDocument rDoc : list) {
+                            Object ident = rDoc.getFieldValue("id");
+                            SolrInputDocument in = allChanges.get(ident.toString());
+
+                            Collection<Object> fieldValues = in.getFieldValues("real_kram_licenses");
+
+                            List<String> realKramLicenses = distinctValues(fieldValues);
+
+                            Collection<Object> syncMasterActions = in.getFieldValues("sync_actions");
+                            List<String> masterActions = distinctValues(syncMasterActions);
+
+                            Object type = rDoc.getFieldValue("type");
+
+                            boolean hasGranularity = rDoc.getFieldValue("has_granularity") != null ? (boolean) rDoc.getFieldValue("has_granularity") : false;
+                            boolean granularityItem = type != null ? type.toString().equals("granularity") : false;
+                            boolean dirty = false;
+
+                            Object rDocState = rDoc.getFieldValue("state");
+                            if (rDocState != null && rDocState.toString().equals("A")) {
+                                // polozka granularity nebo samostatny titul
+                                if (granularityItem || !hasGranularity) {
+                                    Object expectedLicense = rDoc.getFieldValue("license");
+                                    if (expectedLicense != null) {
+                                        if (expectedLicense.toString().equals("dnntt") && !realKramLicenses.contains("dnntt")) {
+                                            // ocekavana licence dnntt; kram licence dnnto -> zmena dnnto->dnntt
+                                            if (realKramLicenses.contains("dnnto")) {
+                                                atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name(), "sync_actions");
+                                                atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
+                                                dirty = true;
+                                            } else {
+                                                atomicAddDistinct(in, SyncActionEnum.add_dnntt.name(), "sync_actions");
+                                                atomicOneValSet(in, SyncActionEnum.add_dnntt.getValue(), "sync_sort");
+                                                dirty = true;
+                                            }
+                                        }
+
+                                        if (expectedLicense.toString().equals("dnnto") && !realKramLicenses.contains("dnnto")) {
+                                            // ocekavana licence dnnto; kram licence dnntt -> zmena dnntt->dnnto
+                                            if (realKramLicenses.contains("dnntt")) {
+                                                atomicAddDistinct(in, SyncActionEnum.change_dnntt_dnnto.name() /*"change_dnnto_dnntt"*/, "sync_actions");
+                                                atomicOneValSet(in, SyncActionEnum.change_dnntt_dnnto.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
+                                                dirty = true;
+                                            } else {
+                                                atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
+                                                atomicOneValSet(in, SyncActionEnum.add_dnnto.getValue() /*"add_dnnto"*/, "sync_sort");
+                                                dirty = true;
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (granularityItem || !hasGranularity) {
+
+                                    if (realKramLicenses.contains("dnntt")) {
+                                        atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
+                                        atomicOneValSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
+                                        dirty = true;
+                                    }
+                                    if (realKramLicenses.contains("dnnto")) {
+                                        atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
+                                        if (!realKramLicenses.contains("dnntt")) {
+                                            atomicOneValSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
+                                        }
+                                        dirty = true;
+                                    }
+                                }
+                            }
+
+                            // ja vim ze mam polozku granulairity ... tak menim parenta
+                            if (dirty && granularityItem) {
+                                Object field = rDoc.getFieldValue("parent_id");
+                                if (field != null) {
+                                    if (allChangedIds.contains(field.toString())) {
+                                        SolrInputDocument masterIn = allChanges.get(field.toString());
+
+                                        Collection<Object> masterInSyncActions = masterIn.getFieldValues("sync_actions");
+                                        List<String> actions = distinctValues(masterInSyncActions);
+
+                                        if (!actions.contains(SyncActionEnum.partial_change.name())) {
+                                            atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
+                                            atomicOneValSet(masterIn, SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+                                        }
+                                        //if (fieldValue.con)
+                                    } else {
+
+                                        String masterId = field.toString();
+                                        String pid = idents2pid.get(masterId);
+
+                                        SolrInputDocument masterIn = new SolrInputDocument();
+                                        masterIn.setField("id", masterId);
+                                        atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
+                                        atomicOneValSet(masterIn, SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+
+                                        if (fetchedObject.keySet().contains(pid)) {
+                                            atomicOneValSet(masterIn, true, "real_kram_exists");
+
+                                            List<String> pidLicenses = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_LICENSES_KEY);
+                                            if (pidLicenses != null && !pidLicenses.isEmpty()) {
+                                                for (String lic : pidLicenses) {
+                                                    atomicAddDistinct(masterIn, lic, "real_kram_licenses");
+                                                }
+                                            }
+
+                                            // titles
+                                            List<String> titles = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
+                                            if (titles != null && !titles.isEmpty()) {
+                                                for (String lic : titles) {
+                                                    atomicAddDistinct(masterIn, lic, "real_kram_titles_search");
+                                                }
+                                            }
+
+                                            String date = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_DATE_KEY);
+                                            if (date != null) {
+                                                atomicOneValSet(masterIn, date, "real_kram_date");
+                                            }
+
+                                            String model = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
+                                            if (model != null) {
+                                                atomicOneValSet(masterIn, model, "real_kram_model");
+                                            }
+                                        }
+
+                                        allChangedIds.add(field.toString());
+                                        batchChangedIds.add(field.toString());
+                                        allChanges.put(field.toString(), masterIn);
+                                    }
+                                }
+                            }
+                        }
+
+
+                        if (!allChangedIds.isEmpty()) {
+                            UpdateRequest req = new UpdateRequest();
+                            batchChangedIds.forEach(ident -> {
+                                req.add(allChanges.get(ident));
+                            });
+                            LOGGER.fine(String.format("Update batch with size %s", req.getDocuments().size()));
+                            try {
+                                UpdateResponse response = req.process(solrClient, config.getSyncCollection());
+                                LOGGER.fine("qtime:" + response.getQTime());
+                                if (config.getSyncCollection() != null) solrClient.commit(config.getSyncCollection());
+                            } catch (SolrServerException | IOException e) {
+                                LOGGER.log(Level.SEVERE, e.getMessage());
                             }
                         }
                     }
-                  }
-                  
-                  
-                  if (!allChangedIds.isEmpty()) {
-                      UpdateRequest req = new UpdateRequest();
-                      batchChangedIds.forEach(ident-> {
-                          req.add(allChanges.get(ident));
-                      });
-                      LOGGER.fine(String.format("Update batch with size %s",  req.getDocuments().size()));
-                      try {
-                          UpdateResponse response = req.process(client, config.getSyncCollection());
-                          LOGGER.fine("qtime:"+response.getQTime());
-                          if (config.getSyncCollection() != null) client.commit(config.getSyncCollection());
-                      } catch (SolrServerException  | IOException e) {
-                          LOGGER.log(Level.SEVERE,e.getMessage());
-                      }
-                  }
-              }
-              
+
+                }
             }
     }
 
@@ -462,36 +466,72 @@ public class SDNNTFetch {
     }
 
 
-    
-    public static File throttle(Client client,  String url) throws IOException, InterruptedException {
 
-        int max_repetion = 3;
-        int seconds = 5;
+    public static File throttle(CloseableHttpClient httpClient, String url) throws IOException, InterruptedException {
+        int maxRepetition = 3;
 
-        for (int i = 0; i < max_repetion; i++) {
-            WebResource r = client.resource(url);
-            ClientResponse response = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-            int status = response.getStatus();
-            if (status == Status.OK.getStatusCode()) {
-                String entity = response.getEntity(String.class);
-                File tmpFile = File.createTempFile("sdnnt", "resp");
-                tmpFile.deleteOnExit();
-                IOUtils.write(entity.getBytes(Charset.forName("UTF-8")), new FileOutputStream(tmpFile));
-                return tmpFile;
-            } else if (status == 409) {
-                // wait
-                int sleep = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.throttle.wait", 720000);
-                LOGGER.info("Server is too busy; waiting for "+(sleep/1000/60)+" min");
-                Thread.sleep(sleep);
+        for (int i = 0; i < maxRepetition; i++) {
+            HttpGet request = new HttpGet(url);
+            request.setHeader("Accept", "application/json");
+
+            File resultFile = httpClient.execute(request, response -> {
+                int status = response.getCode();
+                if (status == 200) { // Status.OK
+                    File tmpFile = File.createTempFile("sdnnt", "resp");
+                    tmpFile.deleteOnExit();
+                    try (FileOutputStream fos = new FileOutputStream(tmpFile)) {
+                        IOUtils.copy(response.getEntity().getContent(), fos);
+                    }
+                    return tmpFile;
+                } else if (status == 409) {
+                    return null; // Signalizujeme konflikt pro retry
+                } else {
+                    throw new IOException("Unexpected response status: " + status);
+                }
+            });
+
+            if (resultFile != null) {
+                return resultFile;
             }
+
+            // Pokud je null, znamená to status 409
+            int sleep = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.throttle.wait", 720000);
+            LOGGER.info("Server is too busy (409); waiting for " + (sleep / 1000 / 60) + " min");
+            Thread.sleep(sleep);
         }
-        throw new IllegalStateException("Maximum number of waiting exceeed");
+        throw new IllegalStateException("Maximum number of waiting exceeded (409 Conflict)");
     }
+
+//    public static File throttle(Client client,  String url) throws IOException, InterruptedException {
+//
+//        int max_repetion = 3;
+//        int seconds = 5;
+//
+//        for (int i = 0; i < max_repetion; i++) {
+//            WebResource r = client.resource(url);
+//            ClientResponse response = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+//            int status = response.getStatus();
+//            if (status == Status.OK.getStatusCode()) {
+//                String entity = response.getEntity(String.class);
+//                File tmpFile = File.createTempFile("sdnnt", "resp");
+//                tmpFile.deleteOnExit();
+//                IOUtils.write(entity.getBytes(Charset.forName("UTF-8")), new FileOutputStream(tmpFile));
+//                return tmpFile;
+//            } else if (status == 409) {
+//                // wait
+//                int sleep = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.throttle.wait", 720000);
+//                LOGGER.info("Server is too busy; waiting for "+(sleep/1000/60)+" min");
+//                Thread.sleep(sleep);
+//            }
+//        }
+//        throw new IllegalStateException("Maximum number of waiting exceeed");
+//    }
     
     
     
     private static void iterateSDNNTFormat(
             HttpSolrClient client,
+            CloseableHttpClient httpClient,
             SyncConfig config, 
             String sdnntChangesEndpoint, 
             String format, 
@@ -503,13 +543,13 @@ public class SDNNTFetch {
         int sum = 0;
         String token = "*";
         String prevToken = "";
-        Client c = Client.create();
+        //Client c = Client.create();
         LOGGER.info(String.format("SDNNT changes endpoint is %s", sdnntChangesEndpoint));
         String sdnntApiEndpoint = sdnntChangesEndpoint + "?format=" + format + "&rows=1000&resumptionToken=%s&digital_library="+config.getAcronym();
         while (token != null && !token.equals(prevToken)) {
             String formatted = String.format(sdnntApiEndpoint, token);
             LOGGER.info("Conctacting sdnnt instance "+format);
-            File file = throttle(c, formatted);
+            File file = throttle(httpClient, formatted);
             String response = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
             JSONObject resObject = new JSONObject(response);
             

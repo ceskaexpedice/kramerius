@@ -13,7 +13,12 @@ import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.workers.Worker;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+//import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
 import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -40,7 +45,8 @@ public class Migration {
 
     public static final Logger LOGGER = Logger.getLogger(Migration.class.getName());
 
-    protected Client client;
+    //protected Client client;
+    protected CloseableHttpClient client;
     protected WorkerFinisher finisher;
     protected ProcessIterator iterator;
     protected WorkerFactory workerFactory;
@@ -48,16 +54,27 @@ public class Migration {
 
     public Migration() throws MigrateSolrIndexException {
         super();
-        this.client = buildJerseyClient();
+        this.client = buildApacheClient();
     }
 
-    protected Client buildJerseyClient() {
-        ClientConfig cc = new DefaultClientConfig();
-        cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);
-        cc.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-        return Client.create(cc);
-    }
+//    protected Client buildJerseyClient() {
+//        ClientConfig cc = new DefaultClientConfig();
+//        cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);
+//        cc.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+//        return Client.create(cc);
+//    }
 
+    protected CloseableHttpClient buildApacheClient() {
+        // Nastavení timeoutů (v Jersey bylo default, zde je dobré je definovat)
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(Timeout.ofSeconds(30))
+                .setResponseTimeout(Timeout.ofSeconds(60))
+                .build();
+
+        return HttpClients.custom()
+                .setDefaultRequestConfig(config)
+                .build();
+    }
 
     public void migrate(File configFile) throws MigrateSolrIndexException, IllegalAccessException, InstantiationException, ClassNotFoundException, IOException, ParserConfigurationException, SAXException, NoSuchMethodException {
         LOGGER.info(String.format("Loading from configuration %s", configFile.getAbsolutePath()));

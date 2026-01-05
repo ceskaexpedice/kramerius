@@ -1,14 +1,20 @@
 package cz.inovatika.licenses;
 
-import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
 import cz.incad.kramerius.utils.IterationUtils;
 import cz.incad.kramerius.utils.IterationUtils.Endpoint;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.kramerius.services.iterators.ProcessIterator;
+import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
+import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
+import cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.ceskaexpedice.processplatform.api.context.PluginContext;
 import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.ceskaexpedice.processplatform.common.model.ScheduleSubProcess;
@@ -80,130 +86,105 @@ public class FlagToLicenseProcess {
      * @throws ParserConfigurationException
      */
     public static void main() throws Exception {
-        // Configuraed all top level models 
-        List<String> models = KConfiguration.getInstance().getConfiguration().getList(PROCESSES_CONF_KEY + "models", DEFAULT_MODELS).stream().map(Objects::toString).collect(Collectors.toList());
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            List<String> models = KConfiguration.getInstance().getConfiguration().getList(PROCESSES_CONF_KEY + "models", DEFAULT_MODELS).stream().map(Objects::toString).collect(Collectors.toList());
 
-        // don't use periodical
-        models.remove("periodical");
+            // don't use periodical
+            models.remove("periodical");
 
-        String query = String.format("model:(%s) AND accessibility:*", models.stream().collect(Collectors.joining(" OR ")));
-        String encodedQ = URLEncoder.encode(query, "UTF-8");
+            String query = String.format("model:(%s) AND accessibility:*", models.stream().collect(Collectors.joining(" OR ")));
+            //String encodedQ = URLEncoder.encode(query, "UTF-8");
 
-        Client client = Client.create();
+            //Client client = Client.create();
 
-        Map<String, String> topLevelModelsMap = new HashMap<>();
-        Map<String, List<Pair<String, String>>> subLevelModelsMap = new HashMap<>();
-        Map<String, Triple<String, String, String>> details = new HashMap<>();
+            //Map<String, String> topLevelModelsMap = new HashMap<>();
+            //Map<String, List<Pair<String, String>>> subLevelModelsMap = new HashMap<>();
+            //Map<String, Triple<String, String, String>> details = new HashMap<>();
 
-        List<String> alreadyLicensedPids = new ArrayList<>();
+            List<String> alreadyLicensedPids = new ArrayList<>();
 
-        List<String> publicPids = new ArrayList<>();
-        List<String> privatePids = new ArrayList<>();
+            List<String> publicPids = new ArrayList<>();
+            List<String> privatePids = new ArrayList<>();
 
+            //SolrIteratorConfig.Builder builder = new SolrIteratorConfig.Builder(url, id);
 
-        IterationUtils.cursorIteration(new IterationUtils.FieldsProvider(getSortField(), "pid", "root.pid", "accessibility", "model", "licenses"), Endpoint.select, client, KConfiguration.getInstance().getSolrSearchHost(), encodedQ, (elm, iter) -> {
-            try {
-                List<Element> docs = XMLUtils.getElementsRecursive(elm, new XMLUtils.ElementsFilter() {
+            SolrIteratorConfig config =
+                    new SolrIteratorConfig.Builder(KConfiguration.getInstance().getSolrSearchHost(), "pid")
+                            .fieldList("pid,root.pid,accessibility,model,licenses,count_monograph_unit")
+                            .sort("pid asc")
+                            .endpoint("select")
+                            .filterQuery(query)
+                            .factoryClz(SolrIteratorFactory.class.getName())
+                            .build();
+            ProcessIteratorFactory iteratorFactory = ProcessIteratorFactory.create(config);
+            ProcessIterator processIterator = iteratorFactory.createProcessIterator(config, httpClient);
+            processIterator.iterate(httpClient, (itdocs) -> {
+                itdocs.forEach(doc -> {
+                    String pid = doc.getPid();
 
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        return element.getNodeName().equals("doc");
-                    }
-                });
+                    String accessibility = doc.getDoc().get("accessibility").toString();
+                    String model = doc.getDoc().get("model").toString();
+                    String rootPid = doc.getDoc().get("root.pid").toString();
+                    Object countMonographUnit = doc.getDoc().get("count_monograph_unit");
+                    List<String> lics = (List<String>) doc.getDoc().get("licenses");
 
-
-                docs.stream().forEach(doc -> {
-
-
-                    AtomicReference<String> accessibility = new AtomicReference<>();
-                    AtomicReference<String> model = new AtomicReference<>();
-                    AtomicReference<String> pid = new AtomicReference<>();
-                    AtomicReference<String> rootPid = new AtomicReference<>();
-
-                    AtomicReference<List<String>> lics = new AtomicReference<>();
-
-                    XMLUtils.getElements(doc).forEach(e -> {
-                        String name = e.getAttribute("name");
-                        switch (name) {
-                            case "accessibility":
-                                accessibility.set(e.getTextContent());
-                                break;
-                            case "model":
-                                model.set(e.getTextContent());
-                                break;
-                            case "pid":
-                                pid.set(e.getTextContent());
-                                break;
-                            case "root.pid":
-                                rootPid.set(e.getTextContent());
-                                break;
-                            case "licenses":
-                                List<Element> elements = XMLUtils.getElements(e);
-                                List<String> collectedLicenses = elements.stream().map(Element::getTextContent).collect(Collectors.toList());
-                                lics.set(collectedLicenses);
-                                break;
+                    // pridavame pro monografie, ktere nemaji count_monograph_unit
+                    if (model.equals("monograph") &&  countMonographUnit == null) {
+                        if (accessibility.equals("public")) {
+                            publicPids.add(pid);
+                        } else if (accessibility.equals("private")) {
+                            privatePids.add(pid);
                         }
-                    });
-
-                    if (model.get() != null && models.contains(model.get())) {
-                        topLevelModelsMap.put(pid.get(), accessibility.get());
-                    } else {
-                        if (!topLevelModelsMap.containsKey(rootPid.get())) {
-                            topLevelModelsMap.put(rootPid.get(), "");
+                    }
+                    if (model.equals("periodicalvolume") || model.equals("monographunit")) {
+                        if (accessibility.equals("public")) {
+                            publicPids.add(pid);
+                        } else if (accessibility.equals("private")) {
+                            privatePids.add(pid);
                         }
-                        if (!subLevelModelsMap.containsKey(rootPid.get())) {
-                            subLevelModelsMap.put(rootPid.get(), new ArrayList<>());
-                        }
-                        List<Pair<String, String>> list = subLevelModelsMap.get(rootPid.get());
-                        list.add(Pair.of(pid.get(), accessibility.get()));
                     }
-                    details.put(pid.get(), Triple.of(model.get(), accessibility.get(), pid.get()));
 
 
-                    if (lics.get() != null && (lics.get().contains(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName()) || lics.get().contains(CzechEmbeddedLicenses.ONSITE_LICENSE.getName()))) {
-                        alreadyLicensedPids.add(pid.get());
+
+                    if (lics != null && (lics.contains(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName()) || lics.contains(CzechEmbeddedLicenses.ONSITE_LICENSE.getName()))) {
+                        alreadyLicensedPids.add(pid);
                     }
+
+//                    if (accessibility != null && accessibility.equals("public")) {
+//                        publicPids.add(pid);
+//                    } else if (accessibility != null && accessibility.equals("private")) {
+//                        privatePids.add(pid);
+//                    }
+
                 });
+            }, () -> {
 
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-        }, null);
+            });
 
-        topLevelModelsMap.keySet().forEach(rootPid -> {
-            if (!subLevelModelsMap.containsKey(rootPid)) {
-                if (topLevelModelsMap.get(rootPid).equals("public")) {
-                    publicPids.add(rootPid);
-                } else {
-                    privatePids.add(rootPid);
-                }
 
-            } else {
-                subLevelModelsMap.get(rootPid).stream().forEach(p -> {
-                    if (p.getRight().equals("public")) {
-                        publicPids.add(p.getLeft());
-                    } else {
-                        privatePids.add(p.getLeft());
-                    }
-                });
-            }
-        });
+            // remove from public list & private list
+            alreadyLicensedPids.forEach(pid -> {
+                publicPids.remove(pid);
+                privatePids.remove(pid);
+            });
 
-        // remove from public list & private list
-        alreadyLicensedPids.forEach(pid -> {
-            publicPids.remove(pid);
-            privatePids.remove(pid);
-        });
+            System.out.println("alreadyLicensedPids "+alreadyLicensedPids);
+            System.out.println("publicPids "+publicPids);
+            System.out.println("privatePids "+privatePids);
 
-        LOGGER.info(String.format("Number of already licensed pids: %d", alreadyLicensedPids.size()));
-        LOGGER.info(String.format("To public license: %d", publicPids.size()));
-        LOGGER.info(String.format("To onsite license: %d", privatePids.size()));
+            LOGGER.info(String.format("Number of already licensed pids: %d", alreadyLicensedPids.size()));
+            LOGGER.info(String.format("To public license: %d", publicPids.size()));
+            LOGGER.info(String.format("To onsite license: %d", privatePids.size()));
 
-        // public batches
-        scheduleSetLicenses(publicPids, CzechEmbeddedLicenses.PUBLIC_LICENSE.getName());
+            // public batches
+            scheduleSetLicenses(publicPids, CzechEmbeddedLicenses.PUBLIC_LICENSE.getName());
 
-        // private batches
-        scheduleSetLicenses(privatePids, CzechEmbeddedLicenses.ONSITE_LICENSE.getName());
+            // private batches
+            scheduleSetLicenses(privatePids, CzechEmbeddedLicenses.ONSITE_LICENSE.getName());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -226,7 +207,10 @@ public class FlagToLicenseProcess {
             PluginContext pluginContext = PluginContextHolder.getContext();
             pluginContext.scheduleSubProcess(subProcess);
         }
+    }
 
+    public static void main(String[] args) throws Exception {
+        main();
     }
 
 }

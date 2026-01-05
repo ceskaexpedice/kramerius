@@ -318,6 +318,7 @@ public class ProcessResource extends AdminApiResource {
     public Response scheduleProcess(JSONObject processDefinition) {
         try {
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+
             JSONObject pcpSchedule = ProcessManagerMapper.mapScheduleMainProcess(processDefinition, userProvider.get().getLoginname());
             String profileId = pcpSchedule.getString(ProcessManagerMapper.PCP_PROFILE_ID);
             JSONObject profile = processManagerClient.getProfile(profileId);
@@ -332,6 +333,7 @@ public class ProcessResource extends AdminApiResource {
             String processId = processManagerClient.scheduleProcess(pcpSchedule);
             JSONObject result = new JSONObject();
             result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
+
             return Response.ok().entity(result.toString()).build();
         } catch (ProcessManagerClientException e) {
             if (e.getErrorCode() == ErrorCode.NOT_FOUND) {

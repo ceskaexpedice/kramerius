@@ -1,6 +1,5 @@
 package cz.inovatika.kramerius.services.iterators;
 
-import com.sun.jersey.api.client.Client;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
@@ -21,23 +20,23 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
  */
 public interface ProcessIterator {
 
-	/**
-	 * Iterates over a Solr collection or file using Jersey Client.
-	 * <p>
-	 * This method supports older implementations that rely on Jersey Client. Each processed
-	 * item triggers the {@link ProcessIterationCallback}, and at the end of the iteration,
-	 * {@link ProcessIterationEndCallback} is invoked.
-	 * </p>
-	 * <p><b>Note:</b> This method is planned for removal in a future version of the software.
-	 * The preferred alternative is {@link #iterate(CloseableHttpClient, ProcessIterationCallback, ProcessIterationEndCallback)}.
-	 * </p>
-	 *
-	 * @param client Jersey client used for communication
-	 * @param iterationCallback callback invoked after each processed item
-	 * @param endCallback callback invoked after the entire iteration process completes
-	 */
-	public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback);
-
+//	/**
+//	 * Iterates over a Solr collection or file using Jersey Client.
+//	 * <p>
+//	 * This method supports older implementations that rely on Jersey Client. Each processed
+//	 * item triggers the {@link ProcessIterationCallback}, and at the end of the iteration,
+//	 * {@link ProcessIterationEndCallback} is invoked.
+//	 * </p>
+//	 * <p><b>Note:</b> This method is planned for removal in a future version of the software.
+//	 * The preferred alternative is {@link #iterate(CloseableHttpClient, ProcessIterationCallback, ProcessIterationEndCallback)}.
+//	 * </p>
+//	 *
+//	 * @param client Jersey client used for communication
+//	 * @param iterationCallback callback invoked after each processed item
+//	 * @param endCallback callback invoked after the entire iteration process completes
+//	 */
+//	public void iterate(Client client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback);
+//
 
 	/**
 	 * Iterates over a Solr collection or file using Apache CloseableHttpClient.

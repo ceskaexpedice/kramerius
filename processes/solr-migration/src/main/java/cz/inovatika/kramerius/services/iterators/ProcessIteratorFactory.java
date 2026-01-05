@@ -2,6 +2,7 @@ package cz.inovatika.kramerius.services.iterators;
 
 import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.util.logging.Logger;
 
@@ -28,7 +29,7 @@ public abstract class ProcessIteratorFactory {
      * @param client    A Jersey client used for communication with external services.
      * @return An instance of {@link ProcessIterator}.
      */
-    public abstract ProcessIterator createProcessIterator(SolrIteratorConfig config, Client client);
+    public abstract ProcessIterator createProcessIterator(SolrIteratorConfig config, CloseableHttpClient client);
 
     /**
      * Creates an instance of a concrete {@link ProcessIteratorFactory} implementation.
