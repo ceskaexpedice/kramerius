@@ -129,6 +129,7 @@ public class DocumentServiceImpl implements DocumentService {
                                             renderedDocument, pid));
                                 }
                                 index += 1;
+                                System.out.println("Index: " + index);
                                 if (index >= howMany) {
                                     acceptingState = false;
                                 }
@@ -412,6 +413,10 @@ public class DocumentServiceImpl implements DocumentService {
             throw new RuntimeException(e);
         }
     }
+//    public PreparedDocument buildDocumentAsFlat(ObjectPidsPath path,
+//                                                String pidFrom, int howMany, int[] rect) throws IOException, OutOfRangeException {
+//        return buildDocumentAsFlat(path, pidFrom, howMany, rect, true);
+//    }
 
     @Override
     public PreparedDocument buildDocumentAsFlat(ObjectPidsPath path,
@@ -431,14 +436,17 @@ public class DocumentServiceImpl implements DocumentService {
         renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, akubraRepository, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
-
-        String[] pids = path.getPathFromLeafToRoot();
-        for (String pid : pids) {
-            Document dcDocument = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
-            renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
+        if (path != null) {
+            String[] pids = path.getPathFromLeafToRoot();
+            for (String pid : pids) {
+                Document dcDocument = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
+                renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
+            }
         }
 
-        buildRenderingDocumentAsFlat(renderedDocument, pidFrom, ConfigurationUtils.checkNumber(howMany, KConfiguration.getInstance().getConfiguration()));
+        //int howMany1 =  check ? ConfigurationUtils.checkNumber(howMany, KConfiguration.getInstance().getConfiguration()) : howMany;
+
+        buildRenderingDocumentAsFlat(renderedDocument, pidFrom, howMany);
         return renderedDocument;
     }
 

@@ -298,10 +298,12 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
             String titlePage, OutputStream os, String imgServletUrl,
             String i18nUrl, int[] rect) throws IOException {
         try {
+
+            //howMany1
             ObjectPidsPath[] paths = solrAccess.getPidPaths(requestedPid);
             final ObjectPidsPath path = selectOnePath(requestedPid, paths);
             generateCustomPDF(this.documentService.buildDocumentAsFlat(path,
-                    path.getLeaf(), numberOfPages, rect), os, null, imgServletUrl,
+                    path.getLeaf(), ConfigurationUtils.checkNumber( numberOfPages, KConfiguration.getInstance().getConfiguration()), rect), os, null, imgServletUrl,
                     i18nUrl, ImageFetcher.WEB);
         } catch (OutOfRangeException | RepositoryException e) {
             // TODO Auto-generated catch block

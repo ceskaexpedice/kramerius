@@ -34,7 +34,9 @@ public interface FirstPagePDFService {
         // Textova prvni stranka
         TEXT, 
         // Vyrendrovany obrazek
-        IMAGE
+        IMAGE,
+
+        SPECIALNEEDS;
     };
 
     /**
@@ -42,8 +44,6 @@ public interface FirstPagePDFService {
      * @param rdoc Generating document model
      * @param os Outputstream
      * @param pids PIDs selection
-     * @param imgServlet IMG servlet 
-     * @param i18nServlet I18N servlet 
      * @param fontMap Prepared FontMap object
      */
     public void selection(PreparedDocument rdoc, OutputStream os, String[] pids,  FontMap fontMap);
@@ -53,8 +53,6 @@ public interface FirstPagePDFService {
      * @param rdoc Generating document model
      * @param os Outputstream
      * @param path Path for generting object
-     * @param imgServlet IMG servlet 
-     * @param i18nServlet I18N servlet 
      * @param fontMap Prepared FontMap object
      */
     public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path, FontMap fontMap);

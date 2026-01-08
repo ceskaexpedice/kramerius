@@ -725,7 +725,62 @@ paths:
           description: PID identifikátor neexistuje nebo nebyl nalezen.
 
 
-
+  /items/{pid}/requests/{reqid}:
+    post:
+      tags:
+        - Procesy
+      summary: Naplánování nového požadavku pro PID
+      description: >
+        Endpoint slouží ke spuštění specifických operací (např. 'special_needs') nad daným objektem. 
+        Vytvoří proces v Process Manageru a připraví výstupní adresář v dočasném úložišti.
+      operationId: postRequest
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Identifikátor objektu (např. UUID)
+          schema:
+            type: string
+            example: "uuid:5f69fed8-6e54-40de-938e-14c34f745428"
+        - in: path
+          name: reqid
+          required: true
+          description: Typ požadavku (aktuálně podporováno "special_needs")
+          schema:
+            type: string
+            enum: [special_needs]
+            example: "special_needs"
+      requestBody:
+        required: true
+        description: Definice parametrů pro daný proces
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Požadavek byl úspěšně naplánován
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processId:
+                    type: string
+                    description: ID vytvořeného procesu v Process Manageru
+                  output:
+                    type: string
+                    description: Cesta k vygenerovanému adresáři v systému
+              example:
+                processId: "12345"
+                output: "/tmp/uuid_5f69fed8-6e54-40de-938e-14c34f745428_pavel.stastny_gmail.com"
+        '400':
+          description: Neplatný vstup (např. neznámý reqid nebo špatná data v reqDefinition)
+        '404':
+          description: Požadovaný objekt (PID) nebo profil nebyl nalezen
+        '500':
+          description: Interní chyba serveru nebo problém při komunikaci s Process Managerem
 
   # Dotazy na obrazová data       
   /items/{pid}/image:

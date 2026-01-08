@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
 
+import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
 import com.lowagie.text.BadElementException;
@@ -372,6 +373,12 @@ public class RenderPDF {
                 boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
                 if (useAlto && altoStream) {
                     try {
+                        System.out.println("PID:"+pid);
+                        System.out.println("--> Parsing xmls");
+                        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asInputStream();
+                        IOUtils.copy(inputStream, System.out);
+                        System.out.println("<-- Parsing xmls");
+
                         org.w3c.dom.Document alto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
 
                         String file = cmdImage.getFile();

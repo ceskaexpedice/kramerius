@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
@@ -181,10 +182,14 @@ public class AbstractPDFResource {
         ObjectPidsPath[] paths = (ObjectPidsPath[]) pathsMap.get(ObjectPidsPath.class.getName());
         final ObjectPidsPath path = AbstractPDFResource.selectOnePath(pid, paths);
 
+
         File parentFile = null;
         File firstPageFile = null;
         try {
-            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, n, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
+
+            int howMany1 = ConfigurationUtils.checkNumber(n, KConfiguration.getInstance().getConfiguration());
+
+            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, howMany1, new int[] {(int)rect.getWidth(), (int)rect.getHeight()});
             checkRenderedPDFDoc(rdoc);
 
             this.mostDesirable.saveAccess(pid, new Date());

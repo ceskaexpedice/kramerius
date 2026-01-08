@@ -7,6 +7,10 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
 import cz.incad.kramerius.audio.AudioStreamId;
+import cz.incad.kramerius.processes.client.ErrorCode;
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
+import cz.incad.kramerius.processes.client.ProcessManagerClientException;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.CutItem;
 import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
@@ -14,6 +18,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
+import cz.incad.kramerius.security.User;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.rest.utils.IIIFUtils;
@@ -31,6 +36,7 @@ import cz.incad.kramerius.utils.java.Pair;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
@@ -58,9 +64,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -170,6 +178,11 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     APICallMonitor apiCallMonitor;
+
+    @javax.inject.Inject
+    @javax.inject.Named("forward-client")
+    private CloseableHttpClient apacheClient;
+
 
 
     public ItemsResource() {
@@ -675,6 +688,79 @@ public class ItemsResource extends ClientApiResource {
             }
         }
     }
+
+
+
+
+    //TODO: Discuss - how to
+
+    public static String createSafeFileName(String pid, String name) {
+        String rawName = pid + "_" + name;
+        String normalized = Normalizer.normalize(rawName, Normalizer.Form.NFD);
+        Pattern unicodePattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        String noAccent = unicodePattern.matcher(normalized).replaceAll("");
+        String safeName = noAccent.replaceAll("[^a-zA-Z0-9.\\-]", "_");
+        return safeName.toLowerCase();
+    }
+
+    @POST
+    @Path("{pid}/requests/{reqid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requests(@PathParam("pid") String pid,@PathParam("reqid") String reqid, JSONObject reqDefinition) {
+        try {
+            switch (reqid) {
+                case "special_needs":
+                    User user = this.userProvider.get();
+                    String tmpDir = System.getProperty("java.io.tmpdir");
+                    JSONObject process = new JSONObject();
+                    process.put(ProcessManagerMapper.PCP_PROFILE_ID, "special_needs_pdf");
+                    process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
+
+                    JSONObject payload = new JSONObject();
+                    payload.put("pid", pid);
+                    payload.put("user", user.getLoginname());
+                    payload.put("output", tmpDir+File.separator+createSafeFileName(pid,user.getLoginname()));
+
+                    process.put("payload", payload);
+
+                    ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+
+                    JSONObject profile = processManagerClient.getProfile("special_needs_pdf");
+                    JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
+                    org.json.JSONArray scheduledProfiles = null;
+                    if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
+                        scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
+                    }
+
+                    LOGGER.info("Scheduler process -> "+process.toString());
+                    String processId = processManagerClient.scheduleProcess(process);
+                    JSONObject result = new JSONObject();
+                    result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
+                    result.put("output", tmpDir+File.separator+createSafeFileName(pid,user.getLoginname()));
+
+                    return Response.ok().entity(result.toString()).build();
+                default: throw new BadRequestException(reqid);
+            }
+        } catch (ProcessManagerClientException e) {
+            if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
+                throw new NotFoundException(e.getMessage());
+            } else if  (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
+                LOGGER.log(Level.SEVERE, "Error message from processManagerClient", e);
+                throw new BadRequestException(e.getMessage());
+            } else {
+                throw e;
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+
+    }
+
+
 
     @GET
     @Path("{pid}/foxml")

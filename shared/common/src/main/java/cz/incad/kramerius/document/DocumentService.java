@@ -27,6 +27,7 @@ import cz.incad.kramerius.pdf.OutOfRangeException;
  */
 public interface DocumentService {
 
+
     /**
      * Creates document model with structure 
      * @param path Object's pid path

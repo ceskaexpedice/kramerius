@@ -168,9 +168,6 @@ public class FlagToLicenseProcess {
                 privatePids.remove(pid);
             });
 
-            System.out.println("alreadyLicensedPids "+alreadyLicensedPids);
-            System.out.println("publicPids "+publicPids);
-            System.out.println("privatePids "+privatePids);
 
             LOGGER.info(String.format("Number of already licensed pids: %d", alreadyLicensedPids.size()));
             LOGGER.info(String.format("To public license: %d", publicPids.size()));

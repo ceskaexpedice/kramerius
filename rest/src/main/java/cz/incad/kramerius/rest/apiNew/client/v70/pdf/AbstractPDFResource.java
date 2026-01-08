@@ -13,6 +13,7 @@ import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.SimplePDFService;
+import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.rest.api.k5.client.SolrMemoization;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceBadRequestException;
@@ -164,7 +165,8 @@ public class AbstractPDFResource {
         File parentFile = null;
         File firstPageFile = null;
         try {
-            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, numberOfPags, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
+            int howMany1 = ConfigurationUtils.checkNumber(numberOfPags, KConfiguration.getInstance().getConfiguration());
+            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, howMany1, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
             checkRenderedPDFDoc(rdoc);
 
             this.mostDesirable.saveAccess(pid, new Date());

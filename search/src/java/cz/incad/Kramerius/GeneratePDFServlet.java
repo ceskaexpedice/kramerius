@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 
@@ -329,14 +330,16 @@ public class GeneratePDFServlet extends GuiceServlet {
                         final ObjectPidsPath path = selectOnePath(pid, paths);
 
                         int[] irects = srect(srect);
+                        int n = Integer.parseInt(howMany);
 
+                        int howMany1 = ConfigurationUtils.checkNumber(n, KConfiguration.getInstance().getConfiguration());
 
                         PreparedDocument rdoc = documentService
                                 .buildDocumentAsFlat(path, pid,
-                                        Integer.parseInt(howMany), irects);
+                                        howMany1, irects);
                         if (rdoc.getPages().isEmpty()) {
                             rdoc = documentService.buildDocumentAsFlat(path,
-                                    path.getLeaf(), Integer.parseInt(howMany),
+                                    path.getLeaf(), howMany1,
                                     irects);
                         }
 

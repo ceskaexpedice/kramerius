@@ -1,45 +1,4 @@
-/*
- * Copyright (C) 2010 Pavel Stastny
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 package cz.incad.kramerius.pdf.impl;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import cz.incad.kramerius.security.SecuredAkubraRepository;
-import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.ceskaexpedice.akubra.pid.LexerException;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -47,7 +6,6 @@ import com.google.inject.name.Named;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfWriter;
-
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.AbstractPage;
@@ -57,21 +15,29 @@ import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
 import cz.incad.kramerius.pdf.utils.pdf.DocumentUtils;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.mods.ArticleTitleBuilder;
-import cz.incad.kramerius.utils.mods.AuthorBuilder;
-import cz.incad.kramerius.utils.mods.BuilderFilter;
-import cz.incad.kramerius.utils.mods.IdentifiersBuilder;
-import cz.incad.kramerius.utils.mods.ModsBuildersDirector;
-import cz.incad.kramerius.utils.mods.PeriodicalIssueNumberBuilder;
-import cz.incad.kramerius.utils.mods.PeriodicalVolumeNumberBuilder;
-import cz.incad.kramerius.utils.mods.PublisherBuilder;
-import cz.incad.kramerius.utils.mods.TitleBuilder;
+import cz.incad.kramerius.utils.mods.*;
+import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.pid.LexerException;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-public class FirstPagePDFServiceImpl implements FirstPagePDFService {
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.logging.Level;
+
+public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implements FirstPagePDFService {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FirstPagePDFServiceImpl.class.getName());
 
@@ -128,7 +94,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     @Override
-    public void selection(PreparedDocument rdoc, OutputStream os, String[] pids,  FontMap fontMap) {
+    public void selection(PreparedDocument rdoc, OutputStream os, String[] pids, FontMap fontMap) {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);
@@ -139,21 +105,8 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
             doc.close();
             os.flush();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (DocumentException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (LexerException e) {
+        } catch (IOException | InstantiationException | ParserConfigurationException | IllegalAccessException |
+                 DocumentException | SAXException | XPathExpressionException | LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -162,7 +115,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
 
-        
+
         RenderPDF render = new RenderPDF(fontMap, akubraRepository);
         render.render(doc, pdfWriter, cmnds);
     }
@@ -170,13 +123,13 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     String templateSelection(PreparedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
-        StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
-        FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
+        org.antlr.stringtemplate.StringTemplate template = new org.antlr.stringtemplate.StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
+        FirstPagePDFServiceImpl.FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
 
         // tistena polozka
-        GeneratedItem itm = new GeneratedItem();
-        
-  
+        FirstPagePDFServiceImpl.GeneratedItem itm = new FirstPagePDFServiceImpl.GeneratedItem();
+
+
         Map<String, LinkedHashSet<String>> detailItemValues = new HashMap<String, LinkedHashSet<String>>();
         Map<String, ObjectPidsPath> pathsMapping = new HashMap<String, ObjectPidsPath>();
         LinkedHashSet<String> roots = new LinkedHashSet<String>();
@@ -185,7 +138,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             pathsMapping.put(pid, sPath);
             roots.add(sPath.getRoot());
         }
-        
+
         for (String pid : pids) {
             ObjectPidsPath path = pathsMapping.get(pid);
             Map<String, Map<String, List<String>>> mods = processModsFromPath(path, null);
@@ -198,7 +151,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
                 }
             }
 
-            
+
             String[] rProps = renderedProperties(roots.size() == 1);
             String[] fromRootToLeaf = path.getPathFromRootToLeaf();
             for (int i = 0; i < fromRootToLeaf.length; i++) {
@@ -212,33 +165,35 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
                 }
             }
         }
-        
+
 
         // hlavni nazev
-        List<DetailItem> details = new ArrayList<FirstPagePDFServiceImpl.DetailItem>();
+        List<FirstPagePDFServiceImpl.DetailItem> details = new ArrayList<FirstPagePDFServiceImpl.DetailItem>();
         LinkedHashSet<String> maintitles = detailItemValues.get(TitleBuilder.MODS_TITLE);
         String key =  maintitles != null && maintitles.size() > 1 ? resourceBundle.getString("pdf.fp.titles") :  resourceBundle.getString("pdf.fp.title");
         if (maintitles != null && (!maintitles.isEmpty())) {
-            details.add(new DetailItem(key, vals(maintitles).toString()));
+            details.add(new FirstPagePDFServiceImpl.DetailItem(key, vals(maintitles).toString()));
         }
         for(String prop: renderedProperties(roots.size() == 1)) {
             LinkedHashSet<String> vals = detailItemValues.get(prop);
             key = vals != null && vals.size() > 1 ? resourceBundle.getString(i18nKey(prop)+"s") :  resourceBundle.getString(i18nKey(prop));
             if (vals != null && (!vals.isEmpty())) {
-                details.add(new DetailItem(key, vals(vals).toString()));
+                details.add(new FirstPagePDFServiceImpl.DetailItem(key, vals(vals).toString()));
             }
         }
 
+
+
         // stranky v pdfku
-        pagesInSelectiontPdf(rdoc, resourceBundle, details);
-        
-        itm.setDetailItems((DetailItem[]) details.toArray(new DetailItem[details.size()]));
-        fpvo.setGeneratedItems(new GeneratedItem[] {itm});
+        //pagesInSelectiontPdf(rdoc, resourceBundle, details);
+
+        itm.setDetailItems((FirstPagePDFServiceImpl.DetailItem[]) details.toArray(new FirstPagePDFServiceImpl.DetailItem[details.size()]));
+        fpvo.setGeneratedItems(new FirstPagePDFServiceImpl.GeneratedItem[] {itm});
 
         template.setAttribute("viewinfo", fpvo);
-        
+
         String templateText = template.toString();
-        
+
         return templateText;
     }
 
@@ -249,10 +204,10 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             rProps = new String[] {
                     AuthorBuilder.MODS_AUTHOR,
                     ArticleTitleBuilder.MODS_TITLE,
-                    PublisherBuilder.MODS_PUBLISHER, 
-                    PublisherBuilder.MODS_DATE, 
-                    PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER, 
-                    PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER, 
+                    PublisherBuilder.MODS_PUBLISHER,
+                    PublisherBuilder.MODS_DATE,
+                    PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER,
+                    PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER,
                     PeriodicalIssueNumberBuilder.MODS_DATE,
                     IdentifiersBuilder.MODS_ISBN,
                     IdentifiersBuilder.MODS_ISSN,
@@ -264,8 +219,8 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             rProps = new String[] {
                     TitleBuilder.MODS_TITLE,
                     ArticleTitleBuilder.MODS_TITLE,
-                    PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER, 
-                    PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER, 
+                    PeriodicalVolumeNumberBuilder.MODS_VOLUMENUMBER,
+                    PeriodicalIssueNumberBuilder.MODS_ISSUESNUMBER,
                     IdentifiersBuilder.MODS_ISBN,
                     IdentifiersBuilder.MODS_ISSN,
                     IdentifiersBuilder.MODS_SICI,
@@ -278,7 +233,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
     void itemVals(Map<String, LinkedHashSet<String>> detailItemValues, List<String> list, String key) {
         LinkedHashSet<String> vals = detailItemValues.get(key);
-        if (vals == null) { 
+        if (vals == null) {
             vals = new LinkedHashSet<String>();
             detailItemValues.put(key, vals);
         }
@@ -288,12 +243,12 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     String templateParent(PreparedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
-        StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
-        FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
+        org.antlr.stringtemplate.StringTemplate template = new org.antlr.stringtemplate.StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
+        FirstPagePDFServiceImpl.FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
 
         // tistena polozka
-        GeneratedItem itm = new GeneratedItem();
-        
+        FirstPagePDFServiceImpl.GeneratedItem itm = new FirstPagePDFServiceImpl.GeneratedItem();
+
         // detaily
         Map<String, LinkedHashSet<String>> detailItemValues = new HashMap<String, LinkedHashSet<String>>();
         Map<String, Map<String, List<String>>> mods = processModsFromPath(path, null);
@@ -322,11 +277,11 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
 
         // hlavni nazev
-        List<DetailItem> details = new ArrayList<FirstPagePDFServiceImpl.DetailItem>();
+        List<FirstPagePDFServiceImpl.DetailItem> details = new ArrayList<FirstPagePDFServiceImpl.DetailItem>();
         LinkedHashSet<String> maintitles = detailItemValues.get(TitleBuilder.MODS_TITLE);
         String key =  maintitles != null && maintitles.size() > 1 ? resourceBundle.getString("pdf.fp.titles") :  resourceBundle.getString("pdf.fp.title");
         if (maintitles != null && (!maintitles.isEmpty())) {
-            details.add(new DetailItem(key, vals(maintitles).toString()));
+            details.add(new FirstPagePDFServiceImpl.DetailItem(key, vals(maintitles).toString()));
         }
 
         String[] props = renderedProperties(true);
@@ -334,55 +289,59 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             LinkedHashSet<String> vals = detailItemValues.get(prop);
             key = vals != null && vals.size() > 1 ? resourceBundle.getString(i18nKey(prop)+"s") :  resourceBundle.getString(i18nKey(prop));
             if (vals != null && (!vals.isEmpty())) {
-                details.add(new DetailItem(key, vals(vals).toString()));
+                details.add(new FirstPagePDFServiceImpl.DetailItem(key, vals(vals).toString()));
             }
         }
 
-        
-        pagesInParentPdf(rdoc, resourceBundle, details);
 
-        itm.setDetailItems((DetailItem[]) details.toArray(new DetailItem[details.size()]));
-        
+        String uid = System.getProperty("user.uid");
+        if (StringUtils.isNotBlank(uid)) {
+            details.add(new FirstPagePDFServiceImpl.DetailItem("Generováno pro",uid));
+        }
 
-        fpvo.setGeneratedItems( new GeneratedItem[] { itm });
+
+        itm.setDetailItems((FirstPagePDFServiceImpl.DetailItem[]) details.toArray(new FirstPagePDFServiceImpl.DetailItem[details.size()]));
+
+
+        fpvo.setGeneratedItems( new FirstPagePDFServiceImpl.GeneratedItem[] { itm });
         template.setAttribute("viewinfo", fpvo);
         String templateText = template.toString();
         return templateText;
     }
 
-    void pagesInParentPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    void pagesInParentPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<FirstPagePDFServiceImpl.DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
-            details.add(new DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
+            details.add(new FirstPagePDFServiceImpl.DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
         } else if (pages.size() > 1) {
-            details.add(new DetailItem(resourceBundle.getString("pdf.fp.pages"),""+pages.get(0).getPageNumber() +" - "+pages.get(pages.size() - 1).getPageNumber() ));
+            details.add(new FirstPagePDFServiceImpl.DetailItem(resourceBundle.getString("pdf.fp.pages"),""+pages.get(0).getPageNumber() +" - "+pages.get(pages.size() - 1).getPageNumber() ));
         }
     }
-    
-    
-    void pagesInSelectiontPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+
+
+    void pagesInSelectiontPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<FirstPagePDFServiceImpl.DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
-            details.add(new DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
+            details.add(new FirstPagePDFServiceImpl.DetailItem(resourceBundle.getString("pdf.fp.page"),pages.get(0).getPageNumber()));
         } else if (pages.size() > 1) {
-            StringTemplate template = new StringTemplate("$data:{page|$page.pageNumber$};separator=\", \"$");
+            org.antlr.stringtemplate.StringTemplate template = new org.antlr.stringtemplate.StringTemplate("$data:{page|$page.pageNumber$};separator=\", \"$");
             template.setAttribute("data", pages);
-            details.add(new DetailItem(resourceBundle.getString("pdf.fp.pages"),
+            details.add(new FirstPagePDFServiceImpl.DetailItem(resourceBundle.getString("pdf.fp.pages"),
                     template.toString()));
         }
     }
 
 
-    StringTemplate vals(Collection<String> list) {
-        StringTemplate dataTemplate = new StringTemplate("$data;separator=\", \"$");
+    org.antlr.stringtemplate.StringTemplate vals(Collection<String> list) {
+        org.antlr.stringtemplate.StringTemplate dataTemplate = new StringTemplate("$data;separator=\", \"$");
         dataTemplate.setAttribute("data", list);
         return dataTemplate;
     }
 
-    FirstPageViewObject prepareViewObject(ResourceBundle resourceBundle) throws IOException, ParserConfigurationException, SAXException, UnsupportedEncodingException {
-        FirstPageViewObject fpvo = new FirstPageViewObject();
+    FirstPagePDFServiceImpl.FirstPageViewObject prepareViewObject(ResourceBundle resourceBundle) throws IOException, ParserConfigurationException, SAXException, UnsupportedEncodingException {
+        FirstPagePDFServiceImpl.FirstPageViewObject fpvo = new FirstPagePDFServiceImpl.FirstPageViewObject();
 
         String xml = this.textsService.getText("first_page_nolines_xml", this.localesProvider.get());
         org.w3c.dom.Document doc = XMLUtils.parseDocument(new ByteArrayInputStream(xml.getBytes("UTF-8")), false);
@@ -399,7 +358,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return fpvo;
     }
 
-    
+
     public String i18nValue(ResourceBundle bundle, String modsKey) {
         String key = i18nKey(modsKey);
         if (key != null) {
@@ -475,9 +434,9 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         private String hyphCountry;
         private String hyphLang;
 
-        private GeneratedItem[] generatedItems = new GeneratedItem[0];
+        private FirstPagePDFServiceImpl.GeneratedItem[] generatedItems = new FirstPagePDFServiceImpl.GeneratedItem[0];
 
-        
+
         public String getDitigalLibrary() {
             return StringEscapeUtils.escapeXml(this.ditigalLibrary);
         }
@@ -526,11 +485,11 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             this.hyphLang = hyphLang;
         }
 
-        public GeneratedItem[] getGeneratedItems() {
+        public FirstPagePDFServiceImpl.GeneratedItem[] getGeneratedItems() {
             return generatedItems;
         }
 
-        public void setGeneratedItems(GeneratedItem[] generatedItems) {
+        public void setGeneratedItems(FirstPagePDFServiceImpl.GeneratedItem[] generatedItems) {
             this.generatedItems = generatedItems;
         }
 
@@ -543,16 +502,16 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     // reprezentuje generovanou polozku
     static class GeneratedItem {
 
-        private DetailItem[] detailItems = new DetailItem[0];
+        private FirstPagePDFServiceImpl.DetailItem[] detailItems = new FirstPagePDFServiceImpl.DetailItem[0];
 
         public GeneratedItem() {
         }
 
-        public DetailItem[] getDetailItems() {
+        public FirstPagePDFServiceImpl.DetailItem[] getDetailItems() {
             return detailItems;
         }
 
-        public void setDetailItems(DetailItem[] dCItems) {
+        public void setDetailItems(FirstPagePDFServiceImpl.DetailItem[] dCItems) {
             this.detailItems = dCItems;
         }
 
@@ -582,4 +541,5 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             return StringEscapeUtils.escapeXml(value);
         }
     }
+
 }
