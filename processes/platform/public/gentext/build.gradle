@@ -1,0 +1,27 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
+}
+
+description "Generate formatted text"
+
+
+
+processPlugin {
+	spiImplementation='org.kramerius.gentext.SpecialNeedsSPI'
+    profiles = [ [profileId: "special_needs_text",
+                  description: "Special needs text",
+                  jvmArgs: ["-Xms1g","-Xmx16g"]] ]
+
+	excludeDependencies = [
+        'com.sun.jersey',
+        'javax.ws.rs'
+    ]
+}
+
+dependencies{
+    implementation project(":shared:common")
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
+
+
