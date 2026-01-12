@@ -1,9 +1,8 @@
-package cz.incad.kramerius.rest.utils;
+package cz.incad.kramerius.iiif;
 
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
 import java.io.ByteArrayOutputStream;
@@ -27,13 +26,15 @@ import com.sun.jersey.api.client.config.ClientConfig;
 
 public class IIIFUtils {
 
+    public static final String CACHE_RELS_EXT_LITERAL = "kramerius4://deepZoomCache";
+
     public static final Logger LOGGER = Logger.getLogger(IIIFUtils.class.getName());
 
     public static String iiifImageEndpoint(String pid, AkubraRepository akubraRepository) throws IOException {
         String url = akubraRepository.re().getTilesUrl(pid);
         if (url == null)
             return null;
-        if (url.trim().equals(ZoomifyHelper.CACHE_RELS_EXT_LITERAL))
+        if (url.trim().equals(CACHE_RELS_EXT_LITERAL))
             return null;
         return url.replaceAll("[z|Z]oomify|deepZoom", "iiif");
     }

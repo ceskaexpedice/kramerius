@@ -6,7 +6,7 @@ import com.google.inject.name.Named;
 import cz.incad.Kramerius.AbstractImageServlet;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.utils.IIIFUtils;
+import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;

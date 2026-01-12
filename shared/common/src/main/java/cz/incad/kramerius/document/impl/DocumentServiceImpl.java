@@ -18,6 +18,7 @@ package cz.incad.kramerius.document.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +27,18 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.pdfbox.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
@@ -265,15 +275,72 @@ public class DocumentServiceImpl implements DocumentService {
 		throw new IllegalStateException();
 	}
 
-	protected AbstractPage createPage(final PreparedDocument renderedDocument,
+    public Response iiifJson(String tilesUrl) {
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            try (final CloseableHttpResponse httpResponse = httpclient.execute(new HttpGet(tilesUrl + "/original"))) {
+
+                switch (httpResponse.getStatusLine().getStatusCode()) {
+                    case 200:
+                        break;
+                    case 404:
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    default:
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                }
+
+                StreamingOutput stream = new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream output) throws IOException, WebApplicationException {
+                        IOUtils.copy(httpResponse.getEntity().getContent(), output);
+                        output.flush();
+                    }
+                };
+                return Response.ok(stream).build();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+//            try (
+//    CloseableHttpClient httpclient = HttpClients.createDefault()) {
+//        try (final CloseableHttpResponse httpResponse = httpclient.execute(new HttpGet(tilesUrl + "/original"))) {
+//
+//            switch (httpResponse.getStatusLine().getStatusCode()) {
+//                case 200:
+//                    break;
+//                case 404:
+//                    return Response.status(Response.Status.NOT_FOUND).build();
+//                default:
+//                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//            }
+//
+//            StreamingOutput stream = new StreamingOutput() {
+//                @Override
+//                public void write(OutputStream output) throws IOException, WebApplicationException {
+//                    IOUtils.copy(httpResponse.getEntity().getContent(), output);
+//                    output.flush();
+//                }
+//            };
+//            return Response.ok(stream).build();
+//        }
+//    }
+
+
+
+    protected AbstractPage createPage(final PreparedDocument renderedDocument,
             String pid) throws LexerException, IOException {
 
         try {
             Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
+            String tilesUrl = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
+            // http://imageserver.mzk.cz/mzk/2026/01/04/ff7a2e93-b205-46ac-9b12-efa16fb1b8e2/uc_ff7a2e93-b205-46ac-9b12-efa16fb1b8e2_0001/info.json
+            //<kramerius:tiles-url>https://imageserver.mzk.cz/mzk/2026/01/04/ff7a2e93-b205-46ac-9b12-efa16fb1b8e2/uc_ff7a2e93-b205-46ac-9b12-efa16fb1b8e2_0001</kramerius:tiles-url>
+
             Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
             String modelName = akubraRepository.re().getModel(pid);
-            ResourceBundle resourceBundle = resourceBundleService
-                    .getResourceBundle("base", localeProvider.get());
+            ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
 
             AbstractPage page = null;
 
