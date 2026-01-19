@@ -57,28 +57,5 @@ public class SpecialNeedsProcess {
         }
     }
 
-    public static void main(String[] args) {
 
-        Injector injector = Guice.createInjector(
-                new SolrModule(),
-                new RepoModule(),
-                new NullStatisticsModule(),
-                new PDFModule(),
-                new ProcessModule(),
-                new DocumentServiceModule(),
-                new I18NModule()
-        );
-
-        SpecialNeedsService serv = injector.getInstance(SpecialNeedsService.class);
-        try {
-            File f = serv.generate("pid", "user");
-            //FileUtils.moveFile(f, new File(output));
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (OutOfRangeException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
