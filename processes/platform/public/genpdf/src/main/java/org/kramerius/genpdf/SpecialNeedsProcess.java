@@ -71,7 +71,7 @@ public class SpecialNeedsProcess {
 
         SpecialNeedsService serv = injector.getInstance(SpecialNeedsService.class);
         try {
-            File f = serv.generate("pid", "user");
+            File f = serv.generate("uuid:9cd57b03-0797-4e8f-90cb-6987dd633034", "user");
             //FileUtils.moveFile(f, new File(output));
         } catch (DocumentException e) {
             throw new RuntimeException(e);
@@ -81,4 +81,5 @@ public class SpecialNeedsProcess {
             throw new RuntimeException(e);
         }
     }
+
 }
