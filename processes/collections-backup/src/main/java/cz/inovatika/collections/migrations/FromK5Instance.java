@@ -381,14 +381,18 @@ public class FromK5Instance {
             url = String.format("%s/search/api/v5.0/", api);
         }
 
-
         List<String> models = KConfiguration.getInstance().getConfiguration().getList("collections.migrate.models", Arrays.asList(
                 "monograph",
                 "periodical",
                 "sheetmusic",
                 "monographunit",
                 "graphic",
-                "map"
+                "map",
+                "soundrecording",
+                "manuscript",
+                "archive",
+                "convolute",
+                "museumExhibit"
         )).stream().map(Object::toString).toList();
 
 
