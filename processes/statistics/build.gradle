@@ -1,4 +1,20 @@
 
+plugins {
+    id 'application'
+}
+
 dependencies {
     implementation project(':shared:common')
+}
+
+application {
+    mainClass = 'cz.inovatika.dilia.logs.DiliaLogs'
+}
+
+tasks.withType(CreateStartScripts).each { task ->
+    task.doLast {
+        String text = task.windowsScript.text
+        text = text.replaceFirst(/(set CLASSPATH=%APP_HOME%\\lib\\).*/, { "${it[1]}*" })
+        task.windowsScript.write text
+    }
 }
