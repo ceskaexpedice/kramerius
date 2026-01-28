@@ -691,6 +691,19 @@
     </process>
 
     <process>
+        <id>update-logs</id>
+        <description>Update logs index with authors and langs</description>
+        <!-- spoustena trida -->
+        <mainClass>cz.inovatika.dilia.logs.UpdateLogs</mainClass>
+        <!-- standardni vystup -->
+        <standardOs>lrOut</standardOs>
+        <!-- err vystup -->
+        <errOs>lrErr</errOs>
+        <javaProcessParameters>-Xmx4g -Xms1g -Dfile.encoding=UTF-8</javaProcessParameters>
+        <securedaction>a_statistics_edit</securedaction>
+    </process>
+
+    <process>
         <id>backup-collections</id>
         <description>Collection backup</description>
         <mainClass>cz.inovatika.collections.Backup</mainClass>

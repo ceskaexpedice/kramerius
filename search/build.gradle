@@ -79,7 +79,8 @@ dependencies {
 
     api project(':processes:import')
     api project(':processes:import-mets')
-	
+    api project(':processes:statistics')
+
 	// neni potreba 
 	//api project(':processes:solr-migration')
     //api project(':processes:indexer')
