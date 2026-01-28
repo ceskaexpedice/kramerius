@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * @author ppodsednik
  */
 public class UpdateLogs {
-    public static final Logger LOGGER = Logger.getLogger(UpdateLogs.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(UpdateLogs.class.getName());
 
     private static final String LOGS_HOST_DEFAULT = "http://localhost:8983/solr/logs/";
     private static final String SEARCH_HOST_DEFAULT = "http://localhost:8983/solr/search/";
@@ -116,7 +116,9 @@ public class UpdateLogs {
                     }
 
                     SearchFields fields = searchMap.get(pid);
-                    if (fields == null) continue;
+                    if (fields == null){
+                        continue;
+                    }
 
                     JSONObject updateFields = new JSONObject();
                     if (needsAuthors && fields.authors != null){
@@ -223,14 +225,14 @@ public class UpdateLogs {
 
     private void flushUpdates(CloseableHttpClient client, List<UpdateEntry> updates) throws IOException {
         JSONArray updateArray = new JSONArray();
-        for (UpdateEntry e : updates) {
+        for (UpdateEntry updateEntry : updates) {
             JSONObject updateDoc = new JSONObject();
-            updateDoc.put("id", e.id);
+            updateDoc.put("id", updateEntry.id);
 
-            java.util.Iterator<String> keys = e.fieldsToSet.keys();
+            java.util.Iterator<String> keys = updateEntry.fieldsToSet.keys();
             while (keys.hasNext()) {
                 String fieldName = keys.next();
-                Object value = e.fieldsToSet.get(fieldName);
+                Object value = updateEntry.fieldsToSet.get(fieldName);
                 JSONObject setObj = new JSONObject();
                 setObj.put("set", value);
                 updateDoc.put(fieldName, setObj);
