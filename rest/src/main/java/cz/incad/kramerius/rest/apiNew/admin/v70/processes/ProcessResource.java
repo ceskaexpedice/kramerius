@@ -878,6 +878,10 @@ public class ProcessResource extends AdminApiResource {
                     return "Synchronizace se SDNNT";
                 }
 
+                case "update-logs": {
+                    return "Doplneni chybejicich poli do logs index ze search index";
+                }
+
                 case "delete_tree": {
                     String pid = params.get(0);
                     String title = params.get(1);
@@ -1358,7 +1362,10 @@ public class ProcessResource extends AdminApiResource {
                 List<String> result = new ArrayList<>();
                 return result;
             }
-
+            case "update-logs": {
+                List<String> result = new ArrayList<>();
+                return result;
+            }
             case "backup-collections": { 
                 String backupname = extractMandatoryParamString(params, "backupname");
                 List<String> pidlist = extractOptionalParamStringList(params, "pidlist", null);
