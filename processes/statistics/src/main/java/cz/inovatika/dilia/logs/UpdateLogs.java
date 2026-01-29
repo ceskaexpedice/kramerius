@@ -64,7 +64,7 @@ public class UpdateLogs {
                         + "&wt=json";
                 JSONArray docs;
                 String nextCursorMark;
-                try (InputStream is = requestSelectReturningStream(client, LOGS_HOST_DEFAULT, query)) {
+                try (InputStream is = requestSelectReturningStream(client, logsEndpoint(), query)) {
                     String jsonText = IOUtils.toString(is, StandardCharsets.UTF_8);
                     JSONObject root = new JSONObject(jsonText);
                     JSONObject response = root.getJSONObject("response");
