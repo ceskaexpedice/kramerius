@@ -149,4 +149,11 @@
         <securedaction>a_migration</securedaction>
     </process>
 
+    process>
+        <id>update-logs</id>
+        <description>Update logs index with authors and langs</description>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
+        <securedaction>a_statistics_edit</securedaction>
+    </process>
+
 </processes>

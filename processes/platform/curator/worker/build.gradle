@@ -39,6 +39,8 @@ dependencies {
     // update-foxml
     implementation project(":processes:platform:curator:update-foxml")
 
+    implementation project(":processes:platform:curator:statistics-p")
+
 }
 
 
@@ -70,7 +72,8 @@ processWorker {
         project(":processes:platform:curator:restore-collections"),
         project(":processes:platform:curator:migrate-collections"),
         project(":processes:platform:curator:sdnnt-sync"),
-        project(":processes:platform:curator:update-foxml")
+        project(":processes:platform:curator:update-foxml"),
+        project(":processes:platform:curator:statistics-p")
     ]
 }
 
