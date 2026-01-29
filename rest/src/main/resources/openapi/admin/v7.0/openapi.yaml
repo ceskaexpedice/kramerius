@@ -3446,6 +3446,12 @@ paths:
 
                 value: {"defid":"delete_tree","params":{"pid":"uuid:1c8fc53b-9c82-4bc7-8e1f-038d92749b1f","ignoreIncosistencies":true}}
 
+              update-logs:
+                summary: Opravný proces pro logy
+                description: |
+                  Příklad spuštění opravného procesu pro logy
+                value: {"defid":"update-logs","params":{}}
+
       responses:
         '200':
           description: Proces byl úspěšně naplánován
