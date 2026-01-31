@@ -3,7 +3,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.uiconfig;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.uiconfig.InvalidJsonException;
-import cz.incad.kramerius.uiconfig.UIConfigService;
+import cz.incad.kramerius.uiconfig.DbUIConfigService;
 import cz.incad.kramerius.uiconfig.UIConfigType;
 
 import java.io.InputStream;
@@ -24,7 +24,7 @@ public class UIConfigResource extends AdminApiResource {
 
     @Inject
     @Named("dbUiConfig")
-    UIConfigService uiConfigService;
+    DbUIConfigService dbUiConfigService;
 
     // --------------------------------------------------------------------
     // GENERAL
@@ -86,11 +86,11 @@ public class UIConfigResource extends AdminApiResource {
 
     private Response getConfig(UIConfigType type) {
         try {
-            if (!uiConfigService.exists(type)) {
+            if (!dbUiConfigService.exists(type)) {
                 throw new NotFoundException("UI config not found: " + type);
             }
 
-            InputStream in = uiConfigService.load(type);
+            InputStream in = dbUiConfigService.load(type);
 
             return Response.ok(in)
                     .header("Cache-Control", "no-cache")
@@ -106,7 +106,7 @@ public class UIConfigResource extends AdminApiResource {
 
     private Response saveConfig(UIConfigType type, InputStream json) {
         try {
-            uiConfigService.save(type, json);
+            dbUiConfigService.save(type, json);
             return Response.noContent().build();
 
         } catch (InvalidJsonException e) {

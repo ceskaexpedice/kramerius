@@ -1,32 +1,13 @@
 package cz.incad.kramerius.uiconfig;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 
-public class UIConfigService {
+public interface UIConfigService {
 
-    private final UIConfigStore store;
-    private final JsonValidator validator;
+    InputStream load(UIConfigType type) throws IOException;
 
-    public UIConfigService(UIConfigStore store, JsonValidator validator) {
-        this.store = store;
-        this.validator = validator;
-    }
+    void save(UIConfigType type, InputStream json) throws IOException;
 
-    public void save(UIConfigType type, InputStream json) throws IOException {
-        byte[] data = json.readAllBytes();
-
-        // validate
-        validator.validate(new ByteArrayInputStream(data));
-
-        // persist
-        store.save(type, new ByteArrayInputStream(data));
-    }
-
-    public InputStream load(UIConfigType type) throws IOException {
-        return store.load(type);
-    }
-
-    public boolean exists(UIConfigType type) {
-        return store.exists(type);
-    }
+    boolean exists(UIConfigType type);
 }
