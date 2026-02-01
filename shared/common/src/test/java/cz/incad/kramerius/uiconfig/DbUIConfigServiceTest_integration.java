@@ -41,9 +41,9 @@ public class DbUIConfigServiceTest_integration {
     }
 
     @Test
-    public void saveAndLoadConfig() throws Exception {
+    public void testSaveAndLoadConfig() throws Exception {
         String json = """
-            { "theme": "dark", "features": ["search", "export"] }
+            {"theme": "dark", "features": ["search", "export"]}
             """;
         dbUIConfigService.save(
                 UIConfigType.GENERAL,
@@ -57,30 +57,30 @@ public class DbUIConfigServiceTest_integration {
     }
 
     @Test
-    public void overwriteExistingConfig() throws Exception {
+    public void testOverwriteExistingConfig() throws Exception {
         dbUIConfigService.save(
                 UIConfigType.LICENSES,
-                new ByteArrayInputStream("{\"v\":1}".getBytes())
+                new ByteArrayInputStream("{\"v\": 1}".getBytes())
         );
         dbUIConfigService.save(
                 UIConfigType.LICENSES,
-                new ByteArrayInputStream("{\"v\":2}".getBytes())
+                new ByteArrayInputStream("{\"v\": 2}".getBytes())
         );
         try (InputStream in = dbUIConfigService.load(UIConfigType.LICENSES)) {
             String loaded = new String(in.readAllBytes());
-            assertTrue(loaded.contains("\"v\":2"));
+            assertTrue(loaded.contains("\"v\": 2"));
         }
     }
 
     @Test
-    public void loadNonExistingConfigFails() {
+    public void testLoadNonExistingConfigFails() {
         assertThrows(Exception.class, () ->
                 dbUIConfigService.load(UIConfigType.CURATOR_LISTS)
         );
     }
 
     @Test
-    public void existsWorksCorrectly() throws Exception {
+    public void testExistsWorksCorrectly() {
         assertFalse(dbUIConfigService.exists(UIConfigType.GENERAL));
         dbUIConfigService.save(
                 UIConfigType.GENERAL,

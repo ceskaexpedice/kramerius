@@ -7,6 +7,10 @@ import com.fasterxml.jackson.core.JsonParseException;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * JsonValidator
+ * @author ppodsednik
+ */
 public class JsonValidator {
 
     private static final JsonFactory FACTORY = new JsonFactory();

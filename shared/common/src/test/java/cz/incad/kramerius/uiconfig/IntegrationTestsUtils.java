@@ -16,10 +16,10 @@
  */
 package cz.incad.kramerius.uiconfig;
 
+import org.junit.Assume;
+
 import java.io.IOException;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public final class IntegrationTestsUtils {
     private static final String PROPERTIES = "integrationTests.properties";
@@ -29,7 +29,7 @@ public final class IntegrationTestsUtils {
     private IntegrationTestsUtils() {}
 
     public static void checkIntegrationTestsIgnored(Properties props) {
-        assumeTrue(!isIgnored(props), "Test ignored by the property: " + SKIP_INTEGRATION_TESTS_PROPERTY);
+        Assume.assumeTrue(!isIgnored(props));
     }
 
     public static Properties loadProperties() {

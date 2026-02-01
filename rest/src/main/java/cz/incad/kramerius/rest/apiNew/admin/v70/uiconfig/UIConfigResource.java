@@ -4,6 +4,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.uiconfig.InvalidJsonException;
 import cz.incad.kramerius.uiconfig.DbUIConfigService;
+import cz.incad.kramerius.uiconfig.UIConfigException;
 import cz.incad.kramerius.uiconfig.UIConfigType;
 
 import java.io.InputStream;
@@ -86,21 +87,13 @@ public class UIConfigResource extends AdminApiResource {
 
     private Response getConfig(UIConfigType type) {
         try {
-            if (!dbUiConfigService.exists(type)) {
-                throw new NotFoundException("UI config not found: " + type);
-            }
-
             InputStream in = dbUiConfigService.load(type);
-
-            return Response.ok(in)
-                    .header("Cache-Control", "no-cache")
-                    .build();
-
-        } catch (WebApplicationException e) {
+            return Response.ok(in).header("Cache-Control", "no-cache").build();
+        } catch (NotFoundException e) {
             throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
+        } catch (UIConfigException e) {
+            LOGGER.log(Level.SEVERE, "Failed to load UI config " + type, e);
+            throw new InternalServerErrorException("Failed to load UI config");
         }
     }
 
@@ -108,14 +101,11 @@ public class UIConfigResource extends AdminApiResource {
         try {
             dbUiConfigService.save(type, json);
             return Response.noContent().build();
-
         } catch (InvalidJsonException e) {
             throw new BadRequestException(e.getMessage(), e);
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
+        } catch (UIConfigException e) {
+            LOGGER.log(Level.SEVERE, "Failed to save UI config " + type, e);
+            throw new InternalServerErrorException("Failed to save UI config");
         }
     }
 }
