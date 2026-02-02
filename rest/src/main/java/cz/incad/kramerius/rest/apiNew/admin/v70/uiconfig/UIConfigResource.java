@@ -1,45 +1,55 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.uiconfig;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.uiconfig.InvalidJsonException;
-import cz.incad.kramerius.uiconfig.DbUIConfigService;
-import cz.incad.kramerius.uiconfig.UIConfigException;
-import cz.incad.kramerius.uiconfig.UIConfigType;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.uiconfig.*;
+import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/admin/v7.0/ui-config")
 public class UIConfigResource extends AdminApiResource {
 
-    public static final Logger LOGGER =
-            Logger.getLogger(UIConfigResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(UIConfigResource.class.getName());
 
     @Inject
-    @Named("dbUiConfig")
-    DbUIConfigService dbUiConfigService;
+    RightsResolver rightsResolver;
+
+    @Inject
+    javax.inject.Provider<User> userProvider;
+
+    @Inject
+    @Named("kramerius4")
+    private Provider<Connection> connectionProvider;
 
     // --------------------------------------------------------------------
     // GENERAL
     // --------------------------------------------------------------------
 
     @GET
-    @Path("/general")
+    @Path("general")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getGeneralConfig() {
         return getConfig(UIConfigType.GENERAL);
     }
 
     @POST
-    @Path("/general")
+    @Path("general")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveGeneralConfig(InputStream json) {
         return saveConfig(UIConfigType.GENERAL, json);
@@ -50,14 +60,14 @@ public class UIConfigResource extends AdminApiResource {
     // --------------------------------------------------------------------
 
     @GET
-    @Path("/licenses")
+    @Path("licenses")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLicensesConfig() {
         return getConfig(UIConfigType.LICENSES);
     }
 
     @POST
-    @Path("/licenses")
+    @Path("licenses")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveLicensesConfig(InputStream json) {
         return saveConfig(UIConfigType.LICENSES, json);
@@ -68,14 +78,14 @@ public class UIConfigResource extends AdminApiResource {
     // --------------------------------------------------------------------
 
     @GET
-    @Path("/curator-lists")
+    @Path("curator-lists")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCuratorListsConfig() {
         return getConfig(UIConfigType.CURATOR_LISTS);
     }
 
     @POST
-    @Path("/curator-lists")
+    @Path("curator-lists")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveCuratorListsConfig(InputStream json) {
         return saveConfig(UIConfigType.CURATOR_LISTS, json);
@@ -87,8 +97,14 @@ public class UIConfigResource extends AdminApiResource {
 
     private Response getConfig(UIConfigType type) {
         try {
-            InputStream in = dbUiConfigService.load(type);
-            return Response.ok(in).header("Cache-Control", "no-cache").build();
+            User user = this.userProvider.get();
+            if (permitConfig(user)) {
+                DbUIConfigService dbUIConfigService = new DbUIConfigService(connectionProvider, new JsonValidator());
+                InputStream in = dbUIConfigService.load(type);
+                return Response.ok(in).header("Cache-Control", "no-cache").build();
+            } else {
+                throw new cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException("user '%s' is not allowed to manage config ", user.getLoginname()); //403
+            }
         } catch (NotFoundException e) {
             throw e;
         } catch (UIConfigException e) {
@@ -99,8 +115,14 @@ public class UIConfigResource extends AdminApiResource {
 
     private Response saveConfig(UIConfigType type, InputStream json) {
         try {
-            dbUiConfigService.save(type, json);
-            return Response.noContent().build();
+            User user = this.userProvider.get();
+            if (permitConfig(user)) {
+                DbUIConfigService dbUIConfigService = new DbUIConfigService(connectionProvider, new JsonValidator());
+                dbUIConfigService.save(type, json);
+                return Response.noContent().build();
+            } else {
+                throw new cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException("user '%s' is not allowed to manage config ", user.getLoginname()); //403
+            }
         } catch (InvalidJsonException e) {
             throw new BadRequestException(e.getMessage(), e);
         } catch (UIConfigException e) {
@@ -108,4 +130,15 @@ public class UIConfigResource extends AdminApiResource {
             throw new InternalServerErrorException("Failed to save UI config");
         }
     }
+
+    private boolean permitConfig(User user) {
+        if (user != null)
+            return this.rightsResolver.isActionAllowed(user,
+                    SecuredActions.A_ADMIN_READ.getFormalName(),
+                    SpecialObjects.REPOSITORY.getPid(), null,
+                    ObjectPidsPath.REPOSITORY_PATH).flag();
+        else
+            return false;
+    }
+
 }
