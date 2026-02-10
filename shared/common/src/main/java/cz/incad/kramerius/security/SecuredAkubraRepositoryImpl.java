@@ -247,13 +247,8 @@ public class SecuredAkubraRepositoryImpl implements SecuredAkubraRepository {
     }
 
     @Override
-    public <T> T doWithReadLock(String pid, LockOperation<T> operation) {
-        return akubraRepository.doWithReadLock(pid, operation);
-    }
-
-    @Override
-    public <T> T doWithWriteLock(String pid, LockOperation<T> operation) {
-        return akubraRepository.doWithWriteLock(pid, operation);
+    public <T> T doWithLock(String pid, LockOperation<T> operation) {
+        return akubraRepository.doWithLock(pid, operation);
     }
 
     @Override

@@ -275,7 +275,7 @@ public class DeleteTreeProcess {
                 }
 
 
-                repository.doWithWriteLock(pid, () -> {
+                repository.doWithLock(pid, () -> {
                     // managed streams NOT deleted for collections (IMG_THUMB are referenced from other objects - pages)
                     if (readableAndParsableRef.get()) {
                         repository.delete(pid, !isCollection, true);
@@ -382,7 +382,7 @@ public class DeleteTreeProcess {
 
 
     private static boolean removeAnyRelsExtRelation(String srcPid, String targetPid, AkubraRepository repository) {
-        return repository.doWithWriteLock(srcPid, () -> {
+        return repository.doWithLock(srcPid, () -> {
             if (!repository.re().exists(srcPid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + srcPid);
             }

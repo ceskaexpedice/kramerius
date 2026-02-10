@@ -194,13 +194,8 @@ public class SpecialNeedsSecuredAkubraRepositoryImpl implements SecuredAkubraRep
     }
 
     @Override
-    public <T> T doWithReadLock(String s, LockOperation<T> lockOperation) {
-        return akubraRepository.doWithReadLock(s, lockOperation);
-    }
-
-    @Override
-    public <T> T doWithWriteLock(String s, LockOperation<T> lockOperation) {
-        return akubraRepository.doWithWriteLock(s, lockOperation);
+    public <T> T doWithLock(String s, LockOperation<T> lockOperation) {
+        return akubraRepository.doWithLock(s, lockOperation);
     }
 
     @Override
