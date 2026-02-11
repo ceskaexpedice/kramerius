@@ -35,6 +35,10 @@ public class AkubraRepositoryProvider implements Provider<AkubraRepository> {
         String hazelcastConfigFileS = (hazelcastConfigFile != null && hazelcastConfigFile.exists()) ? hazelcastConfigFile.getAbsolutePath() : null;
         String hazelcastInstance = KConfiguration.getInstance().getConfiguration().getString("hazelcast.instance");
         String hazelcastUser = KConfiguration.getInstance().getConfiguration().getString("hazelcast.user");
+        String waitTimeS = KConfiguration.getInstance().getConfiguration().getString("hazelcast.waitTime");
+        Long waitTime = waitTimeS != null ? Long.parseLong(waitTimeS) : null;
+        String leaseTimeS = KConfiguration.getInstance().getConfiguration().getString("hazelcast.leaseTime");
+        Long leaseTime = leaseTimeS != null ? Long.parseLong(leaseTimeS) : null;
 
         // HAZELCAST SERVER ADDRESS
         String env = System.getenv("HAZELCAST_SERVER_ADDRESSES");
@@ -49,6 +53,8 @@ public class AkubraRepositoryProvider implements Provider<AkubraRepository> {
                 .hazelcastInstance(hazelcastInstance)
                 .setHazelcastServers( env != null && !env.isEmpty() ? envAddresses.toArray(new String[0]) : address.toArray(new String[0]))
                 .hazelcastUser(hazelcastUser)
+                .waitTimeSecs(waitTime)
+                .leaseTimeSecs(leaseTime)
                 .build();
 
 
