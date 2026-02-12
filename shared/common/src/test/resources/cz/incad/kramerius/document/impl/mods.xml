@@ -1,0 +1,15 @@
+<mods:modsCollection xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <mods:mods version="3.6">
+        <mods:identifier type="urn">aba8ce74-f859-11f0-9901-ce52219f3ff6</mods:identifier>
+        <mods:typeOfResource>text</mods:typeOfResource>
+        <mods:note>singlePage</mods:note>
+        <mods:part type="FrontCover">
+            <mods:detail type="pageNumber">
+                <mods:number>[1a]</mods:number>
+            </mods:detail>
+            <mods:detail type="pageIndex">
+                <mods:number>1</mods:number>
+            </mods:detail>
+        </mods:part>
+    </mods:mods>
+</mods:modsCollection>

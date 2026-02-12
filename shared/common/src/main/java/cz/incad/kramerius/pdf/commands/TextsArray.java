@@ -33,7 +33,7 @@ public class TextsArray extends AbstractITextCommand {
     @Override
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
 
-        this.hyphenation = this.hyphenationFromAttibutes(elm);
+        this.hyphenation = this.hyphenationFromAttributes(elm);
 
         NodeList nList = elm.getChildNodes();
         for (int i = 0, ll = nList.getLength(); i < ll; i++) {
@@ -53,12 +53,12 @@ public class TextsArray extends AbstractITextCommand {
     }
 
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDoc) {
+        procsListener.before(this, xmlDoc);
         for (Text txt : this.texts) {
-            txt.process(procsListener);
+            txt.process(procsListener, xmlDoc);
         }
-        procsListener.after(this);
+        procsListener.after(this, xmlDoc);
     }
 
     

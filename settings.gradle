@@ -98,10 +98,15 @@ include 'processes:platform:cdk:cdk-migration-plugin'
 include 'processes:platform:cdk:worker'
 
 // public pdf main
+
 include 'processes:platform:public:genpdf'
 include 'processes:platform:public:genebook'
 include 'processes:platform:public:gentext'
 include 'processes:platform:public:worker'
+
+
+include 'document-hub:content'
+
 
 
 

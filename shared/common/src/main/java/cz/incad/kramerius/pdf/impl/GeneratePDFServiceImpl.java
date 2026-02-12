@@ -22,7 +22,6 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
-import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -132,8 +131,8 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     }
 
     @Override
-    public PreparedDocument generateCustomPDF(
-            PreparedDocument rdoc, OutputStream os, Break brk,
+    public AkubraDocument generateCustomPDF(
+            AkubraDocument rdoc, OutputStream os, Break brk,
             FontMap fmap, String djvUrl, String i18nUrl, ImageFetcher fetcher)
             throws IOException {
         try {
@@ -218,9 +217,9 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     }
 
     @Override
-    public void generateCustomPDF(PreparedDocument rdoc,
-            OutputStream os, FontMap fmap, String imgServletUrl,
-            String i18nUrl, ImageFetcher fetcher) throws IOException {
+    public void generateCustomPDF(AkubraDocument rdoc,
+                                  OutputStream os, FontMap fmap, String imgServletUrl,
+                                  String i18nUrl, ImageFetcher fetcher) throws IOException {
         try {
 
             PDFContext pdfContext = new PDFContext(fmap, imgServletUrl, i18nUrl);
@@ -296,7 +295,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     @Override
     public void generateParent(String requestedPid, int numberOfPages,
             String titlePage, OutputStream os, String imgServletUrl,
-            String i18nUrl, int[] rect) throws IOException {
+            String i18nUrl, float[] rect) throws IOException {
         try {
 
             //howMany1
@@ -324,10 +323,10 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
 
     @Override
     public void fullPDFExport(ObjectPidsPath path, OutputStreams streams,
-            Break brk, String djvuUrl, String i18nUrl, int[] rect)
+            Break brk, String djvuUrl, String i18nUrl, float[] rect)
             throws IOException, DocumentException {
 
-        PreparedDocument restOfDoc = documentService
+        AkubraDocument restOfDoc = documentService
                 .buildDocumentAsTree(path, path.getLeaf(), rect);
         OutputStream os = null;
         boolean konec = false;
@@ -441,7 +440,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
     }
 
     public void insertTitleImage(PdfPTable pdfPTable,
-            PreparedDocument model, String djvuUrl, ImageFetcher fetcher)
+                                 AkubraDocument model, String djvuUrl, ImageFetcher fetcher)
             throws IOException, BadElementException, XPathExpressionException {
         try {
             String uuidToFirstPage = null;

@@ -92,6 +92,13 @@ insertRight_showstatistics() ::=<<
         where gname='k4_admins'
 >>
 
+insertRight_generate_content() ::=<<
+    insert into right_entity (right_id, uuid, "action", group_id, role)
+        select nextval('right_id_sequence'),'uuid:1','a_content_generate',group_id , 'authenticated_users'
+        from group_entity
+        where gname='authenticated_users'
+>>
+
 
 insertRight_sort() ::=<<
     insert into right_entity (right_id, uuid, "action", group_id, role)

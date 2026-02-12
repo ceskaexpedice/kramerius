@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.security.licenses.lock;
 
-import java.util.Iterator;
-
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.licenses.License;
 
@@ -25,7 +23,7 @@ import cz.incad.kramerius.security.licenses.License;
  * This interface defines methods for an exclusive lock mechanism.
  * This lock serves to protect access to licensed content. Only a defined number of users can consume the license at any given time.
  */
-public interface ExclusiveLock {
+public interface ExclusiveReadersLock {
     
     /**
      * An enum representing the type of exclusive lock.

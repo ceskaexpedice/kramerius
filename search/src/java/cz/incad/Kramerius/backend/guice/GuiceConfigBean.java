@@ -42,6 +42,7 @@ import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.dochub.guice.DocHubModule;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
 
@@ -73,6 +74,8 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new ImageModule(), // images
                 new I18NModule(), // i18n module
                 new LoggedUsersModule(), new MailModule(), // mail service
+
+                new DocHubModule(),
 
                 new DocumentServiceModule(),
                 new GuiceSecurityModule(), 

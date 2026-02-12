@@ -35,7 +35,6 @@ import javax.xml.xpath.XPathExpressionException;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.pid.LexerException;
 import org.w3c.dom.Element;
@@ -51,7 +50,7 @@ import com.lowagie.text.pdf.PdfWriter;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
@@ -128,7 +127,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
 
     @Override
-    public void selection(PreparedDocument rdoc, OutputStream os, String[] pids,  FontMap fontMap) {
+    public void selection(AkubraDocument rdoc, OutputStream os, String[] pids, FontMap fontMap, String providedByLicnese) {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);
@@ -158,7 +157,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         }
     }
 
-    void renderFromTemplate(PreparedDocument rdoc,Document doc, PdfWriter pdfWriter, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
+    void renderFromTemplate(AkubraDocument rdoc, Document doc, PdfWriter pdfWriter, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
 
@@ -167,7 +166,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         render.render(doc, pdfWriter, cmnds);
     }
 
-    String templateSelection(PreparedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException, LexerException {
+    String templateSelection(AkubraDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -285,7 +284,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         vals.addAll(list);
     }
 
-    String templateParent(PreparedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException, LexerException {
+    String templateParent(AkubraDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -350,7 +349,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         return templateText;
     }
 
-    void pagesInParentPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    void pagesInParentPdf(AkubraDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -361,7 +360,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
     }
     
     
-    void pagesInSelectiontPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
+    void pagesInSelectiontPdf(AkubraDocument rdoc, ResourceBundle resourceBundle, List<DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -426,11 +425,10 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         String localizedModelName = resourceBundle.getString("fedora.model." + modelName);
         return localizedModelName;
     }
-
      */
 
     @Override
-    public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path,   FontMap fontMap) {
+    public void parent(AkubraDocument rdoc, OutputStream os, ObjectPidsPath path, FontMap fontMap, String providedByLicense) {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);

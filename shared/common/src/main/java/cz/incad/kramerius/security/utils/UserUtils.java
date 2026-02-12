@@ -24,6 +24,7 @@ import cz.incad.kramerius.security.impl.UserImpl;
 public class UserUtils {
 
     public static Role commonUsersGroup = null;
+    public static Role authenticatedUsersGroup = null;
 
     public  static User getNotLoggedUser(UserManager userManager) {
         UserImpl user = new UserImpl(-1, "not_logged", "not_logged", "not_logged", -1);
@@ -40,6 +41,33 @@ public class UserUtils {
             commonUsersGroup =  userManager.findCommonUsersRole();
         }
         return commonUsersGroup;
+    }
+    public static synchronized Role findAuthenticatedUsers(UserManager userManager) {
+        if (authenticatedUsersGroup == null) {
+            authenticatedUsersGroup =  userManager.findAuthenticatedUsersRole();
+        }
+        return authenticatedUsersGroup;
+    }
+
+    public static void associateAuthenticatedGroup(User user, UserManager userManager) {
+        Role authenticatedRole = findAuthenticatedUsers(userManager);
+        boolean containsAuthenticatedUsersGroup = false;
+        Role[] grps = user.getGroups();
+        if (grps == null) grps = new Role[0];
+
+        for (Role group : grps) {
+            if (authenticatedRole.equals(group)) {
+                containsAuthenticatedUsersGroup = true;
+                break;
+            }
+        }
+
+        if (!containsAuthenticatedUsersGroup) {
+            Role[] newGroups = new Role[grps.length +1];
+            System.arraycopy(grps, 0, newGroups, 0, grps.length);
+            newGroups[grps.length] = authenticatedRole;
+            ((UserImpl)user).setGroups(newGroups);
+        }
     }
 
     public static void associateCommonGroup(User user, UserManager userManager) {

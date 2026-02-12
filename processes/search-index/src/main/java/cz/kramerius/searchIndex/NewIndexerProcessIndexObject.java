@@ -6,6 +6,7 @@ import com.google.inject.Key;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.execution.Counters;
 import cz.kramerius.searchIndex.indexer.execution.IndexationType;
@@ -74,9 +75,11 @@ public class NewIndexerProcessIndexObject {
                     ? String.format("Indexace %s (%s, typ %s)", title, pidsP.substring(PIDLIST_FILE_PREFIX.length()), type)
                     : String.format("Indexace %s (typ %s)",pidsP.substring(PIDLIST_FILE_PREFIX.length()), type));
         } else {
+
+            List<String> titlePids = pids.isEmpty() ? new ArrayList<>() :  pids.subList(0, Math.min(5,pids.size()-1));
             pluginContext.updateProcessName(title != null
-                    ? String.format("Indexace %s (%s, typ %s)", title, pids.toString(), type)
-                    : String.format("Indexace %s (typ %s)", pids.toString(), type));
+                    ? String.format("Indexace %s (%s, typ %s)", title, titlePids.toString(), type)
+                    : String.format("Indexace %s (typ %s)", titlePids.toString(), type));
         }
 
         SolrConfig solrConfig = new SolrConfig();
@@ -116,7 +119,10 @@ public class NewIndexerProcessIndexObject {
             throw e;
         } finally {
             indexer.summary(pids, counters);
-            indexer.commmit(counters);
+            boolean commitAfterBatch = KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.commitAfterBatch", true);
+            if (commitAfterBatch) {
+                indexer.commmit(counters);
+            }
         }
     }
 

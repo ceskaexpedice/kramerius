@@ -25,9 +25,9 @@ public class Line extends AbstractITextCommand implements ITextCommand {
     }
 
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
-        procsListener.after(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDocs) {
+        procsListener.before(this, xmlDocs);
+        procsListener.after(this, xmlDocs);
     }
     
 }

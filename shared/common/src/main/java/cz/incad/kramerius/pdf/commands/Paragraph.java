@@ -50,7 +50,7 @@ public class Paragraph extends AbstractITextCommand  {
             if (notEmptyAttribute(elm,"alignment")) {
                 this.alignment = elm.getAttribute("alignment");
             }
-            this.hyphenation = this.hyphenationFromAttibutes(elm);
+            this.hyphenation = this.hyphenationFromAttributes(elm);
             
             NodeList nList = elm.getChildNodes();
             for (int i = 0, ll = nList.getLength(); i < ll; i++) {
@@ -109,17 +109,17 @@ public class Paragraph extends AbstractITextCommand  {
 
 
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDocs) {
+        procsListener.before(this, xmlDocs);
 
         if (textsArray != null) {
-            textsArray.process(procsListener);
+            textsArray.process(procsListener, xmlDocs);
         }
         if (this.lists != null) {
-            this.lists.process(procsListener);
+            this.lists.process(procsListener,xmlDocs);
         }
         
-        procsListener.after(this);
+        procsListener.after(this, xmlDocs);
     }
 
     public boolean isAlignmentDefined() {

@@ -1,0 +1,56 @@
+<commands>
+
+    <paragraph spacing-after="3" spacing-before="20">
+        <textsarray>
+            <text font-formal-name="logo">Kramerius 7</text>
+        </textsarray>
+    </paragraph>
+
+    <paragraph  spacing-after="3">
+        <textsarray>
+            <text font-formal-name="normal">$title.ditigalLibrary$</text>
+        </textsarray>
+    </paragraph>
+
+    <break></break>
+
+    <paragraph  spacing-after="10">
+        <textsarray>
+            <text font-formal-name="normal">  </text>
+        </textsarray>
+    </paragraph>
+
+
+    <paragraph  spacing-after="3">
+        <textsarray>
+        <text font-formal-name="normal">$title.conditionUsage$ </text>
+        </textsarray>
+    </paragraph>
+
+
+    <paragraph  spacing-after="20">
+        <textsarray>
+            <text font-formal-name="normal" hyph-country="$title.hyphCountry$" hyph-lang="$title.hyphLang$">
+$title.conditionUsageText$
+            </text>
+        </textsarray>
+    </paragraph>
+
+    <!-- detail knihy; periodika -->
+    $if(title.moreGeneratedItems)$
+    <list list-type="unordered">
+        $title.generatedItems:{generatedItem|
+        $if(generatedItem.detailItemsDefined)$
+        $generatedItem.detailItems:{detail |
+        <item list-symbol=" ">
+            <textsarray>
+                <text font-formal-name="normal">$detail.key$: </text>
+                <text font-formal-name="strong">$detail.value$</text>
+            </textsarray>
+        </item>
+        }$
+        $endif$
+        }$
+    </list>
+    $endif$
+</commands>

@@ -4,23 +4,17 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.impl.criteria.*;
 import cz.incad.kramerius.security.licenses.License;
-import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockMapItemImpl;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMapItem;
 import cz.incad.kramerius.security.utils.LicensesCriteriaList;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 
-import com.maxmind.geoip2.DatabaseReader;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
@@ -118,7 +112,7 @@ public class CriteriaLicenseUtils {
         if (user.getSessionAttributes().containsKey("token_id")) {
             String licensesPid = pid;
             String tokenId = user.getSessionAttributes().get("token_id");
-            ExclusiveLock exclusiveLock = lic.getExclusiveLock();
+            ExclusiveReadersLock exclusiveLock = lic.getExclusiveLock();
 
             String q = "pid:\""+pid+"\"";
             String query = "fl=pid+root.pid+licenses+own_pid_path&rows=1&q=" + URLEncoder.encode(q, "UTF-8");

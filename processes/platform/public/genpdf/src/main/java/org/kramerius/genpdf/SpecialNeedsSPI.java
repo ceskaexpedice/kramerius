@@ -7,7 +7,7 @@ import java.util.Set;
 public class SpecialNeedsSPI extends AbstractPluginSpi {
     @Override
     public String getMainClass() {
-        return SpecialNeedsProcess.class.getName();
+        return GenerateFullPDFProcess.class.getName();
     }
 
     @Override

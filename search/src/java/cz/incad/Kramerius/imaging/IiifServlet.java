@@ -94,6 +94,7 @@ public class IiifServlet extends AbstractImageServlet {
                                 reportAccess(pid);
                                 resp.setContentType("application/ld+json");
                                 resp.setCharacterEncoding("UTF-8");
+                                //LOGGER.log(Level.INFO, "copyJSON '"+url.toString()+"'");
                                 HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
                                 InputStream inputStream = con.getInputStream();
                                 String json = IOUtils.toString(inputStream, Charset.defaultCharset());

@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
+
+description "Permanent and user space for pdfs and ebooks"
+
+dependencies {
+    api project(':shared:common')
+}
+

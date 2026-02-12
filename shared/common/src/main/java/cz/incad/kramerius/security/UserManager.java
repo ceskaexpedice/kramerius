@@ -129,9 +129,16 @@ public interface UserManager {
      * @return
      */
     public Role findCommonUsersRole();
-    
+
     /**
-     * Returns special super admin role == Role can administrate everything. 
+     * Finds authenticated users role
+     * @return
+     */
+    public Role findAuthenticatedUsersRole();
+
+
+    /**
+     * Returns special super admin role == Role can administrate everything.
      * @return
      */
     public Role findGlobalAdminRole();

@@ -2,7 +2,6 @@ package cz.incad.kramerius.rest.apiNew.client.v70.pdf;
 
 
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
-import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResource;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceNotFound;
 import cz.incad.kramerius.utils.IOUtils;
 import org.json.JSONException;

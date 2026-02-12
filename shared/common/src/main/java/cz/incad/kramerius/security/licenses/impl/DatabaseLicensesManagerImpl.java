@@ -6,20 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import com.ibm.icu.impl.Pair;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -552,6 +551,15 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
             typeOpt.ifPresent(type -> {
                 licenseImpl.initRuntime(type);
             });
+        }
+
+        //TODO: Change it
+        if (
+                licenseImpl.getName().equals(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName()) ||
+                        licenseImpl.getName().equals(CzechEmbeddedLicenses.SPECIAL_NEEDS_LICENSE.getName())
+
+        ) {
+            licenseImpl.setOfflineGenerateContentAllowed(CzechEmbeddedLicenses.PUBLIC_LICENSE.isOfflineGenerateContentAllowed());
         }
 
         return licenseImpl;

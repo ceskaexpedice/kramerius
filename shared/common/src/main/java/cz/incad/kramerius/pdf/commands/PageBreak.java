@@ -20,14 +20,31 @@ import org.w3c.dom.Element;
 
 public class PageBreak extends AbstractITextCommand implements ITextCommand {
 
+    private Float width;
+    private Float height;
+
+
     @Override
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
-        
+        String sWidth = elm.getAttribute("width");
+        String sHeight = elm.getAttribute("height");
+        if (sWidth != null && sHeight != null) {
+            this.width = Float.parseFloat(sWidth);
+            this.height = Float.parseFloat(sHeight);
+        }
     }
 
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
-        procsListener.after(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDocs) {
+        procsListener.before(this, xmlDocs);
+        procsListener.after(this, xmlDocs);
+    }
+
+    public Float getWidth() {
+        return width;
+    }
+
+    public Float getHeight() {
+        return height;
     }
 }

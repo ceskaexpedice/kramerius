@@ -38,7 +38,7 @@ public class Text extends AbstractITextCommand {
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
         if (elm.getNodeName().equals("text")) {
 
-            this.hyphenation = this.hyphenationFromAttibutes(elm);
+            this.hyphenation = this.hyphenationFromAttributes(elm);
 
             this.fontFormalName = elm.getAttribute("font-formal-name");
             this.text = elm.getTextContent();
@@ -69,8 +69,8 @@ public class Text extends AbstractITextCommand {
     }
 
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
-        procsListener.after(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDoc) {
+        procsListener.before(this, xmlDoc);
+        procsListener.after(this, xmlDoc);
     }
 }

@@ -85,12 +85,12 @@ public class List extends AbstractITextCommand implements ITextCommand {
     }
     
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDocs) {
+        procsListener.before(this, xmlDocs);
         for (ITextCommand cmd : this.items) {
-            cmd.process(procsListener);
+            cmd.process(procsListener,xmlDocs);
         }
-        procsListener.after(this);
+        procsListener.after(this, xmlDocs);
     }
 
     public Boolean getAutoIndent() {

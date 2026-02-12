@@ -33,6 +33,9 @@ public enum DefaultRoles {
     /** role represents all public registred users */
     PUBLIC_USERS("public_users"),
 
+    /** role represents all public registred users */
+    AUTHENTICATED_USERS("authenticated_users"),
+
     /** New roles */
     KRAMERIUS_ADMIN("kramerius_admin");
     

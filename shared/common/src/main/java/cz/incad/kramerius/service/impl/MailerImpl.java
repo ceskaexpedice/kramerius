@@ -38,8 +38,11 @@ public class MailerImpl implements Mailer {
     @Override
     public Session getSession(String name, String pass) {
         try {
+            File propsFile = new File(MAIL_PROPS_PATH);
+
+            LOGGER.log(Level.INFO, "Loading from properties "+propsFile.getAbsolutePath());
             Properties properties = new Properties();
-            properties.load(new FileInputStream(new File(MAIL_PROPS_PATH)));
+            properties.load(new FileInputStream(propsFile));
             if (name == null) {
                 name = properties.getProperty("mail.smtp.user");
             }
@@ -50,6 +53,7 @@ public class MailerImpl implements Mailer {
                 }
             }
             Authenticator auth = new SMTPAuthenticator(name, pass);
+            LOGGER.log(Level.INFO, "Using SMTP Authenticator with '"+name+"', '"+pass+"'");
             Session session = Session.getInstance(properties, auth);
             return session;
         } catch (FileNotFoundException e) {

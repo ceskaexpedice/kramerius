@@ -18,7 +18,7 @@ package cz.incad.kramerius.pdf.commands;
 
 public interface ITextCommandProcessListener {
     
-    public void after(ITextCommand iTextCommand);
+    public void after(ITextCommand iTextCommand, ITextCommands cmds);
 
-    public void before(ITextCommand iTextCommand);
+    public void before(ITextCommand iTextCommand, ITextCommands cmds);
 }

@@ -241,6 +241,20 @@ public class DatabaseUserManager implements UserManager {
         return (groups != null) && (!groups.isEmpty()) ? groups.get(0) : null;
     }
 
+    public Role findAuthenticatedUsersRole() {
+        String sql = ST_GROUP.getInstanceOf("findAuthenticatedUsersGroup").toString();
+        List<Role> groups = new JDBCQueryTemplate<Role>(this.provider.get()) {
+            @Override
+            public boolean handleRow(ResultSet rs, List<Role> returnsList)
+                    throws SQLException {
+                Role role = SecurityDBUtils.createRole(rs);
+                returnsList.add(role);
+                return true;
+            }
+        }.executeQuery(sql);
+        return (groups != null) && (!groups.isEmpty()) ? groups.get(0) : null;
+    }
+
     @Override
     @InitSecurityDatabase
     public Role[] findRoleWhichIAdministrate(int[] roleIds) {

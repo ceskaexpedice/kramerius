@@ -17,15 +17,12 @@
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.meta.Exclusive;
 import javax.inject.Provider;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -38,13 +35,11 @@ import org.json.JSONObject;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
-import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.RuntimeInformation;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockMapItemImpl;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMapItem;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
@@ -117,7 +112,7 @@ public class LocksResource extends ClientApiResource {
                             return Response.ok(jsonObject.toString()).type(MediaType.APPLICATION_JSON).build();
                         } else {
                             if (lockMap.checkAvailabitlity()) {
-                                ExclusiveLock lock = lockMap.getAssociatedExcelusiveLock();
+                                ExclusiveReadersLock lock = lockMap.getAssociatedExcelusiveLock();
                                 Instant now = Instant.now();
                                 ExclusiveLockMapItem nitem = new ExclusiveLockMapItemImpl(tokenId, lock.getRefreshInterval(), now, now, now.plusSeconds(lock.getMaxInterval()), user.getLoginname());
                                 lockMap.registerItem(nitem);

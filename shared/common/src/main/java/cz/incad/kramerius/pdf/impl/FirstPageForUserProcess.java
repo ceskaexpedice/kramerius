@@ -6,10 +6,11 @@ import com.google.inject.name.Named;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfWriter;
+import cz.incad.kramerius.Constants;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.commands.ITextCommands;
 import cz.incad.kramerius.pdf.commands.render.RenderPDF;
@@ -37,7 +38,13 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.logging.Level;
 
-public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implements FirstPagePDFService {
+public class FirstPageForUserProcess extends AbstractPDFRenderSupport implements FirstPagePDFService {
+
+    public static final String DEFAUTL_LICENSE = "special-needs";
+    public static final String PROCESS_PDFS_FOLDER="process-pdfs-settings";
+
+    //public static final String SPECIAL_NEEDS_DIR = "special-needs";
+    public static final String FIRST_PAGE_XML = "firstpage.xml";
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FirstPagePDFServiceImpl.class.getName());
 
@@ -94,7 +101,7 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
     }
 
     @Override
-    public void selection(PreparedDocument rdoc, OutputStream os, String[] pids, FontMap fontMap) {
+    public void selection(AkubraDocument rdoc, OutputStream os, String[] pids, FontMap fontMap, String providedbyLicense) {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);
@@ -111,16 +118,15 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
         }
     }
 
-    void renderFromTemplate(PreparedDocument rdoc,Document doc, PdfWriter pdfWriter, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
+    void renderFromTemplate(AkubraDocument rdoc, Document doc, PdfWriter pdfWriter, FontMap fontMap, StringReader reader) throws IOException, InstantiationException, IllegalAccessException, ParserConfigurationException, SAXException {
         ITextCommands cmnds = new ITextCommands();
         cmnds.load(XMLUtils.parseDocument(reader).getDocumentElement(), cmnds);
-
 
         RenderPDF render = new RenderPDF(fontMap, akubraRepository);
         render.render(doc, pdfWriter, cmnds);
     }
 
-    String templateSelection(PreparedDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException, LexerException {
+    String templateSelection(AkubraDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
         org.antlr.stringtemplate.StringTemplate template = new org.antlr.stringtemplate.StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
@@ -190,7 +196,7 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
         itm.setDetailItems((FirstPagePDFServiceImpl.DetailItem[]) details.toArray(new FirstPagePDFServiceImpl.DetailItem[details.size()]));
         fpvo.setGeneratedItems(new FirstPagePDFServiceImpl.GeneratedItem[] {itm});
 
-        template.setAttribute("viewinfo", fpvo);
+        template.setAttribute("title", fpvo);
 
         String templateText = template.toString();
 
@@ -240,10 +246,14 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
         vals.addAll(list);
     }
 
-    String templateParent(PreparedDocument rdoc, ObjectPidsPath path) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException, LexerException {
+    String templateParent(AkubraDocument rdoc, ObjectPidsPath path, String providedByLicense) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, JAXBException, LexerException {
+
+
+
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
-        org.antlr.stringtemplate.StringTemplate template = new org.antlr.stringtemplate.StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
+        String templateContent = findTemplate(localesProvider.get(), providedByLicense);
+        org.antlr.stringtemplate.StringTemplate template = new org.antlr.stringtemplate.StringTemplate(templateContent);
         FirstPagePDFServiceImpl.FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
 
         // tistena polozka
@@ -293,23 +303,83 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
             }
         }
 
-
+        Map<String,String> user = new HashMap<>();
         String uid = System.getProperty("user.uid");
         if (StringUtils.isNotBlank(uid)) {
-            details.add(new FirstPagePDFServiceImpl.DetailItem("Generováno pro",uid));
+            user.put("uid", uid);
         }
-
+        if (StringUtils.isNotBlank(providedByLicense)) {
+            user.put("license", providedByLicense);
+        }
+        String roles = System.getProperty("user.roles");
+        if (StringUtils.isNotBlank(roles)) {
+            user.put("roles", roles);
+        }
+        String date = System.getProperty("date");
 
         itm.setDetailItems((FirstPagePDFServiceImpl.DetailItem[]) details.toArray(new FirstPagePDFServiceImpl.DetailItem[details.size()]));
 
-
         fpvo.setGeneratedItems( new FirstPagePDFServiceImpl.GeneratedItem[] { itm });
-        template.setAttribute("viewinfo", fpvo);
+        template.setAttribute("title", fpvo);
+        template.setAttribute("user", user);
+        if (StringUtils.isNotBlank(date)) {
+            template.setAttribute("date", date);
+        }
         String templateText = template.toString();
         return templateText;
     }
 
-    void pagesInParentPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<FirstPagePDFServiceImpl.DetailItem> details) {
+    private String findTemplate(Locale locale, String providedByLicense) throws IOException {
+        File processPdfsFolder = new File(Constants.WORKING_DIR, PROCESS_PDFS_FOLDER);
+        String licenseFolderName = StringUtils.isNotBlank(providedByLicense) ? providedByLicense : DEFAUTL_LICENSE;
+
+        if (!processPdfsFolder.exists()) {
+            File licensesFolder = new File(processPdfsFolder, licenseFolderName);
+
+            if (locale != null) {
+                File localeTemplate = new File(new File(licensesFolder, locale.getLanguage()), FIRST_PAGE_XML);
+                LOGGER.info("Finding template  "+localeTemplate.getAbsolutePath());
+                if (localeTemplate.exists() && localeTemplate.isFile()) {
+                    return readFromFile(localeTemplate);
+                } else {
+                    LOGGER.info("Template not found");
+                }
+            }
+
+            //
+            File customTemplate = new File(licensesFolder, FIRST_PAGE_XML);
+            LOGGER.info("Finding template  "+customTemplate.getAbsolutePath());
+            if (customTemplate.exists() && customTemplate.isFile()) {
+                return readFromFile(customTemplate);
+            } else {
+                LOGGER.info("Template not found");
+            }
+        }
+
+        //
+        String licenceStreamPath =  String.format("templates/licenses/%s", licenseFolderName);
+        LOGGER.info("Finding template  in stream path  "+licenceStreamPath);
+        InputStream is = this.getClass().getResourceAsStream(licenceStreamPath);
+        if (is == null) {
+            LOGGER.info("Template not found");
+
+            LOGGER.info("Finding template  in stream path  "+String.format("templates/licenses/%s", DEFAUTL_LICENSE));
+            is = this.getClass().getResourceAsStream(String.format("templates/licenses/%s", DEFAUTL_LICENSE));
+        }
+        if (is != null) {
+            return IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        } else {
+            throw new FileNotFoundException("Default template not found: " + DEFAUTL_LICENSE);
+        }
+    }
+
+    private String readFromFile(File file) throws IOException {
+        try (InputStream is = new FileInputStream(file)) {
+            return IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        }
+    }
+
+    void pagesInParentPdf(AkubraDocument rdoc, ResourceBundle resourceBundle, List<FirstPagePDFServiceImpl.DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -320,7 +390,7 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
     }
 
 
-    void pagesInSelectiontPdf(PreparedDocument rdoc, ResourceBundle resourceBundle, List<FirstPagePDFServiceImpl.DetailItem> details) {
+    void pagesInSelectiontPdf(AkubraDocument rdoc, ResourceBundle resourceBundle, List<FirstPagePDFServiceImpl.DetailItem> details) {
         // tistene stranky
         List<AbstractPage> pages = rdoc.getPages();
         if (pages.size() == 1) {
@@ -389,7 +459,7 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
      */
 
     @Override
-    public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path,   FontMap fontMap) {
+    public void parent(AkubraDocument rdoc, OutputStream os, ObjectPidsPath path, FontMap fontMap, String providedByLicense) {
         try {
 
             Document doc = DocumentUtils.createDocument(rdoc);
@@ -397,7 +467,7 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
             PdfWriter writer = PdfWriter.getInstance(doc, os);
             doc.open();
 
-            String itextCommands = templateParent(rdoc, path);
+            String itextCommands = templateParent(rdoc, path, providedByLicense);
 
             renderFromTemplate(rdoc, doc, writer, fontMap, new StringReader(itextCommands));
 
@@ -499,7 +569,6 @@ public class FirstPageSpecialNeedsImpl extends AbstractPDFRenderSupport implemen
 
     }
 
-    // reprezentuje generovanou polozku
     static class GeneratedItem {
 
         private FirstPagePDFServiceImpl.DetailItem[] detailItems = new FirstPagePDFServiceImpl.DetailItem[0];

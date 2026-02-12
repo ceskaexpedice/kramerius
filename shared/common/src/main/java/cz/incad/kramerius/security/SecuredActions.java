@@ -119,8 +119,11 @@ public enum SecuredActions {
     A_OBJECT_EDIT("a_object_edit", true, true),
     
     /** Admin openapi specification read */
-    A_ADMIN_API_SPECIFICATION_READ("a_admin_api_specification_read");
-    
+    A_ADMIN_API_SPECIFICATION_READ("a_admin_api_specification_read"),
+
+    /** Action for enable content generate*/
+    A_CONTENT_GENERATE("a_content_generate");
+
     private String formalName;
     private boolean onlyGlobalAction;
     private final boolean restrictedInReadOnly;

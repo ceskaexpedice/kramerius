@@ -16,13 +16,10 @@
  */
 package cz.incad.kramerius.pdf.commands;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -32,8 +29,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import cz.incad.kramerius.pdf.Break;
-import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
 public class CommandsTest {
@@ -79,15 +74,15 @@ public class CommandsTest {
         ITextCommandProcessListener listener = new ITextCommandProcessListener() {
             
             @Override
-            public void before(ITextCommand iTextCommand) {
+            public void before(ITextCommand iTextCommand, ITextCommands cmds) {
                 processesed.add(iTextCommand.getClass().getName());
             }
 
             @Override
-            public void after(ITextCommand iTextCommand) {
+            public void after(ITextCommand iTextCommand, ITextCommands cmds) {
             }
         };
-        cmnds.process(listener);
+        cmnds.process(listener,cmnds);
 
         // top - down
         expected = new ArrayList<String>();{
@@ -119,15 +114,15 @@ public class CommandsTest {
         listener = new ITextCommandProcessListener() {
             
             @Override
-            public void before(ITextCommand iTextCommand) {
+            public void before(ITextCommand iTextCommand, ITextCommands cmds) {
             }
 
             @Override
-            public void after(ITextCommand iTextCommand) {
+            public void after(ITextCommand iTextCommand, ITextCommands cmds) {
                 processesed.add(iTextCommand.getClass().getName());
             }
         };
-        cmnds.process(listener);
+        cmnds.process(listener,cmnds);
 
         // bottom - up
         expected = new ArrayList<String>();{

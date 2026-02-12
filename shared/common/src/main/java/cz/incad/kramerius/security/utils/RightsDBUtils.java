@@ -26,7 +26,7 @@ import cz.incad.kramerius.security.impl.RightImpl;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 
 
 public class RightsDBUtils {

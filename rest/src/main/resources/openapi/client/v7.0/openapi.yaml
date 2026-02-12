@@ -728,10 +728,10 @@ paths:
   /items/{pid}/requests/{reqid}:
     post:
       tags:
-        - Procesy
+        - Uživatelské požadavky
       summary: Naplánování nového požadavku pro PID
       description: >
-        Endpoint slouží ke spuštění specifických operací (např. 'special_needs') nad daným objektem. 
+        Endpoint slouží ke spuštění specifických operací (např. 'generate_pdf') nad daným objektem. 
         Vytvoří proces v Process Manageru a připraví výstupní adresář v dočasném úložišti.
       operationId: postRequest
       parameters:
@@ -745,11 +745,11 @@ paths:
         - in: path
           name: reqid
           required: true
-          description: Typ požadavku (aktuálně podporováno "special_needs")
+          description: Typ požadavku (aktuálně podporováno "generate_pdf")
           schema:
             type: string
-            enum: [special_needs]
-            example: "special_needs"
+            enum: [generate_pdf]
+            example: "generate_pdf"
       requestBody:
         required: true
         description: Definice parametrů pro daný proces
@@ -757,7 +757,10 @@ paths:
           application/json:
             schema:
               type: object
-              additionalProperties: true
+              properties:
+                email:
+                    type: string
+                    description: email pro notifikaci
       responses:
         '200':
           description: Požadavek byl úspěšně naplánován
@@ -774,7 +777,6 @@ paths:
                     description: Cesta k vygenerovanému adresáři v systému
               example:
                 processId: "12345"
-                output: "/tmp/uuid_5f69fed8-6e54-40de-938e-14c34f745428_pavel.stastny_gmail.com"
         '400':
           description: Neplatný vstup (např. neznámý reqid nebo špatná data v reqDefinition)
         '404':
@@ -1499,4 +1501,75 @@ paths:
                 description: Neexistující zámek nebo volající není vlastníkem zámku
 
 
+  # Uzivatelske pozadavky
+  /userrequests/requests/{reqid}:
+    get:
+      tags:
+        - Uživatelské požadavky
+      summary: Získání informace o stavu uživatelského požadvaku / procesu
+      description:  Získání informace o stavu uživatelského požadvaku / procesu
+      operationId: getUserRequest
+      parameters:
+        - name: reqid
+          in: path
+          required: true
+          description: ID požadavku
+          schema:
+            type: string
+            example: "b5d56622"
+      responses:
+        '200':
+          description: Úspěšné získání procesu
+          content:
+            application/json:
+              schema:
+                type: string
+              example: {
+                "owner": "111@some.org",
+                "workerId": "publicworker",
+                "processId": "1ff59c3a-9cf5-47e5-834d-5d002b76552a",
+                "payload": {
+                  "roles": "common_users",
+                  "pid": "uuid:9cd57b03-0797-4e8f-90cb-6987dd633034",
+                  "providedByLicense": "special-needs",
+                  "locale": "und",
+                  "user": "111@some.org"
+                },
+                "profileId": "special_needs_pdf",
+                "description": "Main process for the profile special_needs_pdf",
+                "pid": 35252,
+                "started": 1770253964637,
+                "finished": 1770253973502,
+                "planned": 1770253962058,
+                "batchId": "1ff59c3a-9cf5-47e5-834d-5d002b76552a",
+                "status": "FINISHED"
+              }
+        '404':
+          description: Neexistujici požadavek
+
+  /userrequests/userspace/{token}:
+    get:
+      tags:
+        - Uživatelské požadavky
+      summary:  Získání uživatlských dat
+      description: ⚠️ Swagger UI nepodporuje streamované stahování velkých souborů.  Použijte přímý URL nebo curl.
+      operationId: getUserFile
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Token pro získání dat
+          schema:
+            type: string
+            example: "b5d56622"
+      responses:
+        '200':
+          description: Ziska soubor
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Neexistujici soubor
 

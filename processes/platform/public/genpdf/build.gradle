@@ -9,7 +9,7 @@ description "Generate pdf"
 
 processPlugin {
 	spiImplementation='org.kramerius.genpdf.SpecialNeedsSPI'
-    profiles = [ [profileId: "special_needs_pdf",
+    profiles = [ [profileId: "generate_pdf",
                   description: "Special needs",
                   jvmArgs: ["-Xms1g","-Xmx16g"]] ]
 
@@ -21,6 +21,7 @@ processPlugin {
 
 dependencies{
     implementation project(":shared:common")
+    implementation project(":document-hub:content")
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
 

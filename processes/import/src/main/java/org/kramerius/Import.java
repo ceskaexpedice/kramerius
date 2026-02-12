@@ -206,8 +206,18 @@ public class Import {
         // system property 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()){
 
-            String jwtToken = fetchJwtToken(httpClient);
-            LOGGER.info("JWT Token successfully obtained.");
+            String jwtToken = null;
+            if (StringUtils.isAnyString(addcollections)) {
+                try{
+                    jwtToken = fetchJwtToken(httpClient);
+                    LOGGER.info("JWT Token successfully obtained.");
+                } catch(Exception e){
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    LOGGER.info("JWT Token failed to obtain.");
+                }
+            } else {
+                LOGGER.info("addCollections parameter is empty string. No need to obtain jwt token.");
+            }
 
             String skipIngest = System.getProperties().containsKey("ingest.skip") ? System.getProperty("ingest.skip") : KConfiguration.getInstance().getConfiguration().getString("ingest.skip", "false");
             if (Boolean.valueOf(skipIngest)) {

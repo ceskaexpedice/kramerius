@@ -19,8 +19,8 @@ package cz.incad.kramerius.security.licenses.impl;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockImpl;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 import org.w3c.dom.Document;
 
 import java.io.Serializable;
@@ -37,10 +37,12 @@ public class LicenseImpl implements License, Serializable {
     /** is runtime license */
     private boolean runtimeLicense = false;
 
+    private boolean offlineGenerateContentAllowed = false;
+
     /** document predicate */
     private RuntimeLicenseType runtimeLicenseType;
 
-    private ExclusiveLock exclusiveLock;
+    private ExclusiveReadersLock exclusiveLock;
     private int labelPrirority = DEFAULT_PRIORITY;
 
     public LicenseImpl(int id, String name, String description, String group, int labelPrirority) {
@@ -89,6 +91,16 @@ public class LicenseImpl implements License, Serializable {
     }
 
     @Override
+    public boolean isOfflineGenerateContentAllowed() {
+        return this.offlineGenerateContentAllowed;
+    }
+
+    @Override
+    public void setOfflineGenerateContentAllowed(boolean flag) {
+        this.offlineGenerateContentAllowed = flag;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }
@@ -134,7 +146,7 @@ public class LicenseImpl implements License, Serializable {
     }
 
     @Override
-    public ExclusiveLock getExclusiveLock() {
+    public ExclusiveReadersLock getExclusiveLock() {
         return this.exclusiveLock;
     }
 

@@ -20,9 +20,9 @@ import org.w3c.dom.Element;
 
 public abstract class AbstractITextCommand implements ITextCommand {
 
-
     protected ITextCommand parentCommand;
     protected Hyphenation hyphenation;
+    protected ScaledMeasurements scaledMeasurements;
 
     @Override
     public ITextCommands getRoot() {
@@ -48,7 +48,9 @@ public abstract class AbstractITextCommand implements ITextCommand {
         return hyphenation;
     }
 
-
+    public ScaledMeasurements getScaledMeasurements() {
+        return scaledMeasurements;
+    }
 
     /**
      * Helper method. Returns true if given element contains attribute with any value 
@@ -67,13 +69,102 @@ public abstract class AbstractITextCommand implements ITextCommand {
      * @return Hyphenation object
      * @see Hyphenation
      */
-    public Hyphenation hyphenationFromAttibutes(Element elm) {
+    public Hyphenation hyphenationFromAttributes(Element elm) {
         if (notEmptyAttribute(elm, "hyphenation-lang") && notEmptyAttribute(elm, "hyphenation-country")) {
             String country = elm.getAttribute("hyphenation-lang");
             String lang = elm.getAttribute("hyphenation-country");
             return new Hyphenation(country, lang);
         } else return null;
     }
+
+    /*
+    {
+          "extraQualities": [
+            "color",
+            "gray",
+            "bitonal"
+          ],
+          "profile": "level2",
+          "type": "ImageService3",
+          "extraFeatures": [
+            "regionByPct",
+            "sizeByForcedWh",
+            "sizeByWh",
+            "sizeAboveFull",
+            "sizeUpscaling",
+            "rotationBy90s",
+            "mirroring"
+          ],
+          "@context": "http://iiif.io/api/image/3/context.json",
+          "tiles": [
+            {
+              "scaleFactors": [1, 2, 4, 8, 16, 32],
+              "width": 256,
+              "height": 256
+            }
+          ],
+          "protocol": "http://iiif.io/api/image",
+          "sizes": [
+            {
+              "width": 93,
+              "height": 135
+            },
+            {
+              "width": 186,
+              "height": 271
+            },
+            {
+              "width": 372,
+              "height": 542
+            },
+            {
+              "width": 744,
+              "height": 1085
+            },
+            {
+              "width": 1488,
+              "height": 2170
+            }
+          ],
+          "maxHeight": 12000,
+          "service": [
+            {
+              "physicalScale": 0.00635001,
+              "profile": "http://iiif.io/api/annex/services/physdim",
+              "physicalUnits": "cm",
+              "@context": "http://iiif.io/api/annex/services/physdim/1/context.json"
+            }
+          ],
+          "width": 2977,
+          "extraFormats": [
+            "webp"
+          ],
+          "id": "http://imageserver.mzk.cz/NDK/2026/01/b3a01ed3-d731-11f0-b3b2-5acb2ee39cf4/uc_b3a01ed3-d731-11f0-b3b2-5acb2ee39cf4_0001",
+          "@id": "http://api.kramerius.mzk.cz/search/iiif/uuid:aba8ce74-f859-11f0-9901-ce52219f3ff6",
+          "height": 4340,
+          "maxWidth": 12000
+        }
+     */
+    public ScaledMeasurements scaledMeasurementsFromAttributes(Element elm) {
+        if (notEmptyAttribute(elm, "scaledmeasurements-unit") && notEmptyAttribute(elm, "scaledmeasurements-physicalScale")) {
+            String unit = elm.getAttribute("scaledmeasurements-unit");
+            String physicalScale = elm.getAttribute("scaledmeasurements-physicalScale");
+            String width = elm.getAttribute("scaledmeasurements-width");
+            String height = elm.getAttribute("scaledmeasurements-height");
+
+
+            ScaledMeasurements scaledMeasurements =
+                    new ScaledMeasurements(unit,
+                            Double.parseDouble(width),
+                            Double.parseDouble(height),
+                            Double.parseDouble(physicalScale)
+                    );
+            return scaledMeasurements;
+        }
+        return null;
+    }
+
+
 
     /**
      * Represents Hyphenation used in PDF generation
@@ -103,6 +194,38 @@ public abstract class AbstractITextCommand implements ITextCommand {
          */
         public String getLang() {
             return lang;
+        }
+    }
+
+
+    public static class ScaledMeasurements {
+
+        private String unit;
+        private double width;
+        private double height;
+        private double scale;
+
+        public ScaledMeasurements(String unit, double width, double height, double scale) {
+            this.unit = unit;
+            this.width = width;
+            this.height = height;
+            this.scale = scale;
+        }
+
+        public String getUnit() {
+            return unit;
+        }
+
+        public double getHeight() {
+            return height;
+        }
+
+        public double getScale() {
+            return scale;
+        }
+
+        public double getWidth() {
+            return width;
         }
     }
 }
