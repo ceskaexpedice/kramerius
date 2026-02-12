@@ -36,6 +36,7 @@ import cz.incad.kramerius.security.database.SecurityDbInitializer;
 import cz.incad.kramerius.service.LifeCycleHookRegistry;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
+import cz.incad.kramerius.uiconfig.UIConfigDbInitializer;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
 import cz.incad.kramerius.utils.DatabaseUtils;
 import cz.inovatika.cdk.cache.CDKCacheInitializer;
@@ -103,6 +104,9 @@ public class StartupServlet extends GuiceServlet {
 
             // work mode table
             WorkModeDbInitializer.initDatabase(k7dbConnection);
+
+            // ui_config mode table
+            UIConfigDbInitializer.initDatabase(k7dbConnection);
 
             // mostdesirable table
             MostDesirableDbInitializer.initDatabase(k7dbConnection, versionService);
