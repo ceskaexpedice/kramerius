@@ -89,6 +89,7 @@ include 'processes:platform:curator:migrate-collections'
 include 'processes:platform:curator:sdnnt-sync'
 include 'processes:platform:curator:nkp-logs-p'
 include 'processes:platform:curator:solr-migration-p'
+include 'processes:platform:curator:statistics-p'
 
 include 'processes:platform:curator:worker'
 
