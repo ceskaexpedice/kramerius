@@ -2,46 +2,31 @@ package cz.incad.kramerius.document.model;
 
 import org.w3c.dom.Document;
 
-/**
- * Represents one page
- * @author pavels
- */
+/** Abstract page - image page, text page,etc.. */
 public abstract class AbstractPage extends AbstractObject {
 
+    /** BIBLIO_MODS */
     private Document biblioMods = null;
+    /** DC */
     private Document dc = null;
-    
-	
+
 	private String outlineTitle;
 	private String pageNumber;
 	private String outlineDestination;
-	
+
+    /** Real page dimension */
+    private PageDimension pageDimension = null ;
+
 	public AbstractPage(String modelName, String uuid) {
 		super(modelName, uuid);
 	}
 	
-	/**
-	 * Returns outline title
-	 * @return outline title
-	 */
 	public String getOutlineTitle() {
 		return outlineTitle;
 	}
-
-
-	/**
-	 * Sets outline title
-	 * @param outlineTitle Outline title
-	 */
 	public void setOutlineTitle(String outlineTitle) {
 		this.outlineTitle = outlineTitle;
 	}
-
-
-	/**
-	 * Returns outline destination
-	 * @return outline destination
-	 */
 	public String getOutlineDestination() {
 		return outlineDestination;
 	}
@@ -77,10 +62,25 @@ public abstract class AbstractPage extends AbstractObject {
 		this.pageNumber = pageNumber;
 	}
 
-	
-	
-	
-	/**
+
+    /**
+     * Sets page dimension
+     * @param pageDimension
+     */
+    public void setPageDimension(PageDimension pageDimension) {
+        this.pageDimension = pageDimension;
+    }
+
+    /**
+     * Gets page dimension
+     * @return
+     */
+    public PageDimension getPageDimension() {
+        return pageDimension;
+    }
+
+
+    /**
 	 * Biblio mods for this page
 	 * @return parsed biblio mods metadata
 	 */

@@ -60,6 +60,8 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
 
         UserUtils.associateGroups(u, this.usersManager);
         UserUtils.associateCommonGroup(u, this.usersManager);
+        // authenticated user
+        UserUtils.associateAuthenticatedGroup(u, this.usersManager);
         String password = GeneratePasswordUtils.generatePswd();
 
         User userByLoginName = this.usersManager.findUserByLoginName(userName);

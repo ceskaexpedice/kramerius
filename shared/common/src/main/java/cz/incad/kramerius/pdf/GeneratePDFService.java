@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import com.lowagie.text.DocumentException;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.pdf.impl.ImageFetcher;
 import cz.incad.kramerius.pdf.impl.OutputStreams;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
@@ -32,7 +32,7 @@ public interface GeneratePDFService {
      * @throws IOException IO error has been occurred
      * @throws DocumentException Error has been occurred in PDF generation
      */
-    public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, int[] rect) throws IOException, DocumentException;
+    public void fullPDFExport(ObjectPidsPath path, OutputStreams outputs, Break brk, String djvuUrl, String i18Url, float[] rect) throws IOException, DocumentException;
 	
     
     /**
@@ -46,13 +46,13 @@ public interface GeneratePDFService {
      * @param rect Page size
      * @throws IOException IO error has been occured
      */
-	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, int[] rect) throws IOException;
+	public void generateParent(String requestedPid, int numberOfPages, String titlePage, OutputStream os, String imgServletUrl, String i18nUrl, float[] rect) throws IOException;
 	
 	
-	public void generateCustomPDF(PreparedDocument doc, /*String parentUUID,*/ OutputStream os, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
+	public void generateCustomPDF(AkubraDocument doc, /*String parentUUID,*/ OutputStream os, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
 	
-	public PreparedDocument generateCustomPDF( PreparedDocument doc,  OutputStream os, Break brk,   FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
+	public AkubraDocument generateCustomPDF(AkubraDocument doc, OutputStream os, Break brk, FontMap fmap, String djvuUrl, String i18nUrl, ImageFetcher fetcher) throws IOException;
 
 	
 	

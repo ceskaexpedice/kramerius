@@ -5,8 +5,7 @@ import java.io.OutputStream;
 
 import com.lowagie.text.DocumentException;
 
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
 public interface SimplePDFService {
@@ -22,6 +21,6 @@ public interface SimplePDFService {
      * @throws IOException
      * @throws DocumentException
      */
-    public void pdf(PreparedDocument rdoc, OutputStream os, FontMap fontMap) throws IOException,DocumentException;
+    public void pdf(AkubraDocument rdoc, OutputStream os, FontMap fontMap) throws IOException,DocumentException;
 }
 

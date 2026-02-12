@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import cz.incad.kramerius.security.licenses.License;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 

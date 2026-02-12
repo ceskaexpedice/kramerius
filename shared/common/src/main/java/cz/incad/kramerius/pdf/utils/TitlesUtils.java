@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.antlr.stringtemplate.StringTemplate;
 
@@ -32,15 +33,19 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 
 public class TitlesUtils {
 
+    public static Logger LOGGER = Logger.getLogger(TitlesUtils.class.getName());
+
     public static String title(String uuid, SolrAccess solrAccess, AkubraRepository akubraRepository, ResourceBundle bundle) throws IOException {
         return title(uuid, solrAccess, akubraRepository, true, bundle);
     }
         
     
     public static String title(String pid, SolrAccess solrAccess, AkubraRepository akubraRepository, boolean renderModel, ResourceBundle resourceBundle) throws IOException {
+        LOGGER.info(String.format("Title for  %s", pid));
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
                 
-        
+        if (paths == null || paths.length == 0) return "- none -";
+
         String[] path = paths[0].getPathFromRootToLeaf();
         Map<String, String> mapModels = translateModels(akubraRepository, path, resourceBundle);
         

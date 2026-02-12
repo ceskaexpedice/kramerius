@@ -31,7 +31,7 @@ public class PDFModule extends AbstractModule {
     protected void configure() {
         bind(GeneratePDFService.class).to(GeneratePDFServiceImpl.class);
 
-        bind(FirstPagePDFService.class).annotatedWith(Names.named(FirstPagePDFService.FirstPageType.SPECIALNEEDS.name())).to(FirstPageSpecialNeedsImpl.class).in(Scopes.SINGLETON);
+        bind(FirstPagePDFService.class).annotatedWith(Names.named(FirstPagePDFService.FirstPageType.USERPROCESS.name())).to(FirstPageForUserProcess.class).in(Scopes.SINGLETON);
         bind(FirstPagePDFService.class).annotatedWith(Names.named(FirstPagePDFService.FirstPageType.TEXT.name())).to(FirstPagePDFServiceImpl.class).in(Scopes.SINGLETON);
         bind(FirstPagePDFService.class).annotatedWith(Names.named(FirstPagePDFService.FirstPageType.IMAGE.name())).to(FirstPageAsImagePDFServiceImpl.class).in(Scopes.SINGLETON);
 

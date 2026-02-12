@@ -30,7 +30,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.google.inject.Inject;
 
@@ -41,14 +40,11 @@ import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMapItem;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
-import cz.incad.kramerius.security.licenses.utils.LicenseTOJSONSupport;
 
 @Path("/admin/v7.0/locks")
 public class AdminLockResource extends AdminApiResource {

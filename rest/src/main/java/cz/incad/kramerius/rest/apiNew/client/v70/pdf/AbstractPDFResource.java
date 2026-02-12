@@ -8,7 +8,7 @@ import com.lowagie.text.Rectangle;
 import cz.incad.kramerius.*;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.pdf.FirstPagePDFService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.pdf.OutOfRangeException;
@@ -26,7 +26,6 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -36,7 +35,6 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,7 +109,7 @@ public class AbstractPDFResource {
     public File selection(String[] pids, Rectangle rect, FirstPageType fp) throws DocumentException, IOException, OutOfRangeException {
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
-        PreparedDocument rdoc = documentService.buildDocumentFromSelection(pids, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
+        AkubraDocument rdoc = documentService.buildDocumentFromSelection(pids, new float[]{ rect.getWidth(), rect.getHeight()});
         checkRenderedPDFDoc(rdoc);
 
         File parentFile = null;
@@ -131,9 +129,9 @@ public class AbstractPDFResource {
             }
 
             if (fp == FirstPageType.IMAGES) {
-                this.imageFirstPage.selection(rdoc, fpageFos, pids, fmap);
+                this.imageFirstPage.selection(rdoc, fpageFos, pids, fmap, null);
             } else {
-                this.textFirstPage.selection(rdoc, fpageFos, pids, fmap);
+                this.textFirstPage.selection(rdoc, fpageFos, pids, fmap, null);
             }
             this.simplePdfService.pdf(rdoc, bodyTmpFos, fmap);
 
@@ -166,7 +164,7 @@ public class AbstractPDFResource {
         File firstPageFile = null;
         try {
             int howMany1 = ConfigurationUtils.checkNumber(numberOfPags, KConfiguration.getInstance().getConfiguration());
-            PreparedDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, howMany1, new int[]{(int) rect.getWidth(), (int) rect.getHeight()});
+            AkubraDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, howMany1, new float[]{rect.getWidth(), rect.getHeight()});
             checkRenderedPDFDoc(rdoc);
 
             this.mostDesirable.saveAccess(pid, new Date());
@@ -181,9 +179,9 @@ public class AbstractPDFResource {
             FileOutputStream fpageFos = new FileOutputStream(firstPageFile);
 
             if (firstPageType == FirstPageType.IMAGES) {
-                this.imageFirstPage.parent(rdoc, fpageFos, path, fmap);
+                this.imageFirstPage.parent(rdoc, fpageFos, path, fmap, null);
             } else {
-                this.textFirstPage.parent(rdoc, fpageFos, path, fmap);
+                this.textFirstPage.parent(rdoc, fpageFos, path, fmap,null);
             }
 
             this.simplePdfService.pdf(rdoc, bodyTmpFos, fmap);
@@ -200,7 +198,7 @@ public class AbstractPDFResource {
         }
     }
 
-    private void checkRenderedPDFDoc(PreparedDocument rdoc) throws IOException {
+    private void checkRenderedPDFDoc(AkubraDocument rdoc) throws IOException {
         List<AbstractPage> pages = rdoc.getPages();
         for (AbstractPage apage : pages) {
             if (!this.canBeRenderedAsPDF(apage.getUuid())) {

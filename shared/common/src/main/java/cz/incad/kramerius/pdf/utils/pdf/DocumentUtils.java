@@ -19,7 +19,7 @@ package cz.incad.kramerius.pdf.utils.pdf;
 import com.lowagie.text.Document;
 import com.lowagie.text.Rectangle;
 
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 
 public class DocumentUtils {
 
@@ -29,10 +29,8 @@ public class DocumentUtils {
         return doc;
     }
     
-    public static Document createDocument(PreparedDocument document) {
-        int width = document.getWidth();
-        int height = document.getHeight();
-        Document doc = new Document(new Rectangle(width, height));
+    public static Document createDocument(AkubraDocument document) {
+        Document doc = new Document(new Rectangle(document.getPageDimension().width(), document.getPageDimension().height()));
         return doc;
     }
 

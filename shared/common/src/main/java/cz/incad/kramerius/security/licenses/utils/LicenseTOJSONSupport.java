@@ -4,8 +4,8 @@ import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 
 import org.json.JSONObject;
 
@@ -52,7 +52,7 @@ public class LicenseTOJSONSupport {
         
         if (l.exclusiveLockPresent()) {
             labelObject.put(EXCLUSIVE_KEY, true);
-            ExclusiveLock lock = l.getExclusiveLock();
+            ExclusiveReadersLock lock = l.getExclusiveLock();
             labelObject.put(MAXINTERVAL_KEY, lock.getMaxInterval());
             labelObject.put(REFRESHINTERVAL_KEY, lock.getRefreshInterval());
             labelObject.put(MAXREADERS_KEY, lock.getMaxReaders());

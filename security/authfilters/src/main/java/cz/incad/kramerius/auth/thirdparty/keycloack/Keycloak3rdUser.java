@@ -49,10 +49,11 @@ public class Keycloak3rdUser extends AbstractThirdPartyUser {
         if (!associatedRoles.contains(DefaultRoles.COMMON_USERS.getName())) {
             associatedRoles.add(DefaultRoles.COMMON_USERS.getName());
         }
-        
-        LOGGER.fine(String.format("Associted roles %s",associatedRoles.toString()));
-        
-        
+        if (!associatedRoles.contains(DefaultRoles.AUTHENTICATED_USERS.getName())) {
+            associatedRoles.add(DefaultRoles.AUTHENTICATED_USERS.getName());
+        }
+        LOGGER.fine(String.format("Associated roles %s",associatedRoles.toString()));
+
         User user = super.toUser(userManager);
         // TODO: Change it
         if (user instanceof UserImpl) {

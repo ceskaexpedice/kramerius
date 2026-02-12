@@ -18,8 +18,8 @@ package cz.incad.kramerius.security.licenses;
 
 import java.util.regex.Pattern;
 
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 import org.w3c.dom.Document;
 
 /**
@@ -88,6 +88,10 @@ public interface License {
     // hint for priority rearragement 
     public int getPriorityHint();
 
+    public boolean isOfflineGenerateContentAllowed();
+
+    public void setOfflineGenerateContentAllowed(boolean flag);
+
     /**
      * Updating priority of license 
      * @param priprity
@@ -107,7 +111,7 @@ public interface License {
      *
      * @return exclusive lock
      */
-    public ExclusiveLock getExclusiveLock();
+    public ExclusiveReadersLock getExclusiveLock();
 
     /**
      * Initializes an exclusive lock on the license with the specified parameters.

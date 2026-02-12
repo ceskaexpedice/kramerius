@@ -9,9 +9,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +33,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.ImagePage;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.pdf.SimplePDFService;
 import cz.incad.kramerius.pdf.commands.ITextCommand;
@@ -80,18 +78,20 @@ public class SimplePDFServiceImpl implements SimplePDFService {
     
 
     @Override
-    public void pdf(PreparedDocument rdoc, OutputStream os, FontMap fontMap) throws IOException, DocumentException {
+    public void pdf(AkubraDocument rdoc, OutputStream os, FontMap fontMap) throws IOException, DocumentException {
         
         ITextCommands cmnds = null;
         try {
             String template = template(rdoc, this.akubraRepository, this.textsService, this.localeProvider.get());
 
-            Document doc = DocumentUtils.createDocument(rdoc);
-            PdfWriter pdfWriter = PdfWriter.getInstance(doc, os);
-            doc.open();
+            System.out.println(template);
 
             cmnds = new ITextCommands();
             cmnds.load(XMLUtils.parseDocument(new StringReader(template)).getDocumentElement(), cmnds);
+
+            Document doc = DocumentUtils.createDocument(rdoc);
+            PdfWriter pdfWriter = PdfWriter.getInstance(doc, os);
+            doc.open(); // open
 
             RenderPDF render = new RenderPDF(fontMap, akubraRepository);
             render.render(doc, pdfWriter, cmnds);
@@ -129,12 +129,12 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         }
     }
 
-    public static String template(PreparedDocument rdoc, AkubraRepository akubraRepository, TextsService textsService, Locale locale) throws IOException,
+    public static String template(AkubraDocument rdoc, AkubraRepository akubraRepository, TextsService textsService, Locale locale) throws IOException,
             FileNotFoundException {
         StringWriter strWriter = new StringWriter();
 
-        String pdfHeader = textsService.getText("pdf_header",locale);
-        String pdfFooter = textsService.getText("pdf_footer",locale);
+        String pdfHeader = textsService != null ?  textsService.getText("pdf_header",locale) : null;
+        String pdfFooter = textsService != null ?  textsService.getText("pdf_footer",locale) : null;
         strWriter.write("<commands");
         if (pdfHeader != null) {
             strWriter.write(" page-header='"+pdfHeader+"'");
@@ -142,6 +142,12 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         if (pdfFooter != null) {
             strWriter.write(" page-footer='"+pdfFooter+"'");
         }
+
+        if (rdoc.getPageDimension() != null) {
+            strWriter.write(" width='"+rdoc.getPageDimension().width()+"'");
+            strWriter.write(" height='"+rdoc.getPageDimension().height()+"'");
+        }
+
         strWriter.write(">\n");
 
         List<AbstractPage> pages = new ArrayList<AbstractPage>(rdoc.getPages());
@@ -150,9 +156,41 @@ public class SimplePDFServiceImpl implements SimplePDFService {
             if (apage instanceof ImagePage) {
                 String pid = apage.getUuid();
                 if (i > 0) {
-                    strWriter.write("<pagebreak></pagebreak>");
+                    strWriter.write("<pagebreak");
+
+                    if (apage.getPageDimension() != null) {
+                        strWriter.write(" width='"+apage.getPageDimension().width()+"'");
+                        strWriter.write(" height='"+apage.getPageDimension().height()+"'");
+                    }
+                    strWriter.write("></pagebreak>");
+
                 }
                 try {
+
+                    ImagePage imagePage = (ImagePage) apage;
+                    if (imagePage.isPhysicalDimensionsSet()) {
+
+                        /*
+                                if (notEmptyAttribute(elm, "scaledmeasurements-unit") && notEmptyAttribute(elm, "scaledmeasurements-physicalScale")) {
+            String unit = elm.getAttribute("scaledmeasurements-unit");
+            String physicalScale = elm.getAttribute("scaledmeasurements-physicalScale");
+            String width = elm.getAttribute("scaledmeasurements-width");
+            String height = elm.getAttribute("scaledmeasurements-height");
+            ScaledMeasurements scaledMeasurements = new ScaledMeasurements(unit, Double.parseDouble(physicalScale), Double.parseDouble(width), Double.parseDouble(height));
+            return scaledMeasurements;
+        }
+
+                         */
+
+
+//                        String pageOptions = String.format("<pageoptions physicalScale=\"%f\" " +
+//                                " width=\"%f\"" +
+//                                " height=\"%f\"" +
+//
+//                                " units=\"%s\"></pageoptions>", physicalScale, width, height, units);
+//
+//                        strWriter.write(pageOptions);
+                    }
 
                     // image 
                     BufferedImage javaImg = KrameriusImageSupport.readImage(pid,ImageStreams.IMG_FULL.getStreamName(), akubraRepository,0);
@@ -160,6 +198,27 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                     StringTemplate template = new StringTemplate(IOUtils.readAsString(SimplePDFServiceImpl.class.getResourceAsStream("templates/_image_page.st"), Charset.forName("UTF-8"), true));
                     template.setAttribute("imgpath", imgPath);
                     template.setAttribute("pid", pid);
+
+                    Map<String,String> scaleAttrs = new HashMap<String,String>();
+
+                    if (imagePage.isPhysicalDimensionsSet()) {
+                        //$scaleAttrs
+                        scaleAttrs.put("scaledmeasurements-unit",imagePage.getPhysicalDimensionUnit());
+                        scaleAttrs.put("scaledmeasurements-physicalScale",""+imagePage.getScaleFactor());
+                        scaleAttrs.put("scaledmeasurements-width",""+imagePage.getWidth());
+                        scaleAttrs.put("scaledmeasurements-height",""+imagePage.getHeight());
+
+                    }
+
+                    if (imagePage.getWidth() > 0 && imagePage.getHeight() > 0) {
+                        scaleAttrs.put("scaledmeasurements-width",""+imagePage.getWidth());
+                        scaleAttrs.put("scaledmeasurements-height",""+imagePage.getHeight());
+                    }
+                    if (!scaleAttrs.isEmpty()) {
+                        template.setAttribute("scaleAttrs", scaleAttrs);
+                    }
+
+
                     strWriter.write(template.toString());
 
                 } catch (XPathExpressionException e) {

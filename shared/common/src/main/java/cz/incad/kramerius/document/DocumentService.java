@@ -19,7 +19,7 @@ package cz.incad.kramerius.document;
 import java.io.IOException;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 
 /**
@@ -36,7 +36,7 @@ public interface DocumentService {
      * @return Created document model
      * @throws IOException IO error has been occurred
      */
-    PreparedDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, int[]rect) throws IOException;
+    AkubraDocument buildDocumentAsTree(ObjectPidsPath path, String pidFrom, float[]rect) throws IOException;
 
     
     /**
@@ -47,7 +47,7 @@ public interface DocumentService {
      * @return Created document model
      * @throws IOException IO error has been occurred
      */
-    PreparedDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, int[] rect) throws IOException, OutOfRangeException;
+    AkubraDocument buildDocumentAsFlat(ObjectPidsPath path, String pidFrom, int howMany, float[] rect) throws IOException, OutOfRangeException;
     
     /**
      * Creates flat document model from pids selection
@@ -56,7 +56,7 @@ public interface DocumentService {
      * @return Created document model
      * @throws IOException IO error has been occurred
      */
-    PreparedDocument buildDocumentFromSelection(String[] selection, int[] rect) throws IOException, OutOfRangeException;
+    AkubraDocument buildDocumentFromSelection(String[] selection, float[] rect) throws IOException, OutOfRangeException;
     
 
 }

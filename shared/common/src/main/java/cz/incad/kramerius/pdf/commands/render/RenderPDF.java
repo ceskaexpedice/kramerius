@@ -19,22 +19,21 @@ package cz.incad.kramerius.pdf.commands.render;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
 
+import com.lowagie.text.*;
+import cz.incad.kramerius.pdf.commands.*;
+import cz.incad.kramerius.pdf.commands.Image;
+import cz.incad.kramerius.pdf.commands.List;
+import cz.incad.kramerius.pdf.commands.ListItem;
+import cz.incad.kramerius.pdf.commands.Paragraph;
+import cz.incad.kramerius.utils.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
-import com.lowagie.text.BadElementException;
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.ElementListener;
-import com.lowagie.text.Font;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.TextElementArray;
 import com.lowagie.text.pdf.ColumnText;
 import com.lowagie.text.pdf.HyphenationAuto;
 import com.lowagie.text.pdf.PdfContentByte;
@@ -43,17 +42,6 @@ import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.LineSeparator;
 
 import cz.incad.kramerius.pdf.commands.AbstractITextCommand.Hyphenation;
-import cz.incad.kramerius.pdf.commands.ITextCommand;
-import cz.incad.kramerius.pdf.commands.ITextCommandProcessListener;
-import cz.incad.kramerius.pdf.commands.ITextCommands;
-import cz.incad.kramerius.pdf.commands.Image;
-import cz.incad.kramerius.pdf.commands.Line;
-import cz.incad.kramerius.pdf.commands.List;
-import cz.incad.kramerius.pdf.commands.ListItem;
-import cz.incad.kramerius.pdf.commands.PageBreak;
-import cz.incad.kramerius.pdf.commands.Paragraph;
-import cz.incad.kramerius.pdf.commands.Text;
-import cz.incad.kramerius.pdf.commands.TextsArray;
 import cz.incad.kramerius.pdf.commands.lists.GreekList;
 import cz.incad.kramerius.pdf.commands.lists.RomanList;
 import cz.incad.kramerius.pdf.impl.AbstractPDFRenderSupport.ScaledImageOptions;
@@ -81,7 +69,7 @@ public class RenderPDF {
 
     public void render(final com.lowagie.text.Document pdfDoc, PdfWriter pdfWriter, ITextCommands commands) {
         commands.process(
-                new Processor(pdfDoc, pdfWriter, akubraRepository, commands.getFooter(), commands.getHeader()));
+                new Processor(pdfDoc, pdfWriter, akubraRepository, commands.getFooter(), commands.getHeader()), commands);
     }
 
     public boolean notEmptyString(String fName) {
@@ -231,14 +219,12 @@ public class RenderPDF {
         }
 
         @Override
-        public void after(ITextCommand iTextCommand) {
+        public void after(ITextCommand iTextCommand, ITextCommands cmds) {
             Element self = this.createdElm.pop();
             if (self instanceof NullElement)
                 return;
-
             if (!this.createdElm.isEmpty()) {
                 Element parent = this.createdElm.peek();
-
                 if (parent instanceof TextElementArray) {
                     ((TextElementArray) parent).add(self);
                 }
@@ -246,14 +232,14 @@ public class RenderPDF {
         }
 
         @Override
-        public void before(ITextCommand iTextCommand) {
+        public void before(ITextCommand iTextCommand, ITextCommands cmds) {
             if (!(iTextCommand instanceof ITextCommands)) {
-                Element created = this.create(iTextCommand);
+                Element created = this.create(iTextCommand, cmds);
                 this.createdElm.push(created);
             }
         }
 
-        private Element create(ITextCommand cmd) {
+        private Element create(ITextCommand cmd, ITextCommands xmlDoc) {
             if (cmd instanceof Paragraph) {
                 Paragraph cmdPar = (Paragraph) cmd;
                 com.lowagie.text.Paragraph par = new com.lowagie.text.Paragraph();
@@ -360,118 +346,130 @@ public class RenderPDF {
                 return line;
 
             } else if (cmd instanceof PageBreak) {
+                Float width = ((PageBreak) cmd).getWidth();
+                Float height = ((PageBreak) cmd).getHeight();
+                if (width != null && height != null) {
+                    Rectangle imageRect = new Rectangle(width, height);
+                    pdfDoc.setPageSize(imageRect);
+                } else {
+                    Float docwidth =xmlDoc.getWidth();
+                    Float docheight =xmlDoc.getHeight();
+                    Rectangle docRect = new Rectangle(docwidth, docheight);
+                    pdfDoc.setPageSize(docRect);
+                }
                 pdfDoc.newPage();
                 return new NullElement();
             } else if (cmd instanceof Image) {
 
                 Image cmdImage = (Image) cmd;
                 String pid = cmdImage.getPid();
-                
-                boolean altoStream  = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO);
 
-                // disable at all ??  It has never worked well 
-                boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
-                if (useAlto && altoStream) {
-                    try {
-                        System.out.println("PID:"+pid);
-                        System.out.println("--> Parsing xmls");
-                        InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asInputStream();
-                        IOUtils.copy(inputStream, System.out);
-                        System.out.println("<-- Parsing xmls");
+                if (pid != null) {
+                    boolean altoStream  = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO);
+                    boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
+                    if (useAlto && altoStream) {
+                        try {
+                            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asInputStream();
+                            IOUtils.copy(inputStream, System.out);
 
-                        org.w3c.dom.Document alto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
+                            org.w3c.dom.Document alto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
 
-                        String file = cmdImage.getFile();
-                        com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
+                            String file = cmdImage.getFile();
+                            com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
 
-                        ITextCommands root = cmdImage.getRoot();
-                        float percentage = (root.getFooter() != null || root.getHeader() != null) ? 0.9f : 1.0f;
-                        Float ratio = ratio(pdfDoc, percentage, img);
+                            ITextCommands root = cmdImage.getRoot();
+                            float percentage = (root.getFooter() != null || root.getHeader() != null) ? 0.9f : 1.0f;
+                            Float ratio = ratio(pdfDoc, percentage, img);
 
-                        int fitToPageWidth = (int) (img.getWidth() * ratio);
-                        int fitToPageHeight = (int) (img.getHeight() * ratio);
+                            int fitToPageWidth = (int) (img.getWidth() * ratio);
+                            int fitToPageHeight = (int) (img.getHeight() * ratio);
 
-                        int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
-                        int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
+                            int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
+                            int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
 
-                        img.scaleAbsoluteHeight(ratio * img.getHeight());
+                            img.scaleAbsoluteHeight(ratio * img.getHeight());
 
-                        img.scaleAbsoluteWidth(ratio * img.getWidth());
-                        img.setAbsolutePosition((offsetX),
-                                pdfDoc.getPageSize().getHeight() - offsetY - (ratio * img.getHeight()));
+                            img.scaleAbsoluteWidth(ratio * img.getWidth());
+                            img.setAbsolutePosition((offsetX),
+                                    pdfDoc.getPageSize().getHeight() - offsetY - (ratio * img.getHeight()));
 
-                        ScaledImageOptions options = new ScaledImageOptions();
-                        options.setXdpi(img.getDpiX());
-                        options.setYdpi(img.getDpiY());
+                            ScaledImageOptions options = new ScaledImageOptions();
+                            options.setXdpi(img.getDpiX());
+                            options.setYdpi(img.getDpiY());
 
-                        options.setXoffset(offsetX);
-                        options.setYoffset(offsetY);
+                            options.setXoffset(offsetX);
+                            options.setYoffset(offsetY);
 
-                        options.setWidth(fitToPageWidth);
-                        options.setHeight(fitToPageHeight);
-                        options.setScaleFactor(ratio);
+                            options.setWidth(fitToPageWidth);
+                            options.setHeight(fitToPageHeight);
+                            options.setScaleFactor(ratio);
 
-                        PdfTextUnderImage textUnderImage = new PdfTextUnderImage();
-                        textUnderImage.imageWithAlto(pdfDoc, pdfWriter, alto, options);
-                        return img;
+                            PdfTextUnderImage textUnderImage = new PdfTextUnderImage();
+                            textUnderImage.imageWithAlto(pdfDoc, pdfWriter, alto, options);
+                            return img;
 
-                    } catch (BadElementException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (MalformedURLException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        } catch (BadElementException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        } catch (MalformedURLException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        } catch (IOException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        }
+                        return new NullElement();
+                    } else {
+                        try {
+
+                            String file = cmdImage.getFile();
+                            com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
+
+                            ITextCommands root = cmdImage.getRoot();
+                            img.scaleToFit(pdfDoc.getPageSize().getWidth(), pdfDoc.getPageSize().getHeight());
+                            img.setAbsolutePosition(0,0);
+
+                            return img;
+                        } catch (BadElementException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        } catch (MalformedURLException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        } catch (IOException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        }
+                        return new NullElement();
                     }
-                    return new NullElement();
+
                 } else {
                     try {
 
-                        String file = cmdImage.getFile();
-                        com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
-
-                        ITextCommands root = cmdImage.getRoot();
-                        float percentage = (root.getFooter() != null || root.getHeader() != null) ? 0.9f : 1.0f;
-                        Float ratio = ratio(pdfDoc, percentage, img);
-
-                        int fitToPageWidth = (int) (img.getWidth() * ratio);
-                        int fitToPageHeight = (int) (img.getHeight() * ratio);
-
-                        int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
-                        int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
-
-                        img.scaleAbsoluteHeight(ratio * img.getHeight());
-
-                        img.scaleAbsoluteWidth(ratio * img.getWidth());
-                        img.setAbsolutePosition((offsetX),
-                                pdfDoc.getPageSize().getHeight() - offsetY - (ratio * img.getHeight()));
-
-                        ScaledImageOptions options = new ScaledImageOptions();
-                        options.setXdpi(img.getDpiX());
-                        options.setYdpi(img.getDpiY());
-
-                        options.setXoffset(offsetX);
-                        options.setYoffset(offsetY);
-
-                        options.setWidth(fitToPageWidth);
-                        options.setHeight(fitToPageHeight);
-                        options.setScaleFactor(ratio);
+                        com.lowagie.text.Image img = null;
+                        if (cmdImage.getFile() != null) {
+                            img = com.lowagie.text.Image.getInstance(cmdImage.getFile());
+                        } else if (cmdImage.getUrl() != null)  {
+                            img = com.lowagie.text.Image.getInstance(new URL(cmdImage.getUrl()));
+                        }
+                        if (StringUtils.isAnyString(cmdImage.getX()) &&  StringUtils.isAnyString(cmdImage.getY())) {
+                            img.setAbsolutePosition(Float.parseFloat(cmdImage.getX()),Float.parseFloat(cmdImage.getY()));
+                        }
+                        if (StringUtils.isAnyString(cmdImage.getHeight()) &&  StringUtils.isAnyString(cmdImage.getWidth())) {
+                            img.scaleAbsoluteHeight(Float.parseFloat(cmdImage.getHeight()));
+                            img.scaleAbsoluteWidth(Float.parseFloat(cmdImage.getWidth()));
+                        }
 
                         return img;
                     } catch (BadElementException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    } catch (MalformedURLException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }
                     return new NullElement();
                 }
+
             } else
                 throw new UnsupportedOperationException("unsupported");
         }
     }
 
     public static Float ratio(Document document, float percentage, com.lowagie.text.Image img) {
+        img.scaleToFit(document.getPageSize().getWidth(), document.getPageSize().getHeight());
         Float wratio = document.getPageSize().getWidth() / img.getWidth();
         Float hratio = document.getPageSize().getHeight() / img.getHeight();
         Float ratio = Math.min(wratio, hratio);
@@ -480,5 +478,14 @@ public class RenderPDF {
         }
         return ratio;
     }
+//    public static Float ratioFromImage(Image image, float percentage, com.lowagie.text.Image img) {
+//        Float wratio = document.getPageSize().getWidth() / img.getWidth();
+//        Float hratio = document.getPageSize().getHeight() / img.getHeight();
+//        Float ratio = Math.min(wratio, hratio);
+//        if (percentage != 1.0) {
+//            ratio = ratio * percentage;
+//        }
+//        return ratio;
+//    }
 
 }

@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioFormat;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
@@ -15,13 +16,17 @@ import cz.incad.kramerius.rest.apiNew.client.v70.epub.EPubFileTypes;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
 import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations.RuntimeInformation;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
-import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.dochub.UserContentSpace;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.iiif.IIIFUtils;
-import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
@@ -43,6 +48,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.*;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.XML;
 
 import javax.imageio.ImageIO;
 import javax.inject.Named;
@@ -57,6 +63,7 @@ import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
@@ -139,6 +146,7 @@ public class ItemsResource extends ClientApiResource {
     private static final boolean AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE = true;
 
     private static final int SEARCH_INDEX_BATCH_SIZE = 98;
+    public static final String GENERATE_PDF_PROCESS = "generate_pdf";
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -152,6 +160,8 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     AudioStreamForwardingHelper audioHelper;
 
+    @Inject
+    UserContentSpace userContentSpace;
 
     /**
      * Because of rights and licenses
@@ -689,7 +699,6 @@ public class ItemsResource extends ClientApiResource {
 
 
     //TODO: Discuss - how to
-
     public static String createSafeFileName(String pid, String name) {
         String rawName = pid + "_" + name;
         String normalized = Normalizer.normalize(rawName, Normalizer.Form.NFD);
@@ -699,43 +708,103 @@ public class ItemsResource extends ClientApiResource {
         return safeName.toLowerCase();
     }
 
+
+
     @POST
     @Path("{pid}/requests/{reqid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response requests(@PathParam("pid") String pid,@PathParam("reqid") String reqid, JSONObject reqDefinition) {
+    public Response requests(@PathParam("pid") String pid,
+                             @PathParam("reqid") String reqid,
+                             @HeaderParam("Accept-Language") Locale locale , JSONObject reqDefinition) {
         try {
             switch (reqid) {
-                case "special_needs":
+                case "generate_pdf":
+
                     User user = this.userProvider.get();
-                    String tmpDir = System.getProperty("java.io.tmpdir");
-                    JSONObject process = new JSONObject();
-                    process.put(ProcessManagerMapper.PCP_PROFILE_ID, "special_needs_pdf");
-                    process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
+                    org.w3c.dom.Document doc = solrAccess.getSolrDataByPid(pid);
 
-                    JSONObject payload = new JSONObject();
-                    payload.put("pid", pid);
-                    payload.put("user", user.getLoginname());
-                    payload.put("output", tmpDir+File.separator+createSafeFileName(pid,user.getLoginname()));
+                    List<org.w3c.dom.Element> found = XMLUtils.getElementsRecursive(doc.getDocumentElement(), (elm) -> {
+                        String name = elm.getAttribute("name");
+                        return (name != null && name.equals("count_page"));
+                    });
+                    if (!found.isEmpty()) {
 
-                    process.put("payload", payload);
+                        List<org.w3c.dom.Element> ownPidPathElms = XMLUtils.getElementsRecursive(doc.getDocumentElement(), (elm) -> {
+                            String name = elm.getAttribute("name");
+                            return (name != null && name.equals("own_pid_path"));
+                        });
+                        if  (!ownPidPathElms.isEmpty()) {
 
-                    ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+                            String ownPidPath = ownPidPathElms.get(0).getTextContent();
+                            String encodedQuery = URLEncoder.encode(String.format("own_pid_path.children:\"%s\"",  ownPidPath), StandardCharsets.UTF_8);
+                            String request = String.format("q=%s&fl=pid&rows=15", encodedQuery);
+                            org.w3c.dom.Document resp = solrAccess.requestWithSelectReturningXml(request, null);
+                            List<org.w3c.dom.Element> allPidsElems = XMLUtils.getElementsRecursive(resp.getDocumentElement(), (elm) -> {
+                                String name = elm.getAttribute("name");
+                                if (name != null && name.equals("pid")) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
 
-                    JSONObject profile = processManagerClient.getProfile("special_needs_pdf");
-                    JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
-                    org.json.JSONArray scheduledProfiles = null;
-                    if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
-                        scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
+                            List<String> allPids = allPidsElems.stream().map(org.w3c.dom.Element::getTextContent).collect(Collectors.toList());
+                            for (int i = 0; i < allPids.size(); i++) {
+                                String currentPid = allPids.get(i);
+                                RuntimeInformation extractInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, currentPid);
+                                List<String> providedByLicenses = extractInformation.getProvidingLicenses();
+                                if (providedByLicenses != null && providedByLicenses.size() > 0) {
+                                    String provideByLicense = providedByLicenses.get(0);
+                                    License lic = licensesManager.getLicenseByName(provideByLicense);
+                                    // found license and license allow to generate content
+                                    if (lic != null && lic.isOfflineGenerateContentAllowed()) {
+
+                                        JSONObject process = new JSONObject();
+                                        process.put(ProcessManagerMapper.PCP_PROFILE_ID, GENERATE_PDF_PROCESS);
+                                        process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
+
+                                        JSONObject payload = new JSONObject();
+                                        payload.put("pid", pid);
+                                        if (reqDefinition.has("email")) { payload.put("email", reqDefinition.getString("email")); }
+                                        payload.put("user", user.getLoginname());
+                                        payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
+
+                                        Locale finalLocale = (locale == null || "und".equals(locale.toLanguageTag()))
+                                                ? Locale.forLanguageTag("cs")
+                                                : locale;
+
+                                        payload.put("locale", finalLocale);
+                                        payload.put("providedByLicense", lic.getName());
+
+                                        process.put("payload", payload);
+
+                                        ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+
+                                        JSONObject profile = processManagerClient.getProfile(GENERATE_PDF_PROCESS);
+                                        JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
+                                        org.json.JSONArray scheduledProfiles = null;
+                                        if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
+                                            scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
+                                        }
+
+                                        LOGGER.info("Scheduler process -> "+process.toString());
+                                        String processId = processManagerClient.scheduleProcess(process);
+                                        JSONObject result = new JSONObject();
+                                        result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
+                                        String token = this.userContentSpace.getToken(pid, user.getLoginname());
+                                        result.put("token", token);
+
+                                        return Response.ok().entity(result.toString()).build();
+                                    }
+                                }
+                            }
+                            throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user, SecuredActions.A_CONTENT_GENERATE.name()); //403
+                        }
+                    } else {
+                        throw new BadRequestException("Cannot find pages");
                     }
 
-                    LOGGER.info("Scheduler process -> "+process.toString());
-                    String processId = processManagerClient.scheduleProcess(process);
-                    JSONObject result = new JSONObject();
-                    result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
-                    result.put("output", tmpDir+File.separator+createSafeFileName(pid,user.getLoginname()));
-
-                    return Response.ok().entity(result.toString()).build();
                 default: throw new BadRequestException(reqid);
             }
         } catch (ProcessManagerClientException e) {

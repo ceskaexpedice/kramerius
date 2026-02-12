@@ -48,6 +48,9 @@ public class CzechEmbeddedLicenses {
 
     /** Global licenses - public **/
     public static License PUBLIC_LICENSE = new LicenseImpl("public", "Public license", GLOBAL_GROUP_NAME_EMBEDDED, 4);
+    static {
+        PUBLIC_LICENSE.setOfflineGenerateContentAllowed(true);
+    }
 
     /** Global licenses - public muo **/
     public static License PUBLIC_MUO_LICENSE = new LicenseImpl("public-muo", "Public license - sheetmusic Kroměříž ", GLOBAL_GROUP_NAME_EMBEDDED, 5);
@@ -60,6 +63,7 @@ public class CzechEmbeddedLicenses {
     public static License SPECIAL_NEEDS_LICENSE = new LicenseImpl("special-needs", "Special needs license", GLOBAL_GROUP_NAME_EMBEDDED, 7);
     static {
         SPECIAL_NEEDS_LICENSE.initRuntime(RuntimeLicenseType.ALL_DOCUMENTS);
+        SPECIAL_NEEDS_LICENSE.setOfflineGenerateContentAllowed(true);
     }
 
     /** Cover and content license */

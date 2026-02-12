@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<alto xmlns="http://www.loc.gov/standards/alto/ns-v2#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Description>
+        <MeasurementUnit>pixel</MeasurementUnit>
+        <sourceImageInformation><fileName>3cfe1cd0-c423-11ee-87eb-5ef3fc9bb22f\1_v0001_2R.tif.jp2</fileName></sourceImageInformation>
+        <OCRProcessing ID="IdOcr"><ocrProcessingStep><processingDateTime>2024-03-12</processingDateTime><processingSoftware><softwareCreator>ABBYY</softwareCreator><softwareName>ABBYY FineReader Server</softwareName><softwareVersion>14.0</softwareVersion></processingSoftware></ocrProcessingStep></OCRProcessing>
+    </Description>
+    <Styles><TextStyle ID="font0" FONTFAMILY="Arial" FONTSIZE="10"/>
+        <ParagraphStyle ID="StyleId-C1575379-6E9F-4FA5-AB7F-17BC3D92EA6E-" ALIGN="Center" LEFT="0." RIGHT="0." FIRSTLINE="0." LINESPACE="10.899999618530273"/>
+        <ParagraphStyle ID="StyleId-C0689116-764B-44FB-91F3-CCE83547031C-" ALIGN="Left" LEFT="0." RIGHT="0." FIRSTLINE="0." LINESPACE="11.5"/>
+        <ParagraphStyle ID="StyleId-FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF-" ALIGN="Left" LEFT="0." RIGHT="0." FIRSTLINE="0."/>
+        <ParagraphStyle ID="StyleId-2379A401-745E-4B9A-91E8-2804A55AA4E4-" ALIGN="Left" LEFT="0." RIGHT="0." FIRSTLINE="0."/>
+        <ParagraphStyle ID="StyleId-F6F406A2-604F-45D5-93F6-72D0E501C919-" ALIGN="Left" LEFT="0." RIGHT="0." FIRSTLINE="0."/>
+    </Styles>
+    <Layout>
+        <Page ID="Page1" PHYSICAL_IMG_NR="1" HEIGHT="3261" WIDTH="2314">
+            <PrintSpace HEIGHT="3261" WIDTH="2314" VPOS="0" HPOS="0"><Illustration ID="Page1_Block1" HEIGHT="3261" WIDTH="2314" VPOS="0" HPOS="0"/>
+                <TextBlock ID="Page1_Block2" HEIGHT="120" WIDTH="248" VPOS="3124" HPOS="1041" language="en-US" STYLEREFS="StyleId-C1575379-6E9F-4FA5-AB7F-17BC3D92EA6E- font0">
+                    <TextLine HEIGHT="36" WIDTH="82" VPOS="3130" HPOS="1142"><String STYLE="bold underline" CONTENT="SVK" HEIGHT="36" WIDTH="82" VPOS="3130" HPOS="1142"/></TextLine>
+                    <TextLine HEIGHT="37" WIDTH="236" VPOS="3201" HPOS="1047"><String STYLE="bold" CONTENT="BRNO" HEIGHT="37" WIDTH="129" VPOS="3201" HPOS="1047"/><SP WIDTH="17" VPOS="3201" HPOS="1177"/><String STYLE="bold" CONTENT="1988" HEIGHT="36" WIDTH="88" VPOS="3202" HPOS="1195"/></TextLine>
+                </TextBlock><GraphicalElement ID="Page1_Block3" HEIGHT="6" WIDTH="154" VPOS="46" HPOS="1919"/><GraphicalElement ID="Page1_Block4" HEIGHT="13" WIDTH="213" VPOS="2181" HPOS="1152"/><GraphicalElement ID="Page1_Block5" HEIGHT="4" WIDTH="88" VPOS="2196" HPOS="1156"/><GraphicalElement ID="Page1_Block6" HEIGHT="23" WIDTH="320" VPOS="2794" HPOS="1669"/><GraphicalElement ID="Page1_Block7" HEIGHT="11" WIDTH="256" VPOS="3173" HPOS="1045"/><Illustration ID="Page1_Block8" HEIGHT="53" WIDTH="71" VPOS="2303" HPOS="1737"/>
+            </PrintSpace>
+        </Page>
+    </Layout>
+</alto>

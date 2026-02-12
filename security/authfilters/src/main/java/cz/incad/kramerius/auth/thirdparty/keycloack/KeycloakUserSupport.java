@@ -47,12 +47,9 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
 
         UserUtils.associateGroups(u, this.usersManager);
         UserUtils.associateCommonGroup(u, this.usersManager);
+        UserUtils.associateAuthenticatedGroup(u, this.usersManager);
         String password = GeneratePasswordUtils.generatePswd();
 
-        User userByLoginName = this.usersManager.findUserByLoginName(userName);
-        Role[] groups = userByLoginName.getGroups();
-
-        List<String> fromDb = Arrays.stream(groups).map(Role::getName).collect(Collectors.toList());
         List<String> fromKeycloack = BaseUsersFunctions.checkRolesExists(this.usersManager, kUser).stream().map(Role::getName).collect(Collectors.toList());
 
         if (!fromKeycloack.isEmpty()) {

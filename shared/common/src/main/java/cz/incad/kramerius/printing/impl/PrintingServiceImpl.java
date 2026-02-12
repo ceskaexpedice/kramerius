@@ -55,7 +55,6 @@ import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.JobOriginatingUserName;
 import javax.print.attribute.standard.RequestingUserName;
 import javax.print.attribute.standard.Sides;
-import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.antlr.stringtemplate.StringTemplate;
@@ -70,7 +69,7 @@ import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
 import cz.incad.kramerius.document.model.AbstractPage;
 import cz.incad.kramerius.document.model.ImagePage;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.imaging.utils.ImageUtils;
@@ -133,7 +132,7 @@ public class PrintingServiceImpl implements PrintingService {
             ObjectPidsPath[] paths = this.solrAccess.getPidPaths(pidFrom);
             ObjectPidsPath selectedPath = selectOnePath(pidFrom, paths);
 
-            PreparedDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES, null /*
+            AkubraDocument documentAsFlat = this.documentService.buildDocumentAsFlat(selectedPath, pidFrom, MAX_PAGES, null /*
                                                                                                                                        * used
                                                                                                                                        * default
                                                                                                                                        * values
@@ -147,7 +146,7 @@ public class PrintingServiceImpl implements PrintingService {
         }
     }
 
-    public void renderToPDFandPrint(String imgUrl, String i18nUrl, PreparedDocument document) throws IOException, FileNotFoundException, PrintException, DocumentException {
+    public void renderToPDFandPrint(String imgUrl, String i18nUrl, AkubraDocument document) throws IOException, FileNotFoundException, PrintException, DocumentException {
         FontMap fontMap = new FontMap(this.pdfService.fontsFolder());
         File pdfFile = File.createTempFile("pdf", "rendered");
         pdfFile.deleteOnExit();
@@ -249,7 +248,7 @@ public class PrintingServiceImpl implements PrintingService {
     @Override
     public void printSelection(String[] selection, String imgUrl, String i18nUrl) throws IOException, PrintException {
         try {
-            PreparedDocument document = this.documentService.buildDocumentFromSelection(selection, null /*
+            AkubraDocument document = this.documentService.buildDocumentFromSelection(selection, null /*
                                                                                                                  * use
                                                                                                                  * default
                                                                                                                  * values
@@ -264,14 +263,14 @@ public class PrintingServiceImpl implements PrintingService {
 
     public static class PrintableDoc implements Printable {
 
-        private PreparedDocument document;
+        private AkubraDocument document;
         private String imgServletUrl;
         private AkubraRepository akubraRepository;
 
         private Dimension page;
         private int dpi;
 
-        public PrintableDoc(AkubraRepository akubraRepository, PreparedDocument document, String imgServletUrl, Dimension page, int dpi) {
+        public PrintableDoc(AkubraRepository akubraRepository, AkubraDocument document, String imgServletUrl, Dimension page, int dpi) {
             super();
             this.akubraRepository = akubraRepository;
             this.document = document;
@@ -346,7 +345,6 @@ public class PrintingServiceImpl implements PrintingService {
     }
 
     public static void main(String[] args) {
-
         PrintService lps = PrintServiceLookup.lookupDefaultPrintService();
         lps.getAttributes().add(new JobOriginatingUserName("troubelin", Locale.getDefault()));
     }

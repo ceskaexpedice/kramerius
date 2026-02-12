@@ -22,26 +22,7 @@ public class BaseUsersFunctions {
 
     private BaseUsersFunctions() {}
 
-    public static String updateUser(UserManager usersManager, String userName, AbstractThirdPartyUser kUser) throws SQLException {
-        User u = usersManager.findUserByLoginName(userName);
 
-        UserUtils.associateGroups(u, usersManager);
-        UserUtils.associateCommonGroup(u, usersManager);
-        String password = GeneratePasswordUtils.generatePswd();
-
-        User userByLoginName = usersManager.findUserByLoginName(userName);
-        Role[] groups = userByLoginName.getGroups();
-
-        List<String> fromDb = Arrays.stream(groups).map(Role::getName).collect(Collectors.toList());
-        List<String> fromKeycloack = BaseUsersFunctions.checkRolesExists(usersManager, kUser).stream().map(Role::getName).collect(Collectors.toList());
-
-        if (!fromKeycloack.isEmpty()) {
-            usersManager.changeRoles(u, kUser.getRoles());
-        }
-        return password;
-
-    }
-    
     
     public static String createNewUser(UserManager usersManager, AbstractThirdPartyUser w) throws SQLException {
         User u = new UserImpl(-1,

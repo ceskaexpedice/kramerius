@@ -27,26 +27,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import cz.incad.kramerius.database.VersionService;
-import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
-import cz.incad.kramerius.security.licenses.LicensesManagerException;
-import cz.incad.kramerius.security.licenses.impl.DatabaseLicensesManagerImpl;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
 import cz.incad.kramerius.security.licenses.impl.embedded.sk.SlovakEmbeddedLicenses;
 import cz.incad.kramerius.users.database.LoggedUserDbHelper;
@@ -93,6 +85,8 @@ public class SecurityDbInitializer {
 
                 createNewActions(connection);
 
+                insertGenerateContent(connection);
+
             } else {
                 String v = versionService.getVersion();
 
@@ -115,6 +109,8 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if (versionCondition(v, "=", "5.3.0")) {
 
 
@@ -126,6 +122,8 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if (versionCondition(v, "=", "5.4.0")) {
 
                     updateUserEntityTable(connection);
@@ -135,6 +133,8 @@ public class SecurityDbInitializer {
                     makeSureThatLabelsTable(connection);
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
+
+                    insertGenerateContent(connection);
 
                 } else if (versionCondition(v, "=", "5.5.0")) {
 
@@ -146,6 +146,8 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if (versionCondition(v, "=", "5.6.0")) {
 
                     updateUserEntityTable(connection);
@@ -155,6 +157,8 @@ public class SecurityDbInitializer {
                     makeSureThatLabelsTable(connection);
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
+
+                    insertGenerateContent(connection);
 
                 } else if (versionCondition(v, "=", "5.7.0")) {
 
@@ -166,6 +170,8 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if (versionCondition(v, "=", "5.8.0")) {
 
                     updateUserEntityTable(connection);
@@ -175,6 +181,8 @@ public class SecurityDbInitializer {
                     makeSureThatLabelsTable(connection);
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
+
+                    insertGenerateContent(connection);
 
                 } else if (versionCondition(v, "=", "5.9.0")) {
 
@@ -186,6 +194,8 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if ((versionCondition(v, ">", "5.9.0")) && (versionCondition(v, "<", "6.3.0"))) {
 
                     updateUserEntityTable(connection);
@@ -196,6 +206,8 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if (versionCondition(v, "=", "6.3.0")) {
                     updateUserEntityTable(connection);
                     updateShowItems(connection);
@@ -204,6 +216,8 @@ public class SecurityDbInitializer {
                     makeSureThatLabelsTable(connection);
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
+
+                    insertGenerateContent(connection);
 
                 } else if (versionCondition(v, "=", "6.6.0")) {
                     updateUserEntityTable(connection);
@@ -214,6 +228,8 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if (versionCondition(v, ">", "6.6.0") && versionCondition(v, "<=", "6.6.2")) {
                     updateShowItems(connection);
                     // labels table
@@ -221,13 +237,21 @@ public class SecurityDbInitializer {
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
 
+                    insertGenerateContent(connection);
+
                 } else if (versionCondition(v, ">", "6.6.2") && versionCondition(v, "<", "7.0.2")) {
 
                     // labels table
                     makeSureThatLabelsTable(connection);
                     makeSureThatRoleColumnExists(connection);
                     createNewActions(connection);
+
+                    insertGenerateContent(connection);
+
+                } else if (versionCondition(v, ">=", "7.0.2") && versionCondition(v, "<", "7.0.6")) {
+                    insertGenerateContent(connection);
                 }
+                // insertAggregateRight
             }
 
             // checks role column in right entity
@@ -243,6 +267,9 @@ public class SecurityDbInitializer {
             // runtime license columns
             makeSureThatRuntimeColumnsExists(connection);
             dropDeprecatedLabels(connection);
+
+            // authenticated users
+            makeSureAuthenticatedUsers(connection);
 
             checkLabelExists(connection);
         } catch (SQLException e) {
@@ -518,6 +545,12 @@ public class SecurityDbInitializer {
     }
 
 
+    private static int insertGenerateContent(Connection connection) throws SQLException {
+        String sql = SecurityDatabaseUtils.stUdateRightGroup().getInstanceOf("insertRight_generate_content").toString();
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        return template.executeUpdate(sql);
+    }
+
 
 //    /**
 //     * @param connection
@@ -742,7 +775,26 @@ public class SecurityDbInitializer {
         template.setUseReturningKeys(false);
         template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
-    
+
+    public static void makeSureAuthenticatedUsers(Connection connection) throws SQLException, IOException {
+        List<String> roleNames = new JDBCQueryTemplate<String>(connection, false) {
+            public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
+                return rs.getString("gname") != null;
+            }
+        }.executeQuery("select gname from group_entity where gname='authenticated_users'");
+
+        if (roleNames.isEmpty()) {
+            insertAuthenticatedUserRole( connection);
+        }
+    }
+
+    private static void insertAuthenticatedUserRole( Connection connection) throws SQLException, IOException {
+        InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initauthenticatedusersdb.sql");
+        JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
+        template.setUseReturningKeys(false);
+        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+    }
+
     /** Premena na nove akce */
     // vytvareni 
     private static void createNewActions(Connection connection) throws SQLException, IOException {

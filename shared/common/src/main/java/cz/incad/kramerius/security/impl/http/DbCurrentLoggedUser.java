@@ -106,6 +106,7 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
                 
                 // User user = k4principal.getUser();
                 UserUtils.associateCommonGroup(user, userManager);
+                UserUtils.associateAuthenticatedGroup(user, userManager);
 
                 HttpServletRequest request = this.provider.get();
                 HttpSession session = request.getSession(true);
@@ -137,6 +138,8 @@ public class DbCurrentLoggedUser extends AbstractLoggedUserProvider {
 
                     UserUtils.associateGroups(dbUser, userManager);
                     UserUtils.associateCommonGroup(dbUser, userManager);
+                    UserUtils.associateAuthenticatedGroup(dbUser, userManager);
+
                     final Locale foundLocale = localeFromProfile(dbUser);
 
                     // TODO: Remove - user's profile are not used anymore

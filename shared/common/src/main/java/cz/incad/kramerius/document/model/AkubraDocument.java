@@ -1,52 +1,46 @@
 package cz.incad.kramerius.document.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-
-import com.lowagie.text.Rectangle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cz.incad.kramerius.ObjectPidsPath;
 
-/**
- * Represents whole document
- * 
- * @author pavels
- */
-public class PreparedDocument extends AbstractObject {
+
+// Abstraktni model z akubry
+public class AkubraDocument extends AbstractObject {
+
+    public static final Logger LOGGER = Logger.getLogger(AkubraDocument.class.getName());
 
     /** Default WIDTH */
     public static final int DEFAULT_WIDTH = 595;
     /** Default HEIGHT */
     public static final int DEFAULT_HEIGHT = 842;
 
-    // TODO: To remove it !
     private String uuidTitlePage;
     private String uuidFrontCover;
     private String uuidBackCover;
     private String firstPage;
     private String uuidMainTitle;
-
     protected OutlineItem outlineItemRoot;
-
     private List<AbstractPage> pages = new ArrayList<AbstractPage>();
-
     private String documentTitle;
-
-    private int width = DEFAULT_WIDTH;
-    private int height = DEFAULT_HEIGHT;
-
     private ObjectPidsPath objectPidsPath;
+    private PageDimension pageDimension;
+
+
 
     // TODO: Remove
     private Map<String, DCConent> dcs = new HashMap<String, DCConent>();
 
-    public PreparedDocument(String modelName, String uuid) {
+    public AkubraDocument(String modelName, String uuid) {
         super(modelName, uuid);
         this.outlineItemRoot = new OutlineItem();
+       this.pageDimension = new PageDimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     /**
@@ -318,28 +312,29 @@ public class PreparedDocument extends AbstractObject {
         this.firstPage = firstPage;
     }
 
-    public int getWidth() {
-        return width;
+    public void setPageDimension(PageDimension pageDimension) {
+        this.pageDimension = pageDimension;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
+    public PageDimension getPageDimension() {
+        return pageDimension;
     }
 
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public void setRect(int w, int h) {
-        this.width = w;
-        this.height = h;
-    }
-
-    public Rectangle getRectangle() {
-        return new Rectangle(this.width, this.height);
+    // dimenze pro kazdou stranku -- dame
+    public void pageDimensionFromFirstPage() {
+        List<AbstractPage> pgs = this.getPages();
+        if (!pgs.isEmpty()) {
+            AbstractPage abstractPage = pgs.get(0);
+            if (abstractPage instanceof ImagePage) {
+                ImagePage imagePage = (ImagePage) abstractPage;
+                if (imagePage.getPageDimension() != null) {
+                    LOGGER.log(Level.INFO, "Document dimension from first page == image page "+abstractPage.getPageDimension());
+                    this.setPageDimension(abstractPage.getPageDimension());
+                } else {
+                    //this.autodetect = true;
+                    this.setPageDimension(null);
+                }
+            }
+        }
     }
 }

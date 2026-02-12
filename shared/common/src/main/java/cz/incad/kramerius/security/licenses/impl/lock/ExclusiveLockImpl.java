@@ -20,9 +20,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import cz.incad.kramerius.security.Right;
 import cz.incad.kramerius.security.licenses.License;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
 
-public class ExclusiveLockImpl implements ExclusiveLock {
+public class ExclusiveLockImpl implements ExclusiveReadersLock {
     
     private ExclusiveLockType type = ExclusiveLockType.INSTANCE;
     

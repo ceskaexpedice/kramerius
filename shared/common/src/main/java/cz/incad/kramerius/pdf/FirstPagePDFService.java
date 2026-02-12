@@ -19,7 +19,7 @@ package cz.incad.kramerius.pdf;
 import java.io.OutputStream;
 
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.document.model.PreparedDocument;
+import cz.incad.kramerius.document.model.AkubraDocument;
 import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 
 /**
@@ -36,7 +36,9 @@ public interface FirstPagePDFService {
         // Vyrendrovany obrazek
         IMAGE,
 
-        SPECIALNEEDS;
+
+        // licenses - pak zmenim - pokud nic, pak special needs, pokud licence pak dle licence
+        USERPROCESS;
     };
 
     /**
@@ -46,7 +48,7 @@ public interface FirstPagePDFService {
      * @param pids PIDs selection
      * @param fontMap Prepared FontMap object
      */
-    public void selection(PreparedDocument rdoc, OutputStream os, String[] pids,  FontMap fontMap);
+    public void selection(AkubraDocument rdoc, OutputStream os, String[] pids, FontMap fontMap, String providedByLicense);
     
     /**
      * Generate first pdf page for title 
@@ -55,6 +57,6 @@ public interface FirstPagePDFService {
      * @param path Path for generting object
      * @param fontMap Prepared FontMap object
      */
-    public void parent(PreparedDocument rdoc, OutputStream os, ObjectPidsPath path, FontMap fontMap);
+    public void parent(AkubraDocument rdoc, OutputStream os, ObjectPidsPath path, FontMap fontMap, String providedByLicense);
     
 }

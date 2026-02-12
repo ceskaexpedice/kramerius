@@ -39,6 +39,8 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
     private java.util.List<ITextCommand> loadedCommands = new ArrayList<>();
     private String footer;
     private String header;
+    private Float width;
+    private Float height;
 
     private static Map<String, Class> CLZ_MAPPING = new HashMap<>(); {
         CLZ_MAPPING.put("item",ListItem.class);
@@ -74,6 +76,13 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
             this.header = pageHeader;
         }
         if (elm.getNodeName().equals("commands")) {
+            String sWidth = elm.getAttribute("width");
+            String sHeight = elm.getAttribute("height");
+            if (StringUtils.isAnyString(sWidth) && StringUtils.isAnyString(sHeight)) {
+                this.width = Float.parseFloat(sWidth);
+                this.height = Float.parseFloat(sHeight);
+            }
+
             NodeList nNodes = elm.getChildNodes();
             for (int i = 0,ll=nNodes.getLength(); i < ll; i++) {
                 Node node = nNodes.item(i);
@@ -94,13 +103,22 @@ public class ITextCommands extends AbstractITextCommand implements ITextCommand 
     }
 
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDocs) {
+        procsListener.before(this, xmlDocs);
         for (ITextCommand cmd : this.loadedCommands) {
-            cmd.process(procsListener);
+            cmd.process(procsListener, xmlDocs);
         }
-        procsListener.after(this);
+        procsListener.after(this, xmlDocs);
     }
+
+    public Float getWidth() {
+        return this.width;
+    }
+
+    public Float getHeight() {
+        return this.height;
+    }
+
 
     public void setFooter(String footer) {
         this.footer = footer;

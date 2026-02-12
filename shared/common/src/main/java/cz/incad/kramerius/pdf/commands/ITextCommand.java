@@ -51,5 +51,5 @@ public interface ITextCommand {
      * Process command
      * @param procsListener Listener for receiving processing informations
      */
-    public void process(ITextCommandProcessListener procsListener);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDocs);
 }

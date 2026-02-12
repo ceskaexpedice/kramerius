@@ -22,7 +22,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.security.licenses.License;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 
 // one lock map
 public interface ExclusiveLockMap {
@@ -37,7 +37,7 @@ public interface ExclusiveLockMap {
 
     public License getAssociatedLicense();
     
-    public ExclusiveLock getAssociatedExcelusiveLock();
+    public ExclusiveReadersLock getAssociatedExcelusiveLock();
 
     public String getIdenityHash();
 

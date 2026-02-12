@@ -18,6 +18,7 @@ package cz.incad.kramerius.pdf.commands;
 
 import java.util.logging.Level;
 
+import cz.incad.kramerius.utils.StringUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -30,19 +31,55 @@ public class Image extends AbstractITextCommand implements ITextCommand {
     
     private String pid;
     private String file;
-    
+
+    private String url;
+
+    private String x;
+    private String y;
+    private String width;
+    private String height;
+
     @Override
     public void load(Element elm, ITextCommands cmnds) throws InstantiationException, IllegalAccessException {
         if (elm.getNodeName().equals("image")) {
+
+            this.scaledMeasurements = this.scaledMeasurementsFromAttributes(elm);
+            // data
             String file = elm.getAttribute("file");
             String pid = elm.getAttribute("pid");
+            String url = elm.getAttribute("url");
+
+            String x = elm.getAttribute("x");
+            String y = elm.getAttribute("y");
+            String width = elm.getAttribute("width");
+            String height = elm.getAttribute("height");
+
             if ((pid != null) && (!pid.equals(""))) {
                 this.pid = pid;
             } 
             if ((file != null) && (!file.equals(""))) {
                 this.file = file;
-            } else {
-                LOGGER.log(Level.WARNING, "cannot load image component. No pid, no file "); 
+            }
+            if ((url != null) && (!url.equals(""))) {
+                this.url = url;
+            }
+            if (!StringUtils.isAnyString(this.pid) && !StringUtils.isAnyString(this.file) && !StringUtils.isAnyString(this.url) ) {
+                LOGGER.log(Level.WARNING, "cannot load image component. No pid, no file ");
+            }
+
+            if ((x != null) && (!x.equals(""))) {
+                this.x = x;
+            }
+
+            if ((y != null) && (!y.equals(""))) {
+                this.y = y;
+            }
+
+            if ((width != null) && (!width.equals(""))) {
+                this.width = width;
+            }
+            if ((height != null) && (!height.equals(""))) {
+                this.height = height;
             }
         } else {
            LOGGER.log(Level.WARNING, "cannot load image component. No image elm."); 
@@ -53,11 +90,10 @@ public class Image extends AbstractITextCommand implements ITextCommand {
 
     
     @Override
-    public void process(ITextCommandProcessListener procsListener) {
-        procsListener.before(this);
-        procsListener.after(this);
+    public void process(ITextCommandProcessListener procsListener, ITextCommands xmlDocs) {
+        procsListener.before(this, xmlDocs);
+        procsListener.after(this, xmlDocs);
     }
-
 
     public String getFile() {
         return this.file;
@@ -65,5 +101,25 @@ public class Image extends AbstractITextCommand implements ITextCommand {
 
     public String getPid() {
         return pid;
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public String getX() {
+        return x;
+    }
+
+    public String getY() {
+        return y;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public String getHeight() {
+        return height;
     }
 }

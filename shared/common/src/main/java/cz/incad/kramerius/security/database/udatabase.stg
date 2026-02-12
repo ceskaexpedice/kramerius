@@ -192,6 +192,12 @@ findCommonUsersGroup() ::=<<
     select * from group_entity 
     where gname='common_users'
 >>
+//authenticated_users
+/** najde common user group */
+findAuthenticatedUsersGroup() ::=<<
+    select * from group_entity
+    where gname='authenticated_users'
+>>
 
 /** najde skupinu k4_admins */
 findGlobalAdminsGroup() ::=<<

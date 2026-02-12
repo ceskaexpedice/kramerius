@@ -16,9 +16,8 @@
  */
 package cz.incad.kramerius.document.impl;
 
+import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,22 +26,23 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xpath.XPathExpressionException;
 
+import cz.incad.kramerius.document.model.*;
 import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
+import cz.incad.kramerius.utils.FedoraUtils;
+import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.pdfbox.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.relsext.TreeNodeProcessor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -54,13 +54,7 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.document.DocumentService;
-import cz.incad.kramerius.document.model.AbstractPage;
-import cz.incad.kramerius.document.model.ImagePage;
-import cz.incad.kramerius.document.model.OutlineItem;
-import cz.incad.kramerius.document.model.PreparedDocument;
-import cz.incad.kramerius.document.model.TextPage;
 import cz.incad.kramerius.pdf.OutOfRangeException;
-import cz.incad.kramerius.pdf.impl.ConfigurationUtils;
 import cz.incad.kramerius.pdf.utils.TitlesUtils;
 import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.utils.DCUtils;
@@ -108,7 +102,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     protected void buildRenderingDocumentAsFlat(
-            final PreparedDocument renderedDocument, final String pidFrom,
+            final AkubraDocument renderedDocument, final String pidFrom,
             final int howMany) throws IOException {
         if (pidFrom != null && akubraRepository.datastreamExists(pidFrom, KnownDatastreams.IMG_FULL)) {
 
@@ -208,7 +202,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     protected void buildRenderingDocumentAsTree(
-            /* org.w3c.dom.Document relsExt, */final PreparedDocument renderedDocument,
+            /* org.w3c.dom.Document relsExt, */final AkubraDocument renderedDocument,
             final String pid) throws IOException {
 
         akubraRepository.re().processInTree(pid, new TreeNodeProcessor() {
@@ -267,35 +261,27 @@ public class DocumentServiceImpl implements DocumentService {
                 return false;
             }
         });
-
     }
 
-	protected AbstractPage createTextPage(final PreparedDocument renderedDocument,
+	protected AbstractPage createTextPage(final AkubraDocument renderedDocument,
             String pid) throws LexerException, IOException {
 		throw new IllegalStateException();
 	}
 
-    public Response iiifJson(String tilesUrl) {
+    protected String iiifJson(String tilesUrl) {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            try (final CloseableHttpResponse httpResponse = httpclient.execute(new HttpGet(tilesUrl + "/original"))) {
+            String infoJson = tilesUrl + ( tilesUrl.endsWith("/") ? "" : "/" )+ "/info.json";
+            try (final CloseableHttpResponse httpResponse = httpclient.execute(new HttpGet(infoJson))) {
 
                 switch (httpResponse.getStatusLine().getStatusCode()) {
                     case 200:
-                        break;
+                        return org.apache.commons.io.IOUtils.toString(httpResponse.getEntity().getContent());
                     case 404:
-                        return Response.status(Response.Status.NOT_FOUND).build();
+                        return null;
                     default:
-                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+                        return null;
                 }
 
-                StreamingOutput stream = new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream output) throws IOException, WebApplicationException {
-                        IOUtils.copy(httpResponse.getEntity().getContent(), output);
-                        output.flush();
-                    }
-                };
-                return Response.ok(stream).build();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -303,54 +289,116 @@ public class DocumentServiceImpl implements DocumentService {
 
     }
 
-//            try (
-//    CloseableHttpClient httpclient = HttpClients.createDefault()) {
-//        try (final CloseableHttpResponse httpResponse = httpclient.execute(new HttpGet(tilesUrl + "/original"))) {
-//
-//            switch (httpResponse.getStatusLine().getStatusCode()) {
-//                case 200:
-//                    break;
-//                case 404:
-//                    return Response.status(Response.Status.NOT_FOUND).build();
-//                default:
-//                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-//            }
-//
-//            StreamingOutput stream = new StreamingOutput() {
-//                @Override
-//                public void write(OutputStream output) throws IOException, WebApplicationException {
-//                    IOUtils.copy(httpResponse.getEntity().getContent(), output);
-//                    output.flush();
-//                }
-//            };
-//            return Response.ok(stream).build();
-//        }
-//    }
 
-
-
-    protected AbstractPage createPage(final PreparedDocument renderedDocument,
+    protected AbstractPage createPage(final AkubraDocument renderedDocument,
             String pid) throws LexerException, IOException {
 
         try {
-            Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(false);
+            Document biblioMods = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_MODS).asDom(true);
             String tilesUrl = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
-            // http://imageserver.mzk.cz/mzk/2026/01/04/ff7a2e93-b205-46ac-9b12-efa16fb1b8e2/uc_ff7a2e93-b205-46ac-9b12-efa16fb1b8e2_0001/info.json
-            //<kramerius:tiles-url>https://imageserver.mzk.cz/mzk/2026/01/04/ff7a2e93-b205-46ac-9b12-efa16fb1b8e2/uc_ff7a2e93-b205-46ac-9b12-efa16fb1b8e2_0001</kramerius:tiles-url>
+            //String s = this.iiifJson(tilesUrl);
 
+            String iifResponse =tilesUrl != null ?  iiifJson(tilesUrl) : null;
             Document dc = akubraRepository.getDatastreamContent(pid, KnownDatastreams.BIBLIO_DC).asDom(false);
             String modelName = akubraRepository.re().getModel(pid);
             ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
 
             AbstractPage page = null;
 
+
             if (akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_FULL)) {
 
-                page = new ImagePage(modelName, pid);
-                page.setOutlineDestination(pid);
+                ImagePage imagePage = new ImagePage(modelName, pid);
+                imagePage.setOutlineDestination(pid);
+                imagePage.setBiblioMods(biblioMods);
+                imagePage.setDc(dc);
+                page = imagePage;
 
-                page.setBiblioMods(biblioMods);
-                page.setDc(dc);
+                if (iifResponse != null) {
+                    JSONObject iifJson = new JSONObject(iifResponse);
+
+                    if (iifJson.has("service")) {
+                        JSONArray service = iifJson.getJSONArray("service");
+                        if (service.length() > 0) {
+                            JSONObject serviceJson = service.getJSONObject(0);
+                            double physicalScale = serviceJson.getDouble("physicalScale");
+                            imagePage.setScaleFactor(physicalScale);
+                            String physicalUnits = serviceJson.getString("physicalUnits");
+                            imagePage.setPhysicalDimensionUnit(physicalUnits);
+
+                            imagePage.setPhysicalDimensionsSet(true);
+                        }
+                    }
+
+                    if (iifJson.has("width")) {
+                        double width = iifJson.getDouble("width");
+                        imagePage.setWidth(width); // width in px
+                    }
+                    if (iifJson.has("height")) {
+                        double height = iifJson.getDouble("height");
+                        imagePage.setHeight(height); // height in px
+                    }
+
+                    if (imagePage.isPhysicalDimensionsSet()) {
+                        double realWidth = imagePage.getWidth() * imagePage.getScaleFactor();
+                        double realHeight = imagePage.getHeight() * imagePage.getScaleFactor();
+                        float divider = 2.54f;
+
+                        String unit = imagePage.getPhysicalDimensionUnit() != null ? imagePage.getPhysicalDimensionUnit().trim() : "cm";
+                        switch (unit) {
+                            case "cm":
+                                divider = 2.54f;
+                                break;
+                            case "mm":
+                                divider = 25.4f;
+                                break;
+                            default:
+                                divider = 2.54f;
+                                break;
+                        }
+                        float pointsPerCm = 72f / divider;
+                        imagePage.setPageDimension(new PageDimension((float) (realWidth * pointsPerCm),(float) (realHeight * pointsPerCm)));
+                    } else {
+                        // Default scale factor
+
+                        float dpi = 300f; // da se nacist z jpegu
+                        float scaleFactor = 72f / dpi;
+                        imagePage.setScaleFactor(72f / dpi);
+
+                        imagePage.setPageDimension(new PageDimension(
+                                (float) (imagePage.getWidth() * scaleFactor),
+                                (float) (imagePage.getHeight() * scaleFactor)
+                        ));
+
+                        // neni nactene z iiif deskriptoru
+                        imagePage.setPhysicalDimensionsSet(false);
+                    }
+                } else {
+
+                    Dimension rawDim = KrameriusImageSupport.readDimension(pid, FedoraUtils.IMG_FULL_STREAM, akubraRepository, 0);
+                    if (rawDim.getWidth() > 0.0)  imagePage.setWidth(rawDim.getWidth());
+                    if (rawDim.getHeight() > 0.0)  imagePage.setHeight(rawDim.getHeight());
+
+                    // Default scale factor
+                    float dpi = 300f;
+                    float scaleFactor = 72f / dpi;
+
+                    imagePage.setPageDimension(new PageDimension(
+                            (float) (imagePage.getWidth() * scaleFactor),
+                            (float) (imagePage.getHeight() * scaleFactor)
+                    ));
+                    imagePage.setScaleFactor(72f / dpi);
+
+                    imagePage.setPhysicalDimensionsSet(false);
+
+                }
+
+                // alto for image page
+                boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
+                if (useAlto && akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO)) {
+                    Document ocrLAlto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(true);
+                    imagePage.setAltoXML(ocrLAlto);
+                }
 
                 Map<String, List<String>> map = new HashMap<String, List<String>>();
                 PageNumbersBuilder pageNumbersBuilder = new PageNumbersBuilder();
@@ -459,15 +507,17 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public PreparedDocument buildDocumentFromSelection(String[] selection,
-            int[] rect) throws IOException {
+    public AkubraDocument buildDocumentFromSelection(String[] selection,
+                                                     float[] rect) throws IOException {
 
         try {
-            final PreparedDocument renderedDocument = new PreparedDocument(
+            final AkubraDocument renderedDocument = new AkubraDocument(
                     "selection", selection[0]);
             if ((rect != null) && (rect.length == 2)) {
-                renderedDocument.setWidth(rect[0]);
-                renderedDocument.setHeight(rect[1]);
+                PageDimension dim = new PageDimension(rect[0], rect[1]);
+                renderedDocument.setPageDimension(dim);
+//                renderedDocument.setWidth(rect[0]);
+//                renderedDocument.setHeight(rect[1]);
             }
             for (String pid : selection) {
                 renderedDocument.addPage(createPage(renderedDocument, pid));
@@ -486,20 +536,19 @@ public class DocumentServiceImpl implements DocumentService {
 //    }
 
     @Override
-    public PreparedDocument buildDocumentAsFlat(ObjectPidsPath path,
-            String pidFrom, int howMany, int[] rect) throws IOException, OutOfRangeException {
+    public AkubraDocument buildDocumentAsFlat(ObjectPidsPath path,
+                                              String pidFrom, int howMany, float[] rect) throws IOException, OutOfRangeException {
 
         String leaf = path.getLeaf();
         ResourceBundle resourceBundle = resourceBundleService
                 .getResourceBundle("base", localeProvider.get());
 
-        final PreparedDocument renderedDocument = new PreparedDocument(akubraRepository.re().getModel(leaf), pidFrom);
+        final AkubraDocument renderedDocument = new AkubraDocument(akubraRepository.re().getModel(leaf), pidFrom);
         if ((rect != null) && (rect.length == 2)) {
-            renderedDocument.setWidth(rect[0]);
-            renderedDocument.setHeight(rect[1]);
+                PageDimension dim = new PageDimension(rect[0], rect[1]);
+                renderedDocument.setPageDimension(dim);
         }
         renderedDocument.setObjectPidsPath(path);
-        // title ??
         renderedDocument.setDocumentTitle(TitlesUtils.title(leaf, this.solrAccess, akubraRepository, resourceBundle));
         renderedDocument.setUuidTitlePage(path.getLeaf());
         renderedDocument.setUuidMainTitle(path.getRoot());
@@ -510,26 +559,25 @@ public class DocumentServiceImpl implements DocumentService {
                 renderedDocument.mapDCConent(pid, DCUtils.contentFromDC(dcDocument));
             }
         }
-
-        //int howMany1 =  check ? ConfigurationUtils.checkNumber(howMany, KConfiguration.getInstance().getConfiguration()) : howMany;
-
         buildRenderingDocumentAsFlat(renderedDocument, pidFrom, howMany);
         return renderedDocument;
     }
 
     @Override
-    public PreparedDocument buildDocumentAsTree(ObjectPidsPath path,
-            String pidFrom, int[] rect) throws IOException {
+    public AkubraDocument buildDocumentAsTree(ObjectPidsPath path,
+                                              String pidFrom, float[] rect) throws IOException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localeProvider.get());
 
         String leaf = path.getLeaf();
         String modelName = akubraRepository.re().getModel(leaf);
 
-        final PreparedDocument renderedDocument = new PreparedDocument(
+        final AkubraDocument renderedDocument = new AkubraDocument(
                 modelName, pidFrom);
         if ((rect != null) && (rect.length == 2)) {
-            renderedDocument.setWidth(rect[0]);
-            renderedDocument.setHeight(rect[1]);
+            PageDimension dim = new PageDimension(rect[0], rect[1]);
+            renderedDocument.setPageDimension(dim);
+//            renderedDocument.setWidth(rect[0]);
+//            renderedDocument.setHeight(rect[1]);
         }
 
         renderedDocument.setDocumentTitle(TitlesUtils.title(leaf,

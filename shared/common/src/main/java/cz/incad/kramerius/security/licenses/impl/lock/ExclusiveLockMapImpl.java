@@ -26,8 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.security.licenses.License;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLock.ExclusiveLockType;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMap;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMapItem;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveMapException;
@@ -65,7 +65,7 @@ public class ExclusiveLockMapImpl implements ExclusiveLockMap {
     }
 
     @Override
-    public ExclusiveLock getAssociatedExcelusiveLock() {
+    public ExclusiveReadersLock getAssociatedExcelusiveLock() {
         return this.license.getExclusiveLock();
     }
     

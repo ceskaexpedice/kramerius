@@ -233,6 +233,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
                     DatastreamContentWrapper dcDatastreamContent = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC);
                     if (dcDatastreamContent != null) {
+                        //TODO: Should be from BIBLIO_MODS
                         Document dc = dcDatastreamContent.asDom(true);
                         Object dateFromDC = DCUtils.dateFromDC(dc);
                         if (dateFromDC != null) {
