@@ -44,6 +44,10 @@ tags:
     description: >
       Výpis, plánování, stopování, atd..
 
+  - name: UIConfig
+    description: >
+      Vytvoreni, výpis, opravy klientske konfigurace
+
 paths:
 
   /collections:
@@ -4497,4 +4501,239 @@ paths:
       tags:
         - workmode
 
+  /ui-config/general:
+    get:
+      tags:
+        - UIConfig
+      summary: Vrací JSON vseobecnou konfiguraci klienta
+      description: Vrací JSON vseobecnou konfiguraci klienta
+      responses:
+        '200':
+          description: JSON reprezentace vseobecne konfigurace
+          content:
+            application/json:
+              schema:
+                type: string
+                example: {
+                    "share_url": "https://kramerius.lib.cas.cz/uuid/${UUID}",
+                    "ga4": "G-3DSV45X30Q",
+                    "ga4clientId": "kramerius.lib.cas.cz",
+                    "enablePeriodicalVolumesYearsLayout": false,
+                    "enablePeriodicalIsssuesCalendarLayout": false,
+                    "defaultPeriodicalVolumesLayout": "grid",
+                    "defaultPeriodicalIssuesLayout": "grid",
+                    "publicFilterDefault": false,
+                    "bigHomeLogo": false,
+                    "hideHomeTitle": false
+                }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: UI config neexistuje
+    post:
+      tags:
+        - UIConfig
+      summary: Vložení JSON nové vseobecne konfigurace
+      description: Vložení JSON nové vseobecne konfigurace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {
+              "share_url": "https://kramerius.lib.cas.cz/uuid/${UUID}",
+              "ga4": "G-3DSV45X30Q",
+              "ga4clientId": "kramerius.lib.cas.cz",
+              "enablePeriodicalVolumesYearsLayout": false,
+              "enablePeriodicalIsssuesCalendarLayout": false,
+              "defaultPeriodicalVolumesLayout": "grid",
+              "defaultPeriodicalIssuesLayout": "grid",
+              "publicFilterDefault": false,
+              "bigHomeLogo": false,
+              "hideHomeTitle": false
+            }
+      responses:
+        '201':
+          description: Konfigurace úspěšně vytvořena
+        '400':
+          description: Neplatná data požadavku
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /ui-config/licenses:
+    get:
+      tags:
+        - UIConfig
+      summary: Vrací JSON konfiguraci klienta tykajici se licenci
+      description: Vrací JSON konfiguraci klienta tykajici se licenci
+      responses:
+        '200':
+          description: JSON reprezentace konfigurace licenci
+          content:
+            application/json:
+              schema:
+                type: string
+                example: {
+                  "public": {
+                    "access": "open",
+                    "label": {
+                      "cs": "Volna dila",
+                      "en": "Public domain"
+                    },
+                    "message": {
+                      "cs": "/assets/shared/licences/public.cs.html",
+                      "en": "/assets/shared/licences/public.en.html"
+                    },
+                    "instruction": {
+                      "cs": "/assets/shared/licences/public.instruction.cs.html",
+                      "en": "/assets/shared/licences/public.instruction.en.html"
+                    }
+                  },
+                  "orphan": {
+                    "access": "open",
+                    "label": {
+                      "cs": "Osirela dila",
+                      "en": "Orphan works"
+                    },
+                    "message": {
+                      "cs": "/assets/shared/licences/orphan.cs.html",
+                      "en": "/assets/shared/licences/orphan.en.html"
+                    },
+                    "instruction": {
+                      "cs": "/assets/shared/licences/orphan.instruction.cs.html",
+                      "en": "/assets/shared/licences/orphan.instruction.en.html"
+                    }
+                  }
+                }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: UI config neexistuje
+    post:
+      tags:
+        - UIConfig
+      summary: Vložení JSON nové konfigurace tykajici se licenci
+      description: Vložení JSON nové konfigurace tykajici se licenci
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: {
+              "public": {
+                "access": "open",
+                "label": {
+                  "cs": "Volna dila",
+                  "en": "Public domain"
+                },
+                "message": {
+                  "cs": "/assets/shared/licences/public.cs.html",
+                  "en": "/assets/shared/licences/public.en.html"
+                },
+                "instruction": {
+                  "cs": "/assets/shared/licences/public.instruction.cs.html",
+                  "en": "/assets/shared/licences/public.instruction.en.html"
+                }
+              },
+              "orphan": {
+                "access": "open",
+                "label": {
+                  "cs": "Osirela dila",
+                  "en": "Orphan works"
+                },
+                "message": {
+                  "cs": "/assets/shared/licences/orphan.cs.html",
+                  "en": "/assets/shared/licences/orphan.en.html"
+                },
+                "instruction": {
+                  "cs": "/assets/shared/licences/orphan.instruction.cs.html",
+                  "en": "/assets/shared/licences/orphan.instruction.en.html"
+                }
+              }
+            }
+      responses:
+        '201':
+          description: Konfigurace úspěšně vytvořena
+        '400':
+          description: Neplatná data požadavku
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /ui-config/curator-lists:
+    get:
+      tags:
+        - UIConfig
+      summary: Vrací JSON konfiguraci klienta tykajici se kuratorskych seznamu
+      description: Vrací JSON konfiguraci klienta tykajici se kuratorskych seznamu
+      responses:
+        '200':
+          description: JSON reprezentace konfigurace licenci
+          content:
+            application/json:
+              schema:
+                type: string
+                example: [
+                  {
+                    "cs": "Casopisy Akademie ved CSR",
+                    "en": "Journals of the Czech Academy of Sciences",
+                    "content": [
+                      "uuid:694b7069-9b46-46a9-8665-2b1ea226172c",
+                      "uuid:b7c97808-0502-4246-bd07-88108d461626",
+                      "uuid:c82a1017-48e1-11e1-9389-005056a60003"
+                    ]
+                  },
+                  {
+                    "cs": "Vybrane sbirky",
+                    "en": "Selected collections",
+                    "content": [
+                      "uuid:30d8c0e8-4e26-4453-83c7-d38a4e178805",
+                      "uuid:175f7bc8-e51b-4fb3-b737-cfd7f3f2a43b",
+                      "uuid:314bf0c1-9863-442e-8439-b3fe1cec88ae"
+                    ]
+                  }
+                ]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: UI config neexistuje
+    post:
+      tags:
+        - UIConfig
+      summary: Vložení JSON nové konfigurace tykajici se kuratorskych seznamu
+      description: Vložení JSON nové konfigurace tykajici se kuratorskych seznamu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            example: [
+              {
+                "cs": "Casopisy Akademie ved CSR",
+                "en": "Journals of the Czech Academy of Sciences",
+                "content": [
+                  "uuid:694b7069-9b46-46a9-8665-2b1ea226172c",
+                  "uuid:b7c97808-0502-4246-bd07-88108d461626",
+                  "uuid:c82a1017-48e1-11e1-9389-005056a60003"
+                ]
+              },
+              {
+                "cs": "Vybrane sbirky",
+                "en": "Selected collections",
+                "content": [
+                  "uuid:30d8c0e8-4e26-4453-83c7-d38a4e178805",
+                  "uuid:175f7bc8-e51b-4fb3-b737-cfd7f3f2a43b",
+                  "uuid:314bf0c1-9863-442e-8439-b3fe1cec88ae"
+                ]
+              }
+            ]
+      responses:
+        '201':
+          description: Konfigurace úspěšně vytvořena
+        '400':
+          description: Neplatná data požadavku
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
 

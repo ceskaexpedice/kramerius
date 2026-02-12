@@ -144,8 +144,9 @@ public class ApiServletModule extends JerseyServletModule {
         } else {
             bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
         }
-        
+
         bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.client.v70.UIConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AsyncPDFResource.class);
@@ -166,6 +167,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.collections.CollectionsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.akubra.AkubraResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.WorkModeResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.uiconfig.UIConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.ConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.ItemsResource.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.ServerFilesResource.class);
