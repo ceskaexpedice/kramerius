@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static cz.incad.kramerius.processes.client.ProcessManagerMapper.PCP_BATCH_ID;
+
 @Path("/admin/v7.0/processes")
 public class ProcessResource extends AdminApiResource {
 
@@ -45,7 +47,6 @@ public class ProcessResource extends AdminApiResource {
     @Inject
     RightsResolver rightsResolver;
 
-    // TODO pepo pavel apacheClient
     @Inject
     @javax.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
@@ -78,7 +79,12 @@ public class ProcessResource extends AdminApiResource {
             }
             ForbiddenCheck.checkByProfile(userProvider.get(), rightsResolver, definitionManager,
                     pcpProcess.getString(ProcessManagerMapper.PCP_PROFILE_ID), true);
-            JSONObject result = ProcessManagerMapper.mapProcess(pcpProcess);
+            String mainProcessId = pcpProcess.getString(PCP_BATCH_ID);
+            JSONObject pcpBatch = processManagerClient.getBatch(mainProcessId);
+            if (pcpBatch == null) {
+                throw new NotFoundException("there's no batch with main process_id=" + mainProcessId);
+            }
+            JSONObject result = ProcessManagerMapper.mapProcess(pcpProcess, pcpBatch);
             return Response.ok().entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -331,9 +337,7 @@ public class ProcessResource extends AdminApiResource {
                     profileId, pcpSchedule.getJSONObject(ProcessManagerMapper.PCP_PAYLOAD), scheduledProfiles, solrAccess);
 
             String processId = processManagerClient.scheduleProcess(pcpSchedule);
-            JSONObject result = new JSONObject();
-            result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
-
+            JSONObject result = ProcessManagerMapper.mapScheduleMainProcessResult(processId, profileId);
             return Response.ok().entity(result.toString()).build();
         } catch (ProcessManagerClientException e) {
             if (e.getErrorCode() == ErrorCode.NOT_FOUND) {

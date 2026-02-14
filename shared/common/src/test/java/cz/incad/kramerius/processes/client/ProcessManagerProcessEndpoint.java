@@ -76,7 +76,56 @@ public class ProcessManagerProcessEndpoint {
     }
 
     @GET
-    @Path("batch")
+    @Path("batch/{mainProcessId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBatch(@PathParam("mainProcessId") String mainProcessId) {
+        String jsonBatch =
+                "                  {" +
+                "                    \"owner\": \"PePo\"," +
+                "                    \"processes\": [" +
+                "                      {" +
+                "                        \"owner\": \"PePo\"," +
+                "                        \"workerId\": \"curatorWorker\"," +
+                "                        \"processId\": \"6853579d-15c1-4fb9-ad11-3e107141aedb\"," +
+                "                        \"payload\": {" +
+                "                          \"surname\": \"Po\"," +
+                "                          \"name\": \"Pe\"" +
+                "                        }," +
+                "                        \"profileId\": \"testPlugin1-big\"," +
+                "                        \"description\": \"NewProcessName-PePo\"," +
+                "                        \"pid\": 27204," +
+                "                        \"started\": 1755262856918," +
+                "                        \"finished\": 1755262857087," +
+                "                        \"planned\": 1755262848459," +
+                "                        \"batchId\": \"6853579d-15c1-4fb9-ad11-3e107141aedb\"," +
+                "                        \"status\": \"FINISHED\"" +
+                "                      }," +
+                "                      {" +
+                "                        \"owner\": \"PePo\"," +
+                "                        \"workerId\": \"curatorWorker\"," +
+                "                        \"processId\": \"114a8406-1788-4cc5-bb04-89ca1a8ba9fe\"," +
+                "                        \"payload\": {}," +
+                "                        \"profileId\": \"testPlugin2\"," +
+                "                        \"description\": \"Sub process for the profile testPlugin2\"," +
+                "                        \"pid\": 10900," +
+                "                        \"started\": 1755262858373," +
+                "                        \"finished\": 1755262858428," +
+                "                        \"planned\": 1755262857057," +
+                "                        \"batchId\": \"6853579d-15c1-4fb9-ad11-3e107141aedb\"," +
+                "                        \"status\": \"FINISHED\"" +
+                "                      }" +
+                "                    ]," +
+                "                    \"mainProcessId\": \"" + mainProcessId + "\"," +
+                "                    \"started\": 1755262856918," +
+                "                    \"finished\": 1755262857087," +
+                "                    \"planned\": 1755262848459," +
+                "                    \"status\": \"FINISHED\"" +
+                "              }";
+        return jsonPayload(jsonBatch);
+    }
+
+    @GET
+    @Path("batches")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBatches(
             @QueryParam("offset") String offsetStr,

@@ -121,8 +121,28 @@ public class ProcessManagerClient {
         }
     }
 
+    public JSONObject getBatch(String mainProcessId) {
+        String url = baseUrl + "process/batch/" + mainProcessId;
+        HttpGet get = new HttpGet(url);
+
+        try (CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+            int code = response.getCode();
+            HttpEntity entity = response.getEntity();
+            String body = entity != null ? EntityUtils.toString(entity) : "";
+            if (code == 200) {
+                return new JSONObject(body);
+            } else if (code == 404) {
+                return null;
+            } else {
+                throw new ProcessManagerClientException("Failed to fetch batch. HTTP code" + ": " + code, ErrorCode.findByStatusCode(code), code);
+            }
+        } catch (Exception e) {
+            throw new ProcessManagerClientException("I/O error while calling " + url, e, -1);
+        }
+    }
+
     public JSONObject getBatches(String offset, String limit, String owner, String from, String to, String state, String workers) {
-        String url = baseUrl + "process/batch";
+        String url = baseUrl + "process/batches";
         try {
             URIBuilder uriBuilder = new URIBuilder(url);
 
