@@ -18,6 +18,7 @@ import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.LicensesManagerException;
 import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
+import cz.incad.kramerius.security.licenses.limits.OfflineGenerationConf;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
 import cz.incad.kramerius.utils.StringUtils;
@@ -554,12 +555,12 @@ public class DatabaseLicensesManagerImpl implements LicensesManager {
         }
 
         //TODO: Change it
-        if (
-                licenseImpl.getName().equals(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName()) ||
-                        licenseImpl.getName().equals(CzechEmbeddedLicenses.SPECIAL_NEEDS_LICENSE.getName())
+        if (licenseImpl.getName().equals(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName())) {
+            licenseImpl.setLicenseOfflineGenerationConf(CzechEmbeddedLicenses.PUBLIC_LICENSE.getLicenseOfflineGenerationConf());
+        }
 
-        ) {
-            licenseImpl.setOfflineGenerateContentAllowed(CzechEmbeddedLicenses.PUBLIC_LICENSE.isOfflineGenerateContentAllowed());
+        if (licenseImpl.getName().equals(CzechEmbeddedLicenses.SPECIAL_NEEDS_LICENSE.getName())) {
+            licenseImpl.setLicenseOfflineGenerationConf(CzechEmbeddedLicenses.SPECIAL_NEEDS_LICENSE.getLicenseOfflineGenerationConf());
         }
 
         return licenseImpl;

@@ -333,7 +333,7 @@ public class FirstPageForUserProcess extends AbstractPDFRenderSupport implements
         File processPdfsFolder = new File(Constants.WORKING_DIR, PROCESS_PDFS_FOLDER);
         String licenseFolderName = StringUtils.isNotBlank(providedByLicense) ? providedByLicense : DEFAUTL_LICENSE;
 
-        if (!processPdfsFolder.exists()) {
+        if (processPdfsFolder.exists()) {
             File licensesFolder = new File(processPdfsFolder, licenseFolderName);
 
             if (locale != null) {

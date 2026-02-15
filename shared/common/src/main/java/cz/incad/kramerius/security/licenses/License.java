@@ -18,8 +18,11 @@ package cz.incad.kramerius.security.licenses;
 
 import java.util.regex.Pattern;
 
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.licenses.limits.OfflineGenerationConf;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
+import cz.inovatika.dochub.UserContentSpace;
 import org.w3c.dom.Document;
 
 /**
@@ -88,9 +91,20 @@ public interface License {
     // hint for priority rearragement 
     public int getPriorityHint();
 
-    public boolean isOfflineGenerateContentAllowed();
+// generate content - pdf, text, ebook
+//    public boolean isOfflineGenerateContentAllowed();
+//    public void setOfflineGenerateContentAllowed(boolean flag);
+//    public boolean isOfflineGenerateContentLimited();
+//    public void setOfflineGenerateContentLimited(boolean flag);
+//    public LicenseOfflineGenerationConf getLimitConfiguration();
+//    public void setLimitConfiguration(LicenseOfflineGenerationConf limitConfiguration);
 
-    public void setOfflineGenerateContentAllowed(boolean flag);
+    public void setLicenseOfflineGenerationConf(OfflineGenerationConf offlineGenerationConf);
+
+    public OfflineGenerationConf getLicenseOfflineGenerationConf();
+
+    public boolean checkUsageLimit(User user, String pid, UserContentSpace userContentSpace);// license settings int intervalValue, LimitInterval  limitInterval, int maxAllowedUsage);
+
 
     /**
      * Updating priority of license 
@@ -116,7 +130,7 @@ public interface License {
     /**
      * Initializes an exclusive lock on the license with the specified parameters.
      *
-     * @param refresh  refresh interval
+     * @param refresh  refresh intervalValue
      * @param max      maximum number of readers
      * @param readers  number of allowed readers
      * @param type     type of the exclusive lock

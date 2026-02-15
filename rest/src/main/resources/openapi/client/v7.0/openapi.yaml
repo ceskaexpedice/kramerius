@@ -765,6 +765,9 @@ paths:
                 email:
                     type: string
                     description: email pro notifikaci
+            example:
+              email: "some.email@example.com"
+
       responses:
         '200':
           description: Požadavek byl úspěšně naplánován

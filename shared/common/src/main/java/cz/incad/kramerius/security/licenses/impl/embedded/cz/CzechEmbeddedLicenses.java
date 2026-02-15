@@ -23,6 +23,10 @@ import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.LicenseImpl;
+import cz.incad.kramerius.security.licenses.limits.LimitConfiguration;
+import cz.incad.kramerius.security.licenses.limits.LimitInterval;
+import cz.incad.kramerius.security.licenses.limits.OfflineGenerationConf;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 import static cz.incad.kramerius.security.licenses.LicensesManager.*;
 
@@ -49,7 +53,7 @@ public class CzechEmbeddedLicenses {
     /** Global licenses - public **/
     public static License PUBLIC_LICENSE = new LicenseImpl("public", "Public license", GLOBAL_GROUP_NAME_EMBEDDED, 4);
     static {
-        PUBLIC_LICENSE.setOfflineGenerateContentAllowed(true);
+        PUBLIC_LICENSE.setLicenseOfflineGenerationConf(new OfflineGenerationConf(true, null));
     }
 
     /** Global licenses - public muo **/
@@ -63,7 +67,16 @@ public class CzechEmbeddedLicenses {
     public static License SPECIAL_NEEDS_LICENSE = new LicenseImpl("special-needs", "Special needs license", GLOBAL_GROUP_NAME_EMBEDDED, 7);
     static {
         SPECIAL_NEEDS_LICENSE.initRuntime(RuntimeLicenseType.ALL_DOCUMENTS);
-        SPECIAL_NEEDS_LICENSE.setOfflineGenerateContentAllowed(true);
+
+        //TODO: Do it in configuration
+
+        int intevalVal = KConfiguration.getInstance().getConfiguration().getInt("special_needs.intervalValue.value", 1);
+        String intevalUnit = KConfiguration.getInstance().getConfiguration().getString("special_needs.intervalValue.unit", "PER_DAY");
+        int allowedVal = KConfiguration.getInstance().getConfiguration().getInt("special_needs.allowed.value", 2);
+
+        SPECIAL_NEEDS_LICENSE.setLicenseOfflineGenerationConf(new OfflineGenerationConf(true,
+                new LimitConfiguration(intevalVal, LimitInterval.valueOf( intevalUnit ) , allowedVal)));
+
     }
 
     /** Cover and content license */

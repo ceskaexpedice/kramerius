@@ -16,13 +16,18 @@
  */
 package cz.incad.kramerius.security.licenses.impl;
 
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.RuntimeLicenseType;
 import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockImpl;
+import cz.incad.kramerius.security.licenses.limits.LimitInterval;
+import cz.incad.kramerius.security.licenses.limits.OfflineGenerationConf;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveReadersLock.ExclusiveLockType;
+import cz.inovatika.dochub.UserContentSpace;
 import org.w3c.dom.Document;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 public class LicenseImpl implements License, Serializable {
@@ -37,7 +42,18 @@ public class LicenseImpl implements License, Serializable {
     /** is runtime license */
     private boolean runtimeLicense = false;
 
-    private boolean offlineGenerateContentAllowed = false;
+    //private boolean offlineGenerateContentAllowed = false;
+    //private boolean offlineGenerateContentLimited = false;
+    private OfflineGenerationConf offlineGenerationConf;
+
+
+
+    /*
+        public boolean isOfflineGenerateContentLimited();
+    public void setOfflineGenerateContentLimited(boolean flag);
+    public boolean checkUsageLimit(User user, UserContentSpace userContentSpace, int intervalValue, LimitInterval  limitInterval);
+     */
+
 
     /** document predicate */
     private RuntimeLicenseType runtimeLicenseType;
@@ -91,13 +107,34 @@ public class LicenseImpl implements License, Serializable {
     }
 
     @Override
-    public boolean isOfflineGenerateContentAllowed() {
-        return this.offlineGenerateContentAllowed;
+    public void setLicenseOfflineGenerationConf(OfflineGenerationConf offlineGenerationConf) {
+        this.offlineGenerationConf = offlineGenerationConf;
     }
 
     @Override
-    public void setOfflineGenerateContentAllowed(boolean flag) {
-        this.offlineGenerateContentAllowed = flag;
+    public OfflineGenerationConf getLicenseOfflineGenerationConf() {
+        return this.offlineGenerationConf;
+    }
+
+    //TODO: DO it better -> chang
+    @Override
+    public boolean checkUsageLimit(User user, String pid, UserContentSpace userContentSpace) {// int intervalValue, LimitInterval limitInterval, int maxAllowedUsage) {
+        try {
+            if (this.offlineGenerationConf.offlineGenrateAllowed() && this.offlineGenerationConf.limitConfiguration()!=null) {
+                int maxAllowedUsage = this.offlineGenerationConf.limitConfiguration().maxAllowedUsage();
+                int intervalVal = this.offlineGenerationConf.limitConfiguration().intervalValue();
+                LimitInterval interval = this.offlineGenerationConf.limitConfiguration().limitInterval();
+                long usageCount = userContentSpace.getUsageCounter().getUsageCount(user.getLoginname(), pid, interval, intervalVal);
+                return usageCount < maxAllowedUsage;
+            } else if (this.offlineGenerationConf.offlineGenrateAllowed()) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

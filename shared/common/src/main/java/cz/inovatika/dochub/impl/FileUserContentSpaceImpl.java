@@ -3,6 +3,7 @@ package cz.inovatika.dochub.impl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.CleanupStrategy;
 import cz.inovatika.dochub.DocumentType;
+import cz.inovatika.dochub.UsageCounter;
 import cz.inovatika.dochub.UserContentSpace;
 
 import java.io.IOException;
@@ -24,7 +25,10 @@ import java.util.Optional;
 
 public class FileUserContentSpaceImpl implements UserContentSpace {
 
+    public static final String DATA_FOLDER = "data";
+
     private final Path rootPath;
+    private final UsageCounter usageCounter;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public FileUserContentSpaceImpl() {
@@ -35,12 +39,16 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         if (userRoot == null || userRoot.isEmpty()) {
             throw new IllegalStateException("Configuration key 'dochub.storage.user' is missing or empty.");
         }
-        this.rootPath = Paths.get(userRoot);
+        Path userContentRoot =  Paths.get(userRoot);
         try {
-            Files.createDirectories(this.rootPath);
+            Files.createDirectories(userContentRoot);
         } catch (IOException e) {
             throw new RuntimeException("Failed to create user storage directory: " + userRoot, e);
         }
+
+        this.usageCounter = new FileUsageCounterImpl(userContentRoot);
+        this.rootPath = userContentRoot.resolve(DATA_FOLDER);
+
     }
     public boolean isExpired(String token) throws IOException {
         Path expirePath = resolveTokenPath(token).resolve("expires");
@@ -64,6 +72,13 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }
     }
+    private Path resolveTokenPath(String token) {
+        String p1 = token.substring(0, Math.min(2, token.length()));
+        String p2 = token.substring(Math.min(2, token.length()), Math.min(4, token.length()));
+        String p3 = token.substring(Math.min(4, token.length()), Math.min(6, token.length()));
+        return rootPath.resolve(p1).resolve(p2).resolve(p3).resolve(token);
+    }
+
     @Override
     public String storeBundle(InputStream is, String user, String pid, DocumentType type, String auditInfo) throws IOException {
         String token = generateHash(user, pid);
@@ -80,17 +95,13 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
             is.transferTo(os);
         }
 
-        Files.writeString(targetDir.resolve("stamp.txt"), auditInfo, StandardCharsets.UTF_8);
+        //Files.writeString(targetDir.resolve("stamp.txt"), auditInfo, StandardCharsets.UTF_8);
+        Files.writeString(targetDir.resolve("pid"), pid, StandardCharsets.UTF_8);
         Files.writeString(targetDir.resolve("expires"), expiresAt.toString(), StandardCharsets.UTF_8);
 
-        return token;
-    }
+        //this.usageCounter.logUsage(user, pid);
 
-    private Path resolveTokenPath(String token) {
-        String p1 = token.substring(0, Math.min(2, token.length()));
-        String p2 = token.substring(Math.min(2, token.length()), Math.min(4, token.length()));
-        String p3 = token.substring(Math.min(4, token.length()), Math.min(6, token.length()));
-        return rootPath.resolve(p1).resolve(p2).resolve(p3).resolve(token);
+        return token;
     }
 
     @Override
@@ -108,14 +119,12 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
 
     @Override
     public boolean exists(String token) {
-
         return Files.exists(resolveTokenPath(token));
     }
 
     @Override
     public void deleteBundle(String token) throws IOException {
         Path bundlePath = resolveTokenPath(token);
-
         if (Files.exists(bundlePath)) {
             try (var stream = Files.walk(bundlePath)) {
                 stream.sorted(Comparator.reverseOrder())
@@ -145,7 +154,6 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         }
         return Optional.empty();
     }
-
 
     public void cleanup(CleanupStrategy strategy) throws IOException {
         if (!Files.exists(rootPath)) return;
@@ -208,5 +216,10 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         }
 
         Files.writeString(counterFile, String.valueOf(currentCount + 1), StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public UsageCounter getUsageCounter() {
+        return usageCounter;
     }
 }

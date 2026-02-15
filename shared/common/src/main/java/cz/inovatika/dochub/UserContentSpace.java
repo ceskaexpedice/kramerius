@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface UserContentSpace {
 
+
     public String storeBundle(InputStream is, String user, String pid, DocumentType type, String auditInfo) throws IOException;
 
     public Optional<InputStream> getBundle(String token, String user) throws IOException;
@@ -21,5 +22,6 @@ public interface UserContentSpace {
     public Optional<String> getAuditInfo(String token) throws IOException;
 
 
+    public UsageCounter getUsageCounter() throws IOException;
 
 }

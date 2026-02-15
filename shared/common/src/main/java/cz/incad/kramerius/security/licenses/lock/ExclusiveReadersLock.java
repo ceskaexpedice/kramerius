@@ -50,15 +50,15 @@ public interface ExclusiveReadersLock {
     }
 
     /**
-     * Returns the refresh interval in seconds that the client must maintain
+     * Returns the refresh intervalValue in seconds that the client must maintain
      * by sending periodic refresh requests in order to retain access.
      *
-     * @return refresh interval in seconds
+     * @return refresh intervalValue in seconds
      */
     public int getRefreshInterval();
 
     /**
-     * Returns the maximum interval in seconds that a user is allowed
+     * Returns the maximum intervalValue in seconds that a user is allowed
      * to continuously read the content under the lock.
      *
      * @return maximum reading duration in seconds
