@@ -172,52 +172,11 @@ public class DocumentServiceImplTest {
         kramDoc.addPage(imagePage);
         kramDoc.pageDimensionFromFirstPage();
 
-        /*
-                - 0.00635001
-                - 4340.0
-                - 2977.0
-         */
-
-        /*
-        ],
-  "maxHeight": 12000,
-  "service": [
-    {
-      "physicalScale": 0.00846668,
-      "profile": "http://iiif.io/api/annex/services/physdim",
-      "physicalUnits": "cm",
-      "@context": "http://iiif.io/api/annex/services/physdim/1/context.json"
-    }
-  ],
-  "width": 2314,
-  "height": 3261,
-         */
         double physicalScale = imagePage.getScaleFactor();
         Assert.assertTrue(physicalScale == 0.00846668);
         double height = imagePage.getHeight();
         Assert.assertTrue(height == 3261);
         double width = imagePage.getWidth();
         Assert.assertTrue(width == 2314);
-
-        String template = SimplePDFServiceImpl.template(kramDoc,
-                akubraMock, null, Locale.getDefault());
-        System.out.println(template);
-
-        /*
-            @Inject
-    public SimplePDFServiceImpl(
-            SecuredAkubraRepository akubraRepository,
-            @Named("new-index") SolrAccess solrAccess,
-            Provider<Locale> localeProvider, TextsService textsService,
-            ResourceBundleService resourceBundleService) {
-
-         */
-
-        File tmpFile = File.createTempFile("temp",".pdf");
-        System.out.println(tmpFile.getAbsolutePath());
-
-        SimplePDFServiceImpl simplePDFService = new SimplePDFServiceImpl(
-                akubraMock, solrMock, localeProviderMock, null, null);
-        simplePDFService.pdf(kramDoc, new FileOutputStream(tmpFile), null);
     }
 }
