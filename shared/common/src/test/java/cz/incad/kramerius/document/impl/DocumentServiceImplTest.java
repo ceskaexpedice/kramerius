@@ -39,24 +39,6 @@ public class DocumentServiceImplTest {
         ResourceBundleService resourceBundleMock = EasyMock.createMock(ResourceBundleService.class);
         RelsExtHelper relsExtHelperMock = EasyMock.createMock(RelsExtHelper.class);
 
-        /*
-                    SecuredAkubraRepository akubraRepository,
-            @Named("new-index") SolrAccess solrAccess,
-            Provider<Locale> localeProvider, TextsService textsService,
-            ResourceBundleService resourceBundleService) {
-
-         */
-
-//        SimplePDFServiceImpl simplePDFServiceMock = createMockBuilder(
-//                SimplePDFServiceImpl.class).
-//                withConstructor(
-//                        SecuredAkubraRepository.class,
-//                        SolrAccess.class,
-//                        Provider.class,
-//                        ResourceBundleService.class
-//                ).withArgs(null, null, null, null).createMock();
-
-
         DocumentServiceImpl docServiceMock = createMockBuilder(DocumentServiceImpl.class)
                 .withConstructor(
                         SecuredAkubraRepository.class,
@@ -163,6 +145,8 @@ public class DocumentServiceImplTest {
         EasyMock.expect(localeProviderMock.get()).andAnswer(()-> {
             return Locale.getDefault();
         }).anyTimes();
+
+
 
         EasyMock.replay(akubraMock, solrMock, localeProviderMock, resourceBundleMock,relsExtHelperMock, docServiceMock);
         AbstractPage page = docServiceMock.createPage(kramDoc, "uuid:xxxx");
