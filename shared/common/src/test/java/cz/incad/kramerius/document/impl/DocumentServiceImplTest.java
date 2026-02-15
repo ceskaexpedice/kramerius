@@ -53,6 +53,7 @@ public class DocumentServiceImplTest {
                         resourceBundleMock
                 )
                 .addMockedMethod("iiifJson")
+                .addMockedMethod("isUseAlto")
                 .createMock();
 
         EasyMock.expect(docServiceMock.iiifJson("https://imageserver.mzk.cz/NDK/2026/01/b3a01ed3-d731-11f0-b3b2-5acb2ee39cf4/uc_b3a01ed3-d731-11f0-b3b2-5acb2ee39cf4_0001")).andAnswer(()-> {
@@ -146,10 +147,13 @@ public class DocumentServiceImplTest {
             return Locale.getDefault();
         }).anyTimes();
 
+        EasyMock.expect(docServiceMock.isUseAlto()).andReturn(false).anyTimes();
 
 
         EasyMock.replay(akubraMock, solrMock, localeProviderMock, resourceBundleMock,relsExtHelperMock, docServiceMock);
         AbstractPage page = docServiceMock.createPage(kramDoc, "uuid:xxxx");
+        //((ImagePage)page).setAltoXML(null);
+
         Assert.assertNotNull(page);
         Assert.assertTrue(page instanceof ImagePage);
         ImagePage imagePage = (ImagePage) page;

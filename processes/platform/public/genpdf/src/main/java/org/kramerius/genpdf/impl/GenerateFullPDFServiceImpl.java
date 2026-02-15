@@ -65,6 +65,8 @@ public class GenerateFullPDFServiceImpl implements GenerateFullPDFService {
 
 
     public String generate(String pid, String user, String providedByLicense) throws DocumentException, IOException, OutOfRangeException {
+        this.documentService.setUseAlto(false); // no alto in the process
+
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);

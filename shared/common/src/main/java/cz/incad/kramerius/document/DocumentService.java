@@ -59,4 +59,8 @@ public interface DocumentService {
     AkubraDocument buildDocumentFromSelection(String[] selection, float[] rect) throws IOException, OutOfRangeException;
     
 
+    public void setUseAlto(boolean useAlto);
+
+    public boolean isUseAlto();
+
 }

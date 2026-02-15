@@ -305,8 +305,7 @@ public class GeneratePDFServiceImpl extends AbstractPDFRenderSupport implements
                     path.getLeaf(), ConfigurationUtils.checkNumber( numberOfPages, KConfiguration.getInstance().getConfiguration()), rect), os, null, imgServletUrl,
                     i18nUrl, ImageFetcher.WEB);
         } catch (OutOfRangeException | RepositoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

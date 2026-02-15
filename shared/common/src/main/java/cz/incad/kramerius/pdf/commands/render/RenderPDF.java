@@ -16,10 +16,12 @@
  */
 package cz.incad.kramerius.pdf.commands.render;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -31,6 +33,7 @@ import cz.incad.kramerius.pdf.commands.List;
 import cz.incad.kramerius.pdf.commands.ListItem;
 import cz.incad.kramerius.pdf.commands.Paragraph;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
@@ -49,6 +52,9 @@ import cz.incad.kramerius.pdf.utils.pdf.FontMap;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.knav.pdf.PdfTextUnderImage;
 import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 public class RenderPDF {
 
@@ -57,11 +63,13 @@ public class RenderPDF {
     private FontMap fontMap;
     private AkubraRepository akubraRepository;
 
+
     public RenderPDF(FontMap fontMap, AkubraRepository akubraRepository) {
         super();
         this.fontMap = fontMap;
         this.akubraRepository = akubraRepository;
     }
+
 
     public Font getFont(String formalName) {
         return this.fontMap.getRegistredFont(formalName);
@@ -365,14 +373,12 @@ public class RenderPDF {
                 String pid = cmdImage.getPid();
 
                 if (pid != null) {
-                    boolean altoStream  = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO);
-                    boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
-                    if (useAlto && altoStream) {
+                    if (cmdImage.getAltoFile() != null) {
                         try {
-                            InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asInputStream();
-                            IOUtils.copy(inputStream, System.out);
+                            Path path = Path.of(cmdImage.getAltoFile());
+                            FileInputStream fis = new FileInputStream( path.toFile());
 
-                            org.w3c.dom.Document alto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
+                            org.w3c.dom.Document alto = XMLUtils.parseDocument(fis); //akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
 
                             String file = cmdImage.getFile();
                             com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
@@ -414,6 +420,10 @@ public class RenderPDF {
                             LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         } catch (IOException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        } catch (ParserConfigurationException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        } catch (SAXException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                         return new NullElement();
                     } else {
@@ -423,7 +433,7 @@ public class RenderPDF {
                             com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
 
                             ITextCommands root = cmdImage.getRoot();
-                            img.scaleToFit(pdfDoc.getPageSize().getWidth(), pdfDoc.getPageSize().getHeight());
+                                img.scaleToFit(pdfDoc.getPageSize().getWidth(), pdfDoc.getPageSize().getHeight());
                             img.setAbsolutePosition(0,0);
 
                             return img;

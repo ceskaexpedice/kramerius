@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.security.SecuredAkubraRepository;
@@ -84,8 +85,6 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         try {
             String template = template(rdoc, this.akubraRepository, this.textsService, this.localeProvider.get());
 
-            System.out.println(template);
-
             cmnds = new ITextCommands();
             cmnds.load(XMLUtils.parseDocument(new StringReader(template)).getDocumentElement(), cmnds);
 
@@ -94,6 +93,7 @@ public class SimplePDFServiceImpl implements SimplePDFService {
             doc.open(); // open
 
             RenderPDF render = new RenderPDF(fontMap, akubraRepository);
+            //render.setUseAlto(rdoc.);
             render.render(doc, pdfWriter, cmnds);
 
             doc.close();
@@ -198,6 +198,10 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                     StringTemplate template = new StringTemplate(IOUtils.readAsString(SimplePDFServiceImpl.class.getResourceAsStream("templates/_image_page.st"), Charset.forName("UTF-8"), true));
                     template.setAttribute("imgpath", imgPath);
                     template.setAttribute("pid", pid);
+                    if (imagePage.getAltoXML() != null) {
+                        template.setAttribute("altoFile", writeXML(imagePage.getAltoXML()));
+
+                    }
 
                     Map<String,String> scaleAttrs = new HashMap<String,String>();
 
@@ -219,6 +223,11 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                     }
 
 
+                    if (imagePage.getAltoXML() != null) {
+                        String xmlPath = writeXML(imagePage.getAltoXML());
+
+                    }
+
                     strWriter.write(template.toString());
 
                 } catch (XPathExpressionException e) {
@@ -232,6 +241,8 @@ public class SimplePDFServiceImpl implements SimplePDFService {
                     template.setAttribute("securityfail", text);
 
                     strWriter.write(template.toString());
+                } catch (TransformerException e) {
+                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
                 }
             }
         }
@@ -240,6 +251,18 @@ public class SimplePDFServiceImpl implements SimplePDFService {
         return strWriter.toString();
     }
 
+
+    private static String writeXML(org.w3c.dom.Document xmlDoc) throws IOException, XPathExpressionException, TransformerException {
+        File tmpFile = File.createTempFile("doc", "xml");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(tmpFile);
+            XMLUtils.print(xmlDoc, fos);
+            return tmpFile.getAbsolutePath();
+        } finally {
+            IOUtils.tryClose(fos);
+        }
+    }
 
     private static String writeImage(BufferedImage javaImg) throws IOException,
             FileNotFoundException {

@@ -77,6 +77,7 @@ public class DocumentServiceImpl implements DocumentService {
     private Provider<Locale> localeProvider;
     private ResourceBundleService resourceBundleService;
     private SolrAccess solrAccess;
+    private boolean useAlto;
 
     @Inject
     public DocumentServiceImpl(
@@ -95,10 +96,23 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
+
+        this.useAlto =  KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
+
     }
 
     private void init() throws IOException {
 
+    }
+
+    @Override
+    public void setUseAlto(boolean useAlto) {
+        this.useAlto = useAlto;
+    }
+
+    @Override
+    public boolean isUseAlto() {
+        return this.useAlto;
     }
 
     protected void buildRenderingDocumentAsFlat(
@@ -394,8 +408,8 @@ public class DocumentServiceImpl implements DocumentService {
                 }
 
                 // alto for image page
-                boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
-                if (useAlto && akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO)) {
+                //boolean useAlto = KConfiguration.getInstance().getConfiguration().getBoolean("pdfQueue.useAlto", false);
+                if (isUseAlto() && akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_ALTO)) {
                     Document ocrLAlto = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(true);
                     imagePage.setAltoXML(ocrLAlto);
                 }

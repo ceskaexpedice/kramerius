@@ -32,6 +32,8 @@ public class Image extends AbstractITextCommand implements ITextCommand {
     private String pid;
     private String file;
 
+    private String altoFile;
+
     private String url;
 
     private String x;
@@ -53,6 +55,7 @@ public class Image extends AbstractITextCommand implements ITextCommand {
             String y = elm.getAttribute("y");
             String width = elm.getAttribute("width");
             String height = elm.getAttribute("height");
+            String altoFile = elm.getAttribute("altoFile");
 
             if ((pid != null) && (!pid.equals(""))) {
                 this.pid = pid;
@@ -80,6 +83,9 @@ public class Image extends AbstractITextCommand implements ITextCommand {
             }
             if ((height != null) && (!height.equals(""))) {
                 this.height = height;
+            }
+            if ((altoFile != null) && (!altoFile.equals(""))) {
+                this.altoFile = altoFile;
             }
         } else {
            LOGGER.log(Level.WARNING, "cannot load image component. No image elm."); 
@@ -122,4 +128,6 @@ public class Image extends AbstractITextCommand implements ITextCommand {
     public String getHeight() {
         return height;
     }
+
+    public String getAltoFile() { return this.altoFile;}
 }
