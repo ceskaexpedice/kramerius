@@ -15,6 +15,7 @@ jobs:
   build_zip_docker_image:
 
     runs-on: ubuntu-latest
+    environment: BUILD
 
     steps:
     # Prepare release      
