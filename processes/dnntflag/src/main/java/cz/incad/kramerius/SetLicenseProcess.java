@@ -213,7 +213,7 @@ public class SetLicenseProcess {
     }*/
 
     private static boolean addRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository akubraRepository) throws IOException {
-        return akubraRepository.doWithWriteLock(pid, () -> {
+        return akubraRepository.doWithLock(pid, () -> {
             if (!akubraRepository.re().exists(pid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }

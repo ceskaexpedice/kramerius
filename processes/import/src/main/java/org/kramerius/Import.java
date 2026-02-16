@@ -633,7 +633,7 @@ public class Import {
         }
         String pid = obj.getPID();
         DigitalObject finalObj = obj;
-        akubraRepository.doWithWriteLock(pid, () -> {
+        akubraRepository.doWithLock(pid, () -> {
             try {
                 akubraRepository.ingest(finalObj);
             } catch (RepositoryException sfex) {

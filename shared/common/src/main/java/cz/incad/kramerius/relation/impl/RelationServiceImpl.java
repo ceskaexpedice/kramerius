@@ -70,7 +70,7 @@ public final class RelationServiceImpl implements RelationService {
     @Override
     public void save(String pid, RelationModel model) throws IOException {
         try {
-            akubraRepository.doWithWriteLock(pid, new LockOperation<Object>() {
+            akubraRepository.doWithLock(pid, new LockOperation<Object>() {
                 @Override
                 public Object execute() {
                     try {

@@ -378,7 +378,7 @@ public class CollectionsResource extends AdminApiResource {
             }
             checkObjectExists(pid);
             final JSONObject[] scheduleReindexationPar = new JSONObject[1];
-            akubraRepository.doWithWriteLock(pid, () -> {
+            akubraRepository.doWithLock(pid, () -> {
                 Collection current = null;
                 try {
                     current = fetchCollectionFromRepository(pid, true, false);
@@ -498,7 +498,7 @@ public class CollectionsResource extends AdminApiResource {
             checkObjectExists(itemPid);
             checkCanAddItemToCollection(itemPid, collectionPid);
             //extract relsExt and update by adding new relation
-            akubraRepository.doWithWriteLock(collectionPid, () -> {
+            akubraRepository.doWithLock(collectionPid, () -> {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                 boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
                 if (!addedNow) {
@@ -598,7 +598,7 @@ public class CollectionsResource extends AdminApiResource {
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
             final JSONObject[] scheduleReindexationPar = {null};
-            akubraRepository.doWithWriteLock(collectionPid, new LockOperation<Object>() {
+            akubraRepository.doWithLock(collectionPid, new LockOperation<Object>() {
                 @Override
                 public Object execute() {
                     Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
@@ -707,7 +707,7 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkReadOnlyWorkMode();
             User user1 = this.userProvider.get();
-            akubraRepository.doWithWriteLock(collectionPid, () -> {
+            akubraRepository.doWithLock(collectionPid, () -> {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
 
                 for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
@@ -801,7 +801,7 @@ public class CollectionsResource extends AdminApiResource {
             }
             checkObjectExists(collectionPid);
             checkObjectExists(itemPid);
-            akubraRepository.doWithWriteLock(collectionPid, new LockOperation<Object>() {
+            akubraRepository.doWithLock(collectionPid, new LockOperation<Object>() {
                 @Override
                 public Object execute() {
                     try {
@@ -883,10 +883,9 @@ public class CollectionsResource extends AdminApiResource {
                 childrenPids.add(childPid);
             }
             //delete collection object form repository (not managed datastreams, since those for IMG_THUMB are referenced from other objects - pages)
-            akubraRepository.doWithWriteLock(pid, () -> {
+            akubraRepository.doWithLock(pid, () -> {
                 akubraRepository.delete(pid, false, true);
                 akubraRepository.pi().commit();
-                ;
                 return null;
             });
             JSONArray scheduleMainProcesses = new JSONArray();
@@ -942,7 +941,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
 
-            return akubraRepository.doWithWriteLock(collectionPid, () -> {
+            return akubraRepository.doWithLock(collectionPid, () -> {
                 try {
                     JSONArray jsonArray = new JSONArray();
                     if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
@@ -1016,7 +1015,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
             if (batchArray != null && batchArray.length() > 0) {
-                return akubraRepository.doWithWriteLock(collectionPid, () -> {
+                return akubraRepository.doWithLock(collectionPid, () -> {
                     try {
                         boolean cuttingsModified = false;
                         Set<String> thumbsToDelete = new LinkedHashSet<>();
@@ -1108,7 +1107,7 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
 
-            akubraRepository.doWithWriteLock(collectionPid, () -> {
+            akubraRepository.doWithLock(collectionPid, () -> {
                 try {
                     JSONArray jsonArray = new JSONArray();
                     if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
