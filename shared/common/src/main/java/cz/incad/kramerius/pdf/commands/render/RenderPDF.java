@@ -380,35 +380,38 @@ public class RenderPDF {
 
                             org.w3c.dom.Document alto = XMLUtils.parseDocument(fis); //akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_ALTO).asDom(false);
 
+                            //HEIGHT="3434" WIDTH="2250" // alto - px
+                            //int height=xxx, int width=yyy - px
+                            // doc height, doc width - point
+
+
                             String file = cmdImage.getFile();
                             com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
-
                             ITextCommands root = cmdImage.getRoot();
-                            float percentage = (root.getFooter() != null || root.getHeader() != null) ? 0.9f : 1.0f;
-                            Float ratio = ratio(pdfDoc, percentage, img);
 
-                            int fitToPageWidth = (int) (img.getWidth() * ratio);
-                            int fitToPageHeight = (int) (img.getHeight() * ratio);
+                            img.scaleToFit(pdfDoc.getPageSize().getWidth(), pdfDoc.getPageSize().getHeight());
+                            img.setAbsolutePosition(0,0);
 
-                            int offsetX = ((int) pdfDoc.getPageSize().getWidth() - fitToPageWidth) / 2;
-                            int offsetY = ((int) pdfDoc.getPageSize().getHeight() - fitToPageHeight) / 2;
+                            float origPixelWidth = img.getWidth();
+                            float origPixelHeight = img.getHeight();
 
-                            img.scaleAbsoluteHeight(ratio * img.getHeight());
+                            float scaledPointWidth = img.getScaledWidth();
+                            float scaledPointHeight = img.getScaledHeight();
 
-                            img.scaleAbsoluteWidth(ratio * img.getWidth());
-                            img.setAbsolutePosition((offsetX),
-                                    pdfDoc.getPageSize().getHeight() - offsetY - (ratio * img.getHeight()));
+                            float scaleFactorX = scaledPointWidth / origPixelWidth;
+                            float scaleFactorY = scaledPointHeight / origPixelHeight;
+
 
                             ScaledImageOptions options = new ScaledImageOptions();
                             options.setXdpi(img.getDpiX());
                             options.setYdpi(img.getDpiY());
 
-                            options.setXoffset(offsetX);
-                            options.setYoffset(offsetY);
+                            options.setXoffset(0);
+                            options.setYoffset(0);
 
-                            options.setWidth(fitToPageWidth);
-                            options.setHeight(fitToPageHeight);
-                            options.setScaleFactor(ratio);
+                            options.setWidth((int)scaledPointWidth);
+                            options.setHeight((int)scaledPointHeight);
+                            options.setScaleFactor(scaleFactorX);
 
                             PdfTextUnderImage textUnderImage = new PdfTextUnderImage();
                             textUnderImage.imageWithAlto(pdfDoc, pdfWriter, alto, options);
@@ -433,7 +436,7 @@ public class RenderPDF {
                             com.lowagie.text.Image img = com.lowagie.text.Image.getInstance(file);
 
                             ITextCommands root = cmdImage.getRoot();
-                                img.scaleToFit(pdfDoc.getPageSize().getWidth(), pdfDoc.getPageSize().getHeight());
+                            img.scaleToFit(pdfDoc.getPageSize().getWidth(), pdfDoc.getPageSize().getHeight());
                             img.setAbsolutePosition(0,0);
 
                             return img;
