@@ -19,6 +19,7 @@ package cz.incad.kramerius.processes.client;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -64,18 +65,22 @@ public final class ProcessManagerMapper {
     public static final String KR_PROCESS_UUID = "uuid";
     public static final String KR_PROFILE_ID = "defid";
     public static final String KR_ID = "id";
+    public static final String KR_PLANNED = "planned";
     public static final String KR_STATUS = "state";
     public static final String KR_DESCRIPTION = "name";
     public static final String KR_PAYLOAD = "params";
     public static final String KR_TOTAL_SIZE = "total_size";
     public static final String KR_OWNERS = "owners";
     public static final String KR_OWNER_NAME = "name";
+    public static final String KR_OWNER_NAME_IN_BATCH = "owner_name";
+    public static final String KR_OWNER_ID_IN_BATCH = "owner_id";
     public static final String KR_BATCH_ID = "batch_id";
     public static final String KR_BATCH_TOKEN = "token";
     public static final String KR_BATCH_TOKEN_1 = "batch_token";
     public static final String KR_BATCH_OWNER_ID = "owner_id";
     public static final String KR_BATCH_OWNER_NAME = "owner_name";
     public static final String KR_PROCESSES_DELETED = "processes_deleted";
+    public static final String KR_STATE_PLANNED = "PLANNED";
 
     public static final String KR_WORKER="worker";
 
@@ -158,20 +163,54 @@ public final class ProcessManagerMapper {
         return json;
     }
 
-    public static JSONObject mapProcess(JSONObject pcpProcess) {
+    /*
+    {
+  "process": {
+    "defid": "import",
+    "name": "Import FOXML z ./import/d28b2a1a-508e-419e-9d3b-12ed4560138e ",
+    "started": "2024-10-13T07:46:51.141",
+    "finished": "2024-10-13T07:46:54.077",
+    "id": "576",
+    "state": "FAILED",
+    "planned": "2024-10-13T07:46:50.406",
+    "uuid": "103cb713-b778-4370-8d58-f13bf4b276ec"
+  },
+  "batch": {
+    "owner_name": "krameriusadmin",
+    "owner_id": "krameriusadmin",
+    "started": "2024-10-13T07:46:51.141",
+    "finished": "2024-10-13T07:46:54.077",
+    "id": "576",
+    "state": "FAILED",
+    "planned": "2024-10-13T07:46:50.406",
+    "token": "13d099c7-e95c-4834-ad6e-d8f40017d0b9"
+  }
+     */
+    public static JSONObject mapProcess(JSONObject pcpProcess, JSONObject pcpBatch) {
         JSONObject json = new JSONObject();
+
         //batch
         JSONObject batchJson = new JSONObject();
-        batchJson.put(KR_BATCH_TOKEN, pcpProcess.getString(PCP_BATCH_ID));
+        batchJson.put(KR_OWNER_NAME_IN_BATCH, pcpBatch.getString(PCP_OWNER_ID));
+        batchJson.put(KR_OWNER_ID_IN_BATCH, pcpBatch.getString(PCP_OWNER_ID));
+        if (!pcpBatch.isNull(PLANNED)) {
+            batchJson.put(PLANNED, toFormattedStringOrNull(pcpBatch.getLong(PLANNED)));
+        }
+        if (!pcpBatch.isNull(STARTED)) {
+            batchJson.put(STARTED, toFormattedStringOrNull(pcpBatch.getLong(STARTED)));
+        }
+        if (!pcpBatch.isNull(FINISHED)) {
+            batchJson.put(FINISHED, toFormattedStringOrNull(pcpBatch.getLong(FINISHED)));
+        }
         batchJson.put(KR_ID, pcpProcess.getString(PCP_BATCH_ID));
+        batchJson.put(KR_BATCH_TOKEN, pcpProcess.getString(PCP_BATCH_ID));
+        batchJson.put(KR_STATUS, pcpBatch.getString(PCP_STATUS));
         json.put(BATCH, batchJson);
+
         //process
         JSONObject processJson = new JSONObject();
-        processJson.put(KR_ID, pcpProcess.getString(PCP_PROCESS_ID));
-        processJson.put(KR_PROCESS_UUID, pcpProcess.getString(PCP_PROCESS_ID));
         processJson.put(KR_PROFILE_ID, pcpProcess.getString(PCP_PROFILE_ID));
         processJson.put(KR_DESCRIPTION, pcpProcess.getString(PCP_DESCRIPTION));
-        processJson.put(KR_STATUS, pcpProcess.getString(PCP_STATUS));
         if (!pcpProcess.isNull(PLANNED)) {
             processJson.put(PLANNED, toFormattedStringOrNull(pcpProcess.getLong(PLANNED)));
         }
@@ -181,6 +220,10 @@ public final class ProcessManagerMapper {
         if (!pcpProcess.isNull(FINISHED)) {
             processJson.put(FINISHED, toFormattedStringOrNull(pcpProcess.getLong(FINISHED)));
         }
+        processJson.put(KR_ID, pcpProcess.getString(PCP_PROCESS_ID));
+        processJson.put(KR_PROCESS_UUID, pcpProcess.getString(PCP_PROCESS_ID));
+        processJson.put(KR_STATUS, pcpProcess.getString(PCP_STATUS));
+
         JSONObject result = new JSONObject();
         result.put(PROCESS, processJson);
         result.put(BATCH, batchJson);
@@ -196,6 +239,17 @@ public final class ProcessManagerMapper {
             result.put(PCP_PAYLOAD, krSchedule.getJSONObject(KR_PAYLOAD));
         }
         result.put(PCP_OWNER_ID_SCH, owner);
+        return result;
+    }
+
+    public static JSONObject mapScheduleMainProcessResult(String processId, String profileId) {
+        JSONObject result = new JSONObject();
+        result.put(KR_DESCRIPTION, "Main process for the profile " + profileId);
+        result.put(KR_ID, profileId);
+        result.put(KR_PLANNED, profileId);
+        result.put(KR_STATUS, KR_STATE_PLANNED);
+        result.put(PLANNED, toFormattedStringOrNull(LocalDateTime.now()));
+        result.put(KR_PROCESS_UUID, processId);
         return result;
     }
 

@@ -392,7 +392,7 @@ public class ItemsResource extends AdminApiResource {
             }
             //extract childrens' pids an relations from rels-ext
             Map<String, String> foxmlChildrenPidToRelationName = new HashMap<>();
-            akubraRepository.doWithWriteLock(pid, new LockOperation<Object>() {
+            akubraRepository.doWithLock(pid, new LockOperation<Object>() {
                 @Override
                 public Object execute() {
                     Document relsExt = akubraRepository.re().get(pid).asDom4j(true);
@@ -820,7 +820,7 @@ public class ItemsResource extends AdminApiResource {
             //exterenal with CONTROL_GROUP="E" and contentLocation TYPE="URL"
             // or
             // internal with CONTROL_GROUP="M" and contentLocation TYPE="INTERNAL_ID"
-            Document srcThumbDs = akubraRepository.doWithReadLock(sourcePid, () -> {
+            Document srcThumbDs = akubraRepository.doWithLock(sourcePid, () -> {
                 DigitalObject object = akubraRepository.get(sourcePid).asDigitalObject();
                 if (object.getDatastream().stream().anyMatch(dataStreamType -> dataStreamType.getID().equals(KnownDatastreams.IMG_THUMB.toString()))) {
                     Document foxml = Dom4jUtils.streamToDocument(akubraRepository.marshall(object), true);
@@ -833,7 +833,7 @@ public class ItemsResource extends AdminApiResource {
                     return null;
                 }
             });
-            akubraRepository.doWithWriteLock(targetPid, () -> {
+            akubraRepository.doWithLock(targetPid, () -> {
                 Document foxml = akubraRepository.get(targetPid).asDom4j(true);
                 Element originalDsEl = (Element) Dom4jUtils.buildXpath(String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']", KnownDatastreams.IMG_THUMB)).selectSingleNode(foxml);
                 if (originalDsEl != null) {

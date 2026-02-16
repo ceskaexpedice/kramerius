@@ -40,7 +40,7 @@ public class LicenseHelper {
     static String SOLR_FIELD_LICENSES_OF_ANCESTORS = "licenses_of_ancestors";
 
     static boolean removeRelsExtRelationAfterNormalization(String pid, String relationName, String[] wrongRelationNames, String value, AkubraRepository repository) {
-        return repository.doWithWriteLock(pid, () -> {
+        return repository.doWithLock(pid, () -> {
             if (!repository.re().exists(pid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -94,7 +94,7 @@ public class LicenseHelper {
     }
 
     static boolean ownsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws IOException {
-        return repository.doWithWriteLock(pid, () -> {
+        return repository.doWithLock(pid, () -> {
             if (!repository.re().exists(pid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -124,7 +124,7 @@ public class LicenseHelper {
     }
 
     static List<String> getLicensesByRelsExt(String pid, AkubraRepository repository)  {
-        return repository.doWithWriteLock(pid, () -> {
+        return repository.doWithLock(pid, () -> {
             if (!repository.re().exists(pid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
@@ -151,7 +151,7 @@ public class LicenseHelper {
     }
 
     static boolean containsLicenseByRelsExt(String pid, String license, AkubraRepository repository) throws RepositoryException, IOException {
-        return repository.doWithWriteLock(pid, () -> {
+        return repository.doWithLock(pid, () -> {
             if (!repository.re().exists(pid)) {
                 throw new RepositoryException("RDF record (datastream RELS-EXT) not found for " + pid);
             }
