@@ -57,6 +57,9 @@ jobs:
     
     - name: Build with Gradle
       run: ./gradlew build clean build distZip jib
+      env:
+        USERNAME: ${{ secrets.USER }}
+        TOKEN: ${{ secrets.PAS }}
 
            
     - uses: actions/upload-artifact@v4
