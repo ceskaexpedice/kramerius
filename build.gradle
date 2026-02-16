@@ -463,3 +463,10 @@ task zipAllJavadocs(type: Zip) {
 }*/
 
 
+/* Debug task used for username and token */
+task printEnv {
+    doLast {
+        println "USERNAME: " + System.getenv("USERNAME")
+        println "TOKEN: " + System.getenv("TOKEN") 
+    }
+}
