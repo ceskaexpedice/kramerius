@@ -38,7 +38,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
 
     - name: Test tasks
-      run: ./gradlew :processes:platform:curator:license-add:tasks
+      run: ./gradlew  printEnv :processes:platform:curator:license-add:tasks
       env:
         USERNAME: ${{ secrets.USER }}
         TOKEN: ${{ secrets.PAS }}
