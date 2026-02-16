@@ -62,7 +62,7 @@ jobs:
         TOKEN: ${{ secrets.PAS }}
 
     - name: Build with Gradle
-      run: ./gradlew clean build distZip jib
+      run: ./gradlew printEnv clean build distZip jib
       env:
         USERNAME: ${{ secrets.USER }}
         TOKEN: ${{ secrets.PAS }}
