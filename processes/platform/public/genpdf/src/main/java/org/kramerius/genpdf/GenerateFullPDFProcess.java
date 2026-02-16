@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GenerateFullPDFProcess {
@@ -74,17 +75,23 @@ public class GenerateFullPDFProcess {
             String token = serv.generate(pid, user, providedByLicenses);
             if (StringUtils.isAnyString(email)) {
                 LOGGER.info("Email specified: " + email);
-                try {
-                    String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
-                    String text = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification, \ndownload is accessible here $link$");
-                    String subject = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification");
-                    String api =  KConfiguration.getInstance().getConfiguration().getString("api.client.point");
-                    String link = String.format("%s/%s/%s", api, "userrequests/userspace", token);
-                    StringTemplate template = new StringTemplate(text);
-                    template.setAttribute("link", link);
-                    serv.sendEmailNotification(administratorEmail, Arrays.asList(email), subject, template.toString());
-                } catch (MessagingException e) {
-                    throw new RuntimeException(e);
+
+                String mailPropertiesFile = System.getProperty("user.home") + File.separator + ".kramerius4" + File.separator + "mail.properties";
+                if (new File(mailPropertiesFile).exists()) {
+                    try {
+                        String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
+                        String text = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification, \ndownload is accessible here $link$");
+                        String subject = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification");
+                        String api =  KConfiguration.getInstance().getConfiguration().getString("api.client.point");
+                        String link = String.format("%s/%s/%s", api, "userrequests/userspace", token);
+                        StringTemplate template = new StringTemplate(text);
+                        template.setAttribute("link", link);
+                        serv.sendEmailNotification(administratorEmail, Arrays.asList(email), subject, template.toString());
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    LOGGER.log(Level.WARNING, "Mail properties file not found");
                 }
             }
         } catch (DocumentException e) {
