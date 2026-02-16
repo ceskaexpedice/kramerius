@@ -91,7 +91,7 @@ public class GenerateFullPDFProcess {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    LOGGER.log(Level.WARNING, "Mail properties file not found");
+                    throw new IllegalArgumentException("Mail properties file not found");
                 }
             }
         } catch (DocumentException e) {
