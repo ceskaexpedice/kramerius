@@ -96,18 +96,4 @@ public class GenerateFullPDFProcess {
         }
     }
 
-    public static void main(String[] args) {
-
-        /*
-                LOGGER.info("Generating PDF");
-        LOGGER.info("pid: " + pid);
-        LOGGER.info("user: " + user);
-        LOGGER.info("roles: " + roles);
-        LOGGER.info("locale: " + locale);
-        LOGGER.info("email: " + email);
-
-         */
-
-        GenerateFullPDFProcess.generate("uuid:9cd57b03-0797-4e8f-90cb-6987dd633034", "pavel.stastny","authenticated_users,common_users", "special-needs", Locale.getDefault().getISO3Country(), null);
-    }
 }
