@@ -12,8 +12,7 @@ processPlugin {
 	]
 
 	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+        'com.sun.jersey'
     ]
 }
 

@@ -11,8 +11,7 @@ processPlugin {
 			[profileId: "update",description: "Update FOXML Stream",jvmArgs: ["-Xms1g","-Xmx32g"]]
 	]
 	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+        'com.sun.jersey'
     ]
 }
 

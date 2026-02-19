@@ -11,8 +11,7 @@ processPlugin {
             [profileId: "new_indexer_index_model", description: "Build search index for models - legacy name of process",jvmArgs: ["-Xms1g","-Xmx32g"]]
 	]
 	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+        'com.sun.jersey'
     ]
 }
 

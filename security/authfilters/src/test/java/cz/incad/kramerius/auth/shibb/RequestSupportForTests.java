@@ -3,7 +3,7 @@ package cz.incad.kramerius.auth.shibb;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 import java.util.Hashtable;
 

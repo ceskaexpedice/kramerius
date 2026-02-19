@@ -16,11 +16,7 @@
  */
 package cz.incad.kramerius.auth.thirdparty.shibb.rules.objects;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**

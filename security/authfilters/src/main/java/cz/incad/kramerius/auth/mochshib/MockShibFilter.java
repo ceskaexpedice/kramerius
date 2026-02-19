@@ -3,9 +3,9 @@ package cz.incad.kramerius.auth.mochshib;
 import cz.incad.kramerius.utils.StringUtils;
 import org.apache.commons.io.FileUtils;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;

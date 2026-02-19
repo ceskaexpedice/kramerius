@@ -2,6 +2,7 @@ description "Remote API"
 
 
 dependencies {
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.1.0'
 
     api project(':shared:common')
     api project(':security:oauth')

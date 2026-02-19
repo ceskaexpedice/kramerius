@@ -30,11 +30,7 @@ sourceSets {
 }
 
 dependencies {
-
-    providedCompile 'javax.servlet:servlet-api:2.5'
-    providedCompile 'javax.servlet:jsp-api:2.0'
-    providedCompile 'javax.portlet:portlet-api:2.0'
-	
+    providedCompile 'jakarta.servlet:jakarta.servlet-api:6.1.0'
 	// bridge
 	if (buildProfile == 'cdk') {
 		api project(':bridge')
@@ -62,7 +58,6 @@ dependencies {
     api project(':processes:licenses')
     api project(':processes:collections-backup')
 
-    api 'javax.servlet:jstl:1.2'
     api 'taglibs:standard:1.1.2'
     api 'xalan:xalan:2.7.2'
 
@@ -91,8 +86,7 @@ dependencies {
     //api project(':processes:cdkreharvest')
 
 
-    api 'javax.servlet:jstl:1.1.2'   
-    //api 'taglibs:standard:1.2.3'   
+    //api 'taglibs:standard:1.2.3'
     api 'xalan:xalan:2.7.1'   
 
 

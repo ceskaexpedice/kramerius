@@ -11,7 +11,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextEvent;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -44,7 +44,8 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.guice.DocHubModule;
 
-public class GuiceConfigBean extends GuiceServletContextListener {
+// TODO migration public class GuiceConfigBean extends GuiceServletContextListener {
+public class GuiceConfigBean {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GuiceConfigBean.class.getName());
     
@@ -52,6 +53,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         super();
     }
 
+    /*
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         super.contextInitialized(servletContextEvent);
@@ -109,7 +111,11 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         Injector injector = Guice.createInjector(modules);
 
         return injector;
+
+
     }
+
+     */
     
     public static ServletModule servletModule() {
         try {

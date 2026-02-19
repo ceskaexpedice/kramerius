@@ -22,7 +22,7 @@ public class IiifServletModule extends ServletModule {
             bind(resource);
         }
 
-        serve("/iiif-presentation/*").with(GuiceContainer.class);
+        // TODO migration serve("/iiif-presentation/*").with(GuiceContainer.class);
     }
 
 }

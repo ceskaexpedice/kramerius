@@ -25,8 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.servlet.http.HttpServletResponse;
-
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.statistics.formatters.report.lang.LangCSVFormatter;
 import cz.incad.kramerius.statistics.formatters.utils.StringUtils;

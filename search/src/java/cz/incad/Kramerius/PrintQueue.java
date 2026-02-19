@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.logging.Level;
 
 import javax.print.PrintException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;

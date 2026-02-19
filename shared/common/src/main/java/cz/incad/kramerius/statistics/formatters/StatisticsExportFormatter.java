@@ -22,9 +22,6 @@ package cz.incad.kramerius.statistics.formatters;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.http.HttpServletResponse;
-
-
 /**
  * @author pavels
  *

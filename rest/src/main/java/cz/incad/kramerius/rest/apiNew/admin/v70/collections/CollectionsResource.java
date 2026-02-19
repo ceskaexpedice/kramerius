@@ -45,7 +45,7 @@ import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -308,7 +308,10 @@ public class CollectionsResource extends AdminApiResource {
 
             DiskFileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
-            List<FileItem> fileItems = upload.parseRequest(req);
+
+            List<FileItem> fileItems = null;
+// TODO migration            List<FileItem> fileItems = upload.parseRequest(req);
+
             if (fileItems.size() == 1) {
                 FileItem fileItem = fileItems.get(0);
 
@@ -347,7 +350,8 @@ public class CollectionsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             handleWorkMode(e);
             throw e;
-        } catch (RepositoryException | SolrServerException | IOException | FileUploadException e) {
+        } catch (RepositoryException | SolrServerException | IOException  e) {
+//  TODO migration       } catch (RepositoryException | SolrServerException | IOException | FileUploadException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }

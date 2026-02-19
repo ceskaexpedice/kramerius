@@ -8,9 +8,9 @@ import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
 import org.keycloak.adapters.spi.KeycloakAccount;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.logging.Level;
 
 /**

@@ -1,23 +1,17 @@
 package cz.incad.Kramerius.backend.guice;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import com.google.inject.Provider;
+import cz.incad.kramerius.service.ResourceBundleService;
+import jakarta.servlet.http.HttpServletRequest;
+
+// TODO migrationimport javax.servlet.jsp.jstl.fmt.LocalizationContext;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
-import cz.incad.kramerius.service.ResourceBundleService;
-
-public class CustomLocalizationContext extends LocalizationContext {
+// TODO migrationpublic class CustomLocalizationContext extends LocalizationContext {
+public class CustomLocalizationContext {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(CustomLocalizationContext.class.getName());
@@ -38,12 +32,12 @@ public class CustomLocalizationContext extends LocalizationContext {
 	}
 
 
-	@Override
+	// TODO migration @Override
 	public Locale getLocale() {
 		return this.localeProvider.get();
 	}
 
-	@Override
+	// TODO migration @Override
 	public ResourceBundle getResourceBundle() {
 		try {
 			Locale locale = this.localeProvider.get();
@@ -51,7 +45,8 @@ public class CustomLocalizationContext extends LocalizationContext {
 			return resourceBundle;
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			return super.getResourceBundle();
+			// TODO migration return super.getResourceBundle();
+			return null;
 		}
 	}
 }

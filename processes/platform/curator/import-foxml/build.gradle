@@ -11,8 +11,7 @@ processPlugin {
 			[profileId: "import",description: "Import FOXML and NDKMETS format - legacy name of process",jvmArgs: ["-Xms1g","-Xmx32g"]]
 	]
 	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+        'com.sun.jersey'
     ]
 }
 

@@ -226,7 +226,7 @@ public class ApiServletModule extends JerseyServletModule {
         parameters.put("com.sun.jersey.config.property.packages",
                 "cz.incad.kramerius.rest.api.processes.messages");
 
-        serve("/api/*").with(GuiceContainer.class, parameters);
+       // TODO migration serve("/api/*").with(GuiceContainer.class, parameters);
         // serve("/api/"+VERSION+"/*").with(GuiceContainer.class, parameters);
     }
 

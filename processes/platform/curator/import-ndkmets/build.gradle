@@ -10,8 +10,7 @@ processPlugin {
 	profiles = [ [profileId: "convert_and_import",description: "Import NDKMETS format - legacy name of process",jvmArgs: ["-Xms1g","-Xmx32g"]] ]
 	
 	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+        'com.sun.jersey'
     ]
 }
 

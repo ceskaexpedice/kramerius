@@ -25,8 +25,8 @@ import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.ceskaexpedice.akubra.AkubraRepository;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 import java.awt.*;
 import java.awt.image.BufferedImage;

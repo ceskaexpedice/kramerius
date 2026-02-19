@@ -7,13 +7,9 @@ configurations {
 }
 dependencies {
     api project(':shared:common')
-
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.1.0'
     api "org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}"
     api 'com.squareup.okhttp3:okhttp:4.9.1'
-
-    provided "javax.servlet.jsp:jsp-api:2.2",
-            "javax.servlet:javax.servlet-api:3.1.0"
-
 
 }
 

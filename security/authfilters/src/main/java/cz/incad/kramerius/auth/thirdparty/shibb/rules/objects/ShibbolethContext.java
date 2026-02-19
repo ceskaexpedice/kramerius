@@ -1,6 +1,6 @@
 package cz.incad.kramerius.auth.thirdparty.shibb.rules.objects;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.UserImpl;

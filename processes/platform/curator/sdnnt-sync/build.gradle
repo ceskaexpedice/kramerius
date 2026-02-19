@@ -11,8 +11,7 @@ processPlugin {
 			[profileId: "sdnnt-sync",description: "SDNNT sync",jvmArgs: ["-Xms1g","-Xmx32g"]]
 	]
 	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+        'com.sun.jersey'
     ]
 }
 

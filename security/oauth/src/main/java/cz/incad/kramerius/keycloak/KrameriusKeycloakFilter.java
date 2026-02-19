@@ -6,10 +6,10 @@ import org.keycloak.adapters.servlet.OIDCFilterSessionStore;
 import org.keycloak.adapters.servlet.OIDCServletHttpFacade;
 import org.keycloak.adapters.spi.*;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -116,6 +116,7 @@ public class KrameriusKeycloakFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+       /* TODO migration
         log.fine("Keycloak OIDC Filter");
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
@@ -184,6 +185,8 @@ public class KrameriusKeycloakFilter implements Filter {
 //        }
 //        response.sendError(403);
         chain.doFilter(req, res);
+
+        */
     }
 
     /**

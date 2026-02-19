@@ -2,9 +2,9 @@ package cz.incad.kramerius.auth.thirdparty.keycloack.cdk;
 
 import java.util.logging.Level;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 import com.google.inject.Inject;

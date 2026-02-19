@@ -16,9 +16,7 @@
  */
 package cz.incad.kramerius.users;
 
-import java.sql.SQLException;
-
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.google.inject.Provider;
 

@@ -13,8 +13,7 @@ processPlugin {
             [profileId: "processing_rebuild",description: "Rebuild processing index for repository - legacy name of process",jvmArgs: ["-Xms1g","-Xmx32g"]]
     ]
 	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+        'com.sun.jersey'
     ]
 }
 

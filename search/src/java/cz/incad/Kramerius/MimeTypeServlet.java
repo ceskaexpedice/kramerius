@@ -1,23 +1,18 @@
 package cz.incad.Kramerius;
 
-import static cz.incad.utils.IKeys.PID_PARAMETER;
-import static cz.incad.utils.IKeys.UUID_PARAMETER;
+import com.google.inject.Inject;
+import cz.incad.Kramerius.backend.guice.GuiceServlet;
+import cz.incad.kramerius.security.SecuredAkubraRepository;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 
 import java.io.IOException;
 import java.util.logging.Level;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathExpressionException;
-
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
-import cz.incad.Kramerius.backend.guice.GuiceServlet;
-import cz.incad.kramerius.security.SecuredAkubraRepository;
-import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.KnownDatastreams;
+import static cz.incad.utils.IKeys.PID_PARAMETER;
+import static cz.incad.utils.IKeys.UUID_PARAMETER;
 
 public class MimeTypeServlet extends GuiceServlet {
 

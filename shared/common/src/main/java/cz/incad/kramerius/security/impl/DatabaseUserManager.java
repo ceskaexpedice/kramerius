@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.security.DefaultRoles;
 import org.antlr.stringtemplate.StringTemplate;

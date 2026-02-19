@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.rest.api.k5.client.pdf;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 
