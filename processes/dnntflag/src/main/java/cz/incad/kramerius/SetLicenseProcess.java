@@ -27,6 +27,7 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,10 +88,18 @@ public class SetLicenseProcess {
         SolrIndexAccess indexerAccess = new SolrIndexAccess(new SolrConfig());
         PluginContext pluginContext = PluginContextHolder.getContext();
         List<String> brokenPids = new ArrayList<>();
+        String targetMsg = target.length()> 200 ? target.substring(0, 200)+" ..." : target;
+
         try {
             switch (action) {
                 case ADD:
-                    pluginContext.updateProcessName(String.format("Přidání licence '%s' pro %s", license, target));
+                    try {
+                        String msga = String.format("Přidání licence '%s' pro %s", license, targetMsg);
+                        LOGGER.info(String.format("Updating process msg  %s", msga));
+                        pluginContext.updateProcessName(URLEncoder.encode(msga, Charset.forName( "UTF-8")));
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, e.getMessage(), e);
+                    }
                     for (String pid : ProcessUtils.extractPids(target)) {
                         try {
                             addLicense(license, pid, akubraRepository, searchIndex, indexerAccess);
@@ -110,7 +119,13 @@ public class SetLicenseProcess {
                     }
                     break;
                 case REMOVE:
-                    pluginContext.updateProcessName(String.format("Odebrání licence '%s' pro %s", license, target));
+                    try {
+                        String msgr = String.format("Odebrání licence '%s' pro %s", license, targetMsg);
+                        LOGGER.info(String.format("Updating process msg  %s", msgr));
+                        pluginContext.updateProcessName(URLEncoder.encode(msgr, Charset.forName( "UTF-8")));
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, e.getMessage(), e);
+                    }
                     for (String pid : ProcessUtils.extractPids(target)) {
                         try {
                             removeLicense(license, pid, akubraRepository, searchIndex, indexerAccess);

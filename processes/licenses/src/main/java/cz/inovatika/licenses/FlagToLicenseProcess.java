@@ -97,21 +97,18 @@ public class FlagToLicenseProcess {
 
             //Client client = Client.create();
 
-            //Map<String, String> topLevelModelsMap = new HashMap<>();
-            //Map<String, List<Pair<String, String>>> subLevelModelsMap = new HashMap<>();
-            //Map<String, Triple<String, String, String>> details = new HashMap<>();
 
             List<String> alreadyLicensedPids = new ArrayList<>();
 
             List<String> publicPids = new ArrayList<>();
             List<String> privatePids = new ArrayList<>();
 
-            //SolrIteratorConfig.Builder builder = new SolrIteratorConfig.Builder(url, id);
-
+                boolean compositeId = KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
+            LOGGER.info("Solr cloud:"+compositeId);
             SolrIteratorConfig config =
                     new SolrIteratorConfig.Builder(KConfiguration.getInstance().getSolrSearchHost(), "pid")
                             .fieldList("pid,root.pid,accessibility,model,licenses,count_monograph_unit")
-                            .sort("pid asc")
+                            .sort(compositeId ? "compositeId asc" :   "pid asc")
                             .endpoint("select")
                             .filterQuery(query)
                             .factoryClz(SolrIteratorFactory.class.getName())
@@ -180,6 +177,7 @@ public class FlagToLicenseProcess {
             scheduleSetLicenses(privatePids, CzechEmbeddedLicenses.ONSITE_LICENSE.getName());
 
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
 
