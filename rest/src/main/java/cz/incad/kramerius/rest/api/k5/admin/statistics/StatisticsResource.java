@@ -16,47 +16,12 @@
  */
 package cz.incad.kramerius.rest.api.k5.admin.statistics;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
-import com.google.inject.name.Named;
-
-//import cz.incad.kramerius.processes.*;
-
-import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
-import cz.incad.kramerius.statistics.filters.*;
-import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
+import com.google.inject.name.Named;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
+import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
@@ -66,9 +31,30 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.filters.*;
 import cz.incad.kramerius.statistics.filters.VisibilityFilter.VisbilityType;
+import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
+import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.database.Offset;
+import jakarta.servlet.http.HttpServletRequest;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 @Path("/v5.0/admin/statistics")
 public class StatisticsResource {

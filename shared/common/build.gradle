@@ -20,13 +20,13 @@ configurations {
 
 dependencies {
     implementation "org.ceskaexpedice:hazelcast-locks-server:${hazelcastversion}"
+    compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
 
     api "org.ceskaexpedice:akubra:${akubraversion}"
 
 //    api project(':processes:import-jaxb')
     // Nullable annotation
     api 'com.google.code.findbugs:jsr305:1.3.9'
-    api 'javax.servlet:servlet-api:2.5'
     api 'org.json:json:20140107'
     api 'commons-codec:commons-codec:1.5'
     //api 'org.apache.pdfbox:pdfbox:2.0.26'
