@@ -1,18 +1,11 @@
 package cz.incad.kramerius.auth.thirdparty.keycloack;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
-import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.dnnt.StandardDNNTUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.utils.BaseUsersFunctions;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.keycloak.KeycloakPrincipal;
@@ -20,16 +13,8 @@ import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.spi.KeycloakAccount;
 import org.keycloak.representations.AccessToken;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;

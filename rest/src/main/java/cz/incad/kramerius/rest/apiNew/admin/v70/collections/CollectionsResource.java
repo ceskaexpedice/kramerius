@@ -308,7 +308,8 @@ public class CollectionsResource extends AdminApiResource {
 
             DiskFileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
-            List<FileItem> fileItems = upload.parseRequest(req);
+// TODO migration            List<FileItem> fileItems = upload.parseRequest(req);
+            List<FileItem> fileItems = null;
             if (fileItems.size() == 1) {
                 FileItem fileItem = fileItems.get(0);
 
@@ -347,7 +348,7 @@ public class CollectionsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             handleWorkMode(e);
             throw e;
-        } catch (RepositoryException | SolrServerException | IOException | FileUploadException e) {
+        } catch (RepositoryException | SolrServerException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }

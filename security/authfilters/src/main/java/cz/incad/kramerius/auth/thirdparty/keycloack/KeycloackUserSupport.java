@@ -1,12 +1,5 @@
 package cz.incad.kramerius.auth.thirdparty.keycloack;
 
-import cz.incad.kramerius.auth.thirdparty.keycloack.Keycloak3rdUser;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.security.Role;
@@ -14,20 +7,14 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.spi.KeycloakAccount;
 import org.keycloak.representations.AccessToken;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;

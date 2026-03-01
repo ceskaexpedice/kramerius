@@ -3,7 +3,7 @@ package cz.incad.kramerius.auth.thirdparty.social;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.auth.thirdparty.social.utils.OpenId3rdUser;
 import org.brickred.socialauth.Profile;

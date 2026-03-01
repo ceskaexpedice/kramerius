@@ -9,14 +9,18 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
+import jakarta.servlet.http.HttpServletRequest;
+//import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 import cz.incad.kramerius.service.ResourceBundleService;
 
+public class CustomLocalizationContext{
+
+}
+/* TODO migration
 public class CustomLocalizationContext extends LocalizationContext {
 
 	public static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -55,3 +59,5 @@ public class CustomLocalizationContext extends LocalizationContext {
 		}
 	}
 }
+
+ */

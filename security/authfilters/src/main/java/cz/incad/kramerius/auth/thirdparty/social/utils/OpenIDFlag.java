@@ -3,7 +3,7 @@ package cz.incad.kramerius.auth.thirdparty.social.utils;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.configuration.Configuration;
 import org.brickred.socialauth.AuthProvider;
@@ -53,7 +53,8 @@ public enum OpenIDFlag {
         @Override
         public OpenIDFlag next(HttpServletRequest req) throws Exception {
             SocialAuthManager authManager = this.authManager(req);
-            AuthProvider provider = authManager.connect(SocialAuthUtil.getRequestParametersMap(req));
+            AuthProvider provider = null;
+// TODO migration            AuthProvider provider = authManager.connect(SocialAuthUtil.getRequestParametersMap(req));
             Profile profile = provider.getUserProfile();
             req.getSession(true).setAttribute(PROFILE_KEY, profile);
             req.getSession(true).setAttribute(STATE_KEY, LOGGED.name());

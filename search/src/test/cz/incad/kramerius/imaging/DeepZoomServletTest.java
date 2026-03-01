@@ -32,6 +32,7 @@ import cz.incad.Kramerius.imaging.DeepZoomServlet;
  */
 public class DeepZoomServletTest {
 
+    /* TODO migration
     //@Test
     public void testDeepZoom() {
         String disected = DeepZoomServlet.disectZoom("http://krameriusdemo.mzk.cz/search/deepZoom/uuid:4a7ec660-af36-11dd-a782-000d606f5dc6/_files/10/1_0.jpg");
@@ -63,5 +64,7 @@ public class DeepZoomServletTest {
         if (dataStreamUrl.endsWith("/")) dataStreamUrl = dataStreamUrl.substring(0, dataStreamUrl.length()-1);
         dziUrl.setAttribute("url", dataStreamUrl);
     }
+
+     */
 
 }

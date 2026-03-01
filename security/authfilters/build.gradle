@@ -3,6 +3,7 @@ description "Authentication filters"
 
 dependencies {
     api project(':shared:common')
+    compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
     api "org.brickred:socialauth:4.12"
     api 'commons-codec:commons-codec:1.5'
 

@@ -30,6 +30,7 @@ sourceSets {
 }
 
 dependencies {
+    compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
 
 	// bridge
 	if (buildProfile == 'cdk') {
