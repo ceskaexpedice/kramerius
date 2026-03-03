@@ -16,11 +16,43 @@
  */
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
-import static cz.incad.kramerius.Constants.WORKING_DIR;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.imaging.ImageStreams;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
+import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.security.impl.DatabaseRightsManager;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
+import cz.incad.kramerius.security.utils.PasswordDigest;
+import cz.incad.kramerius.users.UserProfileManager;
+import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.workmode.WorkMode;
+import cz.incad.kramerius.workmode.WorkModeService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Form;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-
+import javax.inject.Named;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -31,50 +63,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
-import jakarta.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import cz.incad.kramerius.AbstractObjectPath;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.imaging.ImageStreams;
-import cz.incad.kramerius.security.*;
-import cz.incad.kramerius.security.impl.DatabaseRightsManager;
-import cz.incad.kramerius.security.licenses.License;
-import cz.incad.kramerius.security.licenses.LicensesManager;
-import cz.incad.kramerius.security.licenses.LicensesManagerException;
-import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
-import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-
-import cz.incad.kramerius.workmode.WorkMode;
-import cz.incad.kramerius.workmode.WorkModeService;
-import org.apache.commons.io.IOUtils;
-import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
-import cz.incad.kramerius.rest.api.replication.exceptions.ObjectNotFound;
-import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
-import cz.incad.kramerius.security.utils.PasswordDigest;
-import cz.incad.kramerius.security.utils.SortingRightsUtils;
-import cz.incad.kramerius.users.UserProfileManager;
+import static cz.incad.kramerius.Constants.WORKING_DIR;
 
 
 /**
@@ -412,37 +401,42 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         }
     }
-    
+
     @GET
     @Path("auth/token")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response token(@QueryParam("code") String code, @QueryParam("redirect_uri") String redirectUri) {
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response token(@QueryParam("code") String code,
+                          @QueryParam("redirect_uri") String redirectUri) {
         try {
             String path = WORKING_DIR + "/keycloak.json";
-            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
-            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+            String str = IOUtils.toString(new FileInputStream(path), "UTF-8");
+            ClientKeycloakConfig cnf =
+                    ClientKeycloakConfig.load(new JSONObject(str));
 
-            String type = "application/x-www-form-urlencoded; charset=UTF-8";
-            
-            Client client = Client.create();
-            WebResource webResource = client.resource(cnf.token(code));
-            MultivaluedMapImpl<String, String> values = new MultivaluedMapImpl();
-            values.add("grant_type", "authorization_code");
-            values.add("code", code);
-            values.add("client_id", cnf.getResource());
-            values.add("client_secret", cnf.getSecret());
-            values.add("redirect_uri", redirectUri);
-            // TODO: Dat to do konfigurace
-            //values.add("scope", "openid");
-            ClientResponse post = webResource.type(type).post(ClientResponse.class, values);
-            String entity = (String) post.getEntity(String.class);
-            return Response.ok().entity(entity.toString()).build();
+            Client client = ClientBuilder.newClient();
+
+            WebTarget target = client.target(cnf.token(code));
+
+            Form form = new Form()
+                    .param("grant_type", "authorization_code")
+                    .param("code", code)
+                    .param("client_id", cnf.getResource())
+                    .param("client_secret", cnf.getSecret())
+                    .param("redirect_uri", redirectUri);
+            // .param("scope", "openid"); // optional
+
+            Response response = target
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(form,
+                            MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+
+            String entity = response.readEntity(String.class);
+            return Response.ok(entity).build();
 
         } catch (Exception e) {
             throw new GenericApplicationException(e.getMessage());
         }
     }
-
 
     
     

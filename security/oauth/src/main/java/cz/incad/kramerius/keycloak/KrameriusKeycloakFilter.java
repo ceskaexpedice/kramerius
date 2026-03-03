@@ -1,10 +1,13 @@
 package cz.incad.kramerius.keycloak;
 
+/*
 import org.keycloak.adapters.*;
 import org.keycloak.adapters.servlet.FilterRequestAuthenticator;
 import org.keycloak.adapters.servlet.OIDCFilterSessionStore;
 import org.keycloak.adapters.servlet.OIDCServletHttpFacade;
 import org.keycloak.adapters.spi.*;
+
+ */
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,6 +40,7 @@ public class KrameriusKeycloakFilter implements Filter {
 
     public static final String CONFIG_PATH_PARAM = "keycloak.config.path";
 
+    /*
     protected AdapterDeploymentContext deploymentContext;
 
     protected SessionIdMapper idMapper = new InMemorySessionIdMapper();
@@ -47,22 +51,20 @@ public class KrameriusKeycloakFilter implements Filter {
 
     private final KeycloakConfigResolver definedconfigResolver;
 
-    /**
-     * Constructor that can be used to define a {@code KeycloakConfigResolver} that will be used at initialization to
-     * provide the {@code KeycloakDeployment}.
-     *
-     * @param definedconfigResolver the resolver
      */
+
+    /*
     public KrameriusKeycloakFilter(KeycloakConfigResolver definedconfigResolver) {
         this.definedconfigResolver = definedconfigResolver;
     }
 
     public KrameriusKeycloakFilter() {
         this(null);
-    }
+    }*/
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
+        /*
         String skipPatternDefinition = filterConfig.getInitParameter(SKIP_PATTERN_PARAM);
         if (skipPatternDefinition != null) {
             skipPattern = Pattern.compile(skipPatternDefinition, Pattern.DOTALL);
@@ -103,7 +105,10 @@ public class KrameriusKeycloakFilter implements Filter {
         }
         filterConfig.getServletContext().setAttribute(AdapterDeploymentContext.class.getName(), deploymentContext);
         nodesRegistrationManagement = new NodesRegistrationManagement();
+
+         */
     }
+    /*
 
     private KeycloakDeployment createKeycloakDeploymentFrom(InputStream is) {
         if (is == null) {
@@ -111,7 +116,7 @@ public class KrameriusKeycloakFilter implements Filter {
             return new KeycloakDeployment();
         }
         return KeycloakDeploymentBuilder.build(is);
-    }
+    }*/
 
 
     @Override
@@ -200,13 +205,16 @@ public class KrameriusKeycloakFilter implements Filter {
      * {@code false} otherwise.
      */
     private boolean shouldSkip(HttpServletRequest request) {
-
+/*
         if (skipPattern == null) {
             return false;
         }
 
         String requestPath = request.getRequestURI().substring(request.getContextPath().length());
         return skipPattern.matcher(requestPath).matches();
+
+ */
+        return true;
     }
 
     @Override

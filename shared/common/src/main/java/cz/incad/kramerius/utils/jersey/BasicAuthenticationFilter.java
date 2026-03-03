@@ -16,40 +16,36 @@
  */
 package cz.incad.kramerius.utils.jersey;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.ext.Provider;
 
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientRequest;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.filter.ClientFilter;
-import com.sun.jersey.core.util.Base64;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
- * @author pavels
- *
+ * Basic authentication filter for Jersey 3 / Jakarta
  */
-public class BasicAuthenticationFilter extends ClientFilter {
-    
+@Provider
+public class BasicAuthenticationFilter implements ClientRequestFilter {
+
+    private final String username;
+    private final String password;
+
     public BasicAuthenticationFilter(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
 
-    public ClientResponse handle(ClientRequest clientRequest) throws ClientHandlerException {
+    @Override
+    public void filter(ClientRequestContext request) throws IOException {
+        // Encode username and password in Base64
+        String token = Base64.getEncoder()
+                .encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
 
-        // encode the password
-        byte[] encoded = Base64.encode((username + ":" + password).getBytes());
-
-        // add the header
-        List<Object> headerValue = new ArrayList<Object>();
-        headerValue.add("Basic " + new String(encoded));
-        clientRequest.getMetadata().put("Authorization", headerValue);
-
-        return getNext().handle(clientRequest);
+        // Add Authorization header
+        request.getHeaders().putSingle(HttpHeaders.AUTHORIZATION, "Basic " + token);
     }
-
-    private String username;
-    private String password;
-
 }

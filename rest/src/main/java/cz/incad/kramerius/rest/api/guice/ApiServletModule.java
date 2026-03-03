@@ -18,9 +18,9 @@ package cz.incad.kramerius.rest.api.guice;
 
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.guice.JerseyServletModule;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+//import com.sun.jersey.api.client.Client;
+//import com.sun.jersey.guice.JerseyServletModule;
+//import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
@@ -86,128 +86,129 @@ import java.util.Map;
  *
  * @author pavels
  */
-public class ApiServletModule extends JerseyServletModule {
+public class ApiServletModule {
+//    public class ApiServletModule extends JerseyServletModule {
+    /* TODO migration
 
-    // public static String VERSION = "v4.6";
+        // public static String VERSION = "v4.6";
 
-    @Override
-    protected void configureServlets() {
-        // API Remote 4.6 Resources
-        bind(ReplicationsResource.class);
-        //bind(CDKReplicationsResource.class);
+        @Override
+        protected void configureServlets() {
+            // API Remote 4.6 Resources
+            bind(ReplicationsResource.class);
+            //bind(CDKReplicationsResource.class);
 
-		boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
-		if (cdkServerMode) {
-			bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ClientUserResource.class);
-		} else {
-	        bind(cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource.class);
-		}
-        
-
-        //bind(ItemResource.class);
-        //bind(FeederResource.class);
-        //bind(ClientVirtualCollections.class);
-        //bind(SearchResource.class);
-        //bind(FeedbackResource.class);
-        //bind(ClientRightsResource.class);
-        //bind(PDFResource.class);
-        //bind(AsyncPDFResource.class);
-		
-		// Admin resources
-		bind(RightsResource.class);
-        bind(UsersResource.class);
-        bind(RolesResource.class);
-
-        // statistics
-        bind(StatisticsResource.class);
-        // api monitoring
-        bind(APIMonitorResource.class);
-
-        bind(LicensesResource.class);
-
-        // CDK Client 7.0 Resources
-        boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
-        if (channel) {
-            bind(CDKForwardResource.class);
-            bind(CDKIIIFResource.class);
-            bind(CDKItemResource.class);
-            bind(CDKUsersResource.class);
-        }
-
-        
-        // API Client 7.0 Resources
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
-        
-        // cdk server mode
-        if (cdkServerMode) {
-            bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ItemsResource.class);
-        } else {
-            bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
-        }
+            boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+            if (cdkServerMode) {
+                bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ClientUserResource.class);
+            } else {
+                bind(cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource.class);
+            }
 
 
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
-        
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.UIConfigResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AsyncPDFResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.LocksResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.res.EmbeddedFilesResource.class);
+            //bind(ItemResource.class);
+            //bind(FeederResource.class);
+            //bind(ClientVirtualCollections.class);
+            //bind(SearchResource.class);
+            //bind(FeedbackResource.class);
+            //bind(ClientRightsResource.class);
+            //bind(PDFResource.class);
+            //bind(AsyncPDFResource.class);
 
-        // cdk forward client
-        bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
-        bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
-        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+            // Admin resources
+            bind(RightsResource.class);
+            bind(UsersResource.class);
+            bind(RolesResource.class);
 
-        // solr apache client
-        bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
+            // statistics
+            bind(StatisticsResource.class);
+            // api monitoring
+            bind(APIMonitorResource.class);
+
+            bind(LicensesResource.class);
+
+            // CDK Client 7.0 Resources
+            boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+            if (channel) {
+                bind(CDKForwardResource.class);
+                bind(CDKIIIFResource.class);
+                bind(CDKItemResource.class);
+                bind(CDKUsersResource.class);
+            }
 
 
-        // API Admin 7.0 Resources
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.collections.CollectionsResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.akubra.AkubraResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.WorkModeResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.uiconfig.UIConfigResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.ConfigResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.ItemsResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.ServerFilesResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.sync.SDNNTSyncResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.conf.Configurations.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.AdminLockResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.index.IndexReflectionResource.class);
+            // API Client 7.0 Resources
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
 
-        // OAI endpoint
-        bind(cz.incad.kramerius.rest.oai.OAIEndpoint.class);
-        
-        // EXTS endpoint
-        bind(cz.incad.kramerius.rest.apiNew.exts.v70.ExtsTokensResource.class);
-        
-        // Generated download links
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks.class).asEagerSingleton();
-        
-        // Kramerius folders
-        bind(EndpointFolders.class);
-        bind(FolderDatabase.class);
-        
-        bind(KeycloakProxy.class);
+            // cdk server mode
+            if (cdkServerMode) {
+                bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ItemsResource.class);
+            } else {
+                bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
+            }
 
-        // debug resource
-        //bind(HTTPHeaders.class);
 
-        bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
-					.asEagerSingleton();
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
 
-        // simple reader & writer
-        bind(SimpleJSONMessageBodyReader.class);
-        bind(SimpleJSONMessageBodyWriter.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.UIConfigResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AsyncPDFResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.LocksResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.res.EmbeddedFilesResource.class);
 
-        // decorators
-        //decorators();
+            // cdk forward client
+            bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
+            bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
+            bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
 
-        /** CDK Part */
+            // solr apache client
+            bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
+
+
+            // API Admin 7.0 Resources
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.collections.CollectionsResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.akubra.AkubraResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.WorkModeResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.uiconfig.UIConfigResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.ConfigResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.ItemsResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.ServerFilesResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.sync.SDNNTSyncResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.conf.Configurations.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.AdminLockResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.index.IndexReflectionResource.class);
+
+            // OAI endpoint
+            bind(cz.incad.kramerius.rest.oai.OAIEndpoint.class);
+
+            // EXTS endpoint
+            bind(cz.incad.kramerius.rest.apiNew.exts.v70.ExtsTokensResource.class);
+
+            // Generated download links
+            bind(cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks.class).asEagerSingleton();
+
+            // Kramerius folders
+            bind(EndpointFolders.class);
+            bind(FolderDatabase.class);
+
+            bind(KeycloakProxy.class);
+
+            // debug resource
+            //bind(HTTPHeaders.class);
+
+            bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
+                        .asEagerSingleton();
+
+            // simple reader & writer
+            bind(SimpleJSONMessageBodyReader.class);
+            bind(SimpleJSONMessageBodyWriter.class);
+
+            // decorators
+            //decorators();
+
         bind(TimestampStore.class).to(SolrTimestampStore.class).asEagerSingleton();
         bind(Instances.class).to(DefaultPropertiesInstances.class).asEagerSingleton();
         bind(ReharvestManager.class).to(SolrReharvestManagerImpl.class).asEagerSingleton();
@@ -226,8 +227,9 @@ public class ApiServletModule extends JerseyServletModule {
         parameters.put("com.sun.jersey.config.property.packages",
                 "cz.incad.kramerius.rest.api.processes.messages");
 
-       // TODO migration serve("/api/*").with(GuiceContainer.class, parameters);
+       serve("/api/*").with(GuiceContainer.class, parameters);
     }
 
-
+*/
 }
+

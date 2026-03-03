@@ -1,7 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.item;
 
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import jakarta.ws.rs.core.Response;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
@@ -28,7 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -450,37 +449,45 @@ public class V5RedirectHandler extends ProxyItemHandler {
         return null;
     }
 
-    //TODO Chache
     protected JSONObject retrieveBasicDoc(String pid) throws ProxyHandlerException {
         try {
             String baseurl = super.baseUrl();
             String query = URLEncoder.encode("PID:\"" + pid + "\"", "UTF-8");
-            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/v5.0/search?q=" + query + "&wt=json&fl="
-                    + URLEncoder.encode("img_full_mime fedora.model pid_path parent_pid", "UTF-8");
-
-
+            String url = baseurl
+                    + (baseurl.endsWith("/") ? "" : "/")
+                    + "api/v5.0/search?q=" + query
+                    + "&wt=json&fl="
+                    + URLEncoder.encode(
+                    "img_full_mime fedora.model pid_path parent_pid",
+                    "UTF-8"
+            );
 
             HttpGet httpGet = apacheGet(url, false);
             httpGet.setHeader("Accept", "application/json");
-            try (CloseableHttpResponse response = this.apacheClient.execute(httpGet)) {
+
+            try (CloseableHttpResponse response =
+                         this.apacheClient.execute(httpGet)) {
+
                 HttpEntity entity = response.getEntity();
                 InputStream is = entity.getContent();
                 String t = IOUtils.toString(is, Charset.forName("UTF-8"));
+
                 JSONObject solrResponse = new JSONObject(t);
-                JSONArray docs = solrResponse.getJSONObject("response").getJSONArray("docs");
+                JSONArray docs =
+                        solrResponse.getJSONObject("response").getJSONArray("docs");
+
                 if (docs.length() >= 1) {
                     return docs.getJSONObject(0);
                 }
-
-            } catch(IOException ex) {
-                LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
             return null;
 
-        } catch (UnsupportedEncodingException | UniformInterfaceException | ClientHandlerException | JSONException e) {
+        } catch (UnsupportedEncodingException | JSONException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return null;
         }
-        return null;
     }
 
     private Pair<JSONArray, JSONArray> retrieveChildren(JSONObject info, JSONObject basicSolrDoc,

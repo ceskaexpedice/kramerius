@@ -1,17 +1,10 @@
 package cz.inovatika.kramerius.services.iterators.factories;
 
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
-import cz.incad.kramerius.utils.StringUtils;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-
-import javax.ws.rs.core.MediaType;
-
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import cz.inovatika.kramerius.services.iterators.config.TypeOfIteration;
 import cz.inovatika.kramerius.services.iterators.solr.SolrCursorIterator;
@@ -21,6 +14,10 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
 
 public class SolrIteratorFactory extends ProcessIteratorFactory {
 	

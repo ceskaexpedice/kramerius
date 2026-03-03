@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -26,6 +27,8 @@ import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -36,13 +39,14 @@ import org.apache.http.impl.client.HttpClients;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
@@ -68,7 +72,7 @@ import cz.incad.kramerius.utils.solr.SolrUtils;
 
 public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
-	private static final String DATE_RANGE_START_YEAR_FIELD = "date_range_start.year";
+    private static final String DATE_RANGE_START_YEAR_FIELD = "date_range_start.year";
     private static final String DATE_RANGE_END_YEAR_FIELD = "date_range_end.year";
     private static final String DATE_STR_FIELD = "date.str";
 
@@ -105,21 +109,22 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     //private XPathFactory xpfactory;
     private Client client;
     private DocumentBuilderFactory documentBuilderFactory;
-    
+
     public SolrStatisticsAccessLogImpl() {
-        //this.xpfactory = XPathFactory.newInstance();
-        
-        this.client = Client.create();
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        
-        client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
-        client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
+        int timeout = Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000"));
+
+        // Configure Jersey 3 client
+        ClientConfig config = new ClientConfig();
+        config.property(ClientProperties.CONNECT_TIMEOUT, timeout);
+        config.property(ClientProperties.READ_TIMEOUT, timeout);
+        this.client = ClientBuilder.newClient(config);
     }
 
     @Override
     public void reportAccess(final String pid, final String streamName) throws IOException {
         Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
-        
+
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(solrDoc);
         ObjectModelsPath[] mpaths = this.solrAccess.getModelPaths(solrDoc);
         ObjectPidsPath[] ownPidPaths = this.solrAccess.getOwnPidPaths(solrDoc);
@@ -143,8 +148,8 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             String remoteIp = requestProvider.get().getHeader("X-Forwarded-For");
             logRecord.setIpAddress(remoteIp);
         }*/
-        
-        logRecord.setPidsPaths(Arrays.stream(paths).map(ObjectPidsPath::getPathFromRootToLeaf).map(array-> {
+
+        logRecord.setPidsPaths(Arrays.stream(paths).map(ObjectPidsPath::getPathFromRootToLeaf).map(array -> {
             return Arrays.stream(array).collect(Collectors.joining("/"));
         }).collect(Collectors.toSet()));
 
@@ -152,29 +157,29 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         if (mpaths.length > 0) {
             logRecord.setOwnModelPath(Arrays.stream(mpaths[0].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
         }
-        
+
         if (ownPidPaths.length > 0) {
             logRecord.setOwnPidpath(Arrays.stream(ownPidPaths[0].getPathFromRootToLeaf()).collect(Collectors.joining("/")));
         }
         try {
             String rootTitle = SolrUtils.rootTitle(solrDoc);
             logRecord.setRootTitle(rootTitle);
-            
+
             String rootModel = SolrUtils.rootModel(solrDoc);
             logRecord.setRootModel(rootModel);
-            
+
             String rootPid = SolrUtils.rootPid(solrDoc);
             logRecord.setRootPid(rootPid);
-            
+
             logRecord.setLicenses(new LinkedHashSet<>(SolrUtils.disectLicenses(solrDoc.getDocumentElement())));
             User user = this.userProvider.get();
             logRecord.setUser(user.getLoginname());
-            
+
             RightsReturnObject rightsReturnObject = CriteriaLicenseUtils.currentThreadReturnObject.get();
             Map<String, String> evaluateInfoMap = rightsReturnObject != null ? rightsReturnObject.getEvaluateInfoMap() : new HashMap<>();
             if (evaluateInfoMap != null) {
                 try {
-                    JSONObject evaluateMap =   new JSONObject(evaluateInfoMap);
+                    JSONObject evaluateMap = new JSONObject(evaluateInfoMap);
                     logRecord.setEvaluatedMap(evaluateMap.toString());
                     String providedByLicense = null;
                     if (evaluateMap.has(Licenses.PROVIDED_BY_LICENSE)) {
@@ -185,17 +190,17 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     if (providedByLicense != null) {
                         logRecord.setProvidedByLicense(providedByLicense);
                     }
-                } catch(Exception e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
                 // provided 
             }
-            
+
             if (user.getSessionAttributes() != null) {
                 logRecord.setUserSessionAttributes(new JSONObject(user.getSessionAttributes()).toString());
             }
-            
-            logRecord.setReportedAction(this.reportedAction != null  && this.reportedAction.get() != null ?  this.reportedAction.get().name() : ReportedAction.READ.name());
+
+            logRecord.setReportedAction(this.reportedAction != null && this.reportedAction.get() != null ? this.reportedAction.get().name() : ReportedAction.READ.name());
             logRecord.setDbVersion(versionService.getVersion());
             // pokud je user != null -> tokenid
             // jinak sessionid
@@ -209,19 +214,19 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
             // Issue #1046
             Object dateFromSolr = SElemUtils.selem("str", DATE_STR_FIELD, solrDoc);
-            if (dateFromSolr!= null) logRecord.setDateStr(dateFromSolr.toString());
-            else LOGGER.fine("No "+DATE_STR_FIELD);
-            
+            if (dateFromSolr != null) logRecord.setDateStr(dateFromSolr.toString());
+            else LOGGER.fine("No " + DATE_STR_FIELD);
+
             Object dateRangeEnd = SElemUtils.selem("int", DATE_RANGE_END_YEAR_FIELD, solrDoc);
             if (dateRangeEnd != null) logRecord.setDateRangeEnd(dateRangeEnd.toString());
-            else LOGGER.fine("No "+DATE_RANGE_END_YEAR_FIELD);
-            
+            else LOGGER.fine("No " + DATE_RANGE_END_YEAR_FIELD);
+
             Object dateRangeStart = SElemUtils.selem("int", DATE_RANGE_START_YEAR_FIELD, solrDoc);
             if (dateRangeStart != null) logRecord.setDateRangeStart(dateRangeStart.toString());
-            else LOGGER.fine("No "+DATE_RANGE_START_YEAR_FIELD);
-            
+            else LOGGER.fine("No " + DATE_RANGE_START_YEAR_FIELD);
+
             logRecord.setFieldsFromHttpRequestHeaders(extractFieldsFromHttpRequestHeaders());
-            
+
             for (int i = 0, ll = paths.length; i < ll; i++) {
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
                     paths[i] = paths[i].cutHead(0);
@@ -239,13 +244,13 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                         if (dateFromDC != null) {
                             logRecord.addIssueDate(dateFromDC.toString());
                         }
-                        
-                        
+
+
                         Object languageFromDc = DCUtils.languageFromDC(dc);
                         if (languageFromDc != null) {
                             logRecord.addLang(languageFromDc.toString());
                         }
-                        
+
                         Object title = DCUtils.titleFromDC(dc);
                         if (title != null) {
                             logRecord.addTitle(title.toString());
@@ -257,7 +262,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                             identifiers = ModsUtils.identifiersFromMods(mods);
                             for (String key : identifiers.keySet()) {
                                 if (key.equals(ISBN_MODS_KEY)) {
-                                    identifiers.get(ISBN_MODS_KEY).stream().forEach(isbn-> {
+                                    identifiers.get(ISBN_MODS_KEY).stream().forEach(isbn -> {
                                         logRecord.addISBN(isbn);
                                     });
                                 }
@@ -267,16 +272,16 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                                     });
                                 }
                                 if (key.equals(CCNB_MODS_KEY)) {
-                                    identifiers.get(CCNB_MODS_KEY).stream().forEach(ccnb-> {
+                                    identifiers.get(CCNB_MODS_KEY).stream().forEach(ccnb -> {
                                         logRecord.addCCNB(ccnb);
                                     });
                                 }
-                                
+
                             }
                         } catch (XPathExpressionException e) {
                             Logger.getLogger(SolrStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
                         }
-                        
+
                         String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
                         for (String cr : creatorsFromDC) {
                             logRecord.addAuthor(cr);
@@ -301,29 +306,28 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
                 Configuration config = KConfiguration.getInstance().getConfiguration();
                 if (config.containsKey(SOLR_POINT)) {
-                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
-                    updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT, "http://localhost:8983/solr/logs");
+                    updateUrl = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/") + "update";
                 } else if (config.containsKey(SOLR_POINT_NEW)) {
-                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT_NEW,"http://localhost:8983/solr/logs");
-                    updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
-                }  else {
-                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
-                    updateUrl = loggerPoint+(loggerPoint.endsWith("/") ?  "" : "/")+"update";
+                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT_NEW, "http://localhost:8983/solr/logs");
+                    updateUrl = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/") + "update";
+                } else {
+                    loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT, "http://localhost:8983/solr/logs");
+                    updateUrl = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/") + "update";
                 }
 
 
+                LOGGER.fine("Log record is " + logRecord.toString());
 
-                LOGGER.fine("Log record is "+logRecord.toString());
-                
                 Document batch = logRecord.toSolrBatch(this.documentBuilderFactory);
                 try {
                     StringWriter writer = new StringWriter();
                     XMLUtils.print(batch, writer);
                     LOGGER.log(Level.FINE, "Update doc  => {0}", writer.toString());
                 } catch (TransformerException e1) {
-                    LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
+                    LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
                 }
-                
+
                 SolrUpdateUtils.sendToDest(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
             } catch (ParserConfigurationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -343,7 +347,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         }
         return results;
     }
-    
+
     //TODO: Implement
     @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
@@ -379,22 +383,22 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     @Override
     public int cleanData(Date dateFrom, Date dateTo) throws IOException {
         // delete by query
-        String loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT,"http://localhost:8983/solr/logs");
-        String updateEndpoint = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/" ) +"update";
+        String loggerPoint = KConfiguration.getInstance().getProperty(SOLR_POINT, "http://localhost:8983/solr/logs");
+        String updateEndpoint = loggerPoint + (loggerPoint.endsWith("/") ? "" : "/") + "update";
 
         HttpPost httpPost = new HttpPost(updateEndpoint);
-        
+
         String xml = String.format("<delete><query>date:[%s TO %s]</query></delete>", StatisticReport.SOLR_DATE_FORMAT.format(dateFrom), StatisticReport.SOLR_DATE_FORMAT.format(dateTo));
         StringEntity entity = new StringEntity(xml);
         httpPost.setEntity(entity);
         httpPost.setHeader("Accept", "application/xml");
         httpPost.setHeader("Content-type", "application/xml");
         httpPost.setEntity(entity);
-        
+
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             try (CloseableHttpResponse response = client.execute(httpPost)) {
                 if (response.getStatusLine().getStatusCode() == SC_OK) {
-                   // HttpEntity respEntity = response.getEntity();
+                    // HttpEntity respEntity = response.getEntity();
                     //InputStream content = respEntity.getContent();
                     //String resp = IOUtils.toString(content, "UTF-8");
                     //resp is not used

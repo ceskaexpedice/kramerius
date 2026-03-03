@@ -4,17 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
@@ -27,6 +16,8 @@ import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 
 /**
  * CDK Forward resource

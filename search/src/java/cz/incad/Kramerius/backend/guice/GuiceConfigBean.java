@@ -18,8 +18,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
-import com.google.inject.servlet.GuiceServletContextListener;
-import com.google.inject.servlet.ServletModule;
+//import com.google.inject.servlet.GuiceServletContextListener;
+//import com.google.inject.servlet.ServletModule;
 
 import cz.incad.Kramerius.statistics.formatters.guice.FormatterModule;
 import cz.incad.kramerius.Constants;

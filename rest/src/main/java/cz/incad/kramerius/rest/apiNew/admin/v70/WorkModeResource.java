@@ -23,12 +23,12 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.workmode.WorkMode;
 import cz.incad.kramerius.workmode.WorkModeReason;
 import cz.incad.kramerius.workmode.WorkModeService;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import javax.inject.Named;
 import javax.inject.Provider;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -1,6 +1,5 @@
 package cz.inovatika.kramerius.services.iterators;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
@@ -22,10 +21,9 @@ public abstract class ProcessIteratorFactory {
      * Creates an instance of {@link ProcessIterator} based on the provided parameters.
      * <p>
      * Implementations of this method should return a configured {@link ProcessIterator}
-     * based on the provided timestamp, XML element configuration, and Jersey {@link Client}.
+     * based on the provided timestamp, XML element configuration, and Jersey.
      * </p>
      *
-     * @param iterator  An XML element containing configuration for the iterator.
      * @param client    A Jersey client used for communication with external services.
      * @return An instance of {@link ProcessIterator}.
      */

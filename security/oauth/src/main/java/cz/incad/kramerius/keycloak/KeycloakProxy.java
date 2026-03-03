@@ -2,6 +2,11 @@ package cz.incad.kramerius.keycloak;
 
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -9,11 +14,6 @@ import okhttp3.RequestBody;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.logging.Logger;
 

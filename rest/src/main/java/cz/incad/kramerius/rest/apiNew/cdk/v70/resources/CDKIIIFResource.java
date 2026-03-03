@@ -14,9 +14,8 @@ import java.util.logging.Logger;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -166,7 +165,7 @@ public class CDKIIIFResource extends AbstractTileResource {
                 mime =  ItemsResource.IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? ItemsResource.IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
             }
             LOGGER.fine(String.format("Copy tile from IIIF server %s", url.toString()));
-            ResponseBuilder builder = Response.ok();
+            Response.ResponseBuilder builder = Response.ok();
 
             IIPImagesSupport.blockingCopyFromImageServer(this.getClient(), url.toString(),new ByteArrayOutputStream(), builder, mime);
        } else {

@@ -8,10 +8,13 @@ import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
+/*
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.spi.KeycloakAccount;
 import org.keycloak.representations.AccessToken;
+
+ */
 
 import java.sql.SQLException;
 import java.util.*;
@@ -118,6 +121,7 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
 
     @Override
     protected Keycloak3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
+        /* TODO migration
         String name = req.getUserPrincipal().getName();
         // keyclocak introspection
         KeycloakAccount kAcc = (KeycloakAccount) req.getAttribute(KeycloakAccount.class.getName());
@@ -155,7 +159,6 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
             }
         });
         
-        /** K5 instance */
         Set<String> allKeys = keycloack3rdUser.getPropertyKeys();
         if (allKeys.contains("eduPersonScopedAffiliation") && !allKeys.contains("affiliation")) {
             keycloack3rdUser.setProperty("affiliation", keycloack3rdUser.getProperty("eduPersonScopedAffiliation"));
@@ -166,10 +169,14 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         }
 
         return keycloack3rdUser;
+
+         */
+        return null;
     }
 
     @Override
     public String calculateUserName(HttpServletRequest request) {
+        /* TODO migration
         if (request.getUserPrincipal() != null) {
             if (request.getUserPrincipal() instanceof KeycloakPrincipal) {
                 AccessToken token = ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext()
@@ -186,5 +193,7 @@ public class KeycloackUserSupport extends AbstractThirdPartyUsersSupport<Keycloa
         } else {
             return "null";
         }
+
+         */return null;
     }
 }

@@ -19,7 +19,10 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import org.apache.commons.collections4.map.HashedMap;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+//import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -46,10 +49,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -417,7 +416,7 @@ public class CollectionsResource extends AdminApiResource {
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar[0]);
             result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduled);
 
-            return Response.status(Status.OK).entity(result.toString()).build();
+            return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -524,7 +523,7 @@ public class CollectionsResource extends AdminApiResource {
                 result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcess( scheduleReindexationPar));
             }
 
-            return Response.status(Status.OK).entity(result.toString()).build();
+            return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -574,7 +573,8 @@ public class CollectionsResource extends AdminApiResource {
 
             //check each item pid
             List<String> pidsToBeAdded = new ArrayList<>();
-            Map<String, String> errorsByPid = new HashedMap<>();
+// TODO migration            Map<String, String> errorsByPid = new HashedMap<>();
+            Map<String, String> errorsByPid = null;
             for (int i = 0; i < itemsPid.length(); i++) {
                 System.out.println(itemsPid);
                 String itemPid = itemsPid.getString(i);
@@ -978,7 +978,7 @@ public class CollectionsResource extends AdminApiResource {
                         return Response.ok(collection.toJson()).build();
 
                     } else {
-                        return Response.status(Status.BAD_REQUEST).build();
+                        return Response.status(Response.Status.BAD_REQUEST).build();
                     }
                 } catch (IOException | SolrServerException | NoSuchAlgorithmException e) {
                     throw new RuntimeException(e);
@@ -1051,7 +1051,7 @@ public class CollectionsResource extends AdminApiResource {
                                 fetchedJSONArray.remove(index);
 
                             } else {
-                                return Response.status(Status.BAD_REQUEST).build();
+                                return Response.status(Response.Status.BAD_REQUEST).build();
                             }
                         }
                         if (cuttingsModified) {

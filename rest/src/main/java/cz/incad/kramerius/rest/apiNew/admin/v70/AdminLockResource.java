@@ -20,15 +20,10 @@ import java.util.List;
 import java.util.logging.Level;
 
 import javax.inject.Provider;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 
 import com.google.inject.Inject;
@@ -128,7 +123,7 @@ public class AdminLockResource extends AdminApiResource {
                 if (lock != null) {
                     return Response.ok(lock.toJSONObject()).build();
                 } else {
-                    return Response.status(Status.NOT_FOUND).build();
+                    return Response.status(Response.Status.NOT_FOUND).build();
                 }
                 
             } catch (WebApplicationException e) {

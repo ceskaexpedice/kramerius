@@ -78,6 +78,7 @@ dependencies {
 
     //api 'javax.ws.rs:jsr311-api:1.1.1'
 
+    /*
     api "com.sun.jersey:jersey-server:${jerseyversion}"
     api "com.sun.jersey:jersey-servlet:${jerseyversion}"
     api "com.sun.jersey:jersey-json:${jerseyversion}"
@@ -88,6 +89,18 @@ dependencies {
     api "com.sun.jersey:jersey-client:${jerseyversion}"
     api "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
 
+     */
+
+    // Jersey 3 (Jakarta)
+    api("org.glassfish.jersey.core:jersey-server:3.1.5")
+    api("org.glassfish.jersey.containers:jersey-container-servlet:3.1.5")
+    api("org.glassfish.jersey.inject:jersey-hk2:3.1.5")
+    // Guice (NO servlet support)
+    api("com.google.inject:guice:5.1.0")
+    // Jakarta
+    api("jakarta.inject:jakarta.inject-api:2.0.1")
+    api("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
+
 
     // for audio support 
     api 'org.ehcache:ehcache:3.3.0'
@@ -96,7 +109,7 @@ dependencies {
     api 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 
 
-    api "org.keycloak:keycloak-admin-client:${keycloakversion}"
+    //api "org.keycloak:keycloak-admin-client:${keycloakversion}"
 
     //java 11
     //api 'com.zaxxer:HikariCP:5.0.1'

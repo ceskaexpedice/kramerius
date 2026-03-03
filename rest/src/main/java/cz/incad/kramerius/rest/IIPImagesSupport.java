@@ -16,11 +16,25 @@
  */
 package cz.incad.kramerius.rest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.core.StreamingOutput;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.async.HttpAsyncClient;
+import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+
+import java.io.*;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -31,160 +45,178 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.servlet.http.HttpServletResponse;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.async.methods.AbstractBinResponseConsumer;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.nio.AsyncRequestProducer;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
-import org.apache.http.Header;
-import org.apache.http.HttpException;
-import org.apache.http.HttpResponse;
-import org.apache.http.nio.IOControl;
-import org.apache.hc.client5.http.async.HttpAsyncClient;
-//import org.apache.http.nio.client.methods.AsyncByteConsumer;
-//import org.apache.http.nio.client.methods.HttpAsyncMethods;
-//import org.apache.http.protocol.HttpContext;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-
-import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
-
 public class IIPImagesSupport {
 
-    public static final Logger LOGGER = Logger.getLogger(IIPImagesSupport.class.getName());
-    
+    public static final Logger LOGGER =
+            Logger.getLogger(IIPImagesSupport.class.getName());
+
     private IIPImagesSupport() {}
 
-    /** non blocking copy from iip server */
-    public static void nonBlockingCopyFromImageServer(HttpAsyncClient client, String urlString, final HttpServletResponse resp)
-            throws IOException {
-        final WritableByteChannel channel = Channels.newChannel(resp.getOutputStream());
+    /** Non-blocking copy from IIP server */
+    public static void nonBlockingCopyFromImageServer(
+            HttpAsyncClient client,
+            String urlString,
+            final HttpServletResponse resp) throws IOException {
 
-        AsyncRequestProducer producer = AsyncRequestBuilder.get(urlString).build();
-        AbstractBinResponseConsumer<org.apache.hc.core5.http.HttpResponse> consumer = new AbstractBinResponseConsumer()
-        {
-            @Override
-            public void releaseResources() {
+        final WritableByteChannel channel =
+                Channels.newChannel(resp.getOutputStream());
 
-            }
+        AsyncRequestProducer producer =
+                AsyncRequestBuilder.get(urlString).build();
 
-            @Override
-            protected int capacityIncrement() {
-                return Integer.MAX_VALUE;
-            }
+        AbstractBinResponseConsumer<Void> consumer =
+                new AbstractBinResponseConsumer<>() {
 
-            @Override
-            protected void data(ByteBuffer src, boolean endOfStream) throws IOException {
-                try {
-                    channel.write(src);
-                } catch (IOException e) {
-                    if ("ClientAbortException".equals(e.getClass().getSimpleName())) {
-                        // Do nothing, request was cancelled by client. This is usual image viewers behavior.
-                    } else {
-                        throw e;
+                    @Override
+                    public void releaseResources() {}
+
+                    @Override
+                    protected int capacityIncrement() {
+                        return Integer.MAX_VALUE;
                     }
-                }
-            }
 
-            @Override
-            protected void start(org.apache.hc.core5.http.HttpResponse response, ContentType contentType) throws org.apache.hc.core5.http.HttpException, IOException {
-                int statusCode = response.getCode();
-                resp.setStatus(statusCode);
-                if (statusCode == 200) {
-                    resp.setContentType(contentType.getMimeType());
-                    LOGGER.fine(String.format("Set access-control-header %s ", "Access-Control-Allow-Origin *"));
-                    resp.setHeader("Access-Control-Allow-Origin", "*");
-                    org.apache.hc.core5.http.Header cacheControl = response.getLastHeader("Cache-Control");
-                    if (cacheControl != null) resp.setHeader(cacheControl.getName(), cacheControl.getValue());
-                    org.apache.hc.core5.http.Header lastModified = response.getLastHeader("Last-Modified");
-                    if (lastModified != null) resp.setHeader(lastModified.getName(), lastModified.getValue());
+                    @Override
+                    protected void data(ByteBuffer src, boolean endOfStream)
+                            throws IOException {
+                        try {
+                            channel.write(src);
+                        } catch (IOException e) {
+                            if ("ClientAbortException"
+                                    .equals(e.getClass().getSimpleName())) {
+                                // client aborted – normal for image viewers
+                            } else {
+                                throw e;
+                            }
+                        }
+                    }
 
-                }
-            }
+                    @Override
+                    protected void start(
+                            org.apache.hc.core5.http.HttpResponse response,
+                            ContentType contentType) throws IOException {
 
-            @Override
-            protected Object buildResult() {
-                return null;
-            }
-        };
+                        int statusCode = response.getCode();
+                        resp.setStatus(statusCode);
 
+                        if (statusCode == 200) {
+                            resp.setContentType(contentType.getMimeType());
+                            resp.setHeader(
+                                    "Access-Control-Allow-Origin", "*");
 
-        Future<org.apache.hc.core5.http.HttpResponse> responseFuture = client.execute(producer, consumer, null, null, null);
+                            var cacheControl =
+                                    response.getLastHeader("Cache-Control");
+                            if (cacheControl != null) {
+                                resp.setHeader(
+                                        cacheControl.getName(),
+                                        cacheControl.getValue());
+                            }
+
+                            var lastModified =
+                                    response.getLastHeader("Last-Modified");
+                            if (lastModified != null) {
+                                resp.setHeader(
+                                        lastModified.getName(),
+                                        lastModified.getValue());
+                            }
+                        }
+                    }
+
+                    @Override
+                    protected Void buildResult() {
+                        return null;
+                    }
+                };
+
+        Future<?> future =
+                client.execute(producer, consumer, null, null, null);
 
         try {
-            responseFuture.get(); // wait for request
-        } catch (InterruptedException e) {
-            throw new IOException(e.getMessage());
-        } catch (ExecutionException e) {
-            throw new IOException(e.getMessage());
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new IOException(e.getMessage(), e);
         }
-    
-
     }
 
-    /** Non blocking copy from file */
-    public static void nonBlockingCopyFromFile(String filePath, final HttpServletResponse resp) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-                FileChannel fileChannel = fileInputStream.getChannel();
-                WritableByteChannel channel = Channels.newChannel(resp.getOutputStream());
-                fileChannel.transferTo(0, fileChannel.size(), channel);
+    /** Non-blocking copy from file */
+    public static void nonBlockingCopyFromFile(
+            String filePath,
+            final HttpServletResponse resp) throws IOException {
+
+        try (FileInputStream fis = new FileInputStream(filePath);
+             FileChannel fileChannel = fis.getChannel();
+             WritableByteChannel channel =
+                     Channels.newChannel(resp.getOutputStream())) {
+
+            fileChannel.transferTo(0, fileChannel.size(), channel);
+
         } catch (Exception e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(e.getMessage(), e);
         }
     }
 
-    /** Blocking copy from IIP server - jersey output */
-    public static void blockingCopyFromImageServer(Client c, String urlString, ByteArrayOutputStream bos, ResponseBuilder builder) throws IOException {
-        IIPImagesSupport.blockingCopyFromImageServer(c,urlString, bos, builder, null);
+    /** Blocking copy from IIP server – Jakarta client */
+    public static void blockingCopyFromImageServer(
+            Client client,
+            String urlString,
+            ByteArrayOutputStream bos,
+            ResponseBuilder builder) throws IOException {
+
+        blockingCopyFromImageServer(
+                client, urlString, bos, builder, null);
     }
 
-    /** Blocking copy from IIP server - jersey output */
-    public static void blockingCopyFromImageServer(Client c, String urlString, ByteArrayOutputStream bos, ResponseBuilder builder,String mimetype)
-            throws IOException {
-        c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);
-        WebResource r = c.resource(urlString);
-        ClientResponse clientResponse = r.accept(MediaType.MEDIA_TYPE_WILDCARD).get(ClientResponse.class);
-        final InputStream input = clientResponse.getEntityInputStream();
-        StreamingOutput stream = new StreamingOutput() {
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                try {
-                    IOUtils.copy(input, output);
-                } catch (IOException e) {
-                    if (e.getCause() != null && e.getCause() instanceof SocketException
-                            && (e.getCause().getMessage().equals("Connection reset")
-                                    || e.getCause().getMessage().equals("Broken pipe"))) {
-                        LOGGER.warning("Connection reset probably by client (or by repository)");
-                    } else {
-                        LOGGER.log(Level.SEVERE, null, e);
-                    }
-                    throw new WebApplicationException(e);
-                } finally {
-                    LOGGER.fine("closing connection to repository");
-                    IOUtils.closeQuietly(input);
+    /** Blocking copy from IIP server – Jakarta client */
+    public static void blockingCopyFromImageServer(
+            Client client,
+            String urlString,
+            ByteArrayOutputStream bos,
+            ResponseBuilder builder,
+            String mimetype) throws IOException {
+
+        WebTarget target = client.target(urlString);
+
+        Response response = target
+                .request(MediaType.WILDCARD)
+                .get();
+
+        InputStream input = response.readEntity(InputStream.class);
+
+        StreamingOutput stream = output -> {
+            try {
+                IOUtils.copy(input, output);
+            } catch (IOException e) {
+                if (e.getCause() instanceof SocketException se &&
+                        ("Connection reset".equals(se.getMessage())
+                                || "Broken pipe".equals(se.getMessage()))) {
+                    LOGGER.warning(
+                            "Connection reset by client or repository");
+                } else {
+                    LOGGER.log(Level.SEVERE, null, e);
                 }
+                throw new WebApplicationException(e);
+            } finally {
+                IOUtils.closeQuietly(input);
             }
         };
+
         builder.entity(stream);
+
         if (mimetype != null) {
             builder.type(mimetype);
         }
-    
-        MultivaluedMap<String, String> headers = clientResponse.getHeaders();
+
+        MultivaluedMap<String, Object> headers =
+                response.getHeaders();
+
         if (headers.containsKey("Cache-Control")) {
-            builder.header("Cache-Control", headers.getFirst("Cache-Control"));
+            builder.header(
+                    "Cache-Control",
+                    headers.getFirst("Cache-Control"));
         }
         if (headers.containsKey("Last-Modified")) {
-            builder.header("Last-Modified", headers.getFirst("Last-Modified"));
+            builder.header(
+                    "Last-Modified",
+                    headers.getFirst("Last-Modified"));
         }
     }
 }

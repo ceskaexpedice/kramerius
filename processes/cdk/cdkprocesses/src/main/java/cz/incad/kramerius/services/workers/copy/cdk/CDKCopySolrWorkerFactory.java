@@ -1,13 +1,12 @@
 package cz.incad.kramerius.services.workers.copy.cdk;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.workers.Worker;
-import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
+import cz.inovatika.kramerius.services.workers.Worker;
+import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.workers.batch.BatchTransformation;
+import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.util.List;

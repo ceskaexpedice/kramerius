@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.keycloak.representations.idm.GroupRepresentation;
-
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.dnnt.StandardDNNTUsersSupport;
@@ -114,7 +112,7 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
 
     @Override
     protected CDK3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
-
+/* TODO migration
 
         Map<String, String> map = attributes(req);
         CDK3rdUser  cdkUser = new CDK3rdUser(userName);
@@ -152,10 +150,10 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
         });
         this.cache.registerUser(userName, userName, userName, userAttributes, groups.stream().map(GroupRepresentation::getName).collect(Collectors.toList()));
         
-        /** standard dnnt user role */
         StandardDNNTUsersSupport.makeSureDNNTUsersRole(cdkUser);
 
         return cdkUser;
+        */ return null;
     }
 
     private Map<String, String> attributes(HttpServletRequest req) {

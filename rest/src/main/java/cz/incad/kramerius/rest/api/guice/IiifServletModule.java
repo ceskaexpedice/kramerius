@@ -1,9 +1,9 @@
 package cz.incad.kramerius.rest.api.guice;
 
 
-import com.google.inject.servlet.ServletModule;
-import com.sun.jersey.api.core.PackagesResourceConfig;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+//import com.google.inject.servlet.ServletModule;
+//import com.sun.jersey.api.core.PackagesResourceConfig;
+//import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.rest.api.iiif.IiifAPI;
 
 /**
@@ -11,7 +11,10 @@ import cz.incad.kramerius.rest.api.iiif.IiifAPI;
  *
  * @author Martin Rumanek
  */
-public class IiifServletModule extends ServletModule {
+public class IiifServletModule {
+//    public class IiifServletModule extends ServletModule {
+    /* TODO migration
+
     @Override
     protected void configureServlets() {
         bind(GuiceContainer.class);
@@ -22,7 +25,9 @@ public class IiifServletModule extends ServletModule {
             bind(resource);
         }
 
-        // TODO migration serve("/iiif-presentation/*").with(GuiceContainer.class);
+        serve("/iiif-presentation/*").with(GuiceContainer.class);
     }
+
+     */
 
 }

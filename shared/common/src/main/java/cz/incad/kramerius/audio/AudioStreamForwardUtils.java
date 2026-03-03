@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -20,6 +19,7 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SecurityException;
 import cz.incad.kramerius.security.User;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Utility class for sharing funcionality between servlet and API point
@@ -42,8 +42,8 @@ public class AudioStreamForwardUtils {
     }
 
 
-    public static ResponseBuilder GET(AudioStreamId id, HttpServletRequest request,
-                                      ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
+    public static Response.ResponseBuilder GET(AudioStreamId id, HttpServletRequest request,
+                                               Response.ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
         LOGGER.info(id.toString());
         if (canBeRead(id.getPid(), solrAccess, user, rightsResolver)) {
             try {
@@ -54,7 +54,7 @@ public class AudioStreamForwardUtils {
                 LOGGER.info(url.toString());
                 //appendTestHeaders(response, id, url); //testovaci hlavicky
                 JerseyAudioHttpRequestForwarder forwarder = new JerseyAudioHttpRequestForwarder(request, builder);
-                ResponseBuilder respBuilder = forwarder.forwardGetRequest(url);
+                Response.ResponseBuilder respBuilder = forwarder.forwardGetRequest(url);
                 return respBuilder;
             } catch (URISyntaxException ex) {
                 Logger.getLogger(AudioStreamForwardUtils.class.getName()).log(Level.SEVERE, null, ex);
@@ -110,8 +110,8 @@ public class AudioStreamForwardUtils {
         }
     }
 
-    public static ResponseBuilder HEAD(AudioStreamId id, HttpServletRequest request,
-                                       ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
+    public static Response.ResponseBuilder HEAD(AudioStreamId id, HttpServletRequest request,
+                                       Response.ResponseBuilder builder, SolrAccess solrAccess, User user, RightsResolver rightsResolver, RepositoryUrlManager urlManager) throws IOException {
         LOGGER.info(id.toString());
         if (canBeRead(id.getPid(), solrAccess, user, rightsResolver)) {
             try {

@@ -5,7 +5,7 @@ import com.google.inject.Injector;
 import cz.incad.kramerius.auth.thirdparty.ExtAuthFilter;
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
 import cz.incad.kramerius.security.UserManager;
-import org.keycloak.adapters.spi.KeycloakAccount;
+//import org.keycloak.adapters.spi.KeycloakAccount;
 
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
@@ -32,6 +32,7 @@ public class KeycloakFilter extends ExtAuthFilter {
 
     @Override
     protected boolean userStoreIsNeeded(HttpServletRequest httpReq) {
+        /* TODO migration
         try {
             KeycloakAccount keycloakAccount = (KeycloakAccount) httpReq.getAttribute(KeycloakAccount.class.getName());
             if (keycloakAccount != null && keycloakAccount.getRoles() != null) {
@@ -41,6 +42,8 @@ public class KeycloakFilter extends ExtAuthFilter {
         }catch (Throwable th){
             LOGGER.log(Level.SEVERE,"Error retrieving KeycloakAccount", th);
         }
+
+         */
         return false;
     }
 

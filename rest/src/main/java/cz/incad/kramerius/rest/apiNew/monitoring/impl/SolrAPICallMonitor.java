@@ -2,7 +2,6 @@ package cz.incad.kramerius.rest.apiNew.monitoring.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.inovatika.monitoring.APICallMonitor;
@@ -10,9 +9,12 @@ import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.glassfish.jersey.client.ClientProperties;
 import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -53,13 +55,18 @@ public class SolrAPICallMonitor implements APICallMonitor  {
 
 
     public SolrAPICallMonitor() {
-        this.client = Client.create();
+        int timeout = Integer.parseInt(
+                KConfiguration.getInstance()
+                        .getProperty("http.timeout", "10000")
+        );
+
+        this.client = ClientBuilder.newBuilder()
+                .property(ClientProperties.CONNECT_TIMEOUT, timeout)
+                .property(ClientProperties.READ_TIMEOUT, timeout)
+                .build();
+
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-
-        client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
-        client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
     }
-
 
 
     @Override

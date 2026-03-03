@@ -9,7 +9,7 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
+/*
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -25,11 +25,12 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-
+*/
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+// TODO migration
 public class KeycloakCDKCache {
-    
+    /*
     public static Logger LOGGER = Logger.getLogger(KeycloakCDKCache.class.getName());
     
     private int interval = 1000;
@@ -215,5 +216,5 @@ public class KeycloakCDKCache {
         }
     }
     
-    
+*/
 }

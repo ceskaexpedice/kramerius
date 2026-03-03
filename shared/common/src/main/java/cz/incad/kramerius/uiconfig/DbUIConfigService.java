@@ -1,8 +1,8 @@
 package cz.incad.kramerius.uiconfig;
 
 import com.google.inject.Provider;
+import jakarta.ws.rs.NotFoundException;
 
-import javax.ws.rs.NotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

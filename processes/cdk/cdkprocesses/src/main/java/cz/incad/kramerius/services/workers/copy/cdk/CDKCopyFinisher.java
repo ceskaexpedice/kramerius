@@ -1,11 +1,10 @@
 package cz.incad.kramerius.services.workers.copy.cdk;
 
 
-import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
-import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
-
+import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
+import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
@@ -22,8 +21,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.ws.rs.core.MediaType;
 
 public class CDKCopyFinisher extends WorkerFinisher {
 

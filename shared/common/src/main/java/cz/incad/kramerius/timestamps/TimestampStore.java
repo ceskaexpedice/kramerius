@@ -6,9 +6,6 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
 
-import com.sun.jersey.api.client.Client;
-
-
 
 /** Retrieve timestamp from store */
 public interface TimestampStore {

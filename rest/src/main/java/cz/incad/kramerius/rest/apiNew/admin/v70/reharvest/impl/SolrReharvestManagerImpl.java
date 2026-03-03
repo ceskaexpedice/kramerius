@@ -9,7 +9,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -20,11 +26,6 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.AlreadyRegistedPidsException;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
@@ -33,21 +34,17 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class SolrReharvestManagerImpl implements ReharvestManager {
 
-    public static Logger LOGGER = Logger.getLogger(SolrReharvestManagerImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SolrReharvestManagerImpl.class.getName());
 
-    private Client client;
+    private final Client client;
 
     public SolrReharvestManagerImpl() {
-        this.client = Client.create();
+        this.client = ClientBuilder.newClient();
     }
 
     @Override
     public void register(ReharvestItem item) throws AlreadyRegistedPidsException {
-        try {
-            this.register(item, true);
-        } catch (UniformInterfaceException | ClientHandlerException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+        this.register(item, true);
     }
 
     @Override
@@ -57,13 +54,19 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
             if (preventMultipleRegistrationFlag) {
                 List<String> pids = findAllRegistredPids(reharvest);
                 if (pids.contains(item.getPid())) {
-                    throw new AlreadyRegistedPidsException(Arrays.asList(item.getPid()));
+                    throw new AlreadyRegistedPidsException(Collections.singletonList(item.getPid()));
                 }
             }
-            WebResource updateResource = this.client.resource(reharvest + "/update/json/docs?split=/&commit=true");
-            String updated = updateResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON)
-                    .entity(item.toJSON().toString(), MediaType.APPLICATION_JSON).post(String.class);
-        } catch (UnsupportedEncodingException | UniformInterfaceException | ClientHandlerException e) {
+            WebTarget target = client.target(reharvest + "/update/json/docs")
+                    .queryParam("split", "/")
+                    .queryParam("commit", "true");
+
+            String updated = target.request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(item.toJSON().toString(), MediaType.APPLICATION_JSON), String.class);
+
+            LOGGER.info("Register response: " + updated);
+
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -72,37 +75,40 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
     public ReharvestItem update(ReharvestItem item) {
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
-            WebResource updateResource = this.client.resource(reharvest + "/update/json/docs?split=/&commit=true");
-            String payload = item.toJSON().toString();
-            String updated = updateResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON)
-                    .entity(payload, MediaType.APPLICATION_JSON).post(String.class);
-            LOGGER.info(String.format("Update response %s ", updated));
+
+            WebTarget target = client.target(reharvest + "/update/json/docs")
+                    .queryParam("split", "/")
+                    .queryParam("commit", "true");
+
+            String updated = target.request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(item.toJSON().toString(), MediaType.APPLICATION_JSON), String.class);
+
+            LOGGER.info("Update response: " + updated);
+
             return findItem(item.getId());
-        } catch (UniformInterfaceException | ClientHandlerException | UnsupportedEncodingException | JSONException
-                | ParseException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return null;
     }
-    
+
     private ReharvestItem findItem(String id) throws UnsupportedEncodingException, JSONException, ParseException {
         String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
-        List<String> pids = new ArrayList<>();
-        String query = URLEncoder.encode("state:(%s)", "UTF-8");
-        String fullUrl = String.format("%s/select?q=id:%ss&rows=1", reharvest, id);
-        String t = solrGet(fullUrl);
-        JSONArray docs = solrDocs(new JSONObject(t));
+        String fullUrl = String.format("%s/select?q=id:%s&rows=1", reharvest, URLEncoder.encode(id, "UTF-8"));
+        String response = solrGet(fullUrl);
+        JSONArray docs = solrDocs(new JSONObject(response));
         if (docs.length() > 0) {
             return ReharvestItem.fromJSON(docs.getJSONObject(0));
-        } else return null;
+        }
+        return null;
     }
-    
+
     private List<String> findAllRegistredPids(String reharvest) throws UnsupportedEncodingException {
         List<String> pids = new ArrayList<>();
         String query = URLEncoder.encode("state:(open OR waiting_for)", "UTF-8");
         String fullUrl = String.format("%s/select?q=%s&rows=10000&fl=pid", reharvest, query);
-        String t = solrGet(fullUrl);
-        JSONArray docs = solrDocs(new JSONObject(t));
+        String response = solrGet(fullUrl);
+        JSONArray docs = solrDocs(new JSONObject(response));
         for (int i = 0; i < docs.length(); i++) {
             JSONObject doc = docs.getJSONObject(i);
             if (doc.has("pid")) {
@@ -113,11 +119,9 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
     }
 
     private String solrGet(String fullUrl) {
-        WebResource resource = this.client.resource(fullUrl);
-        String t = resource.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        WebTarget target = client.target(fullUrl);
+        return target.request(MediaType.APPLICATION_JSON).get(String.class);
     }
-
 
     @Override
     public String searchItems(int start, int rows, List<String> filters) {
@@ -125,22 +129,25 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
             String sort = URLEncoder.encode("indexed desc", "UTF-8");
 
-            String fullUrl = String.format("%s/select?q=*&rows=%d&sort=%s&start=%d", reharvest, rows,sort,start);
+            String fullUrl = String.format("%s/select?q=*&rows=%d&sort=%s&start=%d", reharvest, rows, sort, start);
+
             if (!filters.isEmpty()) {
-                String fq = filters.stream().map(f-> {
-                    try {
-                        return "fq="+ URLEncoder.encode(f, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.joining("&"));
-                fullUrl = fullUrl +"&"+ fq;
+                String fq = filters.stream()
+                        .map(f -> {
+                            try {
+                                return "fq=" + URLEncoder.encode(f, "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .collect(Collectors.joining("&"));
+                fullUrl = fullUrl + "&" + fq;
             }
 
-            LOGGER.info( String.format("Requesting url %s", fullUrl));
-            String t = solrGet(fullUrl);
-            return t;
-        } catch (UniformInterfaceException | ClientHandlerException | JSONException |  UnsupportedEncodingException e) {
+            LOGGER.info("Requesting url " + fullUrl);
+            return solrGet(fullUrl);
+
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return new JSONObject().toString();
@@ -151,17 +158,15 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
         List<ReharvestItem> items = new ArrayList<>();
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
-            String sort = URLEncoder.encode("indexed asc", "UTF-8");
-            String fullUrl = String.format("%s/select?q=*&rows=10000&sort=%s", reharvest,sort);
-            String t = solrGet(fullUrl);
-            JSONArray docs = solrDocs(new JSONObject(t));
+            String fullUrl = String.format("%s/select?q=*&rows=10000&sort=%s", reharvest,
+                    URLEncoder.encode("indexed asc", "UTF-8"));
+            String response = solrGet(fullUrl);
+            JSONArray docs = solrDocs(new JSONObject(response));
             for (int i = 0; i < docs.length(); i++) {
-                JSONObject doc = docs.getJSONObject(i);
-                ReharvestItem reharvestItem = ReharvestItem.fromJSON(doc);
-                if (reharvestItem != null)
-                    items.add(reharvestItem);
+                ReharvestItem ri = ReharvestItem.fromJSON(docs.getJSONObject(i));
+                if (ri != null) items.add(ri);
             }
-        } catch (UniformInterfaceException | ClientHandlerException | JSONException | ParseException | UnsupportedEncodingException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return items;
@@ -173,99 +178,82 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
             String query = String.format("state:(%s)", status);
             String sort = URLEncoder.encode("indexed asc", "UTF-8");
-            
             String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query, sort);
-            String t = solrGet(fullUrl);
-            JSONArray docs = solrDocs(new JSONObject(t));
+            String response = solrGet(fullUrl);
+            JSONArray docs = solrDocs(new JSONObject(response));
             if (docs.length() > 0) {
-                JSONObject doc = docs.getJSONObject(0);
-                ReharvestItem reharvestItem = ReharvestItem.fromJSON(doc);
-                return reharvestItem;
+                return ReharvestItem.fromJSON(docs.getJSONObject(0));
             }
-        } catch (UniformInterfaceException | ClientHandlerException | JSONException | ParseException | UnsupportedEncodingException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return null;
     }
 
     public List<ReharvestItem> getItemByConflictId(String cid) {
+        List<ReharvestItem> items = new ArrayList<>();
         try {
-            List<ReharvestItem> items = new ArrayList<>();
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
             String query = String.format("conflict_id:(%s)", cid);
-            String sort = URLEncoder.encode("indexed asc","UTF-8");
-            String fullUrl = String.format("%s/select?q=%s&rows=100&sort=%s", reharvest, query,sort);
-            LOGGER.info(String.format("Requesting url %s", fullUrl));
-            String t = solrGet(fullUrl);
-            LOGGER.info(String.format("Solr response  %s", t));
-            JSONObject solrResp = new JSONObject(t);
-            JSONArray docs = solrDocs(solrResp);
-            if (docs.length() > 0) {
-                for (int i = 0; i < docs.length(); i++) {
-                    ReharvestItem reharvestItem = ReharvestItem.fromJSON(docs.getJSONObject(i));
-                    items.add(reharvestItem);
-                }
+            String sort = URLEncoder.encode("indexed asc", "UTF-8");
+            String fullUrl = String.format("%s/select?q=%s&rows=100&sort=%s", reharvest, query, sort);
+
+            LOGGER.info("Requesting url " + fullUrl);
+            String response = solrGet(fullUrl);
+            LOGGER.info("Solr response: " + response);
+            JSONArray docs = solrDocs(new JSONObject(response));
+            for (int i = 0; i < docs.length(); i++) {
+                items.add(ReharvestItem.fromJSON(docs.getJSONObject(i)));
             }
-            return items;
-        } catch (UniformInterfaceException | ClientHandlerException | JSONException | ParseException | UnsupportedEncodingException e) {
+
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-        return new ArrayList<>();
-   }
+        return items;
+    }
 
     @Override
     public ReharvestItem getItemById(String id) {
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
             String query = String.format("id:(%s)", id);
-            String sort = URLEncoder.encode("indexed asc","UTF-8");
-            String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query,sort);
-            String t = solrGet(fullUrl);
-            JSONObject solrResp = new JSONObject(t);
-            JSONArray docs = solrDocs(solrResp);
+            String sort = URLEncoder.encode("indexed asc", "UTF-8");
+            String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query, sort);
+            String response = solrGet(fullUrl);
+            JSONArray docs = solrDocs(new JSONObject(response));
             if (docs.length() > 0) {
-                JSONObject doc = docs.getJSONObject(0);
-                ReharvestItem reharvestItem = ReharvestItem.fromJSON(doc);
-                return reharvestItem;
+                return ReharvestItem.fromJSON(docs.getJSONObject(0));
             }
-        } catch (UniformInterfaceException | ClientHandlerException | JSONException | ParseException | UnsupportedEncodingException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return null;
     }
 
-    
-    
-    
-    
     @Override
     public ReharvestItem getOpenItemByPid(String pid) {
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
-            String query = URLEncoder.encode( String.format("pid:(\"%s\") AND NOT state:(closed OR cancelled OR failed)", pid),"UTF-8");
-            String sort = URLEncoder.encode("indexed asc","UTF-8");
-            String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query,sort);
-            String t = solrGet(fullUrl);
-            JSONObject solrResp = new JSONObject(t);
-            JSONArray docs = solrDocs(solrResp);
+            String query = URLEncoder.encode(String.format(
+                    "pid:(\"%s\") AND NOT state:(closed OR cancelled OR failed)", pid), "UTF-8");
+            String sort = URLEncoder.encode("indexed asc", "UTF-8");
+            String fullUrl = String.format("%s/select?q=%s&rows=1&sort=%s", reharvest, query, sort);
+            String response = solrGet(fullUrl);
+            JSONArray docs = solrDocs(new JSONObject(response));
             if (docs.length() > 0) {
-                JSONObject doc = docs.getJSONObject(0);
-                ReharvestItem reharvestItem = ReharvestItem.fromJSON(doc);
-                return reharvestItem;
+                return ReharvestItem.fromJSON(docs.getJSONObject(0));
             }
-        } catch (UniformInterfaceException | ClientHandlerException | JSONException | ParseException | UnsupportedEncodingException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return null;
     }
 
-
     private JSONArray solrDocs(JSONObject solrResp) {
-        JSONArray docs = new JSONArray();
         if (solrResp.has("response")) {
-            docs = solrResp.getJSONObject("response").getJSONArray("docs");
+            return solrResp.getJSONObject("response").getJSONArray("docs");
         }
-        return docs;
+        return new JSONArray();
     }
 
     @Override
@@ -275,16 +263,19 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
             Element idElm = deleteDoc.createElement("id");
             idElm.setTextContent(id);
             deleteDoc.getDocumentElement().appendChild(idElm);
+
             StringWriter writer = new StringWriter();
             XMLUtils.print(deleteDoc, writer);
 
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
+            WebTarget target = client.target(reharvest + "/update").queryParam("commit", "true");
 
-            WebResource updateResource = this.client.resource(reharvest + "/update?commit=true");
-            String updated = updateResource.accept(MediaType.APPLICATION_XML).type(MediaType.APPLICATION_XML)
-                    .entity(writer.toString(), MediaType.APPLICATION_XML).post(String.class);
-        } catch (DOMException | UniformInterfaceException | ClientHandlerException | ParserConfigurationException
-                | TransformerException e) {
+            String response = target.request(MediaType.APPLICATION_XML)
+                    .post(Entity.entity(writer.toString(), MediaType.APPLICATION_XML), String.class);
+
+            LOGGER.info("Deregister response: " + response);
+
+        } catch (DOMException | ParserConfigurationException | TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }

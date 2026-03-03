@@ -8,10 +8,13 @@ import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+/*
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.spi.KeycloakAccount;
 import org.keycloak.representations.AccessToken;
+
+ */
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -57,6 +60,7 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
 
     @Override
     protected Keycloak3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
+        /* TODO migration
         String name = req.getUserPrincipal().getName();
         // keycloak introspection
         KeycloakAccount kAcc = (KeycloakAccount) req.getAttribute(KeycloakAccount.class.getName());
@@ -95,7 +99,6 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
             }
         });
 
-        /** K5 instance */
         boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode", false);
         if (cdkServerMode) {
             Set<String> allKeys = keycloack3rdUser.getPropertyKeys();
@@ -112,14 +115,16 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
             }
         }
 
-        /** standard dnnt user role */
         StandardDNNTUsersSupport.makeSureDNNTUsersRole(keycloack3rdUser);
         
         return keycloack3rdUser;
+
+         */return null;
     }
 
     @Override
     public String calculateUserName(HttpServletRequest request) {
+        /* TODO migration
         if (request.getUserPrincipal() != null) {
             if (request.getUserPrincipal() instanceof KeycloakPrincipal) {
                 AccessToken token = ((KeycloakPrincipal) request.getUserPrincipal()).getKeycloakSecurityContext()
@@ -136,5 +141,9 @@ public class KeycloakUserSupport extends AbstractThirdPartyUsersSupport<Keycloak
         } else {
             return "null";
         }
+
+         */return null;
     }
+
+
 }

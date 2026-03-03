@@ -44,24 +44,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
 
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.hc.client5.http.HttpResponseException;
@@ -691,7 +676,7 @@ public class StatisticsResource {
                 csvPrinter.close();
                 String csvData = writer.toString();
 
-                ResponseBuilder response = Response.ok(csvData.getBytes(Charset.forName("UTF-8")), "text/csv; charset=UTF-8");
+                Response.ResponseBuilder response = Response.ok(csvData.getBytes(Charset.forName("UTF-8")), "text/csv; charset=UTF-8");
                 response.header("Content-Disposition", String.format("attachment; filename=\"%s\"",csvName));
                 return response.build();
                 
@@ -788,7 +773,7 @@ public class StatisticsResource {
                     csvPrinter.close();
                     String csvData = writer.toString();
 
-                    ResponseBuilder response = Response.ok(csvData.getBytes(Charset.forName("UTF-8")), "text/csv; charset=UTF-8");
+                    Response.ResponseBuilder response = Response.ok(csvData.getBytes(Charset.forName("UTF-8")), "text/csv; charset=UTF-8");
                     response.header("Content-Disposition", String.format("attachment; filename=\"%s\"",csvName));
                     return response.build();
                 } else {
@@ -874,7 +859,7 @@ public class StatisticsResource {
                 csvPrinter.close();
                 String csvData = writer.toString();
 
-                ResponseBuilder response = Response.ok(csvData.getBytes(Charset.forName("UTF-8")), "text/csv; charset=UTF-8");
+                Response.ResponseBuilder response = Response.ok(csvData.getBytes(Charset.forName("UTF-8")), "text/csv; charset=UTF-8");
                 response.header("Content-Disposition", String.format("attachment; filename=\"%s\"",csvName));
                 return response.build();
                 

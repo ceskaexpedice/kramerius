@@ -1,19 +1,10 @@
 package cz.incad.kramerius.services.utils;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import org.easymock.EasyMock;
-
-import javax.ws.rs.core.MediaType;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class SolrMockWebCall {
-	
+
+    /* TODO migration
 	public static final Logger LOGGER = Logger.getLogger(SolrMockWebCall.class.getName());
 	
     private SolrMockWebCall() {}
@@ -39,5 +30,7 @@ public class SolrMockWebCall {
 
         return Arrays.asList(firstResource, firstResourceBuilder);
     }
+
+     */
 
 }

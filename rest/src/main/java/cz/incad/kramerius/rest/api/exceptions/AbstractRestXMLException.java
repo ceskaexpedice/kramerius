@@ -1,15 +1,11 @@
 package cz.incad.kramerius.rest.api.exceptions;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import cz.incad.kramerius.rest.api.utils.ExceptionJSONObjectUtils;
 import cz.incad.kramerius.rest.api.utils.ExceptionXMLObjectUtils;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-public class AbstractRestXMLException extends WebApplicationException{
+public class AbstractRestXMLException extends WebApplicationException {
 
     public AbstractRestXMLException(String message, int status) {
         super(Response.status(status).entity(ExceptionXMLObjectUtils.fromMessageString(message, status).toString()).type(MediaType.APPLICATION_XML).build());

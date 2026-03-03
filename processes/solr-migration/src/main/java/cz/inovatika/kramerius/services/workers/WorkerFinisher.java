@@ -1,12 +1,7 @@
 package cz.inovatika.kramerius.services.workers;
 
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.w3c.dom.Element;
 
 import java.util.concurrent.CyclicBarrier;
 
