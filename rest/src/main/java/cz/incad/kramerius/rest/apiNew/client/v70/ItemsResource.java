@@ -246,7 +246,7 @@ public class ItemsResource extends ClientApiResource {
             json.put(RightRuntimeInformations.ACCESSIBLE_LOCSK, extracrtedInformation.getLockAsJSONArray());
                        
             
-            return Response.ok(json).build();
+            return Response.ok(json.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
