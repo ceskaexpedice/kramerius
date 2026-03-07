@@ -20,8 +20,8 @@ import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;

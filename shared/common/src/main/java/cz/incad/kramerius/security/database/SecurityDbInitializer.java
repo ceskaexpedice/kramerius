@@ -792,7 +792,7 @@ public class SecurityDbInitializer {
         InputStream is = InitSecurityDatabaseMethodInterceptor.class.getResourceAsStream("res/initauthenticatedusersdb.sql");
         JDBCUpdateTemplate template = new JDBCUpdateTemplate(connection, false);
         template.setUseReturningKeys(false);
-        template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
+        // TODO migration template.executeUpdate(IOUtils.readAsString(is, Charset.forName("UTF-8"), true));
     }
 
     /** Premena na nove akce */

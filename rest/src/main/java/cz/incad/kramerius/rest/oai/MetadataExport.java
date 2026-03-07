@@ -56,7 +56,7 @@ import cz.incad.kramerius.rest.oai.metadata.utils.DrKrameriusUtils;
 import cz.incad.kramerius.utils.ApplicationURL;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;

@@ -11,8 +11,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.logging.Logger;

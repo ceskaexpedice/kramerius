@@ -19,7 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -46,10 +46,10 @@ public class ServerFilesResource extends AdminApiResource {
     //private static final String ROLE_LIST_DIRS_ON_SERVER = "kramerius_admin";
 
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
     
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     GenerateDownloadLinks genDownloadLinks;
 
     @GET

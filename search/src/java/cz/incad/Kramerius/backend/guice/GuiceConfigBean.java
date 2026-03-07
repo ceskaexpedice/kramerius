@@ -44,19 +44,16 @@ import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.guice.DocHubModule;
 
-public class GuiceConfigBean{
-
-}
-
-/* TODO migration
-public class GuiceConfigBean extends GuiceServletContextListener {
+/* TODO migration */
+public class GuiceConfigBean {
+//    public class GuiceConfigBean extends GuiceServletContextListener {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GuiceConfigBean.class.getName());
     
     public GuiceConfigBean() {
         super();
     }
-
+/*
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         super.contextInitialized(servletContextEvent);
@@ -152,6 +149,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         String dirName = Constants.WORKING_DIR + File.separator + "fonts";
         return new File(dirName);
     }
-}
 
  */
+}
+

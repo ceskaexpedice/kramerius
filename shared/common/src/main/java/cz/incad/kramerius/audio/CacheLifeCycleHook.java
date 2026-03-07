@@ -1,7 +1,7 @@
 package cz.incad.kramerius.audio;
 
 import java.util.logging.Logger;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.ehcache.CacheManager;
 import cz.incad.kramerius.service.LifeCycleHook;

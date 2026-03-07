@@ -24,7 +24,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.http.client.config.CookieSpecs;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 /**
  * Provides an instance of {@link CloseableHttpClient} configured for Kramerius -> Solr communication.

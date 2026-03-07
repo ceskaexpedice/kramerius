@@ -113,6 +113,10 @@ allprojects {
         database
     }
 
+    configurations.configureEach {
+        exclude group: "javax.ws.rs", module: "javax.ws.rs-api"
+    }
+
     dependencies {
         // postgresql to all subprojects
         api "org.postgresql:postgresql:${postgresversion}"

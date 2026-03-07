@@ -42,9 +42,9 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;

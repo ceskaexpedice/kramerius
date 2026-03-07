@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;

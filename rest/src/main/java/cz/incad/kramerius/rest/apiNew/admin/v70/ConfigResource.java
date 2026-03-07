@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -36,7 +36,7 @@ public class ConfigResource extends AdminApiResource {
     @Inject
     private ConfigManager configService;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
 

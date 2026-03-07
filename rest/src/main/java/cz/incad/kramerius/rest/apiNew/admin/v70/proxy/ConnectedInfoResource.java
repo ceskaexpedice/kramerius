@@ -30,7 +30,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -49,7 +49,7 @@ public class ConnectedInfoResource {
     @Inject
     private TimestampStore timestampStore;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
 

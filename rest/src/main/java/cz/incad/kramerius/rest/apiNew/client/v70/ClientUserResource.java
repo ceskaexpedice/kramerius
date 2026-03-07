@@ -51,7 +51,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -119,7 +119,7 @@ public class ClientUserResource {
     @Inject
     ExclusiveLockMaps exclusiveMaps;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("dbWorkMode")
     WorkModeService workModeService;
 

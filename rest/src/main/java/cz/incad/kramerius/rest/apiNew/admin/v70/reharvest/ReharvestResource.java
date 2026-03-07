@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
@@ -65,7 +65,7 @@ public class ReharvestResource {
     @Inject
     DeleteTriggerSupport deleteTriggerSupport;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
 

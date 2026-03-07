@@ -35,7 +35,7 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;

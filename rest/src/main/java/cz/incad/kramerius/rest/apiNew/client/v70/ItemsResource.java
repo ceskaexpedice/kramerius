@@ -52,7 +52,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
-import javax.inject.Named;
+import jakarta.inject.Named;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -184,8 +184,8 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     APICallMonitor apiCallMonitor;
 
-    @javax.inject.Inject
-    @javax.inject.Named("forward-client")
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
 
 

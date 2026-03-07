@@ -1,6 +1,6 @@
 package cz.incad.kramerius.processes.cdk;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import cz.incad.kramerius.service.LifeCycleHook;
 import cz.incad.kramerius.utils.conf.KConfiguration;

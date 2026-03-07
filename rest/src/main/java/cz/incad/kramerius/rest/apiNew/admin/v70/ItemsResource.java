@@ -35,9 +35,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.*;
@@ -57,7 +57,7 @@ public class ItemsResource extends AdminApiResource {
     private static final Integer DEFAULT_LIMIT = 10;
 
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
     @Inject

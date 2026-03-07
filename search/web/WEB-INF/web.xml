@@ -79,7 +79,7 @@
 
 
 	<!-- thrid party authentication -->
-	<filter>
+	<!--filter>
 		<filter-name>keyclocaksupport</filter-name>
 		<filter-class>cz.incad.kramerius.keycloak.KrameriusKeycloakFilter
 		</filter-class>
@@ -87,7 +87,7 @@
 	<filter-mapping>
 		<filter-name>keyclocaksupport</filter-name>
 		<url-pattern>/*</url-pattern>
-	</filter-mapping>
+	</filter-mapping-->
 
 	<!-- third party authentication, shibboleth and keyclocak - interal users -->
     <!-- 
@@ -102,7 +102,7 @@
 	</filter-mapping>
      -->
 	
-	<filter>
+	<!--filter>
 		<filter-name>keycloak</filter-name>
 		<filter-class>cz.incad.kramerius.auth.thirdparty.keycloack.KeycloakFilter
 		</filter-class>
@@ -110,7 +110,7 @@
 	<filter-mapping>
 		<filter-name>keycloak</filter-name>
 		<url-pattern>/*</url-pattern>
-	</filter-mapping>
+	</filter-mapping-->
 
     <!--  handle attributes from headers -->
     <filter>
@@ -134,7 +134,6 @@
 	</filter-mapping>
 
 
-
 	<!-- img -->
 	<filter>
 		<filter-name>imgFilter</filter-name>
@@ -146,17 +145,34 @@
 		<url-pattern>/nimg/*</url-pattern>
 	</filter-mapping>
 
-
-
 	<listener>
-		<listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean
+		<!--listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean
+		</listener-class-->
+		<listener-class>
+			cz.incad.Kramerius.backend.guice.GuiceBootstrapListener
 		</listener-class>
 		<listener-class>cz.incad.kramerius.users.impl.http.LoggedUserSessionListener
 		</listener-class>
 	</listener>
 
-
 	<!-- Servlets -->
+	<servlet>
+		<servlet-name>jersey</servlet-name>
+		<servlet-class>
+			org.glassfish.jersey.servlet.ServletContainer
+		</servlet-class>
+
+		<init-param>
+			<param-name>jakarta.ws.rs.Application</param-name>
+			<param-value>
+				cz.incad.kramerius.rest.api.guice.JerseyApplication
+			</param-value>
+		</init-param>
+
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+
 	<servlet>
 		<servlet-name>i18n</servlet-name>
 		<servlet-class>cz.incad.Kramerius.I18NServlet</servlet-class>
@@ -331,6 +347,10 @@
 
 
 	<!-- Mapovani servletů -->
+	<servlet-mapping>
+		<servlet-name>jersey</servlet-name>
+		<url-pattern>/api/*</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>imageServlet</servlet-name>

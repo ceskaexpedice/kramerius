@@ -19,7 +19,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 import java.util.List;
 import java.util.logging.Level;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

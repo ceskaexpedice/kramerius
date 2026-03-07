@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;

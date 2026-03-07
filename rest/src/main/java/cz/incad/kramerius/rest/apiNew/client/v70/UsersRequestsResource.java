@@ -12,7 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONObject;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,14 +24,14 @@ public class UsersRequestsResource extends ClientApiResource {
 
     public static Logger LOGGER = Logger.getLogger(UsersRequestsResource.class.getName());
 
-    @javax.inject.Inject
-    @javax.inject.Named("forward-client")
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
 
     @Inject
     UserContentSpace userContentSpace;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     protected Provider<User> userProvider;
 
 

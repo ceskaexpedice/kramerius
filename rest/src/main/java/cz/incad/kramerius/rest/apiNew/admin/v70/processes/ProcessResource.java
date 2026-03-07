@@ -21,8 +21,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +37,7 @@ public class ProcessResource extends AdminApiResource {
     @Inject
     ProcessDefinitionManager definitionManager;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
     @Inject
@@ -48,7 +48,7 @@ public class ProcessResource extends AdminApiResource {
     RightsResolver rightsResolver;
 
     @Inject
-    @javax.inject.Named("forward-client")
+    @jakarta.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
 
     @GET

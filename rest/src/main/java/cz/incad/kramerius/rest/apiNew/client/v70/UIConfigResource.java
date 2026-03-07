@@ -28,7 +28,7 @@ public class UIConfigResource extends AdminApiResource {
     RightsResolver rightsResolver;
 
     @Inject
-    javax.inject.Provider<User> userProvider;
+    jakarta.inject.Provider<User> userProvider;
 
     @Inject
     @Named("kramerius4")

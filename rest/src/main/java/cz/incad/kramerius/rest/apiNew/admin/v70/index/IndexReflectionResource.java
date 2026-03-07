@@ -57,9 +57,9 @@ public class IndexReflectionResource extends AdminApiResource {
     @Inject
     Provider<User> userProvider;
 
-    @javax.inject.Inject
-    @javax.inject.Named("solr-client")
-    javax.inject.Provider<CloseableHttpClient> provider;
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("solr-client")
+    jakarta.inject.Provider<CloseableHttpClient> provider;
 
 
     @GET

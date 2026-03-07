@@ -60,7 +60,7 @@ public class SOLRResource {
     SecuredAkubraRepository akubraRepository;
 
     @Inject
-    @javax.inject.Named("new-index")
+    @jakarta.inject.Named("new-index")
     SolrAccess solrAccess;
 
     @Inject

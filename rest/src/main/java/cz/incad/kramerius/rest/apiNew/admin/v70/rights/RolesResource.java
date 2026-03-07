@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import cz.incad.kramerius.rest.api.exceptions.*;
 import cz.incad.kramerius.security.*;

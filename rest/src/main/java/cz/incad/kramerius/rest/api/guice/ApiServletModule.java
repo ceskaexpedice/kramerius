@@ -18,9 +18,12 @@ package cz.incad.kramerius.rest.api.guice;
 
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
-//import com.sun.jersey.api.client.Client;
-//import com.sun.jersey.guice.JerseyServletModule;
-//import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+/*
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.guice.JerseyServletModule;
+import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+
+ */
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
@@ -86,14 +89,15 @@ import java.util.Map;
  *
  * @author pavels
  */
+// TODO migration
 public class ApiServletModule {
 //    public class ApiServletModule extends JerseyServletModule {
-    /* TODO migration
 
         // public static String VERSION = "v4.6";
 
-        @Override
-        protected void configureServlets() {
+      //  @Override
+       // protected void configureServlets() {
+            /*
             // API Remote 4.6 Resources
             bind(ReplicationsResource.class);
             //bind(CDKReplicationsResource.class);
@@ -105,16 +109,9 @@ public class ApiServletModule {
                 bind(cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource.class);
             }
 
+             */
 
-            //bind(ItemResource.class);
-            //bind(FeederResource.class);
-            //bind(ClientVirtualCollections.class);
-            //bind(SearchResource.class);
-            //bind(FeedbackResource.class);
-            //bind(ClientRightsResource.class);
-            //bind(PDFResource.class);
-            //bind(AsyncPDFResource.class);
-
+            /*
             // Admin resources
             bind(RightsResource.class);
             bind(UsersResource.class);
@@ -127,6 +124,8 @@ public class ApiServletModule {
 
             bind(LicensesResource.class);
 
+             */
+/*
             // CDK Client 7.0 Resources
             boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
             if (channel) {
@@ -135,8 +134,8 @@ public class ApiServletModule {
                 bind(CDKItemResource.class);
                 bind(CDKUsersResource.class);
             }
-
-
+*/
+/*
             // API Client 7.0 Resources
             bind(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
 
@@ -146,8 +145,8 @@ public class ApiServletModule {
             } else {
                 bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
             }
-
-
+*/
+/*
             bind(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
 
             bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
@@ -157,7 +156,8 @@ public class ApiServletModule {
             bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AsyncPDFResource.class);
             bind(cz.incad.kramerius.rest.apiNew.client.v70.LocksResource.class);
             bind(cz.incad.kramerius.rest.apiNew.client.v70.res.EmbeddedFilesResource.class);
-
+*/
+            /*
             // cdk forward client
             bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
             bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
@@ -166,7 +166,9 @@ public class ApiServletModule {
             // solr apache client
             bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);
 
+             */
 
+/*
             // API Admin 7.0 Resources
             bind(cz.incad.kramerius.rest.apiNew.admin.v70.processes.ProcessResource.class);
             bind(cz.incad.kramerius.rest.apiNew.admin.v70.collections.CollectionsResource.class);
@@ -180,46 +182,64 @@ public class ApiServletModule {
             bind(cz.incad.kramerius.rest.apiNew.admin.v70.conf.Configurations.class);
             bind(cz.incad.kramerius.rest.apiNew.admin.v70.AdminLockResource.class);
             bind(cz.incad.kramerius.rest.apiNew.admin.v70.index.IndexReflectionResource.class);
-
+*/
+            /*
             // OAI endpoint
             bind(cz.incad.kramerius.rest.oai.OAIEndpoint.class);
 
             // EXTS endpoint
             bind(cz.incad.kramerius.rest.apiNew.exts.v70.ExtsTokensResource.class);
-
+*/
             // Generated download links
+            /*
             bind(cz.incad.kramerius.rest.apiNew.admin.v70.files.GenerateDownloadLinks.class).asEagerSingleton();
 
+             */
+
             // Kramerius folders
+            /*
             bind(EndpointFolders.class);
+
+             */
+            /*
             bind(FolderDatabase.class);
 
+             */
+
+            /*
             bind(KeycloakProxy.class);
+
+             */
 
             // debug resource
             //bind(HTTPHeaders.class);
-
+/*
             bind(SolrMemoization.class).to(SolrMemoizationImpl.class)
                         .asEagerSingleton();
 
             // simple reader & writer
             bind(SimpleJSONMessageBodyReader.class);
             bind(SimpleJSONMessageBodyWriter.class);
-
+*/
             // decorators
             //decorators();
-
+/*
         bind(TimestampStore.class).to(SolrTimestampStore.class).asEagerSingleton();
         bind(Instances.class).to(DefaultPropertiesInstances.class).asEagerSingleton();
         bind(ReharvestManager.class).to(SolrReharvestManagerImpl.class).asEagerSingleton();
         bind(ProxyFilter.class).to(DefaultFilter.class);
 
-        // config 
+ */
+
+        /*
+        // config
         if (cdkServerMode) {
             bind(ConnectedInfoResource.class);
             bind(ReharvestResource.class);
         }
 
+         */
+/*
         
         // api
         Map<String, String> parameters = new HashMap<String, String>();
@@ -230,6 +250,8 @@ public class ApiServletModule {
        serve("/api/*").with(GuiceContainer.class, parameters);
     }
 
-*/
+ */
+
+
 }
 

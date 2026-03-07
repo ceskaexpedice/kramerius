@@ -27,8 +27,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,14 +41,14 @@ public class WorkModeResource  extends AdminApiResource{
 
     public static final Logger LOGGER = Logger.getLogger(WorkModeResource.class.getName());
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("dbWorkMode")
     WorkModeService workModeService;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     RightsResolver rightsResolver;
 
 

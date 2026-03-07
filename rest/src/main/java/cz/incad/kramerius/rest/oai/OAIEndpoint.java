@@ -16,9 +16,9 @@
  */
 package cz.incad.kramerius.rest.oai;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 

@@ -50,8 +50,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
@@ -89,7 +89,7 @@ public class SearchResource {
     @Inject
     ProxyFilter proxyFilter;
     
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
     @Inject

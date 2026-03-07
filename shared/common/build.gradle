@@ -90,17 +90,19 @@ dependencies {
     api "com.sun.jersey.contribs:jersey-apache-client:${jerseyversion}"
 
      */
-
-    // Jersey 3 (Jakarta)
+    // Jersey
     api("org.glassfish.jersey.core:jersey-server:3.1.5")
     api("org.glassfish.jersey.containers:jersey-container-servlet:3.1.5")
     api("org.glassfish.jersey.inject:jersey-hk2:3.1.5")
-    // Guice (NO servlet support)
-    api("com.google.inject:guice:5.1.0")
-    // Jakarta
-    api("jakarta.inject:jakarta.inject-api:2.0.1")
-    api("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
 
+    // Guice
+    api("com.google.inject:guice:7.0.0")
+    api("com.google.inject.extensions:guice-servlet:7.0.0")
+
+    // Jakarta APIs
+    compileOnly("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
+    compileOnly("jakarta.inject:jakarta.inject-api:2.0.1")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
 
     // for audio support 
     api 'org.ehcache:ehcache:3.3.0'

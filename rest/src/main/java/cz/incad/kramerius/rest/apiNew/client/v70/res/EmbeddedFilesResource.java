@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -51,7 +51,7 @@ public class EmbeddedFilesResource {
 
     private static final Map<String, String> mimeTypeMap = new HashMap<>();
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
 

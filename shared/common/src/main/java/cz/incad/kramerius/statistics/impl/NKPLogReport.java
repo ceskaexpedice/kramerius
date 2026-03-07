@@ -73,9 +73,9 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     @Inject
     VersionService versionService;
 
-    @javax.inject.Inject
-    @javax.inject.Named("solr-client")
-    javax.inject.Provider<CloseableHttpClient> provider;
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("solr-client")
+    jakarta.inject.Provider<CloseableHttpClient> provider;
 
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters,

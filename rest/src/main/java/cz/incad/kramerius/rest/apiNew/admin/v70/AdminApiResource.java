@@ -17,9 +17,9 @@ import cz.incad.kramerius.security.utils.UserUtils;
 import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;

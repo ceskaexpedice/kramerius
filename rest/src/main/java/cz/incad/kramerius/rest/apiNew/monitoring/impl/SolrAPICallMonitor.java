@@ -19,7 +19,7 @@ import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,13 +45,13 @@ public class SolrAPICallMonitor implements APICallMonitor  {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("solr-client")
-    javax.inject.Provider<CloseableHttpClient> provider;
+    jakarta.inject.Provider<CloseableHttpClient> provider;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("forward-client")
-    javax.inject.Provider<PoolingHttpClientConnectionManager> apachePoolManager;
+    jakarta.inject.Provider<PoolingHttpClientConnectionManager> apachePoolManager;
 
 
     public SolrAPICallMonitor() {
