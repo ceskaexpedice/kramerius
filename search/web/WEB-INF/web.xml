@@ -146,8 +146,6 @@
 	</filter-mapping>
 
 	<listener>
-		<!--listener-class>cz.incad.Kramerius.backend.guice.GuiceConfigBean
-		</listener-class-->
 		<listener-class>
 			cz.incad.Kramerius.backend.guice.GuiceBootstrapListener
 		</listener-class>
@@ -165,8 +163,8 @@
 		<init-param>
 			<param-name>jakarta.ws.rs.Application</param-name>
 			<param-value>
-				cz.incad.kramerius.rest.api.guice.JerseyApplication
-			</param-value>
+                cz.incad.kramerius.rest.api.JerseyApplication
+            </param-value>
 		</init-param>
 
 		<load-on-startup>1</load-on-startup>

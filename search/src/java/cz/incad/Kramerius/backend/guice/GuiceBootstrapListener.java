@@ -13,7 +13,6 @@ import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
 import cz.incad.kramerius.processes.guice.ProcessModule;
 import cz.incad.kramerius.rest.api.guice.GuiceBootstrap;
-import cz.incad.kramerius.rest.api.guice.IiifServletModule;
 import cz.incad.kramerius.rest.api.guice.RestBaseModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
