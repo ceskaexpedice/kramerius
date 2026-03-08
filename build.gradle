@@ -91,15 +91,14 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
 	compileTestJava.options.encoding = 'UTF-8'
 
-    ext.guiceversion ='6.0.0'
+    ext.guiceversion ='7.0.0'
 
     ext.postgresversion = '42.3.9'
     ext.slf4jversion='1.7.35'
     //ext.slf4jversion='2.0.16'
     ext.logbackclassicversion='1.4.14'
 
-    //ext.jerseyversion = '1.17.1'
-    ext.jerseyversion = '1.19.4'
+    ext.jerseyversion = '3.1.5'
     ext.keycloakversion = '20.0.2' 
 
     ext.hazelcastversion='2.0'
@@ -123,11 +122,8 @@ allprojects {
         database "org.postgresql:postgresql:${postgresversion}"
 
         // guice to all subprojects
-       
-  	    //api ("com.google.inject:guice:${guiceversion}") {exclude group: 'com.google.guava', module: 'guava'}
-        //api ("com.google.inject.extensions:guice-servlet:${guiceversion}"){exclude group: 'com.google.guava', module: 'guava'}
-        //api "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
-        //api "javax.inject:javax.inject:1"
+        api("com.google.inject:guice:${guiceversion}")
+        api("com.google.inject.extensions:guice-servlet:${guiceversion}")
 
 		//JAXB
         api "javax.xml.bind:jaxb-api:2.3.1"
