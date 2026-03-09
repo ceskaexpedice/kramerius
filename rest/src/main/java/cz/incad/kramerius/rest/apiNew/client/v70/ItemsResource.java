@@ -709,7 +709,95 @@ public class ItemsResource extends ClientApiResource {
 
 
 
+    private void checkGenerateActionAllowed(User user) {
+        boolean allowed = rightsResolver.isActionAllowed(
+                user,
+                SecuredActions.A_CONTENT_GENERATE.getFormalName(),
+                SpecialObjects.REPOSITORY.getPid(),
+                null,
+                ObjectPidsPath.REPOSITORY_PATH
+        ).flag();
+        if (!allowed) {
+            throw new ForbiddenException(
+                    "user '%s' is not allowed to do this (missing action '%s')",
+                    user.getLoginname(),
+                    SecuredActions.A_CONTENT_GENERATE.name()
+            );
+        }
+    }
 
+
+    private String getOwnPidPathIfHasPages(String pid) throws Exception {
+        org.w3c.dom.Document doc = solrAccess.getSolrDataByPid(pid);
+        List<org.w3c.dom.Element> pages = XMLUtils.getElementsRecursive(
+                doc.getDocumentElement(),
+                elm -> "count_page".equals(elm.getAttribute("name"))
+        );
+        if (pages.isEmpty()) {
+            throw new BadRequestException("Cannot find pages");
+        }
+        List<org.w3c.dom.Element> ownPidPathElms = XMLUtils.getElementsRecursive(
+                doc.getDocumentElement(),
+                elm -> "own_pid_path".equals(elm.getAttribute("name"))
+        );
+
+        if (ownPidPathElms.isEmpty()) {
+            throw new BadRequestException("Missing own_pid_path");
+        }
+        return ownPidPathElms.get(0).getTextContent();
+    }
+
+    private List<String> findChildPids(String ownPidPath) throws Exception {
+        String encodedQuery = URLEncoder.encode(
+                String.format("own_pid_path.children:\"%s\"", ownPidPath),
+                StandardCharsets.UTF_8
+        );
+        String request = String.format("q=%s&fl=pid&rows=15", encodedQuery);
+        org.w3c.dom.Document resp = solrAccess.requestWithSelectReturningXml(request, null);
+        List<org.w3c.dom.Element> allPidsElems = XMLUtils.getElementsRecursive(
+                resp.getDocumentElement(),
+                elm -> "pid".equals(elm.getAttribute("name"))
+        );
+        return allPidsElems.stream()
+                .map(org.w3c.dom.Element::getTextContent)
+                .collect(Collectors.toList());
+    }
+
+    private License findLicenseAllowingGeneration(User user, String pid, List<String> pids) throws Exception {
+        for (String currentPid : pids) {
+            RuntimeInformation extractInformation =
+                    RightRuntimeInformations.extractInformations(
+                            this.rightsResolver,
+                            this.solrAccess,
+                            currentPid
+                    );
+            List<String> providedByLicenses = extractInformation.getProvidingLicenses();
+            if (providedByLicenses == null || providedByLicenses.isEmpty()) {
+                continue;
+            }
+            String licenseName = providedByLicenses.get(0);
+            License lic = licensesManager.getLicenseByName(licenseName);
+            if (lic == null) continue;
+            if (lic.getLicenseOfflineGenerationConf() == null) continue;
+            if (!lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) continue;
+            LimitConfiguration limitConf = lic.getLicenseOfflineGenerationConf().limitConfiguration();
+            if (limitConf != null) {
+                boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
+                if (!allowGenerate) {
+                    throw new ForbiddenException(
+                            "Generation limit reached for user '%s'",
+                            user.getLoginname()
+                    );
+                }
+            }
+            return lic;
+        }
+
+        throw new ForbiddenException(
+                "user '%s' is not allowed to do this (no valid license)",
+                user.getLoginname()
+        );
+    }
 
     @POST
     @Path("{pid}/requests/{reqid}")
@@ -720,112 +808,123 @@ public class ItemsResource extends ClientApiResource {
                              @HeaderParam("Accept-Language") Locale locale , JSONObject reqDefinition) {
 
 
+        User user = this.userProvider.get();
+        String username = user.getLoginname();
+
         try {
+            checkGenerateActionAllowed(user);
+            String ownPidPath = getOwnPidPathIfHasPages(pid);
+            List<String> childPids = findChildPids(ownPidPath);
+            License lic = findLicenseAllowingGeneration(user, pid, childPids);
+
             switch (reqid) {
                 case "generate_pdf":
-                    User user = this.userProvider.get();
-                    String username = user.getLoginname();
-                    if (rightsResolver.isActionAllowed(user, SecuredActions.A_CONTENT_GENERATE.getFormalName(), SpecialObjects.REPOSITORY.getPid(), null, ObjectPidsPath.REPOSITORY_PATH).flag()) {
-                        org.w3c.dom.Document doc = solrAccess.getSolrDataByPid(pid);
-                        List<org.w3c.dom.Element> found = XMLUtils.getElementsRecursive(doc.getDocumentElement(), (elm) -> {
-                            String name = elm.getAttribute("name");
-                            return (name != null && name.equals("count_page"));
-                        });
-                        if (!found.isEmpty()) {
-
-                            List<org.w3c.dom.Element> ownPidPathElms = XMLUtils.getElementsRecursive(doc.getDocumentElement(), (elm) -> {
-                                String name = elm.getAttribute("name");
-                                return (name != null && name.equals("own_pid_path"));
-                            });
-                            if  (!ownPidPathElms.isEmpty()) {
-
-                                String ownPidPath = ownPidPathElms.get(0).getTextContent();
-                                String encodedQuery = URLEncoder.encode(String.format("own_pid_path.children:\"%s\"",  ownPidPath), StandardCharsets.UTF_8);
-                                String request = String.format("q=%s&fl=pid&rows=15", encodedQuery);
-                                org.w3c.dom.Document resp = solrAccess.requestWithSelectReturningXml(request, null);
-                                List<org.w3c.dom.Element> allPidsElems = XMLUtils.getElementsRecursive(resp.getDocumentElement(), (elm) -> {
-                                    String name = elm.getAttribute("name");
-                                    if (name != null && name.equals("pid")) {
-                                        return true;
-                                    } else {
-                                        return false;
-                                    }
-                                });
-
-                                List<String> allPids = allPidsElems.stream().map(org.w3c.dom.Element::getTextContent).collect(Collectors.toList());
-                                for (int i = 0; i < allPids.size(); i++) {
-                                    String currentPid = allPids.get(i);
-                                    RuntimeInformation extractInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, currentPid);
-                                    List<String> providedByLicenses = extractInformation.getProvidingLicenses();
-                                    if (providedByLicenses != null && providedByLicenses.size() > 0) {
-                                        String provideByLicense = providedByLicenses.get(0);
-                                        License lic = licensesManager.getLicenseByName(provideByLicense);
-                                        // found license and license allow to generate content
-                                        if (lic != null
-                                                && lic.getLicenseOfflineGenerationConf() != null
-                                                && lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) {
-
-
-                                            LimitConfiguration limitConf = lic.getLicenseOfflineGenerationConf().limitConfiguration();
-                                            if (limitConf != null) {
-                                                boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
-                                                if (!allowGenerate) {
-                                                    throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
-                                                }
-                                            }
-
-                                            lic.checkUsageLimit(user, pid, this.userContentSpace );
-
-                                            JSONObject process = new JSONObject();
-                                            process.put(ProcessManagerMapper.PCP_PROFILE_ID, GENERATE_PDF_PROCESS);
-                                            process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
-
-                                            JSONObject payload = new JSONObject();
-                                            payload.put("pid", pid);
-                                            if (reqDefinition.has("email")) { payload.put("email", reqDefinition.getString("email")); }
-                                            payload.put("user", user.getLoginname());
-                                            payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
-
-                                            Locale finalLocale = (locale == null || "und".equals(locale.toLanguageTag()))
-                                                    ? Locale.forLanguageTag("cs")
-                                                    : locale;
-
-                                            payload.put("locale", finalLocale);
-                                            payload.put("providedByLicense", lic.getName());
-
-                                            process.put("payload", payload);
-
-                                            ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-
-                                            JSONObject profile = processManagerClient.getProfile(GENERATE_PDF_PROCESS);
-                                            JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
-                                            org.json.JSONArray scheduledProfiles = null;
-                                            if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
-                                                scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
-                                            }
-
-                                            LOGGER.fine("Scheduler process -> "+process.toString());
-                                            String processId = processManagerClient.scheduleProcess(process);
-                                            JSONObject result = new JSONObject();
-                                            result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
-                                            String token = this.userContentSpace.getToken(pid, user.getLoginname());
-                                            this.userContentSpace.getUsageCounter().logUsage(pid, user.getLoginname());
-                                            result.put("token", token);
-
-                                            return Response.ok().entity(result.toString()).build();
-                                        }
-                                    }
-                                }
-                                throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user.getLoginname(), SecuredActions.A_CONTENT_GENERATE.name()); //403
+                    if (lic != null
+                            && lic.getLicenseOfflineGenerationConf() != null
+                            && lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) {
+                        LimitConfiguration limitConf = lic.getLicenseOfflineGenerationConf().limitConfiguration();
+                        if (limitConf != null) {
+                            boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
+                            if (!allowGenerate) {
+                                throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
                             }
-                        } else {
-                            throw new BadRequestException("Cannot find pages");
                         }
-                    } else {
-                        throw new ForbiddenException("user '%s' is not allowed to do this (missing action '%s')", user.getLoginname(), SecuredActions.A_CONTENT_GENERATE.name()); //403
+                        lic.checkUsageLimit(user, pid, this.userContentSpace );
+                        JSONObject process = new JSONObject();
+                        process.put(ProcessManagerMapper.PCP_PROFILE_ID, GENERATE_PDF_PROCESS);
+                        process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
+
+                        JSONObject payload = new JSONObject();
+                        payload.put("pid", pid);
+                        if (reqDefinition.has("email")) { payload.put("email", reqDefinition.getString("email")); }
+                        payload.put("user", user.getLoginname());
+                        payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
+
+                        Locale finalLocale = (locale == null || "und".equals(locale.toLanguageTag()))
+                                ? Locale.forLanguageTag("cs")
+                                : locale;
+
+                        payload.put("locale", finalLocale);
+                        payload.put("providedByLicense", lic.getName());
+                        process.put("payload", payload);
+
+                        ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+
+                        JSONObject profile = processManagerClient.getProfile(GENERATE_PDF_PROCESS);
+                        JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
+                        org.json.JSONArray scheduledProfiles = null;
+                        if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
+                            scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
+                        }
+
+                        LOGGER.fine("Scheduler process -> "+process.toString());
+                        String processId = processManagerClient.scheduleProcess(process);
+                        JSONObject result = new JSONObject();
+                        result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
+                        String token = this.userContentSpace.getToken(pid, user.getLoginname());
+                        this.userContentSpace.getUsageCounter().logUsage(pid, user.getLoginname());
+                        result.put("token", token);
+
+                        return Response.ok().entity(result.toString()).build();
                     }
                     return null;
-                default: throw new BadRequestException(reqid);
+
+                default: {
+                    // any process
+                    if (lic != null
+                            && lic.getLicenseOfflineGenerationConf() != null
+                            && lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) {
+                        LimitConfiguration limitConf = lic.getLicenseOfflineGenerationConf().limitConfiguration();
+                        if (limitConf != null) {
+                            boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
+                            if (!allowGenerate) {
+                                throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
+                            }
+                        }
+                        lic.checkUsageLimit(user, pid, this.userContentSpace );
+                        JSONObject process = new JSONObject();
+                        process.put(ProcessManagerMapper.PCP_PROFILE_ID, reqid);
+                        process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
+
+                        JSONObject payload = new JSONObject();
+                        payload.put("pid", pid);
+
+                        reqDefinition.keySet().forEach(k-> {
+                            payload.put(k.toString(), reqDefinition.get(k.toString()));
+                        });
+
+                        payload.put("user", user.getLoginname());
+                        payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
+
+                        Locale finalLocale = (locale == null || "und".equals(locale.toLanguageTag()))
+                                ? Locale.forLanguageTag("cs")
+                                : locale;
+
+                        payload.put("locale", finalLocale);
+                        payload.put("providedByLicense", lic.getName());
+                        process.put("payload", payload);
+
+                        ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
+
+                        JSONObject profile = processManagerClient.getProfile(GENERATE_PDF_PROCESS);
+                        JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
+                        org.json.JSONArray scheduledProfiles = null;
+                        if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
+                            scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
+                        }
+
+                        LOGGER.fine("Scheduler process -> "+process.toString());
+                        String processId = processManagerClient.scheduleProcess(process);
+                        JSONObject result = new JSONObject();
+                        result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
+                        String token = this.userContentSpace.getToken(pid, user.getLoginname());
+                        this.userContentSpace.getUsageCounter().logUsage(pid, user.getLoginname());
+                        result.put("token", token);
+
+                        return Response.ok().entity(result.toString()).build();
+                    }
+                    return null;
+                }
             }
         } catch (ProcessManagerClientException e) {
             if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
