@@ -103,7 +103,7 @@ allprojects {
 
     ext.hazelcastversion='2.0'
     ext.akubraversion='1.7'
-	ext.processapiversion='1.1'
+	ext.processapiversion='1.4'
 
     ext.generatedSources = "generated-sources"
 

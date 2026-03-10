@@ -69,7 +69,6 @@ public class GenerateFullPDFProcess {
                 new I18NModule()
         );
 
-        // special needs license vs public license
         GenerateFullPDFService serv = injector.getInstance(GenerateFullPDFService.class);
         try {
             String token = serv.generate(pid, user, providedByLicenses);
@@ -102,5 +101,4 @@ public class GenerateFullPDFProcess {
             throw new RuntimeException(e);
         }
     }
-
 }

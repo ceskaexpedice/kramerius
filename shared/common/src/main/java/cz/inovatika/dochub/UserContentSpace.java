@@ -21,7 +21,6 @@ public interface UserContentSpace {
 
     public Optional<String> getAuditInfo(String token) throws IOException;
 
-
     public UsageCounter getUsageCounter() throws IOException;
 
 }
