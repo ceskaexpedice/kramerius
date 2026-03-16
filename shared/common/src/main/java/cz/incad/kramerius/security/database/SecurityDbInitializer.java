@@ -779,10 +779,11 @@ public class SecurityDbInitializer {
     public static void makeSureAuthenticatedUsers(Connection connection) throws SQLException, IOException {
         List<String> roleNames = new JDBCQueryTemplate<String>(connection, false) {
             public boolean handleRow(ResultSet rs, List<String> returnsList) throws SQLException {
-                return rs.getString("gname") != null;
+                String gName =  rs.getString("gname");
+                returnsList.add(gName);
+                return true;
             }
         }.executeQuery("select gname from group_entity where gname='authenticated_users'");
-
         if (roleNames.isEmpty()) {
             insertAuthenticatedUserRole( connection);
         }

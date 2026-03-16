@@ -2,7 +2,6 @@ package cz.incad.kramerius.uiconfig;
 
 import com.google.inject.Provider;
 
-import javax.ws.rs.NotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -61,7 +60,8 @@ public class DbUIConfigService implements UIConfigService {
             ps.setString(1, type.name());
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
-                throw new NotFoundException("UI config not found: " + type);
+                return null;
+                //throw new NotFoundException("UI config not found: " + type);
             }
             return rs.getBinaryStream(1);
         } catch (SQLException e) {

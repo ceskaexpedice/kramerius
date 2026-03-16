@@ -101,12 +101,16 @@ public class UIConfigResource extends AdminApiResource {
             if (permitConfig(user)) {
                 DbUIConfigService dbUIConfigService = new DbUIConfigService(connectionProvider, new JsonValidator());
                 InputStream in = dbUIConfigService.load(type);
-                return Response.ok(in).header("Cache-Control", "no-cache").build();
+                if (in != null) {
+                    return Response.ok(in).header("Cache-Control", "no-cache").build();
+                } else {
+                    throw new cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException("No such config");
+                }
             } else {
                 throw new cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException("user '%s' is not allowed to manage config ", user.getLoginname()); //403
             }
         } catch (NotFoundException e) {
-            throw e;
+            throw new cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException(e.getMessage());
         } catch (UIConfigException e) {
             LOGGER.log(Level.SEVERE, "Failed to load UI config " + type, e);
             throw new InternalServerErrorException("Failed to load UI config");

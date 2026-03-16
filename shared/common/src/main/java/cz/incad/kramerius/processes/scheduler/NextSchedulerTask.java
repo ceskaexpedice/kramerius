@@ -46,7 +46,7 @@ public class NextSchedulerTask extends TimerTask {
                 String profileId = profile.getString(ProcessManagerMapper.PCP_PROFILE_ID);
                 ProcessDefinition processDefinition = definitionManager.getProcessDefinition(profileId);
                 if (processDefinition == null) {
-                    LOGGER.warning("No process definition with id " + profileId);
+                    //LOGGER.warning("No process definition with id " + profileId);
                     continue;
                 }
                 List<String> jvmArgsLocal = processDefinition.getJavaProcessParameters();
