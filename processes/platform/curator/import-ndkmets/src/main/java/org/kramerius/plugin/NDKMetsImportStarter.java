@@ -71,6 +71,14 @@ public class NDKMetsImportStarter {
                 LOGGER.info(String.format("convert.useImageServer %s", useIIPServer.toString()));
             }
             LOGGER.info(String.format("Starting convert directory %s", inputDataDir.getAbsolutePath()));
+
+            try {
+                PluginContext pluginContext = PluginContextHolder.getContext();
+                pluginContext.updateProcessName(String.format("Import NDK METS z %s ", inputDataDir.getAbsolutePath()));
+            } catch (Exception e) {
+                LOGGER.severe(e.getMessage());
+            }
+
             new MetsConvertor().run(inputDataDir.getAbsolutePath(), exportRoot, policy != null ?  policy.toLowerCase().equals("private") : false, startIndexerFromArgs, null, license,addCollection, strategy);
         } catch (JAXBException | IOException | InterruptedException | SAXException | SolrServerException e) {
             throw new RuntimeException(e);
