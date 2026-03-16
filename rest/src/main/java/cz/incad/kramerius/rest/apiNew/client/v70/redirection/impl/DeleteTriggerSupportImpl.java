@@ -30,9 +30,9 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.introspect.Introspe
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

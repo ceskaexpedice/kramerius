@@ -16,29 +16,21 @@
   */
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response.ResponseBuilder;
-import jakarta.ws.rs.core.StreamingOutput;
-
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.monitoring.ApiCallEvent;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -47,26 +39,21 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
-
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.AlreadyRegistedPidsException;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem.TypeOfReharvset;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
  /**
   * Base class for implementing various types of ProxyHandlers.

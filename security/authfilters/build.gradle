@@ -3,11 +3,8 @@ description "Authentication filters"
 
 dependencies {
     api project(':shared:common')
-    api "org.brickred:socialauth:4.12"
     api 'commons-codec:commons-codec:1.5'
 
-    //api "org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}"
-    //api "org.keycloak:keycloak-authz-client:${keycloakversion}"
     api 'com.nimbusds:nimbus-jose-jwt:9.37'
     compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
 }

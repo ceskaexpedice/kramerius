@@ -41,7 +41,6 @@ dependencies {
     api project(':rest')
 
     api project(':security:authfilters')
-    api project(':security:oauth')
 
     //api project(':processes:mw-process')
     //api project(':processes:indexer')

@@ -93,7 +93,7 @@ public class ExclusiveLockImpl implements ExclusiveReadersLock {
             case RULE: 
                 String ruleHashName = String.format("%s_%s_%d_%s", license.getName(), pid, right.getId(), right.getRole().getName());
                 //return ruleHashName;
-                // TODO migration return DigestUtils.md2Hex(ruleHashName);
+                return DigestUtils.md5Hex(ruleHashName);
         }
         return null;
     }

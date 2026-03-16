@@ -23,10 +23,9 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 //import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -304,11 +303,10 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkReadOnlyWorkMode();
             HttpServletRequest req = this.requestProvider.get();
+            DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+            JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
+            List<FileItem> fileItems = upload.parseRequest(req);
 
-            DiskFileItemFactory factory = new DiskFileItemFactory();
-            ServletFileUpload upload = new ServletFileUpload(factory);
-// TODO migration            List<FileItem> fileItems = upload.parseRequest(req);
-            List<FileItem> fileItems = null;
             if (fileItems.size() == 1) {
                 FileItem fileItem = fileItems.get(0);
 
@@ -573,8 +571,7 @@ public class CollectionsResource extends AdminApiResource {
 
             //check each item pid
             List<String> pidsToBeAdded = new ArrayList<>();
-// TODO migration            Map<String, String> errorsByPid = new HashedMap<>();
-            Map<String, String> errorsByPid = null;
+            Map<String, String> errorsByPid = new HashMap<>();
             for (int i = 0; i < itemsPid.length(); i++) {
                 System.out.println(itemsPid);
                 String itemPid = itemsPid.getString(i);

@@ -5,7 +5,6 @@ dependencies {
     compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
 
     api project(':shared:common')
-    api project(':security:oauth')
 	api project(':processes:search-index')
 	
     api project(':folders')
@@ -16,8 +15,7 @@ dependencies {
 
     api project(':document-hub:content')
 
-
-    api group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+    implementation 'org.apache.commons:commons-fileupload2-jakarta:2.0.0-M1'
 
     api name:"iiif-presentation-model-api-3.2.5"
     api name:"iiif-presentation-model-impl-3.2.5"

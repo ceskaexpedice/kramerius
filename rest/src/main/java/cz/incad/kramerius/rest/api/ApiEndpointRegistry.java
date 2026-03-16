@@ -1,6 +1,5 @@
 package cz.incad.kramerius.rest.api;
 
-import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.api.replication.ReplicationsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.APIMonitorResource;
@@ -97,7 +96,6 @@ public class ApiEndpointRegistry {
         }
 
         resources.add(EndpointFolders.class);
-        resources.add(KeycloakProxy.class);
 
         return resources;
     }

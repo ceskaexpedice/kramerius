@@ -7,6 +7,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.monitoring.ApiCallEvent;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.tuple.Pair;
 
 import cz.incad.kramerius.SolrAccess;
@@ -17,7 +18,6 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerSupport
 import cz.incad.kramerius.security.User;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class ProxyUserHandler extends ProxyHandlerSupport {
 

@@ -61,8 +61,6 @@ include 'installation'
 
 
 include 'security:authfilters'
-include 'security:oauth'
-
 
 // Curator platform module
 include 'processes:platform:curator:import-ndkmets'

@@ -35,6 +35,7 @@ import cz.incad.kramerius.rest.oai.metadata.utils.OAICDKUtils;
 import cz.incad.kramerius.rest.oai.utils.OAITools;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -45,7 +46,6 @@ import org.ceskaexpedice.akubra.pid.PIDParser;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.ceskaexpedice.akubra.utils.DomUtils;
-import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
