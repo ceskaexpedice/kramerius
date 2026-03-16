@@ -1,21 +1,16 @@
 package cz.incad.kramerius.auth.thirdparty.keycloack.cdk;
 
-import java.util.logging.Level;
-
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import cz.incad.kramerius.auth.thirdparty.ExtAuthFilter;
+import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
+import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
+import cz.incad.kramerius.security.UserManager;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-
-import cz.incad.kramerius.auth.thirdparty.ExtAuthFilter;
-import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
-import cz.incad.kramerius.auth.thirdparty.keycloack.KeycloakUserSupport;
-import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
-import cz.incad.kramerius.security.UserManager;
-import cz.incad.kramerius.users.LoggedUsersSingleton;
+import java.util.logging.Level;
 
 public class CDKKeycloakFilter extends ExtAuthFilter {
 
