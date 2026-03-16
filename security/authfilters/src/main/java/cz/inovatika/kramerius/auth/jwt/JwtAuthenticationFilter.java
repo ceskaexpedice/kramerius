@@ -10,8 +10,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -19,24 +21,24 @@ import java.util.logging.Logger;
 
 /**
  * JwtAuthenticationFilter
+ *
  * @author ppodsednik
  */
 public class JwtAuthenticationFilter implements Filter {
 
     private static final Logger LOGGER = Logger.getLogger(JwtAuthenticationFilter.class.getName());
-    // TODO read it from config
-    private static final String JWKS_URL = "https://eduid.inovatika.dev/realms/kramerius/protocol/openid-connect/certs";
-    private static final String EXPECTED_ISSUER = "https://eduid.inovatika.dev/realms/kramerius";
     private static final String ACCOUNT_ATTR = JwtAccount.class.getName();
     private static final long CLOCK_SKEW_SECONDS = 60;
-
     private ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
+    private String issuer;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         try {
+            issuer = KConfiguration.getInstance().getJwtIssuer();
+            String jwksUrl = issuer + "/protocol/openid-connect/certs";
             DefaultResourceRetriever retriever = new DefaultResourceRetriever(2000, 2000);
-            JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(new URL(JWKS_URL), retriever);
+            JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(new URL(jwksUrl), retriever);
             jwtProcessor = new DefaultJWTProcessor<>();
             jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource));
         } catch (Exception e) {
@@ -52,7 +54,7 @@ public class JwtAuthenticationFilter implements Filter {
             if (header != null && header.startsWith("Bearer ")) {
                 String token = header.substring(7);
                 JWTClaimsSet claims = jwtProcessor.process(token, null);
-                if (EXPECTED_ISSUER.equals(claims.getIssuer())) {
+                if (issuer.equals(claims.getIssuer())) {
                     Date exp = claims.getExpirationTime();
                     if (exp == null || System.currentTimeMillis() <= exp.getTime() + CLOCK_SKEW_SECONDS * 1000) {
                         String username = claims.getStringClaim("preferred_username");
