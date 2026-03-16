@@ -32,6 +32,7 @@ import cz.incad.kramerius.database.VersionDbInitializer;
 import cz.incad.kramerius.database.VersionService;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.rest.oai.db.OAIDBInitializer;
+import cz.incad.kramerius.security.database.ConfigDBInitializer;
 import cz.incad.kramerius.security.database.SecurityDbInitializer;
 import cz.incad.kramerius.service.LifeCycleHookRegistry;
 import cz.incad.kramerius.service.TextsService;
@@ -113,6 +114,9 @@ public class StartupServlet extends GuiceServlet {
 
             // all security tables
             SecurityDbInitializer.initDatabase(k7dbConnection, versionService);
+
+            // init config table
+            ConfigDBInitializer.initDatabase(k7dbConnection, versionService);
 
             // statistics tables
             StatisticDbInitializer.initDatabase(k7dbConnection, versionService);

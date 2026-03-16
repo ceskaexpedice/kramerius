@@ -71,15 +71,20 @@ public class NewIndexerProcessIndexObject {
         //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
 
         if (pidsP.startsWith("pidlist_file")) {
-            pluginContext.updateProcessName(title != null
+            String titleToUpdate = title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, pidsP.substring(PIDLIST_FILE_PREFIX.length()), type)
-                    : String.format("Indexace %s (typ %s)",pidsP.substring(PIDLIST_FILE_PREFIX.length()), type));
-        } else {
+                    : String.format("Indexace %s (typ %s)",pidsP.substring(PIDLIST_FILE_PREFIX.length()), type);
 
-            List<String> titlePids = pids.isEmpty() ? new ArrayList<>() :  pids.subList(0, Math.min(5,pids.size()-1));
-            pluginContext.updateProcessName(title != null
+            LOGGER.info(String.format("Process title %s", titleToUpdate));
+            pluginContext.updateProcessName(titleToUpdate);
+        } else {
+            List<String> titlePids = pids.isEmpty() ? new ArrayList<>() :  pids.subList(0, Math.min(5,pids.size()));
+            String titleToUpdate = title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, titlePids.toString(), type)
-                    : String.format("Indexace %s (typ %s)", titlePids.toString(), type));
+                    : String.format("Indexace %s (typ %s)", titlePids.toString(), type);
+            LOGGER.info(String.format("Process title %s", titleToUpdate));
+
+            pluginContext.updateProcessName(titleToUpdate);
         }
 
         SolrConfig solrConfig = new SolrConfig();
