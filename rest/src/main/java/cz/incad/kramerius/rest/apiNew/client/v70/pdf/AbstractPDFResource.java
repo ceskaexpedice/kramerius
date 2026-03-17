@@ -111,6 +111,8 @@ public class AbstractPDFResource {
 
         AkubraDocument rdoc = documentService.buildDocumentFromSelection(pids, new float[]{ rect.getWidth(), rect.getHeight()});
         checkRenderedPDFDoc(rdoc);
+        rdoc.pageDimensionFromFirstPage();
+
 
         File parentFile = null;
         File firstPageFile = null;
@@ -165,6 +167,8 @@ public class AbstractPDFResource {
         try {
             int howMany1 = ConfigurationUtils.checkNumber(numberOfPags, KConfiguration.getInstance().getConfiguration());
             AkubraDocument rdoc = this.documentService.buildDocumentAsFlat(path, pid, howMany1, new float[]{rect.getWidth(), rect.getHeight()});
+            rdoc.pageDimensionFromFirstPage();
+
             checkRenderedPDFDoc(rdoc);
 
             this.mostDesirable.saveAccess(pid, new Date());

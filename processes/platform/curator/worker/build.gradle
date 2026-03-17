@@ -1,5 +1,5 @@
 plugins {
-	id 'com.google.cloud.tools.jib'
+    id 'com.google.cloud.tools.jib'
     id 'org.ceskaexpedice.processplatform.worker' version '1.0.5'
 }
 
@@ -60,8 +60,8 @@ processWorker {
         // processing index - indexation
         project(":processes:platform:curator:processing-index-repository"),
         project(":processes:platform:curator:processing-index-object"),
-		//delete tree
-		project(":processes:platform:curator:delete-tree"),
+        //delete tree
+        project(":processes:platform:curator:delete-tree"),
         // licenses
         project(":processes:platform:curator:license-add"),
         project(":processes:platform:curator:license-remove"),
@@ -89,10 +89,10 @@ jib {
     extraDirectories {
         paths {
             path {
-				from = project.file('build/worker/webapps').path
-                into = '/usr/local/tomcat/webapps' 
+             from = project.file('build/worker/webapps').path
+             into = '/usr/local/tomcat/webapps' 
             }            
-		}
+        }
         
         paths {
             path {

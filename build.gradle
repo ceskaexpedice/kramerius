@@ -57,8 +57,8 @@ configurations.all {
 
 /*
 if(JavaVersion.current() != JavaVersion.VERSION_1_8){
-	println JavaVersion.current()
-	throw new GradleException("This build must be run with java 8")
+   println JavaVersion.current()
+   throw new GradleException("This build must be run with java 8")
 }*/
 
 dependencies {
@@ -89,7 +89,7 @@ allprojects {
 
 
     compileJava.options.encoding = 'UTF-8'
-	compileTestJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
 
     ext.guiceversion ='6.0.0'
 
@@ -104,7 +104,7 @@ allprojects {
 
     ext.hazelcastversion='2.0'
     ext.akubraversion='1.7'
-	ext.processapiversion='1.4'
+    ext.processapiversion='1.5'
 
     ext.generatedSources = "generated-sources"
 
@@ -125,7 +125,7 @@ allprojects {
         api "com.google.inject.extensions:guice-assistedinject:${guiceversion}"
         api "javax.inject:javax.inject:1"
 
-		//JAXB
+        //JAXB
         api "javax.xml.bind:jaxb-api:2.3.1"
         api "com.sun.xml.bind:jaxb-impl:2.3.1"
         api "javax.activation:activation:1.1"
@@ -133,8 +133,7 @@ allprojects {
 
         api "jakarta.xml.ws:jakarta.xml.ws-api:2.3.3"
         api "com.sun.xml.ws:jaxws-rt:2.3.3"
-		
-		
+
         // logging
         api "org.slf4j:slf4j-api:${slf4jversion}"
         api "org.slf4j:log4j-over-slf4j:${slf4jversion}"
@@ -180,7 +179,7 @@ allprojects {
         mavenCentral()
 
 
-		/*
+        /*
         maven {
             url "https://m2.duraspace.org/content/repositories/releases"
         }*/
@@ -189,12 +188,12 @@ allprojects {
             url "https://maven.java.net/content/repositories/snapshots/"
         }
 
-		maven {
-			url "https://maven.elmakers.com/repository"
-		}
-		
-		
-		/* tls handshake error
+        maven {
+          url "https://maven.elmakers.com/repository"
+        }
+
+
+        /* tls handshake error
         maven {
             url "https://maven.geotoolkit.org/"
         }*/
@@ -206,13 +205,14 @@ allprojects {
         maven {
             url "https://download.osgeo.org/webdav/geotools/"
         }
-		
-		maven {
+
+
+        maven {
             url 'https://github.com/psiegman/mvn-repo/raw/master/releases'
         }
 
 
-		/*
+        /*
         maven {
             url "https://repo.jfrog.org/artifactory/libs-releases/"
         }*/
@@ -221,8 +221,8 @@ allprojects {
         maven {
             url "https://maven.atlassian.com/content/groups/public"
         }*/
-		
-		maven {
+        
+        maven {
             url "https://jbig2-imageio.googlecode.com/svn/maven-repository"
         }
 
@@ -239,8 +239,8 @@ allprojects {
         }*/
 
 
-		maven {
-			url "https://maven.pkg.github.com/ceskaexpedice/hazelcast-locks-server"
+        maven {
+            url "https://maven.pkg.github.com/ceskaexpedice/hazelcast-locks-server"
             credentials {
                 if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
                     println "Using project properties for GitHub credentials"
@@ -251,10 +251,10 @@ allprojects {
                     password = System.getenv("TOKEN")
                 }
             }
-		}
+        }
 
-		maven {
-			url "https://maven.pkg.github.com/ceskaexpedice/akubra"
+         maven {
+            url "https://maven.pkg.github.com/ceskaexpedice/akubra"
             credentials {
                 if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
                     println "Using project properties for GitHub credentials"
@@ -265,9 +265,9 @@ allprojects {
                     password = System.getenv("TOKEN")
                 }
             }
-		}
-		maven {
-			url "https://maven.pkg.github.com/ceskaexpedice/process-platform"
+        }
+        maven {
+            url "https://maven.pkg.github.com/ceskaexpedice/process-platform"
             credentials {
                 if (project.hasProperty('githubRepositoryUser') && project.hasProperty('githubRepositoryToken')) {
                     println "Using project properties for GitHub credentials"
@@ -289,8 +289,8 @@ allprojects {
     test {
         systemProperty "file.encoding", "utf-8"
 
-		jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-				"--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"
+        jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"
     }
 
     tasks.withType(JavaCompile) {
@@ -379,18 +379,18 @@ task distZip(type:Zip, dependsOn: ['zipInstallDir', ':search:war', ':processes:m
     description "Create full distribution zip"
     archiveBaseName.set('kramerius')
     group "Distribution"
-	
-	// Nastavení závislosti na spuštění po `:search:war`
+
+    // Nastavení závislosti na spuštění po `:search:war`
     //finalizedBy ':search:war'
-	
-	// core war 
-	from {'search/build/libs'}
 
-	//inputs.files file('search/build/libs/search.war')
+    // core war 
+    from {'search/build/libs'}
 
-	// migration tool 
+    //inputs.files file('search/build/libs/search.war')
+
+    // migration tool 
     from {'processes/migration/build/distributions'}
-	// installation.zip
+    // installation.zip
     from {'build/installation/'}
     eachFile {
         it.path = it.path.replace('-5.1.0.war', '.war')
@@ -428,7 +428,7 @@ task distPatchZip(type:Zip) {
 task zipInstallDir(type:Zip) {
     description "Create zip from installation directory"
 
-	def installationProject = project(':installation')
+    def installationProject = project(':installation')
     def solrTasks = installationProject.tasks.matching { task ->
         task.name.startsWith('copySolr9') || task.name.startsWith('generateSchema')
     }
@@ -437,11 +437,11 @@ task zipInstallDir(type:Zip) {
     archiveBaseName.set('installation')
 
     from ("installation/build") {
-		include "solr-9*/**"
-	}
+      include "solr-9*/**"
+    }
     from ("installation") {
-		include "0eaa6730-9068-11dd-97de-000d606f5dc6.zip"
-	}
+      include "0eaa6730-9068-11dd-97de-000d606f5dc6.zip"
+    }
 
     destinationDirectory.set(file('build/installation'))
 }
