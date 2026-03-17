@@ -805,6 +805,7 @@ public class ItemsResource extends ClientApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requests(@PathParam("pid") String pid,
                              @PathParam("reqid") String reqid,
+                             @QueryParam("lang") String lang,
                              @HeaderParam("Accept-Language") Locale locale , JSONObject reqDefinition) {
 
 
@@ -840,9 +841,7 @@ public class ItemsResource extends ClientApiResource {
                         payload.put("user", user.getLoginname());
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 
-                        Locale finalLocale = (locale == null || "und".equals(locale.toLanguageTag()))
-                                ? Locale.forLanguageTag("cs")
-                                : locale;
+                        Locale finalLocale = detectFinalLocale(lang, locale);
 
                         payload.put("locale", finalLocale);
                         payload.put("providedByLicense", lic.getName());
@@ -870,6 +869,15 @@ public class ItemsResource extends ClientApiResource {
                     return null;
 
                 default: {
+
+                    String clientRequests = KConfiguration.getInstance().getConfiguration().getString("api.client.requests");
+                    if (clientRequests != null && !clientRequests.isEmpty()) {
+                        String[] values = clientRequests.split(",");
+                        if (!Arrays.asList(values).contains(reqid)) {
+                            throw new BadRequestException("Not allowed client requets");
+                        }
+                    }
+
                     // any process
                     if (lic != null
                             && lic.getLicenseOfflineGenerationConf() != null
@@ -896,9 +904,7 @@ public class ItemsResource extends ClientApiResource {
                         payload.put("user", user.getLoginname());
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 
-                        Locale finalLocale = (locale == null || "und".equals(locale.toLanguageTag()))
-                                ? Locale.forLanguageTag("cs")
-                                : locale;
+                        Locale finalLocale = detectFinalLocale(lang, locale);
 
                         payload.put("locale", finalLocale);
                         payload.put("providedByLicense", lic.getName());
@@ -944,6 +950,18 @@ public class ItemsResource extends ClientApiResource {
 
     }
 
+    private static Locale detectFinalLocale(String lang, Locale locale) {
+        Locale queryLocale = (lang != null && !lang.isBlank()) ? Locale.forLanguageTag(lang) : null;
+        Locale finalLocale;
+        if (queryLocale != null && !"und".equals(queryLocale.toLanguageTag())) {
+            finalLocale = queryLocale;
+        } else if (locale != null && !"und".equals(locale.toLanguageTag())) {
+            finalLocale = locale;
+        } else {
+            finalLocale = Locale.forLanguageTag("cs");
+        }
+        return finalLocale;
+    }
 
 
     @GET

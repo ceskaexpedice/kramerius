@@ -754,6 +754,13 @@ paths:
             type: string
             enum: [generate_pdf]
             example: "generate_pdf"
+        - in: query
+          name: lang
+          example: "cs"
+          schema:
+            type: string
+            example: "cs"
+          description: Jazykova mutace pro prvni stranku
       requestBody:
         required: true
         description: Definice parametrů pro daný proces

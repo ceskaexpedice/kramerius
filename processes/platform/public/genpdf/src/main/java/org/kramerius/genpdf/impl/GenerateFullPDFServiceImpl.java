@@ -20,6 +20,8 @@ import cz.inovatika.dochub.DocumentType;
 import cz.inovatika.dochub.PermanentContentSpace;
 import cz.inovatika.dochub.UserContentSpace;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.kramerius.genpdf.GenerateFullPDFService;
 
 import javax.mail.Message;
@@ -81,6 +83,8 @@ public class GenerateFullPDFServiceImpl implements GenerateFullPDFService {
             if (userContentSpace.exists(token)) {
                 userContentSpace.deleteBundle(token);
             }
+
+
 
             if (permanentContentSpace.exists(pid, DocumentType.PDF)) {
                 rdoc = this.documentService.buildDocumentAsFlat(path, pid, 1, new float[] {rect.getWidth(), rect.getHeight()});
