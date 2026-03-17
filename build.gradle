@@ -92,14 +92,14 @@ allprojects {
 	compileTestJava.options.encoding = 'UTF-8'
 
     ext.guiceversion ='7.0.0'
-
     ext.postgresversion = '42.3.9'
     ext.slf4jversion='1.7.35'
     //ext.slf4jversion='2.0.16'
     ext.logbackclassicversion='1.4.14'
 
     ext.jerseyversion = '3.1.5'
-    ext.keycloakversion = '20.0.2' 
+    ext.keycloakversion = '20.0.2'
+    ext.servletapiversion ='6.1.0'
 
     ext.hazelcastversion='2.0'
     ext.akubraversion='1.7'

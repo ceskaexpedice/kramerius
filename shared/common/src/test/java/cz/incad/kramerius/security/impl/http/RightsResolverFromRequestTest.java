@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.security.RightsResolver;
 import org.apache.commons.configuration.Configuration;
@@ -19,7 +19,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class RightsResolverFromRequestTest {
 
-    /* TODO migration
     @Test
     public void testForwardAddress() {
         final HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
@@ -68,6 +67,4 @@ public class RightsResolverFromRequestTest {
         Assert.assertFalse("127.0.0.1".equals(rAddres));
     }
 
-
-     */
 }

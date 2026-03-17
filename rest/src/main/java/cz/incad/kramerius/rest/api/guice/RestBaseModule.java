@@ -72,7 +72,7 @@ public class RestBaseModule extends AbstractModule {
         // cdk forward client
         bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
         bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
-        // TODO migration bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
 
         // solr apache client
         bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);

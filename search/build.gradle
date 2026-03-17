@@ -30,7 +30,7 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
+    compileOnly "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
 
 	// bridge
 	if (buildProfile == 'cdk') {
@@ -110,7 +110,8 @@ dependencies {
     api "org.slf4j:log4j-over-slf4j:${slf4jversion}"
     api "org.slf4j:slf4j-jdk14:${slf4jversion}"
 
-    
+    testImplementation "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
+
 }
 
 

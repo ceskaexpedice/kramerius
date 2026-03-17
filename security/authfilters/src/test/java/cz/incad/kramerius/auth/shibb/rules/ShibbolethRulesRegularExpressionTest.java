@@ -13,7 +13,7 @@ import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Test;
 
-//import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.StringReader;
 import java.util.Enumeration;
 
@@ -30,8 +30,6 @@ public class ShibbolethRulesRegularExpressionTest {
             "       role(\"k4_admins\")\n" +
             "}";
 
-/* TODO migration
-
     @Test
     public void testShibRules1() throws TokenStreamException, RecognitionException {
         testShibRules(shibRules1);
@@ -44,12 +42,13 @@ public class ShibbolethRulesRegularExpressionTest {
 
     private void testShibRules(String rules) throws TokenStreamException, RecognitionException {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
-            }
-        });
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                });
 
         EasyMock.expect(req.getHeader("affilation")).andReturn("staff@mzk.cz;member@mzk.cz;employee@mzk.cz").anyTimes();
         EasyMock.expect(req.getHeader("remote_user")).andReturn("user@mzk.cz").anyTimes();
@@ -75,6 +74,5 @@ public class ShibbolethRulesRegularExpressionTest {
         Assert.assertTrue(wrapper.getProperty("edupersonuniqueid").equals("edupersonAtt"));
     }
 
- */
 
 }

@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 public class SolrMockWebCall {
 
-    /* TODO migration
+    /* TODO
 	public static final Logger LOGGER = Logger.getLogger(SolrMockWebCall.class.getName());
 	
     private SolrMockWebCall() {}

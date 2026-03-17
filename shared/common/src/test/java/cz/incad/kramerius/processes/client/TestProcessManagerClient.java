@@ -44,7 +44,6 @@ import static org.mockito.Mockito.*;
  *
  * @author ppodsednik
  */
-// TODO migration
 public class TestProcessManagerClient {
     public static final String SCHEDULED_PROCESS_ID = "ed25ce29-2149-439d-85c4";
     public static final String PROFILE_ID = "testPlugin1-big";
@@ -82,7 +81,6 @@ public class TestProcessManagerClient {
         server.shutdownNow();
     }
 
-    @Ignore
     @Test
     public void testScheduleProcess() {
         String scheduleMainProcess = "            {" +
@@ -97,35 +95,30 @@ public class TestProcessManagerClient {
         Assertions.assertEquals(SCHEDULED_PROCESS_ID, processId);
     }
 
-    @Ignore
     @Test
     public void testGetOwners() {
         JSONObject owners = processManagerClient.getOwners();
         Assertions.assertEquals(2, owners.getJSONArray("owners").length());
     }
 
-    @Ignore
     @Test
     public void testGetProcess() {
         JSONObject process = processManagerClient.getProcess(SCHEDULED_PROCESS_ID);
         Assertions.assertEquals(SCHEDULED_PROCESS_ID, process.getString("processId"));
     }
 
-    @Ignore
     @Test
     public void testGetProfile() {
         JSONObject profile = processManagerClient.getProfile(PROFILE_ID);
         Assertions.assertEquals(PROFILE_ID, profile.getString("profileId"));
     }
 
-    @Ignore
     @Test
     public void testGetProfiles() {
         JSONArray profiles = processManagerClient.getProfiles();
         Assertions.assertEquals(4, profiles.length());
     }
 
-    @Ignore
     @Test
     public void testUpdateProfile() {
         JSONArray jvmArgs = new JSONArray();
@@ -140,21 +133,18 @@ public class TestProcessManagerClient {
         processManagerClient.updateProfile(PROFILE_ID, json);
     }
 
-    @Ignore
     @Test
     public void testGetPlugin() {
         JSONObject profile = processManagerClient.getPlugin(PLUGIN_ID);
         Assertions.assertEquals(PLUGIN_ID, profile.getString("pluginId"));
     }
 
-    @Ignore
     @Test
     public void testGetBatch() {
         JSONObject batch = processManagerClient.getBatch(SCHEDULED_PROCESS_ID);
         Assertions.assertEquals(SCHEDULED_PROCESS_ID, batch.getString("mainProcessId"));
     }
 
-    @Ignore
     @Test
     public void testGetBatches() {
         String DATE_STRING = "2025-09-07T14:30:00";
@@ -166,7 +156,6 @@ public class TestProcessManagerClient {
         }
     }
 
-    @Ignore
     @Test
     public void testGetProcessLog() throws IOException {
         InputStream processLog = processManagerClient.getProcessLog(SCHEDULED_PROCESS_ID, false);
@@ -174,21 +163,18 @@ public class TestProcessManagerClient {
         Assertions.assertTrue(outLog.contains(OUT_LOG_PART));
     }
 
-    @Ignore
     @Test
     public void testGetProcessLogLines() {
         JSONObject logLines = processManagerClient.getProcessLogLines(SCHEDULED_PROCESS_ID, "0", "50", false);
         Assertions.assertEquals(2, logLines.getJSONArray("lines").length());
     }
 
-    @Ignore
     @Test
     public void testDeleteBatch() {
         int deleted = processManagerClient.deleteBatch(SCHEDULED_PROCESS_ID);
         Assertions.assertEquals(2, deleted);
     }
 
-    @Ignore
     @Test
     public void testKillBatch() {
         int killed = processManagerClient.killBatch(SCHEDULED_PROCESS_ID);

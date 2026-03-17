@@ -12,7 +12,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -31,7 +31,6 @@ import static org.easymock.EasyMock.*;
 public class CDKFormatTest {
 
 
-    /* TODO migration
     @Test
     public void testCDKFormat() throws IOException, SAXException, ParserConfigurationException, ReplicateException, TransformerException {
         HttpServletRequest req = createMock(HttpServletRequest.class);
@@ -112,6 +111,4 @@ public class CDKFormatTest {
             return req;
         }
     }
-
-     */
 }

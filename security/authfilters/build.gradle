@@ -6,7 +6,8 @@ dependencies {
     api 'commons-codec:commons-codec:1.5'
 
     api 'com.nimbusds:nimbus-jose-jwt:9.37'
-    compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
+    compileOnly "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
+    testImplementation "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
 }
 
 

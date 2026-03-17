@@ -20,7 +20,7 @@ configurations {
 
 dependencies {
     implementation "org.ceskaexpedice:hazelcast-locks-server:${hazelcastversion}"
-    compileOnly "jakarta.servlet:jakarta.servlet-api:6.1.0"
+    compileOnly "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
 
     api "org.ceskaexpedice:akubra:${akubraversion}"
 
@@ -31,7 +31,7 @@ dependencies {
     api 'commons-codec:commons-codec:1.5'
     //api 'org.apache.pdfbox:pdfbox:2.0.26'
     api 'org.apache.pdfbox:pdfbox:2.0.32'
-	 
+
     api 'com.levigo.jbig2:levigo-jbig2-imageio:2.0'
     api 'com.ibm.icu:icu4j:56.1'
     api 'com.google.guava:guava:31.0.1-jre'
@@ -84,7 +84,7 @@ dependencies {
     // Jakarta APIs
     compileOnly("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
     compileOnly("jakarta.inject:jakarta.inject-api:2.0.1")
-    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:${servletapiversion}")
 
     // for audio support 
     api 'org.ehcache:ehcache:3.3.0'
@@ -107,11 +107,12 @@ dependencies {
     api "xmlunit:xmlunit:1.3"
 
     testImplementation 'org.hamcrest:hamcrest-core:1.3'
-    //testImplementation 'org.apache.solr:solr-core:6.3.0'
-    testImplementation 'org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.39'
-    testImplementation 'org.glassfish.jersey.inject:jersey-hk2:2.39'
     testImplementation 'org.mockito:mockito-core:5.14.2'
     testImplementation 'org.mockito:mockito-inline:5.2.0'
+    // Jersey 3 test container (Grizzly)
+    testImplementation "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:${jerseyversion}"
+    // HK2 injection used by Jersey
+    testImplementation "org.glassfish.jersey.inject:jersey-hk2:${jerseyversion}"
 
     api'net.jcip:jcip-annotations:1.0'
 
@@ -120,7 +121,7 @@ dependencies {
             exclude group: 'xmlpull'
     }
 
-    
+
     api "com.maxmind.geoip2:geoip2:4.0.1"
 
     //dom4j
@@ -134,8 +135,8 @@ dependencies {
 
 /** processing index rebuild */
 if (project.hasProperty('REBUILDPROCESSING')) {
-	
-	apply plugin: 'application'	
+
+	apply plugin: 'application'
 
 	tasks.withType(CreateStartScripts).each { task ->
 		task.doLast {

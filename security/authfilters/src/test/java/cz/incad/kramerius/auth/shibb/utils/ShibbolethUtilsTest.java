@@ -20,32 +20,34 @@ package cz.incad.kramerius.auth.shibb.utils;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-//import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import cz.incad.kramerius.auth.shibb.RequestSupportForTests;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cz.incad.kramerius.auth.thirdparty.shibb.utils.ShibbolethUtils;
 
+// TODO is shibboleth still maintained?
 public class ShibbolethUtilsTest {
 
     Hashtable<String, String> shibTable = new Hashtable<String, String>();
 
-/* TODO migration
+    @Ignore
     @Test
     public void testIsUnderShibbolethSession_NotLogged() {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getNotLoggedShibTable().keys();
-            }
-        });
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                });
 
         RequestSupportForTests.callExpectation(req, RequestSupportForTests.getNotLoggedShibTable().keys(), RequestSupportForTests.getNotLoggedShibTable());
 
@@ -54,18 +56,19 @@ public class ShibbolethUtilsTest {
         Assert.assertFalse("expecting not logged user",ShibbolethUtils.isUnderShibbolethSession(req));
 
     }
-    
+
+    @Ignore
     @Test
     public void testIsUnderShibbolethSession_Logged() {
 
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibTable().keys();
-            }
-        });
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                });
 
         RequestSupportForTests.callExpectation(req, RequestSupportForTests.getLoggedShibTable().keys(), RequestSupportForTests.getLoggedShibTable());
 
@@ -74,17 +77,18 @@ public class ShibbolethUtilsTest {
         Assert.assertTrue("expecting logged user",ShibbolethUtils.isUnderShibbolethSession(req));
     }
 
+    @Ignore
     @Test
     public void testIsUnderShibbolethSession2_Logged() {
 
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
-            }
-        });
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                });
 
         RequestSupportForTests.callExpectation(req, RequestSupportForTests.getLoggedShibLowerCaseTable().keys(), RequestSupportForTests.getLoggedShibLowerCaseTable());
 
@@ -93,16 +97,17 @@ public class ShibbolethUtilsTest {
         Assert.assertTrue("expecting logged user",ShibbolethUtils.isUnderShibbolethSession(req));
     }
 
+    @Ignore
     @Test
     public void testShibbolethSessionId() {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibTable().keys();
-            }
-        });
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                });
 
         RequestSupportForTests.callExpectation(req, RequestSupportForTests.getLoggedShibTable().keys(), RequestSupportForTests.getLoggedShibTable());
 
@@ -112,16 +117,19 @@ public class ShibbolethUtilsTest {
         Assert.assertTrue("_8b58b975229f61df5d9389b8f2d0d8d8".equals(shibbolethSessionId));
     }
 
+    @Ignore
     @Test
     public void testValidateSessionId() {
         final HttpSession session  =EasyMock.createMock(HttpSession.class);
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibTable().keys();
-            }
-        }).anyTimes();
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                }).anyTimes();
+
 
         EasyMock.expect(req.getSession(true)).andAnswer(new IAnswer<HttpSession>() {
             @Override
@@ -143,16 +151,19 @@ public class ShibbolethUtilsTest {
         Assert.assertTrue(ShibbolethUtils.validateShibbolethSessionId(req));
     }
 
+    @Ignore
     @Test
     public void testValidateSessionId2() {
         final HttpSession session  =EasyMock.createMock(HttpSession.class);
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibTable().keys();
-            }
-        }).anyTimes();
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                }).anyTimes();
+
 
         EasyMock.expect(req.getSession(true)).andAnswer(new IAnswer<HttpSession>() {
             @Override
@@ -174,16 +185,19 @@ public class ShibbolethUtilsTest {
         Assert.assertFalse(ShibbolethUtils.validateShibbolethSessionId(req));
     }
 
+    @Ignore
     @Test
     public void testValidateSessionId3() {
         final HttpSession session  =EasyMock.createMock(HttpSession.class);
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
-            }
-        }).anyTimes();
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                }).anyTimes();
+
 
         EasyMock.expect(req.getSession(true)).andAnswer(new IAnswer<HttpSession>() {
             @Override
@@ -204,7 +218,4 @@ public class ShibbolethUtilsTest {
         EasyMock.replay(req,session);
         Assert.assertFalse(ShibbolethUtils.validateShibbolethSessionId(req));
     }
-
-
- */
 }
