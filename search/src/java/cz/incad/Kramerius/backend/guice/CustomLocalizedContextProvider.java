@@ -1,20 +1,13 @@
 package cz.incad.Kramerius.backend.guice;
 
-import java.util.Locale;
-
-//import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.jsp.jstl.fmt.LocalizationContext;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
 import cz.incad.kramerius.service.ResourceBundleService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 
-public class CustomLocalizedContextProvider{
+import java.util.Locale;
 
-}
-
-/* TODO migration
 public class CustomLocalizedContextProvider implements Provider<LocalizationContext>{
 
 	public static final String BUNDLE_KEY = "bundle";
@@ -46,4 +39,4 @@ public class CustomLocalizedContextProvider implements Provider<LocalizationCont
 	
 }
 
- */
+

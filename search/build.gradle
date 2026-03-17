@@ -31,7 +31,9 @@ sourceSets {
 
 dependencies {
     compileOnly "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
-
+    compileOnly "jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1"
+    implementation "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2"
+    implementation "org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1"
 	// bridge
 	if (buildProfile == 'cdk') {
 		api project(':bridge')
