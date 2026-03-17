@@ -17,6 +17,8 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.kramerius.genpdf.impl.GenerateFullPDFServiceImpl;
 
 import javax.mail.MessagingException;
@@ -71,7 +73,13 @@ public class GenerateFullPDFProcess {
 
         GenerateFullPDFService serv = injector.getInstance(GenerateFullPDFService.class);
         try {
+
+            //String pid, String user, String providedByLicense
+            PluginContext pluginContext = PluginContextHolder.getContext();
+            pluginContext.updateProcessName(String.format("Generování pdf pro  %s, pid %s, pod licencí %s, jazyková mutace %s", user, pid, providedByLicenses, locale));
+
             String token = serv.generate(pid, user, providedByLicenses);
+
             if (StringUtils.isAnyString(email)) {
                 LOGGER.info("Email specified: " + email);
 
