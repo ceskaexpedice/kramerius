@@ -259,11 +259,6 @@ public class KConfiguration {
         return normalizeURL(applicationUrl);
     }
 
-    public String getJwtIssuer() {
-        String jwtIssuer = getProperty("jwtIssuer");
-        return jwtIssuer;
-    }
-
     public String getUsersEditorURL() {
         String url = getProperty("usersEditorUrl", "/rightseditor");
         return url;

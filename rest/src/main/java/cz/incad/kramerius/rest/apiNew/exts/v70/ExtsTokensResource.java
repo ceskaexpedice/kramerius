@@ -21,6 +21,7 @@ import static cz.incad.kramerius.Constants.WORKING_DIR;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 
+import cz.incad.kramerius.auth.ClientKeycloakConfig;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -38,7 +39,6 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.apiNew.client.v70.ClientKeycloakConfig;
 
 /**
  */

@@ -1,9 +1,8 @@
-package cz.incad.kramerius.rest.apiNew.client.v70;
-
-import org.json.JSONObject;
+package cz.incad.kramerius.auth;
 
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.json.JSONObject;
 
 public class ClientKeycloakConfig {
     
@@ -71,6 +70,23 @@ public class ClientKeycloakConfig {
         if (StringUtils.isAnyString(redirectUrl)) {
             builder.append("?redirect_uri="+redirectUrl);
         }
+        return builder.toString();
+    }
+
+    public String issuer() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.authServer);
+        if (!builder.toString().endsWith("/")) builder.append("/");
+        builder.append("realms/");
+        builder.append(this.realm);
+        return builder.toString();
+    }
+
+    public String jwks() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(issuer());
+        if (!builder.toString().endsWith("/")) builder.append("/");
+        builder.append("protocol/openid-connect/certs");
         return builder.toString();
     }
 

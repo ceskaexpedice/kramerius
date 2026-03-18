@@ -1,10 +1,9 @@
-package cz.incad.kramerius.rest.apiNew.client.v70;
+package cz.incad.kramerius.auth;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
-
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 public class ClientKeycloakConfigTest {
@@ -41,6 +40,12 @@ public class ClientKeycloakConfigTest {
 
         String urlForm = config.loginKeycloak("http://localhost:4200/keycloak","form");
         Assert.assertEquals("https://k7.inovatika.dev/auth/realms/kramerius/protocol/openid-connect/auth?client_id=krameriusClient&redirect_uri=http://localhost:4200/keycloak&response_type=code#form", urlForm);
+
+        String issuer = config.issuer();
+        Assert.assertEquals("https://k7.inovatika.dev/auth/realms/kramerius", issuer);
+
+        String jwks = config.jwks();
+        Assert.assertEquals("https://k7.inovatika.dev/auth/realms/kramerius/protocol/openid-connect/certs", jwks);
 
     }
     

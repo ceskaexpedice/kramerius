@@ -10,14 +10,19 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.auth.ClientKeycloakConfig;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static cz.incad.kramerius.Constants.WORKING_DIR;
 
 /**
  * JwtAuthenticationFilter
@@ -35,8 +40,11 @@ public class JwtAuthenticationFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         try {
-            issuer = KConfiguration.getInstance().getJwtIssuer();
-            String jwksUrl = issuer + "/protocol/openid-connect/certs";
+            String path = WORKING_DIR + "/keycloak.json";
+            String str = IOUtils.toString(new FileInputStream(path), "UTF-8");
+            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+            issuer = cnf.issuer();
+            String jwksUrl = cnf.jwks();
             DefaultResourceRetriever retriever = new DefaultResourceRetriever(2000, 2000);
             JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(new URL(jwksUrl), retriever);
             jwtProcessor = new DefaultJWTProcessor<>();

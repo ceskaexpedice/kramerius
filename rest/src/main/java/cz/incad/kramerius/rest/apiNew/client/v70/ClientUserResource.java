@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.auth.ClientKeycloakConfig;
 import cz.incad.kramerius.imaging.ImageStreams;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
