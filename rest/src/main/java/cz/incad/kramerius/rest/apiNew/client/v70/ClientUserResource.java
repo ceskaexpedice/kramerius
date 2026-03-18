@@ -411,35 +411,51 @@ public class ClientUserResource {
         try {
             String path = WORKING_DIR + "/keycloak.json";
             String str = IOUtils.toString(new FileInputStream(path), "UTF-8");
-            ClientKeycloakConfig cnf =
-                    ClientKeycloakConfig.load(new JSONObject(str));
-
+            ClientKeycloakConfig cnf =  ClientKeycloakConfig.load(new JSONObject(str));
             Client client = ClientBuilder.newClient();
-
             WebTarget target = client.target(cnf.token(code));
-
             Form form = new Form()
                     .param("grant_type", "authorization_code")
                     .param("code", code)
                     .param("client_id", cnf.getResource())
                     .param("client_secret", cnf.getSecret())
                     .param("redirect_uri", redirectUri);
-            // .param("scope", "openid"); // optional
-
             Response response = target
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .post(Entity.entity(form,
                             MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-
             String entity = response.readEntity(String.class);
             return Response.ok(entity).build();
-
         } catch (Exception e) {
             throw new GenericApplicationException(e.getMessage());
         }
     }
 
-    
+    @POST
+    @Path("auth/refresh")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response refreshToken(@FormParam("refresh_token") String refreshToken) {
+        try {
+            String path = WORKING_DIR + "/keycloak.json";
+            String str = IOUtils.toString(new FileInputStream(path), "UTF-8");
+            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+            Client client = ClientBuilder.newClient();
+            WebTarget target = client.target(cnf.token(null));
+            Form form = new Form()
+                    .param("grant_type", "refresh_token")
+                    .param("refresh_token", refreshToken)
+                    .param("client_id", cnf.getResource())
+                    .param("client_secret", cnf.getSecret());
+            Response response = target
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+            String entity = response.readEntity(String.class);
+            return Response.ok(entity).build();
+        } catch (Exception e) {
+            throw new GenericApplicationException(e.getMessage());
+        }
+    }
     
     @GET
     @Path("auth/logout")
