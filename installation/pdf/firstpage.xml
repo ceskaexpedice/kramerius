@@ -1,0 +1,114 @@
+<!-- 
+Příklad šablony pro první stránku PDF 
+ - Jedná se o jedoduchý xml předpis, kterým je možné parametrizovat první stránku
+ - Podporované zápisy/značky:
+     1. paragraph - Reprezentuje paragraf na stránce
+     2. textsarray - Generický kontejner pro texty
+     3. break - Horizontální oddělovač
+     3. pagebreak - Zalomení stránky
+     4. img - obrázek
+     5. list, greeklist, romanlist - Výčet
+       5a. item - položka listu
+
+ - Podporované proměnné
+   1. title.pid - PID generovaného dokumentu  
+   2. title.handle - URL odkaz na generovaný dokument  
+   3. title.hyphCountry a title.hyphLang  - Proměnné pro zalamování textu při různých velikostech stránky  
+   4. user  - Proměnná - informace o uživateli  
+   5. date  - Datum generování pdf  
+-->
+<commands>
+
+<!-- Paragraf; podporované atributy: spacing-before mezery před paragrafem; spacing-after: mezery za paragrafem -->
+<paragraph spacing-after="3" spacing-before="20">
+    <!-- Kontejner pro texty --> 
+    <textsarray> 
+       <!-- 
+        Příkaz pro vykreslení části textu danou velikostí; Velikost fontu je dána pouze formálně, je podporováno následující (seřazeno od největšího po nejmenší)
+         - logo, header1, header2, header3, header4, normal, small
+        --> 
+       <text font-formal-name="logo">INOVATIKA</text>
+    </textsarray>
+    </paragraph>
+    <paragraph>
+      <textsarray> 
+         <!-- Příklad textu s velikostí fontu HEADER4 a zalamováním dle velikosti stránky -->
+         <text font-formal-name="header4" 
+                hyph-country="$title.hyphCountry$" 
+                hyph-lang="$title.hyphLang$">Pokusná digitální knihovna</text>  
+      </textsarray>
+     </paragraph>
+
+    <!-- Horizontální oddělovač -->
+    <break></break>
+
+
+    <paragraph  spacing-after="3"> <textsarray> <text font-formal-name="normal">  </text> </textsarray> </paragraph>
+
+    <!-- paragraph -->
+    <paragraph  spacing-after="20">
+      <textsarray>
+        <text font-formal-name="normal" hyph-country="$title.hyphCountry$" hyph-lang="$title.hyphLang$">Dokument byl porizen pouze pro pouziti s licenci</text>
+        <text font-formal-name="strong"> public </text>
+        <text font-formal-name="normal" hyph-country="$title.hyphCountry$" hyph-lang="$title.hyphLang$"> Podminky použití: </text> 
+        <text> Genericke podminky pouziti</text>
+       </textsarray>
+    </paragraph>
+
+    <!-- Informace o pid a href --> 
+    <paragraph  spacing-before="20">
+      <!-- Možné alternativy pro list jsou romalist, greeklist a list --> 
+      <romanlist>
+         <item><textsarray><text font-formal-name="normal">$title.pid$</text></textsarray></item>
+         <item><textsarray<text hyperlink="$title.handle$">($title.handle$)</text></textsarray></item>
+       </romanlist>
+    </paragraph>
+
+    <paragraph  spacing-after="3"> <textsarray> <text font-formal-name="normal"> </text> </textsarray> </paragraph>
+
+<!-- Priklad vyrendrovani detailu; autor- vydavatel atd.. Vyrendrovano jako seznam -->
+$if(title.moreGeneratedItems)$
+<list list-type="unordered">
+$title.generatedItems:{generatedItem|
+    $if(generatedItem.detailItemsDefined)$
+        $generatedItem.detailItems:{detail |
+            <item list-symbol=" ">
+                <textsarray>
+                    <text font-formal-name="normal">$detail.key$: </text>
+                    <text font-formal-name="strong">$detail.value$</text>
+                </textsarray>
+            </item>
+        }$
+    $endif$
+}$
+</list>
+$endif$
+<!-- end of detail -->
+
+<paragraph  spacing-after="3">
+	<textsarray>
+	<text font-formal-name="normal"> </text>
+</textsarray>
+</paragraph>
+
+<!-- oddelovac -->		
+<break></break>
+
+
+<!-- priklad pouziti vyrendrovani uzivatele -->
+$if(user)$
+    <paragraph  spacing-after="3" spacing-before="20">
+        <textsarray>
+        <text font-formal-name="smaller">Generovano pro: $user.uid$</text>
+     </textsarray>
+    </paragraph>
+
+    <paragraph  spacing-after="3">
+        <textsarray>
+        <text font-formal-name="smaller">Dne: $date$</text>
+     </textsarray>
+</paragraph>
+$endif$
+
+
+</commands>
