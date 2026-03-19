@@ -249,7 +249,7 @@ public class ServerFilesResource extends AdminApiResource {
             JSONObject json = new JSONObject();
             json.put("rootDir", dir.getAbsolutePath());
             json.put("files", filesJson);
-            return Response.ok(json).build();
+            return Response.ok(json.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

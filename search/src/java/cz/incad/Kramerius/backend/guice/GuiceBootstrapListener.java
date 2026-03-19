@@ -18,7 +18,7 @@ import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
 import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.service.guice.MailModule;
-import cz.incad.kramerius.service.guice.ServicesModule;
+//import cz.incad.kramerius.service.guice.ServicesModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 import cz.incad.kramerius.workmode.guice.WorkModeModule;
@@ -47,7 +47,7 @@ public class GuiceBootstrapListener implements ServletContextListener {
                 new SolrModule(),
                 new BaseModule(), // base  module
                 new RestBaseModule(), // base  module
-                new ServicesModule(), // base services
+             //   new ServicesModule(), // base services
                 new PDFModule(), // pdf services
                 new ImageModule(), // images
                 new I18NModule(), // i18n module

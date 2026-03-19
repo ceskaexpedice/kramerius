@@ -46,19 +46,19 @@ dependencies {
 
     //api project(':processes:mw-process')
     //api project(':processes:indexer')
-    api project(':processes:import')
-    api project(':processes:imaging')
+    //api project(':processes:import')
+    //api project(':processes:imaging')
 
-    api project(':processes:import-mets')
-    api project(':processes:solr-migration')     //TODO: Delete
+    //api project(':processes:import-mets')
+    //api project(':processes:solr-migration')     //TODO: Delete
     //api project(':processes:data-migration')     //TODO: Delete
 
-    api project(':processes:dnntflag')           //TODO: Move licenses and dnnt delete
-    api project(':processes:nkp-logs')           //TODO: Move
-    api project(':processes:sdnnt')              //TODO: Move
+    //api project(':processes:dnntflag')           //TODO: Move licenses and dnnt delete
+    //api project(':processes:nkp-logs')           //TODO: Move
+    //api project(':processes:sdnnt')              //TODO: Move
 
-    api project(':processes:licenses')
-    api project(':processes:collections-backup')
+    //api project(':processes:licenses')
+    //api project(':processes:collections-backup')
 
     api 'taglibs:standard:1.1.2'
     api 'xalan:xalan:2.7.2'
@@ -68,14 +68,14 @@ dependencies {
     //api 'com.foxtrottechnologies:djvuframe:0.8.09'
 
     //api project(':bridge')
-    api project(':shared:common')
-    api project(':rest')
+    //api project(':shared:common')
+    //api project(':rest')
 
     //api project(':security:security-core')
-    api project(':security:authfilters')
+    //api project(':security:authfilters')
 
-    api project(':processes:import')
-    api project(':processes:import-mets')
+    //api project(':processes:import')
+    //api project(':processes:import-mets')
 	
 	// neni potreba 
 	//api project(':processes:solr-migration')
