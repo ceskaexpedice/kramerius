@@ -33,6 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import cz.incad.kramerius.security.SecuredAkubraRepository;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ceskaexpedice.akubra.KnownDatastreams;
@@ -138,21 +139,9 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
             doc.close();
             os.flush();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (ParserConfigurationException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SAXException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (DocumentException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (LexerException e) {
+        } catch (IOException | InstantiationException | IllegalAccessException |
+                 ParserConfigurationException | SAXException | DocumentException |
+                 XPathExpressionException | LexerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -166,6 +155,7 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         render.render(doc, pdfWriter, cmnds);
     }
 
+    // should not use: TEST IT
     String templateSelection(AkubraDocument rdoc, String ... pids) throws XPathExpressionException, IOException, ParserConfigurationException, SAXException, LexerException {
         ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("base", localesProvider.get());
 
@@ -289,6 +279,9 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
 
         StringTemplate template = new StringTemplate(IOUtils.readAsString(this.getClass().getResourceAsStream("templates/_first_page.st"), Charset.forName("UTF-8"), true));
         FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
+        fpvo.setPid(rdoc.getUuid());
+        String client = KConfiguration.getInstance().getConfiguration().getString("client");
+        fpvo.setHandle(client+(client.endsWith("/")?"":"/")+"uuid/"+rdoc.getUuid());
 
         // tistena polozka
         GeneratedItem itm = new GeneratedItem();
@@ -469,6 +462,8 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
         private String conditionUsage;
         private String conditionUsageText;
         private String pdfContainsTitle;
+        private String pid;
+        private String handle;
 
         private String hyphCountry;
         private String hyphLang;
@@ -536,6 +531,21 @@ public class FirstPagePDFServiceImpl implements FirstPagePDFService {
             return this.generatedItems != null && this.generatedItems.length > 0;
         }
 
+        public String getHandle() {
+            return handle;
+        }
+
+        public void setHandle(String handle) {
+            this.handle = handle;
+        }
+
+        public String getPid() {
+            return pid;
+        }
+
+        public void setPid(String pid) {
+            this.pid = pid;
+        }
     }
 
     // reprezentuje generovanou polozku

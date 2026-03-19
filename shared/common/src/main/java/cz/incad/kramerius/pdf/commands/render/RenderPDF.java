@@ -281,6 +281,11 @@ public class RenderPDF {
                     chunk.setFont(getFont(formalName));
                 }
 
+                String url = txt.getHyperLink();
+                if (notEmptyString(url)) {
+                    chunk.setAnchor(url);
+                }
+
                 Hyphenation hyphenation = txt.getHyphenation();
                 if (hyphenation != null) {
                     chunk.setHyphenation(new HyphenationAuto(hyphenation.getCountry(), hyphenation.getLang(), 2, 2));

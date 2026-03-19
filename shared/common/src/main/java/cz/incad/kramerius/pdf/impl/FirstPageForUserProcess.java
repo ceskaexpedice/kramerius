@@ -21,6 +21,7 @@ import cz.incad.kramerius.service.ResourceBundleService;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.mods.*;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -255,6 +256,11 @@ public class FirstPageForUserProcess extends AbstractPDFRenderSupport implements
         String templateContent = findTemplate(localesProvider.get(), providedByLicense);
         org.antlr.stringtemplate.StringTemplate template = new org.antlr.stringtemplate.StringTemplate(templateContent);
         FirstPagePDFServiceImpl.FirstPageViewObject fpvo = prepareViewObject(resourceBundle);
+        fpvo.setPid(rdoc.getUuid());
+        String client = KConfiguration.getInstance().getConfiguration().getString("client");
+        fpvo.setHandle(client+(client.endsWith("/")?"":"/")+"uuid/"+rdoc.getUuid());
+
+
 
         // tistena polozka
         FirstPagePDFServiceImpl.GeneratedItem itm = new FirstPagePDFServiceImpl.GeneratedItem();
