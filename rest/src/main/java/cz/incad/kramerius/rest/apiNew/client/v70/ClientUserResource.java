@@ -289,10 +289,10 @@ public class ClientUserResource {
     @Path("pids_actions")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response pidsActionsGET(JSONObject rawdata) {
-        //@QueryParam("pids") String pids
+    public Response pidsActionsGET(String rawdataSt) {
         User user;
         try {
+            JSONObject rawdata = new JSONObject(rawdataSt);
             if (rawdata.has("pids") && (rawdata.get("pids") instanceof JSONArray)) {
                 JSONArray jsonArray = rawdata.getJSONArray("pids");
                 user = this.userProvider.get();
