@@ -108,14 +108,15 @@ public class CollectionsResource extends AdminApiResource {
     /**
      * Creates new collection and assigns a pid to it.
      *
-     * @param collectionDefinition collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
+     * @param collectionDefinitionSt collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
      * @return collection object in JSON with pid assign
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createCollection(JSONObject collectionDefinition) {
+    public Response createCollection(String collectionDefinitionSt) {
         try {
+            JSONObject collectionDefinition = new JSONObject(collectionDefinitionSt);
             checkReadOnlyWorkMode();
             User user1 = this.userProvider.get();
             if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
@@ -355,15 +356,16 @@ public class CollectionsResource extends AdminApiResource {
      * Updates collections metadata, but not items that collection directly contains.
      *
      * @param pid
-     * @param collectionDefinition collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
+     * @param collectionDefinitionSt collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
      * @return
      */
     @PUT
     @Path("{pid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateCollection(@PathParam("pid") String pid, JSONObject collectionDefinition) {
+    public Response updateCollection(@PathParam("pid") String pid, String collectionDefinitionSt) {
         try {
+            JSONObject collectionDefinition = new JSONObject(collectionDefinitionSt);
             checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
@@ -696,7 +698,8 @@ public class CollectionsResource extends AdminApiResource {
     @PUT
     @Path("{collectionPid}/items/delete_batch_items")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, JSONObject batch) {
+    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, String batchSt) {
+        JSONObject batch = new JSONObject(batchSt);
         List<String> reindexCollection = new ArrayList<>();
         checkSupportedObjectPid(collectionPid);
         JSONArray scheduleMainProcesses = new JSONArray();
@@ -778,7 +781,7 @@ public class CollectionsResource extends AdminApiResource {
      */
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
-    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid,
+    public Response removeItemFromCollection1(@PathParam("collectionPid") String collectionPid,
                                              @PathParam("itemPid") String itemPid) {
         try {
             checkSupportedObjectPid(collectionPid);

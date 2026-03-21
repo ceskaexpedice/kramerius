@@ -174,7 +174,7 @@ public class ConnectedInfoResource {
         if (this.permit()) {
             try {
                 this.libraries.cronRefresh();
-                return Response.ok(new JSONObject()).build();
+                return Response.ok(new JSONObject().toString()).build();
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -372,7 +372,8 @@ public class ConnectedInfoResource {
     @Path("{library}/timestamp")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response timestamp(@PathParam("library") String library, JSONObject jsonObject) {
+    public Response timestamp(@PathParam("library") String library, String jsonObjectSt) {
+        JSONObject jsonObject = new JSONObject(jsonObjectSt);
         if (this.permit()) {
             try {
                 Timestamp timestamp = SolrTimestamp.fromJSONDoc(library, jsonObject);

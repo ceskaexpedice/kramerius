@@ -120,7 +120,8 @@ public class LicensesResource {
     @Path("local")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response insert(JSONObject json) {
+    public Response insert(String jsonSt) {
+        JSONObject json = new JSONObject(jsonSt);
         if (permit(this.userProvider.get())) {
             try {
                 if (json.has("name")) {
@@ -157,7 +158,8 @@ public class LicensesResource {
     @Path("local/{id:[0-9]+}")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response update(@PathParam("id")String id, JSONObject jsonObject) {
+    public Response update(@PathParam("id")String id, String jsonObjectSt) {
+        JSONObject jsonObject = new JSONObject(jsonObjectSt);
         if (permit(this.userProvider.get())) {
             try {
                 int ident = Integer.parseInt(id);
@@ -198,7 +200,8 @@ public class LicensesResource {
     @Path("changeOrdering")
     @Produces({MediaType.APPLICATION_JSON+";charset=utf-8"})
     @Consumes({MediaType.APPLICATION_JSON+";charset=utf-8"})
-    public Response changeOrdering(JSONObject jsonObject) {
+    public Response changeOrdering(JSONObject jsonObjectSt) {
+        JSONObject jsonObject = new JSONObject(jsonObjectSt);
         if (permit(this.userProvider.get())) {
             List<License> lics = new ArrayList<>();
             JSONArray jsonLicenses = jsonObject.getJSONArray("licenses");

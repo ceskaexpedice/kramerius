@@ -181,7 +181,8 @@ public class UsersResource {
     @Path("{id:[0-9]+}/password")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putPassword(@PathParam("id") String id, JSONObject uOptions) {
+    public Response putPassword(@PathParam("id") String id, String uOptionsSt) {
+        JSONObject uOptions = new JSONObject(uOptionsSt);
         if (permit(this.userProvider.get())) {
             try {
                 User u = userManager.findUser(Integer.parseInt(id));
@@ -216,7 +217,8 @@ public class UsersResource {
     @Path("{id:[0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response put(@PathParam("id") String id, JSONObject uOptions) {
+    public Response put(@PathParam("id") String id, String uOptionsSt) {
+        JSONObject uOptions = new JSONObject(uOptionsSt);
         if (permit(this.userProvider.get())) {
             try {
                 User u = userManager.findUser(Integer.parseInt(id));
@@ -297,7 +299,8 @@ public class UsersResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(JSONObject uOptions) {
+    public Response create(String uOptionsSt) {
+        JSONObject uOptions = new JSONObject(uOptionsSt);
         if (permit(this.userProvider.get())) {
             try {
                 User user = createUserFromJSON(uOptions);

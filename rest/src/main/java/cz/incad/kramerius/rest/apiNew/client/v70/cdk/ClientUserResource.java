@@ -274,10 +274,11 @@ public class ClientUserResource {
     @Path("pids_actions")
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response pidsActionsGET(JSONObject rawdata) {
+    public Response pidsActionsGET(String rawdataSt) {
         //@QueryParam("pids") String pids
         User user;
         try {
+            JSONObject rawdata = new JSONObject(rawdataSt);
             if (rawdata.has("pids") && (rawdata.get("pids") instanceof JSONArray)) {
                 JSONArray jsonArray = rawdata.getJSONArray("pids");
                 user = this.userProvider.get();
@@ -345,9 +346,10 @@ public class ClientUserResource {
     @POST
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePassword(JSONObject rawdata) {
+    public Response changePassword(String rawdataSt) {
         User user;
         try {
+            JSONObject rawdata = new JSONObject(rawdataSt);
             user = this.userProvider.get();
             if (user != null && user.getId() != -1) {
                 if (rawdata.has("pswd")) {

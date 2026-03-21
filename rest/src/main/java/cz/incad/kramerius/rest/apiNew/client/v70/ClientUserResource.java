@@ -358,9 +358,10 @@ public class ClientUserResource {
     @POST
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePassword(JSONObject rawdata) {
+    public Response changePassword(String rawdataSt) {
         User user;
         try {
+            JSONObject rawdata = new JSONObject(rawdataSt);
             user = this.userProvider.get();
             if (user != null && user.getId() != -1) {
                 if (rawdata.has("pswd")) {
