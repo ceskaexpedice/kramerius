@@ -10,9 +10,9 @@ import java.util.Set;
 public class JwtAccount {
     private String username;
     private Set<String> roles;
-    private Map<String,Object> claims;
+    private Map<String,String> claims;
 
-    public JwtAccount(String username, Set<String> roles, Map<String,Object> claims) {
+    public JwtAccount(String username, Set<String> roles, Map<String,String> claims) {
         this.username = username;
         this.roles = roles;
         this.claims = claims;
@@ -26,7 +26,7 @@ public class JwtAccount {
         return roles;
     }
 
-    public Map<String, Object> getClaims() {
+    public Map<String, String> getClaims() {
         return claims;
     }
 }

@@ -67,7 +67,8 @@ public class JwtAuthenticationFilter implements Filter {
                     if (exp == null || System.currentTimeMillis() <= exp.getTime() + CLOCK_SKEW_SECONDS * 1000) {
                         String username = claims.getStringClaim("preferred_username");
                         Set<String> roles = new HashSet<>(extractRoles(claims));
-                        JwtAccount account = new JwtAccount(username, roles, claims.getClaims());
+                        Map<String, String> normalizedClaims = normalizeClaims(claims);
+                        JwtAccount account = new JwtAccount(username, roles, normalizedClaims);
                         request.setAttribute(ACCOUNT_ATTR, account);
                     }
                 }
@@ -76,6 +77,25 @@ public class JwtAuthenticationFilter implements Filter {
             LOGGER.warning("JWT validation failed: " + e.getMessage());
         }
         chain.doFilter(req, res);
+    }
+
+    private Map<String, String> normalizeClaims(JWTClaimsSet claims) {
+        Map<String, String> result = new HashMap<>();
+        for (Map.Entry<String, Object> entry : claims.getClaims().entrySet()) {
+            Object value = entry.getValue();
+            if (value == null){
+                continue;
+            }
+            if (value instanceof Date) {
+                // convert to epoch seconds (recommended)
+                result.put(entry.getKey(), String.valueOf(((Date) value).getTime() / 1000));
+            } else if (value instanceof Number) {
+                result.put(entry.getKey(), value.toString());
+            } else {
+                result.put(entry.getKey(), value.toString());
+            }
+        }
+        return result;
     }
 
     private List<String> extractRoles(JWTClaimsSet claims) {

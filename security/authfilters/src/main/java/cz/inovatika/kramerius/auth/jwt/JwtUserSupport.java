@@ -59,20 +59,27 @@ public class JwtUserSupport extends AbstractThirdPartyUsersSupport<JwtUserWrappe
     @Override
     protected JwtUserWrapper createUserWrapper(HttpServletRequest req, String userName) {
         JwtAccount jwtAccount = (JwtAccount) req.getAttribute(JwtAccount.class.getName());
-        Map<String, Object> claims = jwtAccount.getClaims();
+        Map<String, String> claims = jwtAccount.getClaims();
 
         JwtUserWrapper jwtUserWrapper = new JwtUserWrapper(userName);
         jwtUserWrapper.setRoles(new ArrayList<>(jwtAccount.getRoles()));
         setIfExists(jwtUserWrapper, UserUtils.FIRST_NAME_KEY, claims.get("given_name"));
         setIfExists(jwtUserWrapper, UserUtils.LAST_NAME_KEY, claims.get("family_name"));
         setIfExists(jwtUserWrapper, UserUtils.EMAIL_KEY, claims.get("email"));
-        setIfExists(jwtUserWrapper, "preferred_username", claims.get("preferred_username"));
-        setIfExists(jwtUserWrapper, "displayName", claims.get("displayName"));
+        setIfExists(jwtUserWrapper, "expiration_time", claims.get("exp"));
+        setIfExists(jwtUserWrapper, "authentication_time", claims.get("auth_time"));
+        if (claims.get("exp")!= null && claims.get("auth_time") != null) {
+            jwtUserWrapper.setProperty("expires_in",  "" + (Long.valueOf(claims.get("exp")) - Long.valueOf(claims.get("auth_time"))));
+        } else if (claims.get("exp")!= null && claims.get("iat") != null) {
+            jwtUserWrapper.setProperty("expires_in",  "" + (Long.valueOf(claims.get("exp")) - Long.valueOf(claims.get("iat"))));
+        }
+        setIfExists(jwtUserWrapper, "token_id", claims.get("jti"));
         claims.forEach((k, v) -> {
             if (v != null) {
                 jwtUserWrapper.setProperty(k, v.toString());
             }
         });
+        /* TODO is this still used?
         boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode", false);
         if (cdkServerMode) {
             Set<String> allKeys = jwtUserWrapper.getPropertyKeys();
@@ -86,7 +93,7 @@ public class JwtUserSupport extends AbstractThirdPartyUsersSupport<JwtUserWrappe
             if (allKeys.contains("preferred_username") && !allKeys.contains("remote_user")) {
                 jwtUserWrapper.setProperty("remote_user", jwtUserWrapper.getProperty("preferred_username"));
             }
-        }
+        }*/
         StandardDNNTUsersSupport.makeSureDNNTUsersRole(jwtUserWrapper);
         return jwtUserWrapper;
     }
@@ -97,7 +104,7 @@ public class JwtUserSupport extends AbstractThirdPartyUsersSupport<JwtUserWrappe
         if (principal == null) {
             return null;
         }
-        Map<String, Object> claims = principal.getClaims();
+        Map<String, String> claims = principal.getClaims();
         if (claims.containsKey(EDU_PERSON_UNIQUE_ID)) {
             return claims.get(EDU_PERSON_UNIQUE_ID).toString();
         }
