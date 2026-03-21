@@ -22,7 +22,9 @@ public class Text extends AbstractITextCommand {
 
     private String fontFormalName;
     private String text;
-    
+
+    private String hyperLink;
+
     private String hyphLang;
     private String hyphCountry;
     
@@ -48,7 +50,11 @@ public class Text extends AbstractITextCommand {
                 this.hyphCountry = elm.getAttribute("hyph-country");
                 this.hyphLang = elm.getAttribute("hyph-lang");
             }
-        }        
+            if ((elm.getAttribute("hyperlink") != null) &&
+                    (elm.getAttribute("hyperlink") != null)) {
+                this.hyperLink = elm.getAttribute("hyperlink");
+            }
+        }
     }
 
 
@@ -66,6 +72,14 @@ public class Text extends AbstractITextCommand {
 
     public void setHyphLand(String hyphLand) {
         this.hyphCountry = hyphLand;
+    }
+
+    public String getHyperLink() {
+        return hyperLink;
+    }
+
+    public void setHyperLink(String hyperLink) {
+        this.hyperLink = hyperLink;
     }
 
     @Override

@@ -36,6 +36,16 @@ public class FontMap {
     // different headers' fonts
     /** Logo font */
     public static final String LOGO_FONT = "logo";
+
+    /** Header 1 font */
+    public static final String HEADER1_FONT = "header1";
+
+    /** Header 2 font */
+    public static final String HEADER2_FONT = "header2";
+
+    /** Header 3 font */
+    public static final String HEADER3_FONT = "header3";
+
     /** Header 4 font */
     public static final String HEADER4_FONT = "header4";
 
@@ -67,6 +77,18 @@ public class FontMap {
         strongFont.setSize(14f);
         strongFont.setStyle(Font.BOLD);
 
+        Font header1Font = createGentiumFont(this.fontDirectory);
+        header1Font.setSize(22f);
+        header1Font.setStyle(Font.BOLD);
+
+        Font header2Font = createGentiumFont(this.fontDirectory);
+        header2Font.setSize(20f);
+        header2Font.setStyle(Font.BOLD);
+
+        Font header3Font = createGentiumFont(this.fontDirectory);
+        header3Font.setSize(18f);
+        header3Font.setStyle(Font.BOLD);
+
         Font header4Font = createGentiumFont(this.fontDirectory);
         header4Font.setSize(16f);
         header4Font.setStyle(Font.BOLD);
@@ -80,6 +102,9 @@ public class FontMap {
         this.registerFont(NORMAL_FONT, normalFont);
         this.registerFont(STRONG_FONT, strongFont);
         this.registerFont(LOGO_FONT, logoFont);
+        this.registerFont(HEADER1_FONT, header1Font);
+        this.registerFont(HEADER2_FONT, header2Font);
+        this.registerFont(HEADER3_FONT, header3Font);
         this.registerFont(HEADER4_FONT, header4Font);
         this.registerFont(SMALLER_FONT, smallerFont);
         this.registerFont(SMALL_FONT, smallFont);
