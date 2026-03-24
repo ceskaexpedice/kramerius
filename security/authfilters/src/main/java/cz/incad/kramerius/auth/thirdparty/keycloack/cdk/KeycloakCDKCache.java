@@ -1,19 +1,6 @@
-package cz.incad.kramerius.processes.cdk;
+package cz.incad.kramerius.auth.thirdparty.keycloack.cdk;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-/*
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang3.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -23,14 +10,15 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.GroupRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-*/
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
-// TODO migration
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 public class KeycloakCDKCache {
-    /*
     public static Logger LOGGER = Logger.getLogger(KeycloakCDKCache.class.getName());
     
     private int interval = 1000;
@@ -51,7 +39,6 @@ public class KeycloakCDKCache {
     public void setGroups(List<GroupRepresentation> groups) {
         LOGGER.info("Recognized groups for cdk:"+groups.stream().map(GroupRepresentation::getName).collect(Collectors.toList()));
         this.groups = groups;
-        
     }
     
     public List<GroupRepresentation> getGroups() {
@@ -85,7 +72,6 @@ public class KeycloakCDKCache {
     }
 
     public static Keycloak keycloak(ResteasyClientBuilder newBuilder) {
-        
         String url = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.url");
         String master = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.realm.master","master");
         String adminClient = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.adminclient","admin-cli");
@@ -106,9 +92,7 @@ public class KeycloakCDKCache {
     }
     
     public static class KeycloakCDKCacheTask extends TimerTask {
-
         private static final String CDK = "cdk";
-
         KeycloakCDKCache cache;
         
         public KeycloakCDKCacheTask(KeycloakCDKCache cache) {
@@ -128,18 +112,15 @@ public class KeycloakCDKCache {
                     if (url !=  null) {
                         ResteasyClientBuilder newBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
                         keycloak = keycloak(newBuilder);
-                        
                          
                         RealmResource realmResource = keycloak.realm(kramerius);
                         
                         // referesh groups in cache
                         refreshGroups(realmResource);
-                        
                         // refresh registerUsers
                         if (users) {
                             refreshOrRegisterUsers(realmResource);
                         }
-                        
                     } else {
                         LOGGER.warning("Missing attributes: 'cdk.keycloak.url', 'cdk.keycloak.adminuser', 'cdk.keycloak.adminpass' in configuration");
                     }
@@ -163,7 +144,6 @@ public class KeycloakCDKCache {
                 if (searchRes.isEmpty()) {
                     Response created = users.create(u);
                     if (created.getStatus() == 201) {
-                        
                         MultivaluedMap<String,Object> headers = created.getMetadata();;
                         List<Object> list = headers.get("Location");
                         if (!list.isEmpty()) {
@@ -216,5 +196,5 @@ public class KeycloakCDKCache {
         }
     }
     
-*/
+
 }

@@ -4,7 +4,7 @@ description "Authentication filters"
 dependencies {
     api project(':shared:common')
     api 'commons-codec:commons-codec:1.5'
-
+    api "org.keycloak:keycloak-admin-client:${keycloakversion}"
     api 'com.nimbusds:nimbus-jose-jwt:9.37'
     compileOnly "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
     testImplementation "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"

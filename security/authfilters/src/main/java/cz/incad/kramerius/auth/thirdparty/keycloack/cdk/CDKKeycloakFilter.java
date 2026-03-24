@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import cz.incad.kramerius.auth.thirdparty.ExtAuthFilter;
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;
-import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
 import cz.incad.kramerius.security.UserManager;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;

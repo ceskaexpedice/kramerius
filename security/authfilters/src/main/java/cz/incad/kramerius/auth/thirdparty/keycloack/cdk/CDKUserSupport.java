@@ -20,11 +20,11 @@ import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.dnnt.StandardDNNTUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.utils.BaseUsersFunctions;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
-import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
+import org.keycloak.representations.idm.GroupRepresentation;
 
 public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
 
@@ -112,8 +112,6 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
 
     @Override
     protected CDK3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
-/* TODO migration
-
         Map<String, String> map = attributes(req);
         CDK3rdUser  cdkUser = new CDK3rdUser(userName);
         
@@ -153,7 +151,6 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
         StandardDNNTUsersSupport.makeSureDNNTUsersRole(cdkUser);
 
         return cdkUser;
-        */ return null;
     }
 
     private Map<String, String> attributes(HttpServletRequest req) {

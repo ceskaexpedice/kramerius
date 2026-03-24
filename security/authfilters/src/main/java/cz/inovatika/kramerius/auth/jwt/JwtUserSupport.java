@@ -79,7 +79,6 @@ public class JwtUserSupport extends AbstractThirdPartyUsersSupport<JwtUserWrappe
                 jwtUserWrapper.setProperty(k, v.toString());
             }
         });
-        /* TODO is this still used?
         boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode", false);
         if (cdkServerMode) {
             Set<String> allKeys = jwtUserWrapper.getPropertyKeys();
@@ -93,7 +92,7 @@ public class JwtUserSupport extends AbstractThirdPartyUsersSupport<JwtUserWrappe
             if (allKeys.contains("preferred_username") && !allKeys.contains("remote_user")) {
                 jwtUserWrapper.setProperty("remote_user", jwtUserWrapper.getProperty("preferred_username"));
             }
-        }*/
+        }
         StandardDNNTUsersSupport.makeSureDNNTUsersRole(jwtUserWrapper);
         return jwtUserWrapper;
     }
