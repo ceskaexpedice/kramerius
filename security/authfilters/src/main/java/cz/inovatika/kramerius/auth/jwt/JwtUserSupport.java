@@ -68,6 +68,7 @@ public class JwtUserSupport extends AbstractThirdPartyUsersSupport<JwtUserWrappe
         setIfExists(jwtUserWrapper, UserUtils.EMAIL_KEY, claims.get("email"));
         setIfExists(jwtUserWrapper, "expiration_time", claims.get("exp"));
         setIfExists(jwtUserWrapper, "authentication_time", claims.get("auth_time"));
+        setIfExists(jwtUserWrapper, "preffered_user_name", claims.get("preferred_username"));
         if (claims.get("exp")!= null && claims.get("auth_time") != null) {
             jwtUserWrapper.setProperty("expires_in",  "" + (Long.valueOf(claims.get("exp")) - Long.valueOf(claims.get("auth_time"))));
         } else if (claims.get("exp")!= null && claims.get("iat") != null) {
