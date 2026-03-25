@@ -3,11 +3,11 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 import com.google.inject.Inject;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.json.JSONObject;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

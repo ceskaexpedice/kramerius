@@ -16,21 +16,16 @@
  */
 package cz.incad.kramerius.services.workers.copy.cdk.model;
 
-import cz.incad.kramerius.utils.StringUtils;
-import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class CDKNewConflictWorkerItem extends CDKWorkerIndexedItem implements Conflict {
 

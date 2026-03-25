@@ -16,100 +16,99 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.client;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 
 /**
- * Informace o uzivateli
- * @author pavels
+ * User information management - Jersey 3 / Jakarta
  */
 public class ClientUsersClient {
 
 	private static final String DEFAULT_NAME = "krameriusAdmin";
 	private static final String DEFAULT_PSWD = "krameriusAdmin";
 
-	/** Save new password 
-	 * @throws JSONException */
+	private static Client createClient() {
+		return ClientBuilder.newBuilder()
+				.register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD))
+				.build();
+	}
+
+	/** Save new password */
 	public static String savePassword() throws JSONException {
-		Client c = Client.create();
+		Client client = createClient();
+		WebTarget target = client.target("http://localhost:8080/search/api/v5.0/user");
 
-		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user");
-		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
 		JSONObject object = new JSONObject();
 		object.put("pswd", "krameriusAdmin");
 
-		String t = r.accept(MediaType.APPLICATION_JSON)
-				.type(MediaType.APPLICATION_JSON)
-				.entity(object.toString(), MediaType.APPLICATION_JSON)
-				.post(String.class);
-		return t;
+		try (Response response = target.request(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(object.toString(), MediaType.APPLICATION_JSON))) {
+			return response.readEntity(String.class);
+		} finally {
+			client.close();
+		}
 	}
-	
-	/**
-	 * Get user info
-	 * @return
-	 * @throws JSONException 
-	 */
+
+	/** Get user info */
 	public static String getUser() throws JSONException {
-		Client c = Client.create();
+		Client client = createClient();
+		WebTarget target = client.target("http://localhost:8080/search/api/v5.0/user");
 
-		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user");
-		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-		JSONObject object = new JSONObject();
-		object.put("pswd", "krameriusAdmin");
-
-		String t = r.accept(MediaType.APPLICATION_JSON)
-				.type(MediaType.APPLICATION_JSON).get(String.class);
-		return t;
+		try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+			return response.readEntity(String.class);
+		} finally {
+			client.close();
+		}
 	}
-	
-	/**
-	 * Get profile
-	 * @return
-	 * @throws JSONException 
-	 */
+
+	/** Get profile */
 	public static String getProfile() throws JSONException {
-		Client c = Client.create();
-		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user/profile");
-		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-		JSONObject object = new JSONObject();
-		object.put("pswd", "krameriusAdmin");
-		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-		return t;
+		Client client = createClient();
+		WebTarget target = client.target("http://localhost:8080/search/api/v5.0/user/profile");
+
+		try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+			return response.readEntity(String.class);
+		} finally {
+			client.close();
+		}
 	}
 
-	/**
-	 * Save profile
-	 * @return
-	 * @throws JSONException 
-	 */
+	/** Save profile */
 	public static void saveProfile(JSONObject profile) throws JSONException {
-		Client c = Client.create();
-		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user/profile");
-		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-		JSONObject object = new JSONObject();
-		object.put("pswd", "krameriusAdmin");
-		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(profile.toString()).post(String.class);
+		Client client = createClient();
+		WebTarget target = client.target("http://localhost:8080/search/api/v5.0/user/profile");
+
+		try (Response response = target.request(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(profile.toString(), MediaType.APPLICATION_JSON))) {
+			response.readEntity(String.class); // optionally consume response
+		} finally {
+			client.close();
+		}
 	}
-	
+
 	public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException, JSONException {
 		String t = getUser();
 		System.out.println(t);
+
 		String st = savePassword();
 		System.out.println(st);
+
 		String profile = getProfile();
 		JSONObject jsonProfile = new JSONObject(profile);
 		System.out.println(jsonProfile);
+
 		jsonProfile.put("myproperty", "myvalue");
 		saveProfile(jsonProfile);
 	}

@@ -16,142 +16,143 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.admin;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.rest.api.client.v46.ProcessesClient;
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 /**
- * Administrace uzivatelu a roli
- * @author pavels
- *
+ * User and role administration - Jersey 3 / Jakarta
  */
 public class UsersAndRolesClient {
 
-	private static final String DEFAULT_NAME = "krameriusAdmin";
-	private static final String DEFAULT_PSWD = "krameriusAdmin";
+    private static final String DEFAULT_NAME = "krameriusAdmin";
+    private static final String DEFAULT_PSWD = "krameriusAdmin";
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesClient.class.getName());
-    
-    /**
-     * Smaze uzivatele
-     * @param userId
-     * @return
-     */
-    public static String deleteUser(String userId) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users/"+userId);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).delete(String.class);
-        return t;
+    private static Client createClient() {
+        return ClientBuilder.newBuilder()
+                .register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD))
+                .build();
     }
 
-    /**
-     * Vytvoreni uzivatele
-     * @return
-     * @throws JSONException 
-     */
+    public static String deleteUser(String userId) {
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/users/" + userId);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).delete()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
+    }
+
     public static String createUser() throws JSONException {
-    	Client c = Client.create();
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/users");
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         JSONObject object = new JSONObject();
-
         object.put("lname", "krakonos");
         object.put("firstname", "Created from client");
         object.put("surname", "Created from client");
-        object.put("password","jelito");
-        
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
-        return t;
+        object.put("password", "jelito");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(object.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
-    
+
     public static String createRole() {
-        Client c = Client.create();
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/roles");
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/roles");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
         JSONObject object = new JSONObject();
-
-        object.put("id",-1);
+        object.put("id", -1);
         object.put("name", "moje_role");
-        
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
-        return t;
-        
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(object.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
-    
-    /**
-     * Seznam uzivatelu
-     * @return
-     */
+
     public static String users() {
-    	Client c = Client.create();
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/users");
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-    	
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Seznam roli
-     * @return
-     */
     public static String roles() {
-    	Client c = Client.create();
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/roles");
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/roles");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-    	
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
     public static String role(int rid) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/roles/"+rid);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/roles/" + rid);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
     public static String user(int uid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users/"+uid);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/users/" + uid);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
     public static String userChange(int uid, JSONObject userObject) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/users/"+uid);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(userObject.toString(), MediaType.APPLICATION_JSON).put(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/users/" + uid);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .put(Entity.entity(userObject.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
     public static String appendRole(int uid, int roleid) {
         String roleString = role(roleid);
         String userString = user(uid);
-        
+
         JSONObject roleObj = new JSONObject(roleString);
-        
         JSONObject jsonObj = new JSONObject(userString);
         JSONArray jsonArray = jsonObj.getJSONArray("roles");
         jsonArray.put(roleObj);
-        
+
         return userChange(uid, jsonObj);
     }
-    
 }

@@ -1,19 +1,14 @@
 package cz.inovatika.kramerius.services;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.json.JSONConfiguration;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.config.ProcessConfigParser;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.workers.Worker;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
-//import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
 import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;

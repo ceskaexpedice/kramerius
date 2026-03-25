@@ -36,6 +36,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.java.Pair;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
@@ -44,18 +46,16 @@ import org.ceskaexpedice.akubra.DatastreamContentWrapper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.RepositoryException;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
-import org.codehaus.jettison.json.JSONArray;
 import org.dom4j.*;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
-import javax.inject.Named;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.inject.Named;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -184,8 +184,8 @@ public class ItemsResource extends ClientApiResource {
     @Inject
     APICallMonitor apiCallMonitor;
 
-    @javax.inject.Inject
-    @javax.inject.Named("forward-client")
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
 
 
@@ -246,7 +246,7 @@ public class ItemsResource extends ClientApiResource {
             json.put(RightRuntimeInformations.ACCESSIBLE_LOCSK, extracrtedInformation.getLockAsJSONArray());
                        
             
-            return Response.ok(json).build();
+            return Response.ok(json.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1752,7 +1752,7 @@ public class ItemsResource extends ClientApiResource {
 
     @GET
     @Path("{pid}/epub/{path: .*}")
-    public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment,@Context UriInfo info ) {
+    public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment, @Context UriInfo info ) {
         try {
             List<PathSegment> segments = info.getPathSegments();
             List<String> paths=  segments.stream().map(PathSegment::getPath).collect(Collectors.toList());

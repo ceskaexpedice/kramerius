@@ -19,67 +19,77 @@ package cz.incad.kramerius.rest.apiNew.exts.v70;
 import static cz.incad.kramerius.Constants.WORKING_DIR;
 
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import cz.incad.kramerius.auth.ClientKeycloakConfig;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
-import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.apiNew.client.v70.ClientKeycloakConfig;
 
 /**
  */
 @Path("exts/v7.0/tokens")
 public class ExtsTokensResource {
 
-
     @GET
     @Path("{clientid}")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response token(@PathParam("clientid") String clientid, @QueryParam("secrets") String secrets) {
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response token(@PathParam("clientid") String clientid,
+                          @QueryParam("secrets") String secrets) {
         try {
-        
+            // Load Keycloak config
             String path = WORKING_DIR + "/keycloak.json";
-            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
-            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+            String json = IOUtils.toString(
+                    new FileInputStream(path),
+                    StandardCharsets.UTF_8
+            );
+            ClientKeycloakConfig cnf =
+                    ClientKeycloakConfig.load(new JSONObject(json));
 
-            String type = "application/x-www-form-urlencoded; charset=UTF-8";
+            String tokenUrl = cnf.getAuthServer();
+            if (!tokenUrl.endsWith("/")) {
+                tokenUrl += "/";
+            }
+            tokenUrl += "realms/" + cnf.getRealm()
+                    + "/protocol/openid-connect/token";
 
-            StringBuilder builder = new StringBuilder();
-            builder.append(cnf.getAuthServer());
-            if (!builder.toString().endsWith("/")) builder.append("/");
-            builder.append("realms/");
-            builder.append(cnf.getRealm());
-            builder.append("/protocol/openid-connect/token");
-            
-            Client client = Client.create();
-            WebResource webResource = client.resource(builder.toString());
-            
-            MultivaluedMapImpl<String, String> values = new MultivaluedMapImpl();
-            values.add("grant_type", "client_credentials");
-            values.add("client_secret", secrets);
-            values.add("client_id", clientid);
+            // Build form data
+            MultivaluedHashMap<String, String> form =
+                    new MultivaluedHashMap<>();
+            form.add("grant_type", "client_credentials");
+            form.add("client_id", clientid);
+            form.add("client_secret", secrets);
 
-            ClientResponse response = webResource.type(type).post(ClientResponse.class, values);
-            String entity = (String) response.getEntity(String.class);
-            return Response.status(response.getStatus()).entity(entity.toString()).build();
+            Client client = ClientBuilder.newClient();
+            WebTarget target = client.target(tokenUrl);
+
+            Response kcResponse = target
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.form(form));
+
+            String entity = kcResponse.readEntity(String.class);
+
+            return Response
+                    .status(kcResponse.getStatus())
+                    .entity(entity)
+                    .build();
 
         } catch (Exception e) {
-            throw new GenericApplicationException(e.getMessage());
+            throw new GenericApplicationException(e.getMessage(), e);
         }
     }
-
-    
 }

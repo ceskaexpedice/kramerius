@@ -4,12 +4,12 @@ package cz.incad.kramerius.rest.apiNew.client.v70.pdf;
 import cz.incad.kramerius.pdf.utils.PDFExlusiveGenerateSupport;
 import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceNotFound;
 import cz.incad.kramerius.utils.IOUtils;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;

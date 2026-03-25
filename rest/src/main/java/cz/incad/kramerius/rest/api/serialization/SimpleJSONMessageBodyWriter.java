@@ -7,13 +7,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
-
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.MessageBodyWriter;
+import jakarta.ws.rs.ext.Provider;
 import org.json.JSONObject;
 
 import com.google.inject.Singleton;
@@ -40,8 +39,8 @@ public class SimpleJSONMessageBodyWriter implements MessageBodyWriter<JSONObject
 
     @Override
     public void writeTo(JSONObject obj, Class<?> arg1, Type arg2,
-            Annotation[] arg3, MediaType arg4,
-            MultivaluedMap<String, Object> arg5, OutputStream os)
+                        Annotation[] arg3, MediaType arg4,
+                        MultivaluedMap<String, Object> arg5, OutputStream os)
             throws IOException, WebApplicationException {
         byte[] bytes = getBytes(obj);
         IOUtils.copyStreams(new ByteArrayInputStream(bytes), os);

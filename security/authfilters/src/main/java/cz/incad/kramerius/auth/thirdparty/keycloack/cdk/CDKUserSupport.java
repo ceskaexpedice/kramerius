@@ -13,20 +13,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.keycloak.representations.idm.GroupRepresentation;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.dnnt.StandardDNNTUsersSupport;
 import cz.incad.kramerius.auth.thirdparty.keycloack.utils.BaseUsersFunctions;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
-import cz.incad.kramerius.processes.cdk.KeycloakCDKCache;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.impl.RoleImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
+import org.keycloak.representations.idm.GroupRepresentation;
 
 public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
 
@@ -114,8 +112,6 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
 
     @Override
     protected CDK3rdUser createUserWrapper(HttpServletRequest req, String userName) throws Exception {
-
-
         Map<String, String> map = attributes(req);
         CDK3rdUser  cdkUser = new CDK3rdUser(userName);
         
@@ -152,7 +148,6 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
         });
         this.cache.registerUser(userName, userName, userName, userAttributes, groups.stream().map(GroupRepresentation::getName).collect(Collectors.toList()));
         
-        /** standard dnnt user role */
         StandardDNNTUsersSupport.makeSureDNNTUsersRole(cdkUser);
 
         return cdkUser;

@@ -12,17 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Named;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
@@ -34,6 +24,9 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUti
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import com.google.inject.Provider;
@@ -72,7 +65,7 @@ public class ReharvestResource {
     @Inject
     DeleteTriggerSupport deleteTriggerSupport;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
 

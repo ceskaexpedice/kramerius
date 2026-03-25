@@ -20,17 +20,11 @@ import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Provider;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.inject.Provider;
 
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
@@ -73,16 +67,16 @@ public class LocksResource extends ClientApiResource {
                         } else {
                             LOGGER.log(Level.SEVERE, String.format("Item  %s is not valid!, Deregistering ", item.toJSONObject().toString()));
                             lockMap.deregisterItem(item);
-                            return Response.status(Status.NOT_FOUND).build();
+                            return Response.status(Response.Status.NOT_FOUND).build();
                         }
                     } else {
                         LOGGER.log(Level.SEVERE,String.format("Item by token id is not found %s", tokenId));
-                        return Response.status(Status.NOT_FOUND).build();
+                        return Response.status(Response.Status.NOT_FOUND).build();
                     }
                 }
             } else {
                 LOGGER.log(Level.SEVERE,"Exclusive map not found ");
-                return Response.status(Status.NOT_FOUND).build();
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -124,11 +118,11 @@ public class LocksResource extends ClientApiResource {
                     }
                 } else {
                     LOGGER.log(Level.SEVERE,"Token id not found!");
-                    return Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
+                    return Response.status(Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
                 }
             } else {
                 LOGGER.log(Level.SEVERE,"Hash table not found!");
-                return Response.status(Status.NOT_FOUND).build();
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -153,7 +147,7 @@ public class LocksResource extends ClientApiResource {
                     lockMap.deregisterItem(item);
                     return Response.ok().type(MediaType.APPLICATION_JSON).build();
                 } else {
-                    return Response.status(Status.NOT_FOUND).build();
+                    return Response.status(Response.Status.NOT_FOUND).build();
                 }
             }
         } catch (WebApplicationException e) {

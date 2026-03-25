@@ -37,7 +37,7 @@ import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
 import org.w3c.dom.Document;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;

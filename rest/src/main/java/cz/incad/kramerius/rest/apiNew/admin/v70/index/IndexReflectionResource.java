@@ -21,13 +21,11 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 
 import com.google.inject.Inject;
@@ -59,9 +57,9 @@ public class IndexReflectionResource extends AdminApiResource {
     @Inject
     Provider<User> userProvider;
 
-    @javax.inject.Inject
-    @javax.inject.Named("solr-client")
-    javax.inject.Provider<CloseableHttpClient> provider;
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("solr-client")
+    jakarta.inject.Provider<CloseableHttpClient> provider;
 
 
     @GET

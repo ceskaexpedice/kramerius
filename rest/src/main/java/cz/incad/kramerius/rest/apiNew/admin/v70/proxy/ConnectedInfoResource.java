@@ -1,56 +1,42 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.proxy;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import javax.inject.Named;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.security.*;
+import cz.incad.kramerius.cdk.ChannelUtils;
+import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.PhysicalLocationMap;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
+import cz.incad.kramerius.security.RightsResolver;
+import cz.incad.kramerius.security.SecuredActions;
+import cz.incad.kramerius.security.SpecialObjects;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.timestamps.Timestamp;
+import cz.incad.kramerius.timestamps.TimestampStore;
+import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.google.inject.Inject;
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.cdk.ChannelUtils;
-import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.InstanceType;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.PhysicalLocationMap;
-import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.timestamps.Timestamp;
-import cz.incad.kramerius.timestamps.TimestampStore;
-import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
+import jakarta.inject.Named;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/admin/v7.0/connected")
 public class ConnectedInfoResource {
@@ -63,7 +49,7 @@ public class ConnectedInfoResource {
     @Inject
     private TimestampStore timestampStore;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
 
@@ -188,7 +174,7 @@ public class ConnectedInfoResource {
         if (this.permit()) {
             try {
                 this.libraries.cronRefresh();
-                return Response.ok(new JSONObject()).build();
+                return Response.ok(new JSONObject().toString()).build();
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -386,7 +372,8 @@ public class ConnectedInfoResource {
     @Path("{library}/timestamp")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response timestamp(@PathParam("library") String library, JSONObject jsonObject) {
+    public Response timestamp(@PathParam("library") String library, String jsonObjectSt) {
+        JSONObject jsonObject = new JSONObject(jsonObjectSt);
         if (this.permit()) {
             try {
                 Timestamp timestamp = SolrTimestamp.fromJSONDoc(library, jsonObject);

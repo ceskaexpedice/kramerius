@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.audio;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.http.client.methods.HttpRequestBase;
 

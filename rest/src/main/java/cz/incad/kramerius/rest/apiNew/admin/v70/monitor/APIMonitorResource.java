@@ -3,12 +3,12 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.monitor;
 import com.google.inject.Inject;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.inovatika.monitoring.APICallMonitor;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.*;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;

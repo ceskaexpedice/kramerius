@@ -6,8 +6,8 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class CDKSecuredChannelHTTPProxyRequest implements InvocationHandler {
 

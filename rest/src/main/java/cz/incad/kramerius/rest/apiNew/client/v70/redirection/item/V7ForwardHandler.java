@@ -11,16 +11,14 @@ import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
 import cz.inovatika.monitoring.ApiCallEvent;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
@@ -161,7 +159,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
 
         if (infoContentJSON != null) {
             LOGGER.fine(String.format("Returning from json %s", infoContentJSON.toString()));
-            ResponseBuilder respEntity = Response.status(200).entity(infoContentJSON.toString());
+            Response.ResponseBuilder respEntity = Response.status(200).entity(infoContentJSON.toString());
             return respEntity.build();
         } else {
             return super.info(event);
@@ -188,7 +186,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
                         }
                     }
                 };
-                ResponseBuilder respEntity = null;
+                Response.ResponseBuilder respEntity = null;
                 if (cdkRequestItem.getMimeType() != null) {
                     respEntity = Response.status(200).entity(stream).type(cdkRequestItem.getMimeType());
                 } else {

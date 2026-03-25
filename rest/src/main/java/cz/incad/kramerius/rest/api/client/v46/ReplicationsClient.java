@@ -16,73 +16,69 @@
  */
 package cz.incad.kramerius.rest.api.client.v46;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 /**
- * Simple testing utility 
- * @author pavels
+ * Simple testing utility - Jersey 3 / Jakarta
  */
 public class ReplicationsClient {
 
     private static final String DEFAULT_NAME = "krameriusAdmin";
     private static final String DEFAULT_PSWD = "kram";
-    
-    
-    /**
-     * List of object designated to replication
-     * @param uuid Master uuid 
-     * @return
-     */
+
+    private static Client createClient() {
+        return ClientBuilder.newBuilder()
+                .register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD))
+                .build();
+    }
+
     public static String tree(String uuid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid+"/tree");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/replication/" + uuid + "/tree");
+
+        try (Response response = target.request().get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Returns foxml data as pure xml
-     * @param uuid
-     * @return
-     */
     public static String foxmlAsXML(String uuid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid+"/foxml");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/replication/" + uuid + "/foxml");
+
+        try (Response response = target.request(MediaType.APPLICATION_XML).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Returns foxml data wrapped in json object
-     * @param uuid
-     * @return
-     */
     public static String foxmlAsJSON(String uuid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid+"/foxml");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/replication/" + uuid + "/foxml");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Returns json description
-     * @param uuid
-     * @return
-     */
     public static String desc(String uuid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/replication/"+uuid);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.get(String.class);
-        return t;
-    }
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/replication/" + uuid);
 
+        try (Response response = target.request().get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
+    }
 }
