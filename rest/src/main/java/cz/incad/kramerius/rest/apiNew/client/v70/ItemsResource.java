@@ -816,7 +816,7 @@ public class ItemsResource extends ClientApiResource {
             License lic = findLicenseAllowingGeneration(user, pid, childPids);
 
             switch (reqid) {
-                case "generate_pdf":
+                case "generate_pdf": {
                     if (lic != null
                             && lic.getLicenseOfflineGenerationConf() != null
                             && lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) {
@@ -864,11 +864,12 @@ public class ItemsResource extends ClientApiResource {
                         result.put("token", token);
 
                         return Response.ok().entity(result.toString()).build();
+                    } else {
+                        return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "PDF generation not allowed by license").toString()).build();
                     }
-                    return null;
+                }
 
-                default: {
-
+                default: { //dynamically loaded process definitions
                     String clientRequests = KConfiguration.getInstance().getConfiguration().getString("api.client.requests");
                     if (clientRequests != null && !clientRequests.isEmpty()) {
                         String[] values = clientRequests.split(",");
@@ -911,7 +912,10 @@ public class ItemsResource extends ClientApiResource {
 
                         ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
 
-                        JSONObject profile = processManagerClient.getProfile(GENERATE_PDF_PROCESS);
+                        JSONObject profile = processManagerClient.getProfile(reqid);
+                        if (profile == null) {
+                            return Response.status(Response.Status.BAD_REQUEST).entity(new JSONObject().put("error", "Process profile not found").toString()).build();
+                        }
                         JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
                         org.json.JSONArray scheduledProfiles = null;
                         if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
@@ -927,8 +931,9 @@ public class ItemsResource extends ClientApiResource {
                         result.put("token", token);
 
                         return Response.ok().entity(result.toString()).build();
+                    } else {
+                        return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "Process scheduling not allowed by license").toString()).build();
                     }
-                    return null;
                 }
             }
         } catch (ProcessManagerClientException e) {
