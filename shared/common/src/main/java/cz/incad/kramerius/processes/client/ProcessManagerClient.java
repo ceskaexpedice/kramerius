@@ -68,6 +68,8 @@ public class ProcessManagerClient {
             if (statusCode == 200 || statusCode == 204) {
                 return new JSONObject(body).getString("processId");
             } else {
+                LOGGER.warning("Error processing request: " + body);
+                LOGGER.warning("HTTP status code: " + statusCode);
                 try {
                     JSONObject errorBody = new JSONObject(body);
                     throw new ProcessManagerClientException(errorBody.has("error") ? errorBody.optString("error") : body, ErrorCode.findByStatusCode(statusCode), statusCode);
