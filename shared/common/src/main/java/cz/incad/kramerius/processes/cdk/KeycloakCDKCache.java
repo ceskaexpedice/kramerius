@@ -117,8 +117,10 @@ public class KeycloakCDKCache {
 
         @Override
         public void run() {
-            boolean channelEnabled  =  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel");
-            if (channelEnabled) {
+            boolean channelEnabled  =  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+            boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
+
+            if (channelEnabled || apiKeyAuth) {
                 Keycloak keycloak =  null;
                 Boolean users = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.keycloak.realm.createusers",true);
                 String kramerius = KConfiguration.getInstance().getConfiguration().getString("cdk.keycloak.realm.kramerius","kramerius");

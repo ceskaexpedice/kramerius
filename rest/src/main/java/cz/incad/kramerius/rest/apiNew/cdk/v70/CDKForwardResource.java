@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 
-import javax.ws.rs.Consumes;
+import javax.inject.Provider;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -19,14 +20,17 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * CDK Forward resource
@@ -37,6 +41,13 @@ import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
  */
 @Path("cdk/v7.0/forward")
 public class CDKForwardResource {
+
+    public static final String X_API_KEY = "X-API-KEY";
+    @Inject
+    CDKAPIKeySupport cdkAPIKeySupport;
+
+    @Inject
+    Provider<HttpServletRequest> requestProvider;
 
     @Inject
     CDKUsersResource usersResource;
@@ -62,22 +73,36 @@ public class CDKForwardResource {
     @Path("user")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response user() {
-        return this.usersResource.user();
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.usersResource.user();
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
+    // PDF - to tu musim dodelat
+    //
     
     // --------------- Item's endpoint ---------------
     @GET
     @Path("item/{pid}/streams/{dsid}")
     public Response stream(@Context HttpHeaders headers, @PathParam("pid") String pid, @PathParam("dsid") String dsid) {
-        return itemResource.stream(pid, dsid);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemResource.stream(pid, dsid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @GET
     @Path("iiif/{pid}/info.json")
     @Produces("application/ld+json")
     public Response iiiFManifest(@PathParam("pid") String pid) {
-        return this.iiifResource.iiifManifest(pid);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.iiifResource.iiifManifest(pid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @GET
@@ -85,21 +110,28 @@ public class CDKForwardResource {
     @Path("iiif/{pid}/{region}/{size}/{rotation}/{qf}")
     public void tile(@PathParam("pid") String pid, @PathParam("region") String region,
             @PathParam("size") String size, @PathParam("rotation") String rotation,@PathParam("qf") String qf) {
-        try {
-            this.iiifResource.iiifTile(pid, region, size, rotation, qf);
-        } catch (IOException e) {
-            throw new GenericApplicationException(e.getMessage());
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            try {
+                this.iiifResource.iiifTile(pid, region, size, rotation, qf);
+            } catch (IOException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
 
-    
     
     
     @GET
     @Path("zoomify/{pid}/ImageProperties.xml")
     @Produces("application/xml")
     public Response zoomifyManifest(@PathParam("pid") String pid) {
-        return this.zoomifyResource.zoomifyManifest(pid);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.zoomifyResource.zoomifyManifest(pid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @GET
@@ -107,10 +139,14 @@ public class CDKForwardResource {
     @Produces("image/jpeg")
     public Response zoomifyTile(@PathParam("pid") String pid, @PathParam("level") String level,
             @PathParam("x") String x, @PathParam("y") String y) {
-        try {
-            return this.zoomifyResource.renderZoomifyTile(pid, level, x, y, "jpg");
-        } catch (IOException | XPathExpressionException | SQLException e) {
-            throw new GenericApplicationException(e.getMessage());
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            try {
+                return this.zoomifyResource.renderZoomifyTile(pid, level, x, y, "jpg");
+            } catch (IOException | XPathExpressionException | SQLException e) {
+                throw new GenericApplicationException(e.getMessage());
+            }
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
 
@@ -118,7 +154,11 @@ public class CDKForwardResource {
     @Path("providedBy/{pid}")
     @Produces("appliction/json")
     public Response providedBy(@PathParam("pid") String pid) {
-        return this.itemResource.providedBy(pid);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.itemResource.providedBy(pid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     
@@ -128,21 +168,33 @@ public class CDKForwardResource {
     @Path("sync/solr/select")
     @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
     public Response selectXML(@Context UriInfo uriInfo) throws IOException {
-        return this.solrResource.selectXML(uriInfo);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.solrResource.selectXML(uriInfo);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @GET
     @Path("sync/solr/select")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response selectJSON(@Context UriInfo uriInfo) throws IOException {
-        return this.solrResource.selectJSON(uriInfo);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.solrResource.selectJSON(uriInfo);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
     
     @GET
     @Path("sync/batch/foxmls")
     @Produces("application/zip")
     public Response batchedFOXL(@QueryParam("pids") String stringPids, @QueryParam("collection") String collection)  throws ReplicateException, IOException {
-        return this.solrResource.batchedFOXL(stringPids, collection);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.solrResource.batchedFOXL(stringPids, collection);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
     
     @GET
@@ -151,7 +203,29 @@ public class CDKForwardResource {
     public Response getExportedFOXML(@PathParam("pid") String pid,
         @QueryParam("collection") String collection)
         throws ReplicateException, UnsupportedEncodingException {
-        return this.solrResource.getExportedFOXML(pid, collection);
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.solrResource.getExportedFOXML(pid, collection);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
+
+    //boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+    private boolean isAllowedByApiKey() {
+        boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
+        if (apiKeyAuth) {
+            this.cdkAPIKeySupport.init();
+        }
+        HttpServletRequest httpServletRequest = this.requestProvider.get();
+        String header = httpServletRequest.getHeader(X_API_KEY);
+        return this.cdkAPIKeySupport.isValidKey(header);
+    }
+
+    private boolean isAllowedByChannel() {
+        boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+        return channel;
+    }
+
+
 
 }

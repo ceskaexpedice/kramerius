@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services;
+package cz.incad.kramerius.plugin;
 
 import cz.inovatika.kramerius.services.Migration;
 import org.apache.commons.io.FileUtils;

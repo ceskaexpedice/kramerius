@@ -1,4 +1,4 @@
-package cz.incad.kramerius.services;
+package cz.incad.kramerius.plugin;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
@@ -48,6 +48,15 @@ public class CDKMigration {
             ClassNotFoundException, IllegalAccessException, InstantiationException,
             SAXException, NoSuchMethodException {
 
+
+        LOGGER.info("migrateMain called with parameters:");
+        LOGGER.info(String.format("configSource=%s", configSource));
+        LOGGER.info(String.format("destinationUrl=%s", destinationUrl));
+        LOGGER.info(String.format("iterationDl=%s", iterationDl));
+        LOGGER.info(String.format("iterationId=%s", iterationId));
+        LOGGER.info(String.format("iterationUrl=%s", iterationUrl));
+        LOGGER.info(String.format("showConfigurationOnly=%s", showConfigurationOnly));
+
         Map<String, String> env = createEnvMapFromPars(destinationUrl, iterationDl, iterationId, iterationUrl);
         InputStream stream = CDKMigration.class.getResourceAsStream(configSource);
         if (configSource.trim().startsWith("file:///")) {
@@ -78,8 +87,7 @@ public class CDKMigration {
                 Migration migr = createMigration();
                 migr.migrate(tmpFile);
             }
-
-        } else {
+       } else {
             LOGGER.severe(String.format("Cannot find resource %s", configSource));
         }
     }

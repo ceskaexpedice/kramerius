@@ -34,6 +34,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.UsersResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.statistics.StatisticsResource;
+import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.CDKForwardResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
@@ -127,11 +128,15 @@ public class ApiServletModule extends JerseyServletModule {
 
         // CDK Client 7.0 Resources
         boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
-        if (channel) {
+        boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
+        if (channel || apiKeyAuth) {
             bind(CDKForwardResource.class);
             bind(CDKIIIFResource.class);
             bind(CDKItemResource.class);
             bind(CDKUsersResource.class);
+
+            bind(CDKAPIKeySupport.class);
+
         }
 
         

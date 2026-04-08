@@ -156,4 +156,12 @@
         <securedaction>a_statistics_edit</securedaction>
     </process>
 
+    <!-- CDK migration -->
+    <process>
+        <id>cdk-migration</id>
+        <description>CDK migrate plugin</description>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
+        <securedaction>a_cdk_process</securedaction>
+    </process>
+
 </processes>
