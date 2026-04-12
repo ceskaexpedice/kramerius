@@ -2,6 +2,8 @@ package cz.incad.kramerius.plugin;
 
 import cz.inovatika.kramerius.services.Migration;
 import org.apache.commons.io.FileUtils;
+import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
+import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -21,6 +23,9 @@ public class CDKMIgrationTest {
         final String ITERATION_DL = "knav";
         final String ITERATION_ID = "compositeId";
         final String ITERATION_URL = "http://knav-tunnel.cdk-proxy.svc.cluster.local/search/api/cdk/v7.0/forward/sync/solr";
+        final String ITERATION_FQUERY = "model:page";
+        final String ITERATION_APIKEY = "apikey";
+        final String ITERATION_WORKING_TIME = "workingtime";
         final boolean ONLY_SHOW_CONFIGURATION = true;
 
         File tmp = File.createTempFile("cdk-test", ".xml");
@@ -34,12 +39,16 @@ public class CDKMIgrationTest {
             cdkmStatic.when(CDKMigration::createTempFile).thenReturn(tmp);
             cdkmStatic.when(CDKMigration::createMigration).thenReturn(migrationSpy);
 
+
             CDKMigration.migrateMain(
                     CONFIG_SOURCE,
                     DESTINATION_URL,
                     ITERATION_DL,
                     ITERATION_ID,
                     ITERATION_URL,
+                    ITERATION_FQUERY,
+                    ITERATION_APIKEY,
+                    ITERATION_WORKING_TIME,
                     ONLY_SHOW_CONFIGURATION
             );
 

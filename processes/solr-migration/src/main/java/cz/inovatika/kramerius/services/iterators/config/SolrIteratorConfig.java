@@ -15,6 +15,7 @@ public class SolrIteratorConfig {
 
     /** The URL of the Solr server (e.g., http://localhost:8983/solr/logs). */
     private final String url;
+    private final String apiKey;
     /** The main Solr query ('q' parameter). Defaults to "*:*" (all documents). */
     private final String masterQuery;
     /** The Solr filter query ('fq' parameter). Can be an empty string. */
@@ -56,6 +57,7 @@ public class SolrIteratorConfig {
 
     private SolrIteratorConfig(Builder builder) {
         this.url = builder.url;
+        this.apiKey = builder.apiKey;
         this.masterQuery = builder.masterQuery;
         this.filterQuery = builder.filterQuery;
         this.endpoint = builder.endpoint;
@@ -75,6 +77,12 @@ public class SolrIteratorConfig {
      * @return The Solr server URL.
      */
     public String getUrl() { return url; }
+
+    /**
+     * Returns generic api key for secret communication
+     */
+    public String getApiKey() { return apiKey; }
+
     /**
      * Returns the main Solr query ('q').
      * @return The master query string.
@@ -133,6 +141,7 @@ public class SolrIteratorConfig {
      */
     public String getFactoryClz() { return factoryClz; }
 
+
     public ResponseHandlingConfig getResponseHandlingConfig() {
         return responseHandlingConfig;
     }
@@ -161,6 +170,7 @@ public class SolrIteratorConfig {
     
     public static class Builder {
         private String url;
+        private String apiKey;
         private String masterQuery = "*:*";
         private String idField;
 
@@ -180,6 +190,12 @@ public class SolrIteratorConfig {
             this.url = url;
             this.idField = idField;
             this.sort = idField + " ASC";
+        }
+
+
+        public Builder apiKey(String apiKey) {
+            this.apiKey = apiKey;
+            return this;
         }
 
 

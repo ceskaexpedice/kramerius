@@ -10,12 +10,9 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V5ForwardHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V5RedirectHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V7ForwardHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V7RedirectHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.ProxyUserHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -82,7 +79,10 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5ForwardHandler(this.cacheSupport, this.reharvestManager, this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                throw new UnsupportedOperationException("V5 instances are not supported");
+                //return new V5ForwardHandler(this.cacheSupport, this.reharvestManager, this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                case V7:
+                    return new V7ForwardHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             default:
                 return new V7ForwardHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             }
@@ -90,11 +90,12 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                throw new UnsupportedOperationException("V5 instances are not supported");
+                //return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             case V7:
                 return new V7RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient,triggerSupport, solrAccess, source, pid, remoteAddr);
             default:
-                return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                return new V7RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient,triggerSupport, solrAccess, source, pid, remoteAddr);
             }
 
         }
@@ -107,7 +108,7 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5ForwardUserHandler(this.cacheSupport, this.reharvestManager,this.instances, user,  apacheClient, solrAccess, source, remoteAddr);
+                throw  new UnsupportedOperationException("V5 instances are not supported");
             default:
                 return new V7ForwardUserHandler(this.cacheSupport, this.reharvestManager,this.instances, user,  apacheClient, solrAccess, source, remoteAddr);
             }

@@ -97,6 +97,10 @@ public class RequestConfigParser {
             String checkUrlText = findSubElementText(requestElm, "checkUrl");
             if (checkUrlText != null) builder.checkUrl(checkUrlText);
 
+            // Check url
+            String apiKeyText = findSubElementText(requestElm, "apikey");
+            if (apiKeyText != null) builder.apiKey(apiKeyText);
+
             // Check url endpoint
             String checkEndpointText = findSubElementText(requestElm, "checkEndpoint");
             if (checkEndpointText != null) builder.checkEndpoint(checkEndpointText);

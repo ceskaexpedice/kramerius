@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.services.workers;
 
 import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Logger;
 
-public abstract class Worker<C extends WorkerContext>  implements Runnable  {
+public abstract class Worker<C extends WorkerContext> /* implements Runnable */ {
 
     public static final Logger LOGGER = Logger.getLogger(Worker.class.getName());
 
@@ -25,7 +26,7 @@ public abstract class Worker<C extends WorkerContext>  implements Runnable  {
     protected List<IterationItem> itemsToBeProcessed;
 
     /** Barrier for synchronizing workers before processing new tasks. */
-    protected CyclicBarrier barrier;
+    //protected CyclicBarrier barrier;
 
     protected ProcessConfig processConfig;
     protected WorkerConfig config;
@@ -33,32 +34,39 @@ public abstract class Worker<C extends WorkerContext>  implements Runnable  {
     /** Finalization handler triggered when the worker completes its task. */
     protected WorkerFinisher finisher;
 
-    public Worker(ProcessConfig processConfig,  CloseableHttpClient client, List<IterationItem> items, WorkerFinisher finisher) {
+    /** Apache http request enricher */
+    protected ApacheHTTPRequestEnricher enricher;
+
+    public Worker(ProcessConfig processConfig,  CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
         super();
         this.finisher = finisher;
         this.client = client;
         this.itemsToBeProcessed = items;
+        this.enricher = enricher;
         this.config = processConfig.getWorkerConfig();
         this.processConfig = processConfig;
     }
 
-    /**
-     * Gets the barrier used for synchronizing workers before processing new tasks.
-     *
-     * @return The {@link CyclicBarrier} instance.
-     */
-    public CyclicBarrier getBarrier() {
-        return barrier;
-    }
+//    /**
+//     * Gets the barrier used for synchronizing workers before processing new tasks.
+//     *
+//     * @return The {@link CyclicBarrier} instance.
+//     */
+//    public CyclicBarrier getBarrier() {
+//        return barrier;
+//    }
 
-    /**
-     * Sets the barrier used for synchronizing workers before processing new tasks.
-     *
-     * @param barrier The {@link CyclicBarrier} instance.
-     */
-    public void setBarrier(CyclicBarrier barrier) {
-        this.barrier = barrier;
-    }
+//    /**
+//     * Sets the barrier used for synchronizing workers before processing new tasks.
+//     *
+//     * @param barrier The {@link CyclicBarrier} instance.
+//     */
+//    public void setBarrier(CyclicBarrier barrier) {
+//        this.barrier = barrier;
+//    }
+
+
+    public abstract void process();
 
     // --- Events --
     protected void onUpdateEvent(Element addDocument) {
@@ -75,6 +83,14 @@ public abstract class Worker<C extends WorkerContext>  implements Runnable  {
                 }
             }
         });
+    }
+
+    public void setEnricher(ApacheHTTPRequestEnricher enricher) {
+        this.enricher = enricher;
+    }
+
+    public ApacheHTTPRequestEnricher getEnricher() {
+        return enricher;
     }
 
     protected void onIndexUpdateEvent(Element addDocument) {

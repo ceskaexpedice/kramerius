@@ -12,7 +12,9 @@
     <!-- Iteration part -->
     <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
     <iteration>
+        <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
         <url>$iteration.url$</url>
+        <apikey>$iteration.apikey$</apikey>
         <endpoint>select</endpoint>
         <id>$iteration.id$</id>
         <rows>4000</rows>
@@ -26,6 +28,7 @@
 
     <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
     <worker>
+        <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
         <request>
             <url>$iteration.url$</url>
             <endpoint>select</endpoint>
@@ -38,6 +41,8 @@
             <composite.child>pid</composite.child>
 
             <checkUrl>$destination.url$</checkUrl>
+            <apikey>$iteration.apikey$</apikey>
+
             <checkEndpoint>select</checkEndpoint>
 
             <!-- cdk source field -->
@@ -57,10 +62,12 @@
                     <field name="collection"></field>
                 </remove.dest.field>
                 <!-- append to batch document -->
+                <!--
                 <update.dest.field>
                     <field name="cdk.collection">$iteration.dl$</field>
                     <field name="cdk.leader">$iteration.dl$</field>
                 </update.dest.field>
+                -->
             </onindex>
 
             <!-- on update -->

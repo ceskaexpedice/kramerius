@@ -7,6 +7,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
@@ -43,11 +44,14 @@ public class CDKMigration {
             @ParameterName("iterationDl") @IsRequired String iterationDl,
             @ParameterName("iterationId") @IsRequired String iterationId,
             @ParameterName("iterationUrl") @IsRequired String iterationUrl,
+            @ParameterName("iterationFQuery") String iterationFQuery,
+            @ParameterName("iterationApiKey") String iterationApiKey,
+            @ParameterName("iterationWorkingtime") String iterationWorkingtime,
+
             @ParameterName("showConfigurationOnly") @IsRequired Boolean showConfigurationOnly
     ) throws MigrateSolrIndexException, IOException, ParserConfigurationException,
             ClassNotFoundException, IllegalAccessException, InstantiationException,
             SAXException, NoSuchMethodException {
-
 
         LOGGER.info("migrateMain called with parameters:");
         LOGGER.info(String.format("configSource=%s", configSource));
@@ -55,9 +59,26 @@ public class CDKMigration {
         LOGGER.info(String.format("iterationDl=%s", iterationDl));
         LOGGER.info(String.format("iterationId=%s", iterationId));
         LOGGER.info(String.format("iterationUrl=%s", iterationUrl));
+        LOGGER.info(String.format("iterationWorkingtime=%s", iterationWorkingtime));
+        LOGGER.info(String.format("iterationFQuery=%s", iterationFQuery));
         LOGGER.info(String.format("showConfigurationOnly=%s", showConfigurationOnly));
 
-        Map<String, String> env = createEnvMapFromPars(destinationUrl, iterationDl, iterationId, iterationUrl);
+        /*
+            String destinationUrl,
+            String iterationDl,
+            String iterationId,
+            String iterationUrl,
+            String iterationFQuery,
+            String iterationWorkingtime,
+            String  iterationApiKey
+
+         */
+        Map<String, String> env = createEnvMapFromPars(destinationUrl,
+                iterationDl,
+                iterationId,
+                iterationUrl,
+                iterationFQuery,
+                iterationWorkingtime, iterationApiKey);
         InputStream stream = CDKMigration.class.getResourceAsStream(configSource);
         if (configSource.trim().startsWith("file:///")) {
             URL fileUrl = new URL(configSource);
@@ -92,14 +113,71 @@ public class CDKMigration {
         }
     }
 
-    private static Map<String, String> createEnvMapFromPars(String destinationUrl, String iterationDl, String iterationId, String iterationUrl) {
+    private static Map<String, String> createEnvMapFromPars(
+            String destinationUrl,
+            String iterationDl,
+            String iterationId,
+            String iterationUrl,
+            String iterationFQuery,
+            String iterationWorkingtime,
+            String  iterationApiKey
+            ) {
         Map<String, String> envMap = new HashMap<>();
         envMap.put("DESTINATION_URL", destinationUrl);
         envMap.put("ITERATION_DL", iterationDl);
         envMap.put("ITERATION_ID", iterationId);
         envMap.put("ITERATION_URL", iterationUrl);
+        if (StringUtils.isNotEmpty(iterationFQuery)) {
+            envMap.put("ITERATION_FQUERY", iterationFQuery);
+        }
+        if (StringUtils.isNotEmpty(iterationWorkingtime)) {
+            envMap.put("ITERATION_WORKINGTIME", iterationWorkingtime);
+        }
+        if (StringUtils.isNotEmpty(iterationApiKey)) {
+            envMap.put("ITERATION_APIKEY", iterationApiKey);
+        }
+        // ITERATION_FQUERY
+        // ITERATION_WORKINGTIME=16:00-06:00
         // TODO add all other supported pars
         return envMap;
     }
 
+    public static void main(String[] args) throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException {
+
+        String configSource = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml";
+        String destinationUrl = "http://localhost:8983/solr/search_v5";
+        String iterationDl = "inovatika2";
+        String iterationUrl = "https://k7.inovatika.dev/search/api/cdk/v7.0/forward/sync/solr";
+        String iterationId = "compositeId";
+        String iterationApiKey = "ZByhEIPjoBkMYVym415Zh9rWpdhsBNgzDoem-_QSkK8";
+        String iterationWorkingtime = "";
+        //String iterationFQuery = "model:page";
+        String iterationFQuery = "";
+        String showConfigurationOnly = "false";
+
+        /*
+            @ParameterName("configSource") @IsRequired String configSource,
+            @ParameterName("destinationUrl") @IsRequired String destinationUrl,
+            @ParameterName("iterationDl") @IsRequired String iterationDl,
+            @ParameterName("iterationId") @IsRequired String iterationId,
+            @ParameterName("iterationUrl") @IsRequired String iterationUrl,
+            @ParameterName("iterationFQuery") String iterationFQuery,
+            @ParameterName("iterationApiKey") String iterationApiKey,
+            @ParameterName("iterationWorkingtime") String iterationWorkingtime,
+
+            @ParameterName("showConfigurationOnly") @IsRequired Boolean showConfigurationOnly
+
+         */
+
+        CDKMigration.migrateMain(
+                configSource,
+                destinationUrl,
+                iterationDl,
+                iterationId,
+                iterationUrl,
+                iterationFQuery,
+                iterationApiKey,
+                iterationWorkingtime,
+                Boolean.valueOf(showConfigurationOnly));
+    }
 }

@@ -2,6 +2,7 @@ package cz.inovatika.kramerius.services.workers.copy.simple;
 
 import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.workers.Worker;
@@ -15,8 +16,8 @@ import java.util.List;
 public class SimpleCopySolrWorkerFactory extends WorkerFactory {
 
     @Override
-    public Worker createWorker(ProcessConfig processConfig, ProcessIterator iteratorInstance, CloseableHttpClient client, List<IterationItem> pids, WorkerFinisher finisher) {
-        return  new SimpleCopyWorker(processConfig, client,  pids, finisher);
+    public Worker createWorker(ProcessConfig processConfig, ProcessIterator iteratorInstance, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> pids, WorkerFinisher finisher) {
+        return  new SimpleCopyWorker(processConfig, client, enricher,  pids, finisher);
     }
 
     @Override

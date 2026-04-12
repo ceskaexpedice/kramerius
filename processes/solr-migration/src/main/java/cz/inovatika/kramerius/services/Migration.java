@@ -7,14 +7,18 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.config.ProcessConfigParser;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory;
 import cz.inovatika.kramerius.services.workers.Worker;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 //import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
 import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -134,30 +138,53 @@ public class Migration {
         }
     }
 
-    protected void startWorkers(List<Worker> worksWhasHasToBeDone, String workingtime) throws BrokenBarrierException, InterruptedException {
+    protected void startWorkers(List<Worker> workers, String workingtime) {
         if (workingtime != null && workingtime.contains("-")) {
             LOGGER.info(String.format("Working time for this worker %s", workingtime));
             String[] intervalParts = workingtime.split("-");
             String startTime = intervalParts[0];
             String endTime = intervalParts[1];
 
-            while (true) {
-                if (!isInWorkingTime(startTime, endTime)) {
-                    waitUntilStartWorkingTime(startTime, endTime);
-                } else {
-                    break;
-                }
+            while (!isInWorkingTime(startTime, endTime)) {
+                waitUntilStartWorkingTime(startTime, endTime);
             }
         }
 
-        // check if sleep hours
-        CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size() + 1);
-        worksWhasHasToBeDone.stream().forEach(th -> {
-            th.setBarrier(barrier);
-            new Thread(th).start();
-        });
-        barrier.await();
+        for (Worker w : workers) {
+            try {
+                w.process();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                if (finisher != null) {
+                    finisher.exceptionDuringCrawl(e);
+                }
+            }
+        }
     }
+
+//    protected void startWorkers(List<Worker> worksWhasHasToBeDone, String workingtime) throws BrokenBarrierException, InterruptedException {
+//        if (workingtime != null && workingtime.contains("-")) {
+//            LOGGER.info(String.format("Working time for this worker %s", workingtime));
+//            String[] intervalParts = workingtime.split("-");
+//            String startTime = intervalParts[0];
+//            String endTime = intervalParts[1];
+//            while (true) {
+//                if (!isInWorkingTime(startTime, endTime)) {
+//                    waitUntilStartWorkingTime(startTime, endTime);
+//                } else {
+//                    break;
+//                }
+//            }
+//        }
+//
+//        // check if sleep hours
+//        CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size() + 1);
+//        worksWhasHasToBeDone.stream().forEach(th -> {
+//            th.setBarrier(barrier);
+//            new Thread(th).start();
+//        });
+//        barrier.await();
+//    }
 
     public boolean isInWorkingTime(String startTime, String endTime) {
         try {
@@ -251,32 +278,34 @@ public class Migration {
     }
 
     protected void addNewWorkToWorkers(ProcessConfig config, ProcessIterator processIterator, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers, String workingtime) {
-        try {
-            worksWhatHasToBeDone.add(createWorker(config, processIterator, identifiers));
-            if (worksWhatHasToBeDone.size() >= config.getThreads()) {
-                startWorkers(worksWhatHasToBeDone, workingtime);
-                worksWhatHasToBeDone.clear();
-            }
-        } catch (BrokenBarrierException | InterruptedException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        worksWhatHasToBeDone.add(createWorker(config, processIterator, identifiers));
+        if (worksWhatHasToBeDone.size() >= config.getThreads()) {
+            startWorkers(worksWhatHasToBeDone, workingtime);
+            worksWhatHasToBeDone.clear();
         }
     }
 
     protected Worker createWorker(ProcessConfig config, ProcessIterator iteratorInstance, List<IterationItem> identifiers) {
         try {
-            return this.workerFactory.createWorker(config, iteratorInstance, this.client, identifiers, this.finisher);
+            ApacheHTTPRequestEnricher enricher = ApacheHTTPRequestEnricher.NO_OP;
+            String apiKey = config.getWorkerConfig().getRequestConfig().getApiKey();
+            if (!StringUtils.isEmpty(apiKey)) {
+                enricher = new ApacheHTTPRequestEnricher() {
+                    @Override
+                    public void enrich(HttpUriRequestBase request) {
+                        request.setHeader(SolrIteratorFactory.X_API_KEY, apiKey);
+                    }
+                };
+            }
+            return this.workerFactory.createWorker(config, iteratorInstance, this.client, enricher, identifiers, this.finisher);
         } catch (IllegalStateException e) {
             throw new RuntimeException("Cannot create worker instance " + e.getMessage());
         }
     }
 
     protected void finishRestWorkers(List<Worker> worksWhatHasToBeDone, String workingtime) {
-        try {
-            if (!worksWhatHasToBeDone.isEmpty()) {
-                startWorkers(worksWhatHasToBeDone, workingtime);
-            }
-        } catch (BrokenBarrierException | InterruptedException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        if (!worksWhatHasToBeDone.isEmpty()) {
+            startWorkers(worksWhatHasToBeDone, workingtime);
         }
     }
 }

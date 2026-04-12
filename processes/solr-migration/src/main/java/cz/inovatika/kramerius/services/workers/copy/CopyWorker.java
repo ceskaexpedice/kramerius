@@ -2,6 +2,7 @@ package cz.inovatika.kramerius.services.workers.copy;
 
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.inovatika.kramerius.services.workers.Worker;
@@ -21,8 +22,8 @@ import java.util.stream.Collectors;
 
 public abstract class CopyWorker<T extends WorkerIndexedItem, C extends CopyWorkerContext<T>> extends Worker<C> {
 
-    public CopyWorker(ProcessConfig processConfig, CloseableHttpClient client, List<IterationItem> items, WorkerFinisher finisher) {
-        super(processConfig, client, items, finisher);
+    public CopyWorker(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
+        super(processConfig, client, enricher, items, finisher);
     }
 
     protected Element fetchDocumentFromRemoteSOLR(CloseableHttpClient client, List<String> pids, String fieldlist)
@@ -41,12 +42,12 @@ public abstract class CopyWorker<T extends WorkerIndexedItem, C extends CopyWork
         String query = "?q=" + idIdentifier + ":(" + URLEncoder.encode(reduce, StandardCharsets.UTF_8) + ")&fl="
                 + URLEncoder.encode(fieldlist, StandardCharsets.UTF_8) + "&wt=xml&rows=" + pids.size();
         LOGGER.info(String.format("Requesting uri %s, %s",requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint, query));
-        return HTTPSolrUtils.executeQueryApache(client,requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint , query);
+        return HTTPSolrUtils.executeQueryApache(client, this.enricher,requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint , query);
     }
 
     protected List<Element> solrResult(String checkUrlC, String checkEndpoint, String query) {
         String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
-        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryApache(client, checkUrl, query),
+        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryApache(client, null, checkUrl, query),
                 (elm) -> {
                     return elm.getNodeName().equals("result");
                 });

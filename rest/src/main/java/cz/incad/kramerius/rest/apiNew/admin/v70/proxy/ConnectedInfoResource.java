@@ -2,13 +2,10 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.proxy;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
@@ -18,7 +15,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -32,20 +28,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
-import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.InstanceType;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.PhysicalLocationMap;
-import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.timestamps.Timestamp;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
@@ -342,7 +333,7 @@ public class ConnectedInfoResource {
     private Pair<User, List<String>> parsedUsers(OneInstance inst, JSONObject notLoggedJSON) {
         switch(inst.getInstanceType()) {
             case V5:
-                return V5ForwardUserHandler.userFromJSON(notLoggedJSON);
+                throw new UnsupportedOperationException("V5 instances are not supported");
             case V7:
                 return V7ForwardUserHandler.userFromJSON(notLoggedJSON);
             default:

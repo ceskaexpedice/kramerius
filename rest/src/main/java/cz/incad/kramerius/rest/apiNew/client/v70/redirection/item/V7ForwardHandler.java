@@ -39,7 +39,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class V7ForwardHandler extends V7RedirectHandler {
 
-    public static final Logger LOGGER = Logger.getLogger(V5ForwardHandler.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(V7ForwardHandler.class.getName());
 
     public V7ForwardHandler(CDKRequestCacheSupport cacheSupport, ReharvestManager reharvestManager, Instances instances, User user, CloseableHttpClient closeableHttpClient, DeleteTriggerSupport triggerSupport, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
         super(cacheSupport, reharvestManager,instances, user,  closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
@@ -51,7 +51,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         return baseurl;
     }
 
-    
+
     @Override
     public Response info(ApiCallEvent event) throws ProxyHandlerException {
 
@@ -64,7 +64,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (providedByLicenses == null) {
 
 
-            HttpGet providedByHttpGet =  apacheGet(providedByUrl, true);
+            HttpGet providedByHttpGet =  apacheGet(providedByUrl, apiKey(), true);
             try (CloseableHttpResponse response = apacheClient.execute(providedByHttpGet)) {
                 int code = response.getCode();
                 if (code == 200) {
@@ -103,7 +103,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
 
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/info";
         // Delete trigger
-        HttpHead infoHead =  apacheHead(url, true);
+        HttpHead infoHead =  apacheHead(url, apiKey(), true);
         try (CloseableHttpResponse response = apacheClient.execute(infoHead)) {
             int code = response.getCode();
             if (code == 404 && this.deleteTriggerSupport != null) {
@@ -122,7 +122,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 infoContentJSON.put("providedByLicenses", licenses);
             }
         } else {
-            HttpGet infoGet =  apacheGet(url, true);
+            HttpGet infoGet =  apacheGet(url,apiKey(), true);
             try (CloseableHttpResponse response = apacheClient.execute(infoGet)) {
                 int code = response.getCode();
                 if (code == 200) {
@@ -174,7 +174,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/image/thumb";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, true, true);
+            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, true, true);
         } else {
             CDKRequestItem cdkRequestItem = cacheItemHit_PID_USER(url, pid, false, "thumb", event);
             if (cdkRequestItem != null) {
@@ -200,7 +200,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 }
                 return respEntity.build();
             } else {
-                return buildForwardApacheResponseGET(url, null, this.pid, true, true, event, (data, mimetype)-> {
+                return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, (data, mimetype)-> {
 
                     try {
                         CDKRequestItem<ByteBuffer> cacheItem = (CDKRequestItem<ByteBuffer>)  CDKRequestItemFactory.createCacheItem(
@@ -227,9 +227,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_FULL";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, false, true);
+            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, null, this.pid, false, true, event, null);
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, null);
         }
     }
 
@@ -239,9 +239,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_PREVIEW";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, false, true);
+            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, null, this.pid, false, true, event, null);
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, null);
         }
     }
 
@@ -255,7 +255,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
                     + "/streams/BIBLIO_MODS";
             String modsString = super.cacheStringHit_PID_USER(url, this.pid, false,"mods", event);
             if (modsString == null) {
-                return buildForwardApacheResponseGET(url, null, this.pid, true, false, event, (data, mimeType)-> {
+                return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, false, event, (data, mimeType)-> {
                     try {
                         CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
                                 new String(data, Charset.forName("UTF-8")),
@@ -289,7 +289,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
                     + "/ImageProperties.xml";
 
-            return buildForwardApacheResponseGET(url, null, this.pid, true, true, event, null);
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
        }
     }
     
@@ -298,7 +298,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = forwardUrl();
         String formatted = String.format("api/cdk/v7.0/forward/zoomify/%s/%s/%s", this.pid, tileGroupStr, tileStr);
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + formatted;
-        return buildForwardApacheResponseGET(url, null, this.pid, true, true, event, null);
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
     }
 
     
@@ -309,9 +309,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 + "/streams/TEXT_OCR";
 
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, null, this.pid, false, true);
+            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, null, this.pid, false, true, event, null);
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, null);
         }
     }
 
@@ -321,9 +321,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/ALTO";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, "application/xml;charset=utf-8", this.pid, false, true);
+            return buildForwardApacheResponseHEAD(url, apiKey(), "application/xml;charset=utf-8", this.pid, false, true);
         } else {
-            return buildForwardApacheResponseGET(url, "application/xml;charset=utf-8", this.pid, false, true, event, null);
+            return buildForwardApacheResponseGET(url, apiKey(), "application/xml;charset=utf-8", this.pid, false, true, event, null);
         }
     }
 
@@ -333,7 +333,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/DC";
-        return exists(url);
+        return exists(url, apiKey());
     }
 
     @Override
@@ -341,7 +341,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/DC";
-        return exists(url);
+        return exists(url, apiKey());
     }
 
     @Override
@@ -349,7 +349,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/DC";
-        return inputStream(url);
+        return inputStream(url, apiKey());
     }
 
     @Override
@@ -357,6 +357,6 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/BIBLIO_MODS";
-        return inputStream(url);
+        return inputStream(url,apiKey());
     }
 }

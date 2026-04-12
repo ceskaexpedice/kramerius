@@ -89,7 +89,7 @@ public class ReharvestUtils {
                 } else {
                     StringWriter writer = new StringWriter();
                     XMLUtils.print(deleteBatch, writer);
-                    LOGGER.info(writer.toString());
+                    //LOGGER.info(writer.toString());
                     retBuilder.append(writer.toString()).append("\n");
                 }
     

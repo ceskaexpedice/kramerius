@@ -34,6 +34,7 @@ public class WorkerConfigurationTest {
 
         Assert.assertTrue(workerConfig.getRequestConfig().getBatchSize() == 20);
 
+
     }
 
     @Test

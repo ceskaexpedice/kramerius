@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
 import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
@@ -28,18 +29,18 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
     public static final String DEFAULT_SORT_FIELD = "PID asc";
 
 
-    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig);
+    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig ,enricher);
     }
 
-    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig);
+    public SolrFilterQueryIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig, enricher);
     }
 
-    public static Element pidsFilterApache(CloseableHttpClient client, String url, String mq, String lastPid, int rows, String fq, String endpoint, String[] fieldsParam)
+    public static Element pidsFilterApache(CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, String url, String mq, String lastPid, int rows, String fq, String endpoint, String[] fieldsParam)
             throws ParserConfigurationException, SAXException, IOException {
         String query = pidsFilterQuery(mq, lastPid, rows, fq, endpoint, fieldsParam);
-        return HTTPSolrUtils.executeQueryApache(client, url, query);
+        return HTTPSolrUtils.executeQueryApache(client, enricher, url, query);
     }
 
 
@@ -96,7 +97,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
             String lastPid = null;
             String previousPid = null;
             do {
-                Element element = pidsFilterApache( client, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.fieldList);
+                Element element = pidsFilterApache( client, enricher, address,masterQuery,  lastPid, rows, filterQuery, endpoint, this.fieldList);
                 previousPid = lastPid;
                 lastPid = findLastPid(element);
                 iterationCallback.call(HTTPSolrUtils.prepareIterationItems(element, this.address, this.id));

@@ -12,6 +12,7 @@
     <iteration>
         <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
         <url>$iteration.url$</url>
+        <apikey>$iteration.url$</apikey>
         <endpoint>select</endpoint>
         <id>$iteration.id$</id>
         <rows>4000</rows>

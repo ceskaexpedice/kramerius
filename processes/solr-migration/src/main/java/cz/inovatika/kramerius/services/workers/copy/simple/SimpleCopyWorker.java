@@ -3,6 +3,7 @@ package cz.inovatika.kramerius.services.workers.copy.simple;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.utils.ResultsUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
@@ -24,8 +25,8 @@ import java.util.stream.Collectors;
 
 public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWorkerContext> {
 
-    public SimpleCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, List<IterationItem> items, WorkerFinisher finisher) {
-        super(processConfig, client, items, finisher);
+    public SimpleCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
+        super(processConfig, client, enricher, items, finisher);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
 
     // Basic implemenation
     @Override
-    public void run() {
+    public void process() {
         try {
             int batchSize = this.config.getRequestConfig().getBatchSize();
             LOGGER.info("[" + Thread.currentThread().getName() + "] processing list of items " + this.itemsToBeProcessed.size());
@@ -160,12 +161,6 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
             LOGGER.log(Level.SEVERE, "Informing about exception");
             finisher.exceptionDuringCrawl(ex);
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-        } finally {
-            try {
-                this.barrier.await();
-            } catch (InterruptedException | BrokenBarrierException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
         }
     }
 }

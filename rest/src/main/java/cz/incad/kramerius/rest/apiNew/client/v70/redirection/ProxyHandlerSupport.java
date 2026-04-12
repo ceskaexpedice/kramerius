@@ -139,8 +139,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
       * @param shibHeaders whether to include Shibboleth headers in the request
       * @return a Response object representing the result of the HEAD request
       */
-     public Response buildForwardApacheResponseHEAD(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders) {
-        HttpHead head = apacheHead(url, shibHeaders);
+     public Response buildForwardApacheResponseHEAD(String apiKey, String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders) {
+        HttpHead head = apacheHead(url, apiKey, shibHeaders);
+        if (apiKey != null && !apiKey.isEmpty()) { head.addHeader("X-API-KEY", apiKey);}
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
             int code = response.getCode();
             return Response.status(code).build();
@@ -160,11 +161,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
       * @param shibHeaders whether to include Shibboleth headers in the request
       * @return a Response object representing the result of the HEAD request
       */
-     public Response buildForwardApacheResponseGET(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
+     public Response buildForwardApacheResponseGET(String apiKey, String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
         List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ?  event.getGranularTimeSnapshots() : null;
         long start = System.currentTimeMillis();
 
-        HttpGet get = apacheGet(url, shibHeaders);
+        HttpGet get = apacheGet(url, apiKey, shibHeaders);
         String headers = "("+Arrays.stream(get.getHeaders()).map(h-> {
             return String.format("%s = %s", h.getName(), h.getValue());
         }).collect(Collectors.joining(", "))+")";
@@ -229,8 +230,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
     }
 
     //protected
-    protected boolean exists(String url) {
-        HttpGet head = apacheGet(url, false);
+    protected boolean exists(String url, String apiKey) {
+        HttpGet head = apacheGet(url, apiKey, false);
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
             int code = response.getCode();
             return code == 200;
@@ -239,8 +240,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         }
         return false;
     }
-    protected InputStream inputStream(String url) {
-        HttpGet head = apacheGet(url, false);
+    protected InputStream inputStream(String url, String apiKey) {
+        HttpGet head = apacheGet(url, apiKey, false);
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
             int code = response.getCode();
             if (code == 200) {
@@ -257,7 +258,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
 
 
-    protected HttpHead apacheHead(String url, boolean headers) {
+    protected HttpHead apacheHead(String url, String apiKey, boolean headers) {
         LOGGER.fine(String.format("Requesting %s", url));
         HttpHead head = new HttpHead(url);
         head.setHeader("User-Agent", "CDK/1.0");
@@ -265,10 +266,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
             String header = prepareHeader(headers);
             head.setHeader("CDK_TOKEN_PARAMETERS", header);
         }
+        if (apiKey != null && !apiKey.isEmpty()) { head.addHeader("X-API-KEY", apiKey);}
         return head;
     }
 
-    protected HttpGet apacheGet(String url, boolean headers) {
+    protected HttpGet apacheGet(String url, String apiKey, boolean headers) {
         LOGGER.fine(String.format("Requesting %s", url));
         HttpGet get = new HttpGet(url);
         get.setHeader("User-Agent", "CDK/1.0");
@@ -276,6 +278,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
             String header = prepareHeader(headers);
             get.setHeader("CDK_TOKEN_PARAMETERS", header);
         }
+        if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
+
         return get;
     }
 
@@ -376,6 +380,12 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         if (!user.getSessionAttributes().containsKey("edupersonuniqueid")) {
             this.user.addSessionAttribute("edupersonuniqueid", "user@test.cz");
         }
+    }
+
+    protected String apiKey() {
+        String apikey = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + this.source + ".apikey");
+        return apikey;
     }
 
     protected String baseUrl() {

@@ -1,6 +1,7 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 
 public abstract class AbstractSolrIterator implements ProcessIterator {
@@ -15,13 +16,12 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
     protected String[] fieldList;
 
     protected ResponseHandlingConfig responseHandlingConfig;
+    protected ApacheHTTPRequestEnricher enricher;
 
 
-
-    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
+    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
         this.id = id;
         this.rows = rows;
-
         this.filterQuery = filterQuery;
         this.sorting = sorting;
         this.endpoint = endpoint;
@@ -29,10 +29,11 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
         this.masterQuery = masterQuery;
         this.fieldList = fieldList;
         this.responseHandlingConfig = responseHandlingConfig;
+        this.enricher = enricher;
     }
 
-    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
-        this( address,masterQuery, filterQuery, endpoint, id, sorting, rows, new String[]{}, responseHandlingConfig);
+    public AbstractSolrIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
+        this( address, masterQuery, filterQuery, endpoint, id, sorting, rows, new String[]{}, responseHandlingConfig,enricher);
     }
 
 
@@ -62,6 +63,10 @@ public abstract class AbstractSolrIterator implements ProcessIterator {
 
     public String getSorting() {
         return sorting;
+    }
+
+    public ApacheHTTPRequestEnricher getEnricher() {
+        return enricher;
     }
 
     public String[] getFieldList() {

@@ -7,6 +7,7 @@ import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictWor
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.workers.WorkerFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
@@ -36,12 +37,13 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
 
     private static final Logger LOGGER = Logger.getLogger(CDKCopyWorker.class.getName());
 
-    public CDKCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, List<IterationItem> items, WorkerFinisher finisher) {
-        super(processConfig, client, items, finisher);
+    public CDKCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
+        super(processConfig, client, enricher, items, finisher);
     }
 
+
     @Override
-    public void run() {
+    public void process() {
         try {
             int batchSize = processConfig.getWorkerConfig().getRequestConfig().getBatchSize();
             String onIndexedFieldList = processConfig.getWorkerConfig().getDestinationConfig().getOnIndexedFieldList();
@@ -159,11 +161,11 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
             finisher.exceptionDuringCrawl(ex);
             LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
         } finally {
-            try {
-                this.barrier.await();
-            } catch (InterruptedException | BrokenBarrierException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            }
+//            try {
+//                this.barrier.await();
+//            } catch (InterruptedException | BrokenBarrierException e) {
+//                LOGGER.log(Level.SEVERE, e.getMessage(),e);
+//            }
             LOGGER.info(String.format("Worker finished; All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  CDKCopyFinisher.WORKERS.get(), CDKCopyFinisher.BATCHES.get(), CDKCopyFinisher.NEWINDEXED.get(), CDKCopyFinisher.UPDATED.get(), CDKCopyFinisher.NOT_INDEXED_COMPOSITEID.get()));
         }
     }
@@ -190,7 +192,7 @@ public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyConte
                 + ")&fl=" + URLEncoder.encode(fieldlist, StandardCharsets.UTF_8) + "&wt=xml&rows=" + subitems.size();
 
         String checkUrl = checkUrlC + (checkUrlC.endsWith("/") ? "" : "/") + checkEndpoint;
-        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryApache(client, checkUrl, query),
+        Element resultElem = XMLUtils.findElement(HTTPSolrUtils.executeQueryApache(client, this.enricher, checkUrl, query),
                 (elm) -> {
                     return elm.getNodeName().equals("result");
         });
