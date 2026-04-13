@@ -81,8 +81,7 @@ public class CDKForwardResource {
     }
 
     // PDF - to tu musim dodelat
-    //
-    
+
     // --------------- Item's endpoint ---------------
     @GET
     @Path("item/{pid}/streams/{dsid}")
@@ -225,7 +224,4 @@ public class CDKForwardResource {
         boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
         return channel;
     }
-
-
-
 }

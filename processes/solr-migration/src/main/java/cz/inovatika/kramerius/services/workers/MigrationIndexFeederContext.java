@@ -4,11 +4,11 @@ import cz.inovatika.kramerius.services.iterators.IterationItem;
 
 import java.util.List;
 
-public abstract class WorkerContext {
+public abstract class MigrationIndexFeederContext {
 
     protected List<IterationItem> allItems;
 
-    public WorkerContext(List<IterationItem> allItems) {
+    public MigrationIndexFeederContext(List<IterationItem> allItems) {
         this.allItems = allItems;
     }
 

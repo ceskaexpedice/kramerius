@@ -1,14 +1,13 @@
 package cz.inovatika.kramerius.services.workers.copy.simple;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.util.logging.Logger;
 
-public class SimpleCopySolrFinisher extends WorkerFinisher {
+public class SimpleCopySolrFinisher extends MigrationIndexFeederFinisher {
 
     public static final Logger LOGGER = Logger.getLogger(SimpleCopySolrFinisher.class.getName());
 

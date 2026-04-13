@@ -3,7 +3,7 @@ package cz.inovatika.kramerius.services.config;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.config.SolrConfigParser;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
-import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
+import cz.inovatika.kramerius.services.workers.config.FeederConfig;
 import cz.inovatika.kramerius.services.workers.config.WorkerConfigParser; // Pro worker
 import org.w3c.dom.Element;
 import java.util.logging.Logger;
@@ -75,12 +75,12 @@ public class ProcessConfigParser {
         }
 
         // --- 3. Worker Configuration (Delegated) ---
-        Element workerElm = XMLUtils.findElement(processElm, "worker");
-        if (workerElm != null) {
-            WorkerConfig workerConfig = WorkerConfigParser.parse(iteratorConfig,  workerElm);
-            builder.workerConfig(workerConfig);
+        Element feederElm = XMLUtils.findElement(processElm, "feeder");
+        if (feederElm != null) {
+            FeederConfig feederConfig = WorkerConfigParser.parse(iteratorConfig,  feederElm);
+            builder.feederConfig(feederConfig);
         } else {
-            LOGGER.log(Level.SEVERE, "Required <worker> element not found in configuration.");
+            LOGGER.log(Level.SEVERE, "Required <feeder> element not found in configuration.");
         }
         return builder.build();
     }

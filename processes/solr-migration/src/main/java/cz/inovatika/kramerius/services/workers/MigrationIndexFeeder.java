@@ -4,19 +4,18 @@ import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
+import cz.inovatika.kramerius.services.workers.config.FeederConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Logger;
 
-public abstract class Worker<C extends WorkerContext> /* implements Runnable */ {
+public abstract class MigrationIndexFeeder<C extends MigrationIndexFeederContext> /* implements Runnable */ {
 
-    public static final Logger LOGGER = Logger.getLogger(Worker.class.getName());
+    public static final Logger LOGGER = Logger.getLogger(MigrationIndexFeeder.class.getName());
 
     /** Client for external service communication. */
     //TODO: Replace by apache client
@@ -29,15 +28,15 @@ public abstract class Worker<C extends WorkerContext> /* implements Runnable */ 
     //protected CyclicBarrier barrier;
 
     protected ProcessConfig processConfig;
-    protected WorkerConfig config;
+    protected FeederConfig config;
 
     /** Finalization handler triggered when the worker completes its task. */
-    protected WorkerFinisher finisher;
+    protected MigrationIndexFeederFinisher finisher;
 
     /** Apache http request enricher */
     protected ApacheHTTPRequestEnricher enricher;
 
-    public Worker(ProcessConfig processConfig,  CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
+    public MigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
         super();
         this.finisher = finisher;
         this.client = client;
@@ -46,24 +45,6 @@ public abstract class Worker<C extends WorkerContext> /* implements Runnable */ 
         this.config = processConfig.getWorkerConfig();
         this.processConfig = processConfig;
     }
-
-//    /**
-//     * Gets the barrier used for synchronizing workers before processing new tasks.
-//     *
-//     * @return The {@link CyclicBarrier} instance.
-//     */
-//    public CyclicBarrier getBarrier() {
-//        return barrier;
-//    }
-
-//    /**
-//     * Sets the barrier used for synchronizing workers before processing new tasks.
-//     *
-//     * @param barrier The {@link CyclicBarrier} instance.
-//     */
-//    public void setBarrier(CyclicBarrier barrier) {
-//        this.barrier = barrier;
-//    }
 
 
     public abstract void process();

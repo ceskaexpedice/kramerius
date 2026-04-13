@@ -5,14 +5,12 @@ import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictWorkerItem;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKNewConflictWorkerItem;
-import cz.inovatika.kramerius.services.workers.copy.CopyWorkerContext;
+import cz.inovatika.kramerius.services.workers.copy.CopyMigrationIndexFeederContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-public class CDKCopyContext extends CopyWorkerContext<CDKWorkerIndexedItem> {
+public class CDKCopyContext extends CopyMigrationIndexFeederContext<CDKWorkerIndexedItem> {
 
     /** Documents that are already indexed (i.e., present both in source and in local index). */
     //private List<CDKWorkerIndexedItem> alreadyIndexed;

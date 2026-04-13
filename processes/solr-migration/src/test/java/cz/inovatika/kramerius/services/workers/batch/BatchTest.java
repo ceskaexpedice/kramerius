@@ -72,8 +72,5 @@ public class BatchTest {
                 }
             }
         }
-
-
-        XMLUtils.print(batchForUpdate, System.out);
-    }
+   }
 }

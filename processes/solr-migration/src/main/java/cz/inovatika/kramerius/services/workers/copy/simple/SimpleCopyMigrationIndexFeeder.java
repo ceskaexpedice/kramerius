@@ -9,28 +9,26 @@ import cz.inovatika.kramerius.services.utils.ResultsUtils;
 import cz.inovatika.kramerius.services.utils.SolrUtils;
 import cz.inovatika.kramerius.services.workers.*;
 import cz.inovatika.kramerius.services.workers.batch.UpdateSolrBatchCreator;
-import cz.inovatika.kramerius.services.workers.copy.CopyWorker;
-import cz.inovatika.kramerius.services.workers.copy.CopyWorkerContext;
+import cz.inovatika.kramerius.services.workers.copy.CopyMigrationIndexFeeder;
+import cz.inovatika.kramerius.services.workers.copy.CopyMigrationIndexFeederContext;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWorkerContext> {
+public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<WorkerIndexedItem, SimpleCopyMigrationIndexFeederContext> {
 
-    public SimpleCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
+    public SimpleCopyMigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
         super(processConfig, client, enricher, items, finisher);
     }
 
     @Override
-    protected SimpleCopyWorkerContext createContext(List<IterationItem> subItems) {
+    protected SimpleCopyMigrationIndexFeederContext createContext(List<IterationItem> subItems) {
         String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ? this.config.getRequestConfig().getIdIdentifier() : this.processConfig.getIteratorConfig().getIdField();
 
         String reduce = subItems.stream().map(it -> {
@@ -80,7 +78,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
             if (!identifierFromOriginalSolr.contains(item.getId()))
                 notIndexed.add(item);
         });
-        return new SimpleCopyWorkerContext(subItems, workerIndexedItemList, notIndexed);
+        return new SimpleCopyMigrationIndexFeederContext(subItems, workerIndexedItemList, notIndexed);
     }
 
     // Basic implemenation
@@ -96,7 +94,7 @@ public class SimpleCopyWorker extends CopyWorker<WorkerIndexedItem, SimpleCopyWo
                 int to = from + batchSize;
                 try {
                     List<IterationItem> subitems = itemsToBeProcessed.subList(from, Math.min(to, itemsToBeProcessed.size()));
-                    CopyWorkerContext<WorkerIndexedItem> simpleCopyContext = createContext(subitems);
+                    CopyMigrationIndexFeederContext<WorkerIndexedItem> simpleCopyContext = createContext(subitems);
 
                     if (!simpleCopyContext.getNotIndexed().isEmpty()) {
 

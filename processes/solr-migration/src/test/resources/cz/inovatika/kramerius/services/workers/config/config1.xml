@@ -23,8 +23,8 @@
     <threads>1</threads>
 
 
-    <worker>
-        <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
+    <feeder>
+        <feederFactory class="cz.incad.kramerius.services.migrationIndexFeeders.copy.cdk.CDKCopySolrWorkerFactory"></feederFactory>
         <request>
 
             <endpoint>select</endpoint>
@@ -81,6 +81,6 @@
             </onupdate>
 
         </destination>
-    </worker>
+    </feeder>
 </migration>
  

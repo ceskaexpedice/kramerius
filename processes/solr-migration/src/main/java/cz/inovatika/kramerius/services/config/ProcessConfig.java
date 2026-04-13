@@ -1,7 +1,7 @@
 package cz.inovatika.kramerius.services.config;
 
 // Importy pro zapouzdřené konfigurační objekty
-import cz.inovatika.kramerius.services.workers.config.WorkerConfig;
+import cz.inovatika.kramerius.services.workers.config.FeederConfig;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 
 /**
@@ -37,7 +37,7 @@ public class  ProcessConfig {
 
     // --- Encapsulated Configs ---
     private final SolrIteratorConfig iteratorConfig;
-    private final WorkerConfig workerConfig;
+    private final FeederConfig feederConfig;
 
     private ProcessConfig(Builder builder) {
         this.sourceName = builder.sourceName;
@@ -50,7 +50,7 @@ public class  ProcessConfig {
         this.introspectUrl = builder.introspectUrl;
 
         this.iteratorConfig = builder.iteratorConfig;
-        this.workerConfig = builder.workerConfig;
+        this.feederConfig = builder.feederConfig;
     }
 
     // --- Getters ---
@@ -87,6 +87,7 @@ public class  ProcessConfig {
      * Retrieves the count of worker threads to be initialized upon startup.
      * @return The number of workers.
      */
+    @Deprecated
     public int getThreads() { return threads; }
 
     /**
@@ -132,7 +133,7 @@ public class  ProcessConfig {
      * such as the number of threads, working time windows, source names, and type identifiers.
      * @return The {@code WorkerConfig} instance.
      */
-    public WorkerConfig getWorkerConfig() { return workerConfig; }
+    public FeederConfig getWorkerConfig() { return feederConfig; }
 
 
     // ==========================================================
@@ -151,7 +152,7 @@ public class  ProcessConfig {
         private String introspectUrl;
 
         private SolrIteratorConfig iteratorConfig; 
-        private WorkerConfig workerConfig;       
+        private FeederConfig feederConfig;
 
         // --- Fluid Setters ---
         public Builder sourceName(String sourceName) { this.sourceName = sourceName; return this; }
@@ -167,10 +168,10 @@ public class  ProcessConfig {
         public Builder introspectUrl(String introspectUrl) { this.introspectUrl = introspectUrl; return this; }
 
         public Builder iteratorConfig(SolrIteratorConfig config) { this.iteratorConfig = config; return this; }
-        public Builder workerConfig(WorkerConfig config) { this.workerConfig = config; return this; }
+        public Builder feederConfig(FeederConfig config) { this.feederConfig = config; return this; }
 
         public ProcessConfig build() {
-            if (sourceName == null || name == null || iteratorConfig == null || workerConfig == null) {
+            if (sourceName == null || name == null || iteratorConfig == null || feederConfig == null) {
                 throw new IllegalStateException("ProcessConfig must contain sourceName, name, iteratorConfig, and workerConfig.");
             }
             return new ProcessConfig(this);
@@ -188,7 +189,7 @@ public class  ProcessConfig {
                 ", timestampUrl='" + timestampUrl + '\'' +
                 ", introspectUrl='" + introspectUrl + '\'' +
                 ", iteratorConfig=" + iteratorConfig +
-                ", workerConfig=" + workerConfig +
+                ", workerConfig=" + feederConfig +
                 '}';
     }
 }

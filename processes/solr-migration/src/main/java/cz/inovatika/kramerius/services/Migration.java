@@ -1,9 +1,5 @@
 package cz.inovatika.kramerius.services;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.json.JSONConfiguration;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.config.ProcessConfigParser;
@@ -13,10 +9,10 @@ import cz.inovatika.kramerius.services.iterators.ProcessIterator;
 import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory;
-import cz.inovatika.kramerius.services.workers.Worker;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeeder;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 //import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
-import cz.inovatika.kramerius.services.workers.factories.WorkerFactory;
+import cz.inovatika.kramerius.services.workers.factories.MigrationIndexFeederFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -35,10 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,9 +44,9 @@ public class Migration {
 
     //protected Client client;
     protected CloseableHttpClient client;
-    protected WorkerFinisher finisher;
+    protected MigrationIndexFeederFinisher finisher;
     protected ProcessIterator iterator;
-    protected WorkerFactory workerFactory;
+    protected MigrationIndexFeederFactory migrationIndexFeederFactory;
 
 
     public Migration() throws MigrateSolrIndexException {
@@ -84,20 +77,19 @@ public class Migration {
         LOGGER.info(String.format("Loading from configuration %s", configFile.getAbsolutePath()));
         Document document = XMLUtils.parseDocument(new FileInputStream(configFile));
         ProcessConfig config = ProcessConfigParser.parse(document.getDocumentElement());
-
         ProcessIteratorFactory processIteratorFactory = ProcessIteratorFactory.create(config.getIteratorConfig().getFactoryClz());
 
         this.iterator = processIteratorFactory.createProcessIterator(config.getIteratorConfig(), this.client);
-        this.workerFactory = WorkerFactory.create(config.getWorkerConfig());
+        this.migrationIndexFeederFactory = MigrationIndexFeederFactory.create(config.getWorkerConfig());
 
-        this.finisher = this.workerFactory.createFinisher(config, this.client);
+        this.finisher = this.migrationIndexFeederFactory.createFinisher(config, this.client);
 
-        final List<Worker> worksWhatHasToBeDone = new ArrayList<>();
         try {
             this.iterator.iterate(client, (List<IterationItem> idents) -> {
-                addNewWorkToWorkers(config, this.iterator, worksWhatHasToBeDone, idents, config.getWorkingTime());
+                MigrationIndexFeeder feeder = createFeeder(config, this.iterator, idents);
+                processFeederWithWorkingTimeCheck(feeder, config.getWorkingTime());
             }, () -> {
-                finishRestWorkers(worksWhatHasToBeDone, config.getWorkingTime());
+                //finishRestFeeders(worksWhatHasToBeDone, config.getWorkingTime());
             });
 
         } catch (Exception e) {
@@ -138,7 +130,7 @@ public class Migration {
         }
     }
 
-    protected void startWorkers(List<Worker> workers, String workingtime) {
+    protected void processFeederWithWorkingTimeCheck(MigrationIndexFeeder feeder, String workingtime) {
         if (workingtime != null && workingtime.contains("-")) {
             LOGGER.info(String.format("Working time for this worker %s", workingtime));
             String[] intervalParts = workingtime.split("-");
@@ -150,14 +142,12 @@ public class Migration {
             }
         }
 
-        for (Worker w : workers) {
-            try {
-                w.process();
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                if (finisher != null) {
-                    finisher.exceptionDuringCrawl(e);
-                }
+        try {
+            feeder.process();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            if (finisher != null) {
+                finisher.exceptionDuringCrawl(e);
             }
         }
     }
@@ -277,15 +267,7 @@ public class Migration {
         LOGGER.info("The date is " + startDateTimeLT + ". The calculated wait time is : " + hours + " hours, " + minutes + " minutes a " + seconds + " seconds.");
     }
 
-    protected void addNewWorkToWorkers(ProcessConfig config, ProcessIterator processIterator, List<Worker> worksWhatHasToBeDone, List<IterationItem> identifiers, String workingtime) {
-        worksWhatHasToBeDone.add(createWorker(config, processIterator, identifiers));
-        if (worksWhatHasToBeDone.size() >= config.getThreads()) {
-            startWorkers(worksWhatHasToBeDone, workingtime);
-            worksWhatHasToBeDone.clear();
-        }
-    }
-
-    protected Worker createWorker(ProcessConfig config, ProcessIterator iteratorInstance, List<IterationItem> identifiers) {
+    protected MigrationIndexFeeder createFeeder(ProcessConfig config, ProcessIterator iteratorInstance, List<IterationItem> identifiers) {
         try {
             ApacheHTTPRequestEnricher enricher = ApacheHTTPRequestEnricher.NO_OP;
             String apiKey = config.getWorkerConfig().getRequestConfig().getApiKey();
@@ -297,15 +279,15 @@ public class Migration {
                     }
                 };
             }
-            return this.workerFactory.createWorker(config, iteratorInstance, this.client, enricher, identifiers, this.finisher);
+            return this.migrationIndexFeederFactory.createFeeder(config, iteratorInstance, this.client, enricher, identifiers, this.finisher);
         } catch (IllegalStateException e) {
             throw new RuntimeException("Cannot create worker instance " + e.getMessage());
         }
     }
 
-    protected void finishRestWorkers(List<Worker> worksWhatHasToBeDone, String workingtime) {
-        if (!worksWhatHasToBeDone.isEmpty()) {
-            startWorkers(worksWhatHasToBeDone, workingtime);
-        }
-    }
+//    protected void finishRestFeeders(List<MigrationIndexFeeder> worksWhatHasToBeDone, String workingtime) {
+//        if (!worksWhatHasToBeDone.isEmpty()) {
+//            processFeederWithWorkingTimeCheck(worksWhatHasToBeDone, workingtime);
+//        }
+//    }
 }

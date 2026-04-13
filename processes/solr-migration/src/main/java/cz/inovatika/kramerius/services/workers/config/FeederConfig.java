@@ -9,7 +9,7 @@ import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
  * Immutable configuration object for AbstractReplicateWorker, acting as the root
  * container for all worker configuration parts (Request, Destination, etc.).
  */
-public class WorkerConfig {
+public class FeederConfig {
 
     /** Factory class for creating worker instance */
     private final String factoryClz;
@@ -21,7 +21,7 @@ public class WorkerConfig {
 
 
     // --- Constructor (used only by Builder) ---
-    private WorkerConfig(Builder builder) {
+    private FeederConfig(Builder builder) {
         this.requestConfig = builder.requestConfig;
         this.destinationConfig = builder.destinationConfig;
         this.responseHandlingConfig = builder.responseHandlingConfig;
@@ -82,14 +82,14 @@ public class WorkerConfig {
         }
 
         // --- Build Method ---
-        public WorkerConfig build() {
+        public FeederConfig build() {
             if (this.requestConfig == null) {
                 throw new IllegalStateException("RequestConfig must be set before building WorkerConfig.");
             }
             if (this.destinationConfig == null) {
                 throw new IllegalStateException("DestinationConfig must be set before building WorkerConfig.");
             }
-            return new WorkerConfig(this);
+            return new FeederConfig(this);
         }
     }
 

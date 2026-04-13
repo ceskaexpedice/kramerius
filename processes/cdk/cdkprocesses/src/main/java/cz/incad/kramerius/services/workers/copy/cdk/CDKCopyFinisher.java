@@ -2,7 +2,7 @@ package cz.incad.kramerius.services.workers.copy.cdk;
 
 
 import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.incad.kramerius.utils.StringUtils;
 
@@ -23,9 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.core.MediaType;
-
-public class CDKCopyFinisher extends WorkerFinisher {
+public class CDKCopyFinisher extends MigrationIndexFeederFinisher {
 
     public static final Logger LOGGER = Logger.getLogger(CDKCopyFinisher.class.getName());
 

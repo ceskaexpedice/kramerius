@@ -173,5 +173,4 @@ public class CDKIIIFResource extends AbstractTileResource {
            throw new BadRequestException("bad request");
        }
 	}
-
 }

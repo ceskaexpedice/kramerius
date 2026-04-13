@@ -1,6 +1,5 @@
 package cz.incad.kramerius.services.workers.copy.cdk;
 
-import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.services.utils.ResultsUtils;
 import cz.incad.kramerius.services.workers.batch.CDKUpdateSolrBatchCreator;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictWorkerItem;
@@ -8,11 +7,11 @@ import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.workers.copy.CopyWorker;
+import cz.inovatika.kramerius.services.workers.copy.CopyMigrationIndexFeeder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,16 +27,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class CDKCopyWorker extends CopyWorker<CDKWorkerIndexedItem, CDKCopyContext> {
+public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWorkerIndexedItem, CDKCopyContext> {
 
-    private static final Logger LOGGER = Logger.getLogger(CDKCopyWorker.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CDKCopyMigrationIndexFeeder.class.getName());
 
-    public CDKCopyWorker(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
+    public CDKCopyMigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
         super(processConfig, client, enricher, items, finisher);
     }
 

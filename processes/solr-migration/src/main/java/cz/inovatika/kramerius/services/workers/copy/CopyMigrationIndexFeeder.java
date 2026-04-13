@@ -5,8 +5,8 @@ import cz.inovatika.kramerius.services.config.ProcessConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
-import cz.inovatika.kramerius.services.workers.Worker;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeeder;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import cz.inovatika.kramerius.services.workers.WorkerIndexedItem;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.w3c.dom.Element;
@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public abstract class CopyWorker<T extends WorkerIndexedItem, C extends CopyWorkerContext<T>> extends Worker<C> {
+public abstract class CopyMigrationIndexFeeder<T extends WorkerIndexedItem, C extends CopyMigrationIndexFeederContext<T>> extends MigrationIndexFeeder<C> {
 
-    public CopyWorker(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, WorkerFinisher finisher) {
+    public CopyMigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
         super(processConfig, client, enricher, items, finisher);
     }
 
@@ -54,11 +54,11 @@ public abstract class CopyWorker<T extends WorkerIndexedItem, C extends CopyWork
         return XMLUtils.getElements(resultElem);
     }
 
-    protected List<String> getIndexedIdentifiers(CopyWorkerContext<WorkerIndexedItem> simpleCopyContext) {
+    protected List<String> getIndexedIdentifiers(CopyMigrationIndexFeederContext<WorkerIndexedItem> simpleCopyContext) {
         return simpleCopyContext.getAlreadyIndexed().stream().map(WorkerIndexedItem::getId).collect(Collectors.toList());
     }
 
-    protected List<String> getNotIndexedIdentifiers(CopyWorkerContext<WorkerIndexedItem> simpleCopyContext) {
+    protected List<String> getNotIndexedIdentifiers(CopyMigrationIndexFeederContext<WorkerIndexedItem> simpleCopyContext) {
         return simpleCopyContext.getNotIndexed().stream().map(IterationItem::getId).collect(Collectors.toList());
     }
 
