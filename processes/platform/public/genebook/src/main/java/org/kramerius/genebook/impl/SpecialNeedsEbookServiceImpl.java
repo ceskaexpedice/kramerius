@@ -47,7 +47,7 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
     }
 
     @Override
-    public JSONObject scheduleRemoteJob(String exportServiceBaseUrl, String pid, String authHeader, String k7BaseUrl) {
+    public JSONObject scheduleRemoteJob(String exportServiceBaseUrl, String pid, String exportServiceAuthHeader, String k7ClientApiBasUrl) {
         if (DEV_HARDCODED_PID != null) {
             pid = DEV_HARDCODED_PID;
             LOGGER.warning("Using hardcoded PID '" + pid + "' for scheduling the job. This should not be used in production!");
@@ -60,34 +60,39 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
         JSONObject input = new JSONObject()
                 .put("uuid", uuid)
                 .put("format", "epub")
-                .put("range", "all")
                 .put("dropSmall", true);
-        if (k7BaseUrl != null) {
-            input.put("apiBase", k7BaseUrl);
+        //k7 base url
+        if (k7ClientApiBasUrl != null) {
+            input.put("apiBase", k7ClientApiBasUrl);
         }
+        //range
         if (DEV_HARDCODED_RANGE != null) {
             input.put("range", DEV_HARDCODED_RANGE);
+        } else {
+            input.put("range", "all");
         }
+
+        LOGGER.info(input.toString());
 
         String url = exportServiceBaseUrl + "/download";
         //LOGGER.info("url: " + url);
-        JSONObject response = callHttpPost(url, input, authHeader);
+        JSONObject response = callHttpPost(url, input, exportServiceAuthHeader);
         //LOGGER.info("response: " + response.toString());
         return response;
     }
 
     @Override
-    public JSONObject checkRemoteJob(String exportServiceBaseUrl, String jobId, String authHeader) {
+    public JSONObject checkRemoteJob(String exportServiceBaseUrl, String jobId, String exportServiceAuthHeader) {
         LOGGER.info("Checking Job " + jobId + " ...");
         String url = exportServiceBaseUrl + "/exports/" + jobId;
         //LOGGER.info("url: " + url);
-        JSONObject response = callHttpGet(url, authHeader);
+        JSONObject response = callHttpGet(url, exportServiceAuthHeader);
         //LOGGER.info("response: " + response.toString());
         return response;
     }
 
     @Override
-    public File saveJobResultToTmpFile(String serviceApiBaseUrl, String pid, String authHeader, JSONObject job) {
+    public File saveJobResultToTmpFile(String serviceApiBaseUrl, String pid, String exportServiceAuthHeader, JSONObject job) {
         try {
             if (!job.has("download_url")) {
                 throw new RuntimeException("Download url has not been provided");
@@ -95,20 +100,37 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
             String downloadUrl = serviceApiBaseUrl + job.getString("download_url");
             String filename = job.getString("filename");
 
-            LOGGER.info("Filename: " + filename);
-            LOGGER.info("Download url: " + downloadUrl);
-
-            File generatedTmpFile = File.createTempFile("special_needs_export_", ".epub");
-            //File generatedTmpFile = File.createTempFile(prefix, ".epub");
+            LOGGER.info("Export Service filename: " + filename);
+            LOGGER.info("Export Service download url: " + downloadUrl);
+            File generatedTmpFile = File.createTempFile(createFilePrefix(filename, "kramerius_export_"), ".epub");
             LOGGER.info("Generated tmp file: " + generatedTmpFile.getAbsolutePath());
 
-            long bytesRead = callHttpGetSavingResultToFile(downloadUrl, authHeader, generatedTmpFile);
+            long bytesRead = callHttpGetSavingResultToFile(downloadUrl, exportServiceAuthHeader, generatedTmpFile);
             //format to kB, MB, GB etc.
             LOGGER.info("Saved " + formatFileSize(bytesRead) + " into temporary file " + generatedTmpFile.getAbsolutePath());
             return generatedTmpFile;
         } catch (Exception e) {
             throw new RuntimeException("Failed to save job result to tmp file", e);
         }
+    }
+
+    private String createFilePrefix(String originalFilename, String fallback) {
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            return fallback;
+        }
+        String sanitized = originalFilename
+                .trim()
+                .replaceAll("[\\\\/:*?\"<>|]", "_");
+
+        if (sanitized.isEmpty()) {
+            return fallback;
+        }
+        if (sanitized.length() > 30) {
+            sanitized = sanitized.substring(0, 20)
+                    + "..."
+                    + sanitized.substring(sanitized.length() - 5);
+        }
+        return sanitized;
     }
 
     private String formatFileSize(long bytesRead) {

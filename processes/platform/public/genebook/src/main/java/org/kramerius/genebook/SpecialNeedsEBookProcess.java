@@ -2,10 +2,7 @@ package org.kramerius.genebook;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import cz.incad.kramerius.document.guice.DocumentServiceModule;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.pdf.guice.PDFModule;
-import cz.incad.kramerius.processes.guice.ProcessModule;
 import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
@@ -31,9 +28,10 @@ import java.util.logging.Logger;
  * <p>
  * #Sample configuration (configuration.properties)
  * <p>
+ * generate.epub.k7.client_api_base_url=https://api.kramerius.mzk.cz/search/api/client/v7.0
+ * <p>
  * generate.epub.service_api.base_url=https://alto-processing.trinera.cloud
  * generate.epub.service_api.auth_token=TOKEN
- * generate.epub.service_api.k7_base_url=https://api.kramerius.mzk.cz/search/api/client/v7.0
  * <p>
  * generate.epub.email.sender=kramerius-epub@trinera.cloud
  * generate.epub.email.lib_code=mzk
@@ -42,10 +40,12 @@ public class SpecialNeedsEBookProcess {
 
     public static final Logger LOGGER = Logger.getLogger(SpecialNeedsEBookProcess.class.getName());
 
+    //K7
+    public static final String GENERATE_EPUB_K7_CLIENT_API_BASE_URL = "generate.epub.k7.client_api_base_url";
+    //Export service
     public static final String GENERATE_EPUB_SERVICE_API_BASE_URL = "generate.epub.service_api.base_url";
     public static final String GENERATE_EPUB_SERVICE_API_AUTH_TOKEN = "generate.epub.service_api.auth_token";
-    public static final String GENERATE_EPUB_SERVICE_API_K7_BASE_URL = "generate.epub.service_api.k7_base_url";
-
+    //email
     public static final String GENERATE_EPUB_SUBJECT_SENDER = "generate.epub.email.sender";
     public static final String GENERATE_EPUB_SUBJECT_KEY = "generate.epub.email.subject";
     public static final String GENERATE_EPUB_TEXT_KEY = "generate.epub.email.text";
@@ -87,7 +87,7 @@ public class SpecialNeedsEBookProcess {
             throw new RuntimeException("Authentication token for Epub export service is not specified in environment variables. Please setup variable '" + GENERATE_EPUB_SERVICE_API_AUTH_TOKEN + "' to enable Epub export functionality.");
         }
         String authHeader = "Bearer " + authToken;
-        String k7BaseUrl = normalizUrl(config.getString(GENERATE_EPUB_SERVICE_API_K7_BASE_URL));
+        String k7BaseUrl = normalizUrl(config.getString(GENERATE_EPUB_K7_CLIENT_API_BASE_URL));
 
         //1. schedule remote export Job
         JSONObject job = serv.scheduleRemoteJob(serviceApiBaseUrl, pid, authHeader, k7BaseUrl);
@@ -179,8 +179,8 @@ public class SpecialNeedsEBookProcess {
                     }
 
                     String libCode = config.getString(GENERATE_EPUB_TEXT_LIB_CODE, "");
-                    String subject = KConfiguration.getInstance().getConfiguration().getString(GENERATE_EPUB_TEXT_KEY, "EPUB připraven ke stažení");
-                    String text = KConfiguration.getInstance().getConfiguration().getString(GENERATE_EPUB_SUBJECT_KEY, "");
+                    String subject = config.getString(GENERATE_EPUB_TEXT_KEY, "EPUB připraven ke stažení");
+                    String text = config.getString(GENERATE_EPUB_SUBJECT_KEY, "");
                     if (text.isBlank()) {
                         text = "Dobrý den,\n";
                         text += "požádali jste o export titulu „$title$“ ve formátu EPUB pro stažení do vašeho zařízení.\n";
@@ -208,7 +208,7 @@ public class SpecialNeedsEBookProcess {
     }
 
     private static String buildDownloadUrl(String token) {
-        String k7BaseUrl = normalizUrl(KConfiguration.getInstance().getConfiguration().getString(GENERATE_EPUB_SERVICE_API_K7_BASE_URL));
+        String k7BaseUrl = normalizUrl(KConfiguration.getInstance().getConfiguration().getString(GENERATE_EPUB_K7_CLIENT_API_BASE_URL));
         String link = String.format("%s/%s/%s", k7BaseUrl, "userrequests/userspace", token);
         LOGGER.info("Download URL: " + link);
         return link;
