@@ -165,7 +165,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
       * @param shibHeaders whether to include Shibboleth headers in the request
       * @return a Response object representing the result of the HEAD request
       */
-     public Response buildForwardApacheResponseGET(String apiKey, String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
+     public Response buildForwardApacheResponseGET(String url, String apiKey, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
         List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ?  event.getGranularTimeSnapshots() : null;
         long start = System.currentTimeMillis();
 

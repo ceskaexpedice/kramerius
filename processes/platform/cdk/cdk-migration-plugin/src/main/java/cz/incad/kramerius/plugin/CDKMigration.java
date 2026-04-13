@@ -147,13 +147,13 @@ public class CDKMigration {
         String configSource = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml";
 
         String destinationUrl = "http://localhost:8983/solr/search_v5";
-        String iterationDl = "inovatika";
+        String iterationDl = "pepo";
         String iterationUrl = "https://k7.inovatika.dev/search/api/cdk/v7.0/forward/sync/solr";
         String iterationId = "compositeId";
         String iterationApiKey = "ZByhEIPjoBkMYVym415Zh9rWpdhsBNgzDoem-_QSkK8";
         String iterationWorkingtime = "";
         //String iterationFQuery = "indexed:[2006 TO 2007]";
-        String iterationFQuery = "";
+        String iterationFQuery = "pid:\"uuid:31121f1c-649f-4deb-8e9e-501ed5780520\"";
         String showConfigurationOnly = "false";
 
         /*
