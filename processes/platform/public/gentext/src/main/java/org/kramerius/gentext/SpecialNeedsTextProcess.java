@@ -15,6 +15,8 @@ import org.apache.commons.configuration.Configuration;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.json.JSONObject;
 import org.kramerius.gentext.impl.SpecialNeedsTextServiceImpl;
 
@@ -62,6 +64,9 @@ public class SpecialNeedsTextProcess {
         LOGGER.info("Generating TEXT for special needs");
         LOGGER.info("pid: " + pid);
         LOGGER.info("email: " + email);
+
+        PluginContext pluginContext = PluginContextHolder.getContext();
+        pluginContext.updateProcessName(String.format("Generování TEXT přepisu pro  %s, titul %s", user, pid));
 
         Injector injector = Guice.createInjector( //TODO: vyhodit, co není potřeba
                 new DocHubModule(),
