@@ -23,6 +23,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -47,6 +49,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.w3c.dom.DOMException;
@@ -228,6 +232,66 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+//     public Response buildAsyncForwardResponse(String url, String apiKey, ApiCallEvent event) {
+//         // Vracíme StreamingOutput, který uvnitř spustí váš asynchronní klient
+//         StreamingOutput stream = output -> {
+//             final WritableByteChannel channel = Channels.newChannel(output);
+//
+//             LOGGER.fine(String.format("Requesting %s", url));
+////             HttpGet get = new HttpGet(url);
+////             get.setHeader("User-Agent", "CDK/1.0");
+////             if (headers && isAuthenticated() && isDnntUser()) {
+////                 String header = prepareHeader(headers);
+////                 get.setHeader("CDK_TOKEN_PARAMETERS", header);
+////             }
+////             if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
+////             return get;
+//
+//             AsyncRequestBuilder asyncRequestBuilder = AsyncRequestBuilder.get(url)
+//                     .addHeader("User-Agent", "CDK/1.0");
+//             if (isAuthenticated() && isDnntUser()) {
+//                 String header = prepareHeader(true);
+//                 asyncRequestBuilder.addHeader("CDK_TOKEN_PARAMETERS", header);
+//             }
+////                     .addHeader("X-API-KEY", apiKey)
+////                     .build();
+//
+//
+////             AsyncRequestProducer producer = AsyncRequestBuilder.get(url)
+////                     .addHeader("User-Agent", "CDK/1.0")
+////
+////                     .addHeader("X-API-KEY", apiKey)
+////                     .build();
+//
+//             AbstractBinResponseConsumer<HttpResponse> consumer = new AbstractBinResponseConsumer<HttpResponse>() {
+//                 @Override
+//                 protected void data(ByteBuffer src, boolean endOfStream) throws IOException {
+//                     channel.write(src);
+//                 }
+//
+//                 @Override
+//                 protected void start(HttpResponse response, ContentType contentType) throws HttpException, IOException {
+//                     // V JAX-RS Response už je status nastaven, zde můžeme logovat nebo kontrolovat
+//                 }
+//
+//                 @Override
+//                 protected HttpResponse buildResult() { return null; }
+//                 @Override
+//                 public void releaseResources() {}
+//             };
+//
+//             try {
+//                 // httpClient je váš CloseableHttpAsyncClient
+//                 Future<HttpResponse> future = this.asyncClient.execute(producer, consumer, null);
+//                 future.get(); // Čekáme na dokončení streamu do outputu
+//             } catch (Exception e) {
+//                 throw new IOException("Async transfer failed", e);
+//             }
+//         };
+//
+//         return Response.ok(stream).header("Access-Control-Allow-Origin", "*").build();
+//     }
 
     //protected
     protected boolean exists(String url, String apiKey) {

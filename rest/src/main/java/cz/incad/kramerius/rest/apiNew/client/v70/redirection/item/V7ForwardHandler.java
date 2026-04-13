@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -301,6 +302,8 @@ public class V7ForwardHandler extends V7RedirectHandler {
         return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
     }
 
+
+
     
     @Override
     public Response textOCR(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
@@ -359,4 +362,18 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 + "/streams/BIBLIO_MODS";
         return inputStream(url,apiKey());
     }
+//
+//    @Override
+//    public void iiifTileAsync(String pid, String iiifPath, HttpServletResponse resp, ApiCallEvent event) throws ProxyHandlerException {
+//        // 1. Sestavíme URL na zdrojový Kramerius
+//        OneInstance remote = instances.instance(this.source);
+//        String remoteUrl = remote.getBaseUrl() + "/search/iiif/" + pid + "/" + iiifPath;
+//
+//        // 2. Použijeme tvou asynchronní metodu (kterou vložíš do ProxyHandlerSupport)
+//        try {
+//            this.copyFromImageServer(remoteUrl, resp);
+//        } catch (IOException e) {
+//            throw new ProxyHandlerException("Failed to proxy IIIF tile for " + pid, e);
+//        }
+//    }
 }

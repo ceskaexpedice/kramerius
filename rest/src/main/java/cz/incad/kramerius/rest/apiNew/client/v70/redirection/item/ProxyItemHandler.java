@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 
 import cz.incad.kramerius.SolrAccess;
@@ -124,6 +125,8 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
      * @throws ProxyHandlerException if forwarding fails.
      */
     public abstract Response iiifTile(RequestMethodName method, String pid,  String region,  String size, String rotation, String qf, ApiCallEvent event) throws ProxyHandlerException;
+
+    //public abstract void iiifTileAsync(String pid, String iiifPath, HttpServletResponse resp, ApiCallEvent event) throws ProxyHandlerException;
 
 
     /**

@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 
 import cz.incad.kramerius.SolrAccess;
@@ -258,6 +259,5 @@ public class V7RedirectHandler extends ProxyItemHandler{
         // TODO Auto-generated method stub
         return null;
     }
-
 
 }

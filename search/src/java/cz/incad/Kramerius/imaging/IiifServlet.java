@@ -13,6 +13,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -67,6 +68,10 @@ public class IiifServlet extends AbstractImageServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
+
+            //  cdk mode vs
+            boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
+
             String requestURL = req.getRequestURL().toString();
             String zoomUrl = DeepZoomServlet.disectZoom(requestURL);
             StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
@@ -75,6 +80,7 @@ public class IiifServlet extends AbstractImageServlet {
             //unescape PID
             pid = URLDecoder.decode(pid, "UTF-8");
 
+            // pouziva se na strane zdrojoveho krameria; ne na cdk
             ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
             boolean permited = false;
             for (ObjectPidsPath pth : paths) {

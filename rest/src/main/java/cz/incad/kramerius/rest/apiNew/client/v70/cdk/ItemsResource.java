@@ -1589,7 +1589,6 @@ public class ItemsResource extends ClientApiResource {
             @PathParam("rotation") String rotation,
             @PathParam("qualityformat") String qf
             ) {
-
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/%s/%s/%s/%s",  pid, region, size, rotation, qf), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
