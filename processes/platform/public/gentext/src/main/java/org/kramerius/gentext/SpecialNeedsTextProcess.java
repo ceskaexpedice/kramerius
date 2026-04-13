@@ -23,20 +23,35 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+/**
+ * @see <a href="https://github.com/trineracz/alto-processing">alto-processing on Github</a>
+ * <p>
+ * #Sample configuration (configuration.properties)
+ * <p>
+ * generate.text.k7.client_api_base_url=https://api.kramerius.mzk.cz/search/api/client/v7.0
+ * <p>
+ * generate.text.service_api.base_url=https://alto-processing.trinera.cloud
+ * generate.text.service_api.auth_token=TOKEN
+ * <p>
+ * generate.text.email.sender=kramerius-epub@trinera.cloud
+ * generate.text.email.subject=Textový přepis připraven ke stažení
+ * generate.text.email.body.k7_doc_url_template=https://www.k7.trinera.cloud/uuid/$pid$
+ */
+
 public class SpecialNeedsTextProcess {
 
     public static final Logger LOGGER = Logger.getLogger(SpecialNeedsTextProcess.class.getName());
 
     //K7
-    public static final String GENERATE_EPUB_K7_CLIENT_API_BASE_URL = "generate.text.k7.client_api_base_url";
+    public static final String GENERATE_TEXT_K7_CLIENT_API_BASE_URL = "generate.text.k7.client_api_base_url";
     //Export service
-    public static final String GENERATE_EPUB_SERVICE_API_BASE_URL = "generate.text.service_api.base_url";
-    public static final String GENERATE_EPUB_SERVICE_API_AUTH_TOKEN = "generate.text.service_api.auth_token";
+    public static final String GENERATE_TEXT_SERVICE_API_BASE_URL = "generate.text.service_api.base_url";
+    public static final String GENERATE_TEXT_SERVICE_API_AUTH_TOKEN = "generate.text.service_api.auth_token";
     //email
-    public static final String GENERATE_EPUB_SUBJECT_SENDER = "generate.text.email.sender";
-    public static final String GENERATE_EPUB_SUBJECT_KEY = "generate.text.email.subject";
-    public static final String GENERATE_EPUB_TEXT_KEY = "generate.text.email.text";
-    public static final String GENERATE_EPUB_TEXT_LIB_CODE = "generate.text.email.lib_code";
+    public static final String GENERATE_TEXT_EMAIL_SENDER = "generate.text.email.sender";
+    public static final String GENERATE_TEXT_EMAIL_SUBJECT = "generate.text.email.subject";
+    public static final String GENERATE_TEXT_EMAIL_BODY = "generate.text.email.body";
+    public static final String GENERATE_TEXT_EMAIL_BODY_K7_DOC_URL_TEMPLATE = "generate.text.email.body.k7_doc_url_template";
 
     @ProcessMethod
     public static void run(
@@ -63,17 +78,17 @@ public class SpecialNeedsTextProcess {
 
         //0. extract configuration
         Configuration config = KConfiguration.getInstance().getConfiguration();
-        String serviceApiBaseUrl = normalizUrl(config.getString(GENERATE_EPUB_SERVICE_API_BASE_URL));
+        String serviceApiBaseUrl = normalizUrl(config.getString(GENERATE_TEXT_SERVICE_API_BASE_URL));
         if (serviceApiBaseUrl == null) {
-            throw new RuntimeException("Base URL for Export Service is not specified in configuration. Please setup property '" + GENERATE_EPUB_SERVICE_API_BASE_URL + "' to enable Epub export functionality.");
+            throw new RuntimeException("Base URL for Export Service is not specified in configuration. Please setup property '" + GENERATE_TEXT_SERVICE_API_BASE_URL + "' to enable Epub export functionality.");
         }
         LOGGER.info("serviceApiBaseUrl: " + serviceApiBaseUrl);
-        String authToken = config.getString(GENERATE_EPUB_SERVICE_API_AUTH_TOKEN);
+        String authToken = config.getString(GENERATE_TEXT_SERVICE_API_AUTH_TOKEN);
         if (authToken == null || authToken.isEmpty()) {
-            throw new RuntimeException("Authentication token for Export Service is not specified in environment variables. Please setup variable '" + GENERATE_EPUB_SERVICE_API_AUTH_TOKEN + "' to enable Epub export functionality.");
+            throw new RuntimeException("Authentication token for Export Service is not specified in environment variables. Please setup variable '" + GENERATE_TEXT_SERVICE_API_AUTH_TOKEN + "' to enable Epub export functionality.");
         }
         String authHeader = "Bearer " + authToken;
-        String k7BaseUrl = normalizUrl(config.getString(GENERATE_EPUB_K7_CLIENT_API_BASE_URL));
+        String k7BaseUrl = normalizUrl(config.getString(GENERATE_TEXT_K7_CLIENT_API_BASE_URL));
 
         //1. schedule remote export Job
         JSONObject job = serv.scheduleRemoteJob(serviceApiBaseUrl, pid, authHeader, k7BaseUrl);
@@ -153,27 +168,27 @@ public class SpecialNeedsTextProcess {
             if (new File(mailPropertiesFile).exists()) {
                 try {
                     Configuration config = KConfiguration.getInstance().getConfiguration();
-                    String senderEmail = config.getString(GENERATE_EPUB_SUBJECT_SENDER, null);
+                    String senderEmail = config.getString(GENERATE_TEXT_EMAIL_SENDER, null);
                     if (senderEmail == null) {
                         senderEmail = config.getString("administrator.email", null); //fallback with general property
                     }
                     if (senderEmail == null) {
                         LOGGER.warning("Sender email is not specified in configuration!" +
-                                " Setup property '" + GENERATE_EPUB_SUBJECT_SENDER + "' or 'administrator.email'" +
+                                " Setup property '" + GENERATE_TEXT_EMAIL_SENDER + "' or 'administrator.email'" +
                                 " to enable sending notification emails");
                         return;
                     }
 
-                    String libCode = config.getString(GENERATE_EPUB_TEXT_LIB_CODE, "");
-                    String subject = config.getString(GENERATE_EPUB_TEXT_KEY, "Textový přepis připraven ke stažení");
-                    String text = config.getString(GENERATE_EPUB_SUBJECT_KEY, "");
+                    String subject = config.getString(GENERATE_TEXT_EMAIL_SUBJECT, "Textový přepis připraven ke stažení");
+                    String text = config.getString(GENERATE_TEXT_EMAIL_BODY, "");
+                    String k7DocUrl = config.getString(GENERATE_TEXT_EMAIL_BODY_K7_DOC_URL_TEMPLATE, "");
                     if (text.isBlank()) {
                         text = "Dobrý den,\n";
                         text += "požádali jste o export titulu „$title$“ ve formátu TEXT pro stažení do vašeho zařízení.\n";
                         text += "Export byl dokončen a soubor je nyní připraven ke stažení.\n";
                         text += "Odkaz ke stažení: $link$\n";
-                        if (!libCode.isBlank()) {
-                            text += "Titul je také dostupný v digitální knihovně zde: https://www.digitalniknihovna.cz/" + libCode + "/uuid/$pid$\n";
+                        if (!k7DocUrl.isBlank()) {
+                            text += "Titul je také dostupný v digitální knihovně zde: " + k7DocUrl + "\n";
                         }
                         text += "Přejeme příjemné čtení!";
                     }
@@ -194,7 +209,7 @@ public class SpecialNeedsTextProcess {
     }
 
     private static String buildDownloadUrl(String token) {
-        String k7BaseUrl = normalizUrl(KConfiguration.getInstance().getConfiguration().getString(GENERATE_EPUB_K7_CLIENT_API_BASE_URL));
+        String k7BaseUrl = normalizUrl(KConfiguration.getInstance().getConfiguration().getString(GENERATE_TEXT_K7_CLIENT_API_BASE_URL));
         String link = String.format("%s/%s/%s", k7BaseUrl, "userrequests/userspace", token);
         LOGGER.info("Download URL: " + link);
         return link;

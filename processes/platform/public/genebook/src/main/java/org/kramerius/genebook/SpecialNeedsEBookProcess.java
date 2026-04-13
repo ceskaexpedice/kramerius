@@ -34,7 +34,8 @@ import java.util.logging.Logger;
  * generate.epub.service_api.auth_token=TOKEN
  * <p>
  * generate.epub.email.sender=kramerius-epub@trinera.cloud
- * generate.epub.email.lib_code=mzk
+ * generate.epub.email.subject=Textový přepis připraven ke stažení
+ * generate.epub.email.body.k7_doc_url_template=https://www.k7.trinera.cloud/uuid/$pid$
  */
 public class SpecialNeedsEBookProcess {
 
@@ -46,10 +47,10 @@ public class SpecialNeedsEBookProcess {
     public static final String GENERATE_EPUB_SERVICE_API_BASE_URL = "generate.epub.service_api.base_url";
     public static final String GENERATE_EPUB_SERVICE_API_AUTH_TOKEN = "generate.epub.service_api.auth_token";
     //email
-    public static final String GENERATE_EPUB_SUBJECT_SENDER = "generate.epub.email.sender";
-    public static final String GENERATE_EPUB_SUBJECT_KEY = "generate.epub.email.subject";
-    public static final String GENERATE_EPUB_TEXT_KEY = "generate.epub.email.text";
-    public static final String GENERATE_EPUB_TEXT_LIB_CODE = "generate.epub.email.lib_code";
+    public static final String GENERATE_EPUB_EMAIL_SENDER = "generate.epub.email.sender";
+    public static final String GENERATE_EPUB_EMAIL_SUBJECT = "generate.epub.email.subject";
+    public static final String GENERATE_EPUB_EMAIL_BODY = "generate.epub.email.body";
+    public static final String GENERATE_EPUB_EMAIL_BODY_K7_DOC_URL_TEMPLATE = "generate.epub.email.body.k7_doc_url_template";
 
     @ProcessMethod
     public static void run(
@@ -166,27 +167,27 @@ public class SpecialNeedsEBookProcess {
             if (new File(mailPropertiesFile).exists()) {
                 try {
                     Configuration config = KConfiguration.getInstance().getConfiguration();
-                    String senderEmail = config.getString(GENERATE_EPUB_SUBJECT_SENDER, null);
+                    String senderEmail = config.getString(GENERATE_EPUB_EMAIL_SENDER, null);
                     if (senderEmail == null) {
                         senderEmail = config.getString("administrator.email", null); //fallback with general property
                     }
                     if (senderEmail == null) {
                         LOGGER.warning("Sender email is not specified in configuration!" +
-                                " Setup property '" + GENERATE_EPUB_SUBJECT_SENDER + "' or 'administrator.email'" +
+                                " Setup property '" + GENERATE_EPUB_EMAIL_SENDER + "' or 'administrator.email'" +
                                 " to enable sending notification emails");
                         return;
                     }
 
-                    String libCode = config.getString(GENERATE_EPUB_TEXT_LIB_CODE, "");
-                    String subject = config.getString(GENERATE_EPUB_TEXT_KEY, "EPUB připraven ke stažení");
-                    String text = config.getString(GENERATE_EPUB_SUBJECT_KEY, "");
+                    String subject = config.getString(GENERATE_EPUB_EMAIL_SUBJECT, "EPUB připraven ke stažení");
+                    String text = config.getString(GENERATE_EPUB_EMAIL_BODY, "");
+                    String k7DocUrl = config.getString(GENERATE_EPUB_EMAIL_BODY_K7_DOC_URL_TEMPLATE, "");
                     if (text.isBlank()) {
                         text = "Dobrý den,\n";
                         text += "požádali jste o export titulu „$title$“ ve formátu EPUB pro stažení do vašeho zařízení.\n";
                         text += "Export byl dokončen a soubor je nyní připraven ke stažení.\n";
                         text += "Odkaz ke stažení: $link$\n";
-                        if (!libCode.isBlank()) {
-                            text += "Titul je také dostupný v digitální knihovně zde: https://www.digitalniknihovna.cz/" + libCode + "/uuid/$pid$\n";
+                        if (!k7DocUrl.isBlank()) {
+                            text += "Titul je také dostupný v digitální knihovně zde: " + k7DocUrl + "\n";
                         }
                         text += "Přejeme příjemné čtení!";
                     }
