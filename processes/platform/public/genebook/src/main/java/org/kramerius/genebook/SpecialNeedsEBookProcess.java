@@ -53,7 +53,6 @@ public class SpecialNeedsEBookProcess {
 
     @ProcessMethod
     public static void run(
-            //TODO: for special_needs_ebook and also special_needs_text
             @ParameterName("pid") @IsRequired String pid,
             @ParameterName("user") String user,
             @ParameterName("email") @IsRequired String email
@@ -79,12 +78,12 @@ public class SpecialNeedsEBookProcess {
         Configuration config = KConfiguration.getInstance().getConfiguration();
         String serviceApiBaseUrl = normalizUrl(config.getString(GENERATE_EPUB_SERVICE_API_BASE_URL));
         if (serviceApiBaseUrl == null) {
-            throw new RuntimeException("Base URL for Epub export service is not specified in configuration. Please setup property '" + GENERATE_EPUB_SERVICE_API_BASE_URL + "' to enable Epub export functionality.");
+            throw new RuntimeException("Base URL for Export Service is not specified in configuration. Please setup property '" + GENERATE_EPUB_SERVICE_API_BASE_URL + "' to enable Epub export functionality.");
         }
         LOGGER.info("serviceApiBaseUrl: " + serviceApiBaseUrl);
         String authToken = config.getString(GENERATE_EPUB_SERVICE_API_AUTH_TOKEN);
         if (authToken == null || authToken.isEmpty()) {
-            throw new RuntimeException("Authentication token for Epub export service is not specified in environment variables. Please setup variable '" + GENERATE_EPUB_SERVICE_API_AUTH_TOKEN + "' to enable Epub export functionality.");
+            throw new RuntimeException("Authentication token for Export Service is not specified in environment variables. Please setup variable '" + GENERATE_EPUB_SERVICE_API_AUTH_TOKEN + "' to enable Epub export functionality.");
         }
         String authHeader = "Bearer " + authToken;
         String k7BaseUrl = normalizUrl(config.getString(GENERATE_EPUB_K7_CLIENT_API_BASE_URL));
