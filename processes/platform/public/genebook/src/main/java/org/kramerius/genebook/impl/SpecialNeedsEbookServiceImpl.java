@@ -1,7 +1,10 @@
 package org.kramerius.genebook.impl;
 
+import com.google.inject.Inject;
 import cz.incad.kramerius.service.Mailer;
 import cz.incad.kramerius.service.impl.MailerImpl;
+import cz.inovatika.dochub.DocumentType;
+import cz.inovatika.dochub.UserContentSpace;
 import org.json.JSONObject;
 
 import javax.mail.Message;
@@ -19,9 +22,16 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
 
     public static final Logger LOGGER = Logger.getLogger(SpecialNeedsEbookServiceImpl.class.getName());
 
+    private static final String DEV_HARDCODED_PID = null;
+    private static final String DEV_HARDCODED_RANGE = null;
+    //private static final String DEV_HARDCODED_PID = "uuid:1f844c3d-9b0a-4970-bbf1-8d20e1bc7ded"; //tohle je jen na verejne instalaci
+    //private static final String DEV_HARDCODED_RANGE = "1"; // range – all / book / * nebo např. "7-11,23"
+
+    @Inject
+    UserContentSpace userContentSpace;
+
     @Override
     public void sendEmailNotification(String emailFrom, java.util.List<Object> recipients, String subject, String text) throws MessagingException {
-        //private void sendEmailNotification(String emailFrom, List<Object> recipients, String subject, String text) throws MessagingException {
         Mailer mailer = new MailerImpl();
         javax.mail.Session sess = mailer.getSession(null, null);
         MimeMessage msg = new MimeMessage(sess);
@@ -37,7 +47,11 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
     }
 
     @Override
-    public JSONObject scheduleRemoteJob(String exportApiBaseUrl, String pid, String authHeader, String k7BaseUrl) {
+    public JSONObject scheduleRemoteJob(String exportServiceBaseUrl, String pid, String authHeader, String k7BaseUrl) {
+        if (DEV_HARDCODED_PID != null) {
+            pid = DEV_HARDCODED_PID;
+            LOGGER.warning("Using hardcoded PID '" + pid + "' for scheduling the job. This should not be used in production!");
+        }
         LOGGER.info("Scheduling new Job for " + pid + " ...");
         if (!pid.matches("uuid:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")) {
             throw new IllegalArgumentException("PID must be in format 'uuid:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'");
@@ -51,8 +65,11 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
         if (k7BaseUrl != null) {
             input.put("apiBase", k7BaseUrl);
         }
+        if (DEV_HARDCODED_RANGE != null) {
+            input.put("range", DEV_HARDCODED_RANGE);
+        }
 
-        String url = exportApiBaseUrl + "/download";
+        String url = exportServiceBaseUrl + "/download";
         //LOGGER.info("url: " + url);
         JSONObject response = callHttpPost(url, input, authHeader);
         //LOGGER.info("response: " + response.toString());
@@ -60,13 +77,61 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
     }
 
     @Override
-    public JSONObject checkRemoteJob(String exportApiBaseUrl, String jobId, String authHeader) {
+    public JSONObject checkRemoteJob(String exportServiceBaseUrl, String jobId, String authHeader) {
         LOGGER.info("Checking Job " + jobId + " ...");
-        String url = exportApiBaseUrl + "/exports/" + jobId;
+        String url = exportServiceBaseUrl + "/exports/" + jobId;
         //LOGGER.info("url: " + url);
         JSONObject response = callHttpGet(url, authHeader);
         //LOGGER.info("response: " + response.toString());
         return response;
+    }
+
+    @Override
+    public File saveJobResultToTmpFile(String serviceApiBaseUrl, String pid, String authHeader, JSONObject job) {
+        try {
+            if (!job.has("download_url")) {
+                throw new RuntimeException("Download url has not been provided");
+            }
+            String downloadUrl = serviceApiBaseUrl + job.getString("download_url");
+            String filename = job.getString("filename");
+
+            LOGGER.info("Filename: " + filename);
+            LOGGER.info("Download url: " + downloadUrl);
+
+            File generatedTmpFile = File.createTempFile("special_needs_export_", ".epub");
+            //File generatedTmpFile = File.createTempFile(prefix, ".epub");
+            LOGGER.info("Generated tmp file: " + generatedTmpFile.getAbsolutePath());
+
+            long bytesRead = callHttpGetSavingResultToFile(downloadUrl, authHeader, generatedTmpFile);
+            //format to kB, MB, GB etc.
+            LOGGER.info("Saved " + formatFileSize(bytesRead) + " into temporary file " + generatedTmpFile.getAbsolutePath());
+            return generatedTmpFile;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save job result to tmp file", e);
+        }
+    }
+
+    private String formatFileSize(long bytesRead) {
+        //return file size in human readable format
+        if (bytesRead < 1024) {
+            return bytesRead + " B";
+        } else if (bytesRead < 1024 * 1024) {
+            return String.format("%.2f kB", bytesRead / 1024.0);
+        } else if (bytesRead < 1024 * 1024 * 1024) {
+            return String.format("%.2f MB", bytesRead / (1024.0 * 1024));
+        } else {
+            return String.format("%.2f GB", bytesRead / (1024.0 * 1024 * 1024));
+        }
+    }
+
+    @Override
+    public String saveFileToUserContentSpace(File file, DocumentType type, String user, String pid) {
+        try {
+            userContentSpace.storeBundle(new FileInputStream(file), user, pid, type, "{audit}");
+            return userContentSpace.getToken(pid, user);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save file to user content space", e);
+        }
     }
 
     private JSONObject callHttpPost(String urlString, JSONObject inputJson, String authHeader) {
@@ -149,6 +214,56 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
             }
 
             return new JSONObject(responseBody);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+
+    private long callHttpGetSavingResultToFile(String urlString, String authHeader, File outputFile) {
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            //conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Authorization", authHeader);
+
+            int status = conn.getResponseCode();
+
+            InputStream is = (status >= 200 && status < 300)
+                    ? conn.getInputStream()
+                    : conn.getErrorStream();
+
+            //ulozit Content-Type: application/octet-stream do souboru outFile
+
+            long bytesReadTotal = 0;
+            try (OutputStream os = new FileOutputStream(outputFile)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    bytesReadTotal += bytesRead;
+                    os.write(buffer, 0, bytesRead);
+                }
+            }
+
+            if (status < 200 || status >= 300) {
+                String responseBody;
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    responseBody = sb.toString();
+                }
+                throw new RuntimeException("Error downloading results: HTTP " + status + ": " + responseBody);
+            }
+            return bytesReadTotal;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

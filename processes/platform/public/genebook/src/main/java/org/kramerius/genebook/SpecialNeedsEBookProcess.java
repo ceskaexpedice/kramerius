@@ -2,8 +2,17 @@ package org.kramerius.genebook;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import cz.incad.kramerius.document.guice.DocumentServiceModule;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.pdf.guice.PDFModule;
+import cz.incad.kramerius.processes.guice.ProcessModule;
+import cz.incad.kramerius.service.guice.I18NModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.dochub.DocumentType;
+import cz.inovatika.dochub.guice.DocHubModule;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.configuration.Configuration;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
@@ -24,7 +33,7 @@ import java.util.logging.Logger;
  * <p>
  * generate.epub.service_api.base_url=https://alto-processing.trinera.cloud
  * generate.epub.service_api.auth_token=TOKEN
- * generate.epub.service_api.k7_base_url=https://api.kramerius.mzk.cz/search/
+ * generate.epub.service_api.k7_base_url=https://api.kramerius.mzk.cz/search/api/client/v7.0
  * <p>
  * generate.epub.email.sender=kramerius-epub@trinera.cloud
  * generate.epub.email.lib_code=mzk
@@ -53,15 +62,15 @@ public class SpecialNeedsEBookProcess {
         LOGGER.info("pid: " + pid);
         LOGGER.info("email: " + email);
 
-        Injector injector = Guice.createInjector(
-                //new DocHubModule(),
-                //new SolrModule(),
-                //new RepoModule(),
-                //new NullStatisticsModule(),
+        Injector injector = Guice.createInjector( //TODO: vyhodit, co není potřeba
+                new DocHubModule(),
+                new SolrModule(),
+                new RepoModule(),
+                new NullStatisticsModule(),
                 //new PDFModule(),
                 //new ProcessModule(),
                 //new DocumentServiceModule(),
-                //new I18NModule()
+                new I18NModule()
         );
 
         SpecialNeedsEbookService serv = injector.getInstance(SpecialNeedsEbookServiceImpl.class);
@@ -121,15 +130,11 @@ public class SpecialNeedsEBookProcess {
         }
 
         //3. process Job's results
-        if (!job.has("download_url")) {
-            throw new RuntimeException("Download url has not been provided");
-        }
-        String downloadUrl = serviceApiBaseUrl + job.getString("download_url");
-        String filename = job.getString("filename");
-
-        LOGGER.info("Filename: " + filename);
-        LOGGER.info("Download url: " + downloadUrl);
-        notifyUsersWithEmail(pid, filename, downloadUrl, email, serv);
+        File tmpFile = serv.saveJobResultToTmpFile(serviceApiBaseUrl, pid, authHeader, job);
+        LOGGER.info("Saved into tmp file: " + tmpFile.getAbsolutePath());
+        String downloadToken = serv.saveFileToUserContentSpace(tmpFile, DocumentType.EPUB, user, pid);
+        LOGGER.info("Download token: " + downloadToken);
+        notifyUsersWithEmail(pid, tmpFile.getName(), email, serv, downloadToken);
     }
 
     private static void logProgress(JSONObject progress) {
@@ -155,7 +160,7 @@ public class SpecialNeedsEBookProcess {
         return url;
     }
 
-    private static void notifyUsersWithEmail(String pid, String filename, String url, String email, SpecialNeedsEbookService serv) {
+    private static void notifyUsersWithEmail(String pid, String filename, String email, SpecialNeedsEbookService serv, String downloadToken) {
         if (StringUtils.isAnyString(email)) {
             LOGGER.info("Email specified: " + email);
             String mailPropertiesFile = System.getProperty("user.home") + File.separator + ".kramerius4" + File.separator + "mail.properties";
@@ -188,7 +193,7 @@ public class SpecialNeedsEBookProcess {
                     }
                     StringTemplate template = new StringTemplate(text);
                     template.setAttribute("title", filename);
-                    template.setAttribute("link", url);
+                    template.setAttribute("link", buildDownloadUrl(downloadToken));
                     template.setAttribute("pid", pid);
                     String body = template.toString();
                     LOGGER.info(body);
@@ -200,5 +205,12 @@ public class SpecialNeedsEBookProcess {
                 throw new IllegalArgumentException("Mail properties file not found");
             }
         }
+    }
+
+    private static String buildDownloadUrl(String token) {
+        String k7BaseUrl = normalizUrl(KConfiguration.getInstance().getConfiguration().getString(GENERATE_EPUB_SERVICE_API_K7_BASE_URL));
+        String link = String.format("%s/%s/%s", k7BaseUrl, "userrequests/userspace", token);
+        LOGGER.info("Download URL: " + link);
+        return link;
     }
 }
