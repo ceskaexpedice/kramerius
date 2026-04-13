@@ -1,7 +1,7 @@
 package org.kramerius.genebook;
 
-import cz.incad.kramerius.service.Mailer;
-import cz.incad.kramerius.service.impl.MailerImpl;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.antlr.stringtemplate.StringTemplate;
@@ -10,18 +10,11 @@ import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.json.JSONObject;
+import org.kramerius.genebook.impl.SpecialNeedsEbookServiceImpl;
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -51,6 +44,7 @@ public class SpecialNeedsEBookProcess {
 
     @ProcessMethod
     public static void run(
+            //TODO: for special_needs_ebook and also special_needs_text
             @ParameterName("pid") @IsRequired String pid,
             @ParameterName("user") String user,
             @ParameterName("email") @IsRequired String email
@@ -58,6 +52,20 @@ public class SpecialNeedsEBookProcess {
         LOGGER.info("Generating EPUB for special needs");
         LOGGER.info("pid: " + pid);
         LOGGER.info("email: " + email);
+
+        Injector injector = Guice.createInjector(
+                //new DocHubModule(),
+                //new SolrModule(),
+                //new RepoModule(),
+                //new NullStatisticsModule(),
+                //new PDFModule(),
+                //new ProcessModule(),
+                //new DocumentServiceModule(),
+                //new I18NModule()
+        );
+
+        SpecialNeedsEbookService serv = injector.getInstance(SpecialNeedsEbookServiceImpl.class);
+
         //0. extract configuration
         Configuration config = KConfiguration.getInstance().getConfiguration();
         String serviceApiBaseUrl = normalizUrl(config.getString(GENERATE_EPUB_SERVICE_API_BASE_URL));
@@ -73,12 +81,12 @@ public class SpecialNeedsEBookProcess {
         String k7BaseUrl = normalizUrl(config.getString(GENERATE_EPUB_SERVICE_API_K7_BASE_URL));
 
         //1. schedule remote export Job
-        JSONObject job = scheduleRemoteJob(serviceApiBaseUrl, pid, authHeader, k7BaseUrl);
+        JSONObject job = serv.scheduleRemoteJob(serviceApiBaseUrl, pid, authHeader, k7BaseUrl);
 
         //2. wait for remote export Job to finish
         while (!job.getString("state").equals("completed")) {
             try {
-                job = checkRemoteJob(serviceApiBaseUrl, job.getString("job_id"), authHeader);
+                job = serv.checkRemoteJob(serviceApiBaseUrl, job.getString("job_id"), authHeader);
                 //LOGGER.info("job: " + job.toString());
                 JSONObject progress = job.getJSONObject("progress");
                 switch (job.getString("state")) {
@@ -121,7 +129,7 @@ public class SpecialNeedsEBookProcess {
 
         LOGGER.info("Filename: " + filename);
         LOGGER.info("Download url: " + downloadUrl);
-        notifyUsersWithEmail(pid, filename, downloadUrl, email);
+        notifyUsersWithEmail(pid, filename, downloadUrl, email, serv);
     }
 
     private static void logProgress(JSONObject progress) {
@@ -147,39 +155,7 @@ public class SpecialNeedsEBookProcess {
         return url;
     }
 
-    private static JSONObject scheduleRemoteJob(String exportApiBaseUrl, String pid, String authHeader, String k7BaseUrl) {
-        LOGGER.info("Scheduling new Job for " + pid + " ...");
-        if (!pid.matches("uuid:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")) {
-            throw new IllegalArgumentException("PID must be in format 'uuid:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'");
-        }
-        String uuid = pid.substring("uuid:".length());
-        JSONObject input = new JSONObject()
-                .put("uuid", uuid)
-                .put("format", "epub")
-                .put("range", "all")
-                .put("dropSmall", true);
-        if (k7BaseUrl != null) {
-            input.put("apiBase", k7BaseUrl);
-        }
-
-        String url = exportApiBaseUrl + "/download";
-        //LOGGER.info("url: " + url);
-        JSONObject response = callHttpPost(url, input, authHeader);
-        //LOGGER.info("response: " + response.toString());
-        return response;
-    }
-
-    private static JSONObject checkRemoteJob(String exportApiBaseUrl, String jobId, String authHeader) {
-        LOGGER.info("Checking Job " + jobId + " ...");
-        String url = exportApiBaseUrl + "/exports/" + jobId;
-        //LOGGER.info("url: " + url);
-        JSONObject response = callHttpGet(url, authHeader);
-        //LOGGER.info("response: " + response.toString());
-        return response;
-    }
-
-
-    private static void notifyUsersWithEmail(String pid, String filename, String url, String email) {
+    private static void notifyUsersWithEmail(String pid, String filename, String url, String email, SpecialNeedsEbookService serv) {
         if (StringUtils.isAnyString(email)) {
             LOGGER.info("Email specified: " + email);
             String mailPropertiesFile = System.getProperty("user.home") + File.separator + ".kramerius4" + File.separator + "mail.properties";
@@ -216,7 +192,7 @@ public class SpecialNeedsEBookProcess {
                     template.setAttribute("pid", pid);
                     String body = template.toString();
                     LOGGER.info(body);
-                    sendEmailNotification(senderEmail, Arrays.asList(email), subject, body);
+                    serv.sendEmailNotification(senderEmail, Arrays.asList(email), subject, body);
                 } catch (MessagingException e) {
                     throw new RuntimeException(e);
                 }
@@ -225,109 +201,4 @@ public class SpecialNeedsEBookProcess {
             }
         }
     }
-
-    private static void sendEmailNotification(String emailFrom, List<Object> recipients, String subject, String text) throws MessagingException {
-        Mailer mailer = new MailerImpl();
-        javax.mail.Session sess = mailer.getSession(null, null);
-        MimeMessage msg = new MimeMessage(sess);
-
-        msg.setHeader("Content-Type", "text/plain; charset=UTF-8");
-        msg.setFrom(new InternetAddress(emailFrom));
-        for (Object recp : recipients) {
-            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recp.toString()));
-        }
-        msg.setSubject(subject, "UTF-8");
-        msg.setText(text, "UTF-8");
-        Transport.send(msg);
-    }
-
-    private static JSONObject callHttpPost(String urlString, JSONObject inputJson, String authHeader) {
-        HttpURLConnection conn = null;
-        try {
-            URL url = new URL(urlString);
-            conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.setRequestProperty("Authorization", authHeader);
-
-            String requestBody = inputJson.toString();
-
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = requestBody.getBytes(StandardCharsets.UTF_8);
-                os.write(input);
-            }
-
-            int status = conn.getResponseCode();
-
-            InputStream is = (status >= 200 && status < 300)
-                    ? conn.getInputStream()
-                    : conn.getErrorStream();
-
-            String responseBody;
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-                responseBody = sb.toString();
-            }
-
-            if (status < 200 || status >= 300) {
-                throw new RuntimeException("HTTP " + status + ": " + responseBody);
-            }
-
-            return new JSONObject(responseBody);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-    }
-
-    private static JSONObject callHttpGet(String urlString, String authHeader) {
-        HttpURLConnection conn = null;
-        try {
-            URL url = new URL(urlString);
-            conn = (HttpURLConnection) url.openConnection();
-
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", authHeader);
-
-            int status = conn.getResponseCode();
-
-            InputStream is = (status >= 200 && status < 300)
-                    ? conn.getInputStream()
-                    : conn.getErrorStream();
-
-            String responseBody;
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-                responseBody = sb.toString();
-            }
-
-            if (status < 200 || status >= 300) {
-                throw new RuntimeException("HTTP " + status + ": " + responseBody);
-            }
-
-            return new JSONObject(responseBody);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-    }
-
 }
