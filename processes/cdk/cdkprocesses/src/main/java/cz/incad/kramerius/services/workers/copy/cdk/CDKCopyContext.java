@@ -3,8 +3,8 @@ package cz.incad.kramerius.services.workers.copy.cdk;
 
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
-import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictWorkerItem;
-import cz.incad.kramerius.services.workers.copy.cdk.model.CDKNewConflictWorkerItem;
+import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictFeederItem;
+import cz.incad.kramerius.services.workers.copy.cdk.model.CDKNewConflictFeederItem;
 import cz.inovatika.kramerius.services.workers.copy.CopyMigrationIndexFeederContext;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class CDKCopyContext extends CopyMigrationIndexFeederContext<CDKWorkerInd
      * Existing indexing conflicts discovered during the initial iteration.
      * These are documents where a single PID is associated with multiple {@code compositeId}s in the existing index.
      */
-    private List<CDKExistingConflictWorkerItem> existingConflictRecords  = new ArrayList<>();
+    private List<CDKExistingConflictFeederItem> existingConflictRecords  = new ArrayList<>();
 
 
     /**
@@ -27,7 +27,7 @@ public class CDKCopyContext extends CopyMigrationIndexFeederContext<CDKWorkerInd
      * These arise when a PID already exists in the index and a new model tries to use the same PID
      * with a different {@code compositeId}, indicating a future conflict.
      */
-    private List<CDKNewConflictWorkerItem> newConflictRecords = new ArrayList<>();
+    private List<CDKNewConflictFeederItem> newConflictRecords = new ArrayList<>();
 
     /**
      * Constructs a replication context with indexed and not-indexed document data.
@@ -35,7 +35,7 @@ public class CDKCopyContext extends CopyMigrationIndexFeederContext<CDKWorkerInd
      * @param alreadyIndexed List of already indexed documents.
      * @param notIndexed List of PIDs of documents that have not been indexed yet.
      */
-    public CDKCopyContext(List<IterationItem> allBachItems, List<CDKWorkerIndexedItem> alreadyIndexed, List<CDKExistingConflictWorkerItem> conflictRecords, List<IterationItem> notIndexed) {
+    public CDKCopyContext(List<IterationItem> allBachItems, List<CDKWorkerIndexedItem> alreadyIndexed, List<CDKExistingConflictFeederItem> conflictRecords, List<IterationItem> notIndexed) {
         super(allBachItems, alreadyIndexed, notIndexed);
         this.workerIndexedItems = alreadyIndexed;
         this.notIndexed = notIndexed;
@@ -55,16 +55,16 @@ public class CDKCopyContext extends CopyMigrationIndexFeederContext<CDKWorkerInd
      * Returns the list of existing conflicts detected during replication.
      * Each conflict indicates a PID with multiple distinct {@code compositeId} values.
      *
-     * @return List of {@link CDKExistingConflictWorkerItem} instances, or {@code null} if not initialized.
+     * @return List of {@link CDKExistingConflictFeederItem} instances, or {@code null} if not initialized.
      */
-    public List<CDKExistingConflictWorkerItem> getExistingConflictRecords() {
+    public List<CDKExistingConflictFeederItem> getExistingConflictRecords() {
         return existingConflictRecords;
     }
 
     /**
      * @return List of new conflicts detected during the current indexing process.
      */
-    public List<CDKNewConflictWorkerItem> getNewConflictRecords() {
+    public List<CDKNewConflictFeederItem> getNewConflictRecords() {
         return newConflictRecords;
     }
 
@@ -73,15 +73,15 @@ public class CDKCopyContext extends CopyMigrationIndexFeederContext<CDKWorkerInd
      *
      * @param newConflictRecords The new conflict records to set.
      */
-    public void setNewConflictRecords(List<CDKNewConflictWorkerItem> newConflictRecords) {
+    public void setNewConflictRecords(List<CDKNewConflictFeederItem> newConflictRecords) {
         this.newConflictRecords = newConflictRecords;
     }
 
-    public void addConflictRecord(CDKNewConflictWorkerItem newConflictRecord) {
+    public void addConflictRecord(CDKNewConflictFeederItem newConflictRecord) {
         this.newConflictRecords.add(newConflictRecord);
     }
 
-    public void removeConflictRecord(CDKNewConflictWorkerItem newConflictRecord) {
+    public void removeConflictRecord(CDKNewConflictFeederItem newConflictRecord) {
         this.newConflictRecords.remove(newConflictRecord);
     }
 }

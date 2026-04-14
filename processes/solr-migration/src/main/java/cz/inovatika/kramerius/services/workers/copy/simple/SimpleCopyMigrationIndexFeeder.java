@@ -2,7 +2,7 @@ package cz.inovatika.kramerius.services.workers.copy.simple;
 
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.utils.ResultsUtils;
@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 
 public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<WorkerIndexedItem, SimpleCopyMigrationIndexFeederContext> {
 
-    public SimpleCopyMigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
-        super(processConfig, client, enricher, items, finisher);
+    public SimpleCopyMigrationIndexFeeder(MigrationConfig migrationConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
+        super(migrationConfig, client, enricher, items, finisher);
     }
 
     @Override
     protected SimpleCopyMigrationIndexFeederContext createContext(List<IterationItem> subItems) {
-        String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ? this.config.getRequestConfig().getIdIdentifier() : this.processConfig.getIteratorConfig().getIdField();
+        String identifierField = this.config.getRequestConfig().getIdIdentifier() != null ? this.config.getRequestConfig().getIdIdentifier() : this.migrationConfig.getIteratorConfig().getIdField();
 
         String reduce = subItems.stream().map(it -> {
             Map<String, Object> doc = it.getDoc();
@@ -107,7 +107,7 @@ public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<Wor
                             return elm.getNodeName().equals("result");
                         });
 
-                        UpdateSolrBatchCreator batchFact = new UpdateSolrBatchCreator(processConfig, resultElem, null);
+                        UpdateSolrBatchCreator batchFact = new UpdateSolrBatchCreator(migrationConfig, resultElem, null);
                         Document batch = batchFact.createBatchForInsert();
 
                         Element addDocument = batch.getDocumentElement();
@@ -116,7 +116,7 @@ public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<Wor
                         // on index update element
                         onIndexUpdateEvent(addDocument);
 
-                        String destinationUrl = processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl();
+                        String destinationUrl = migrationConfig.getFeederConfig().getDestinationConfig().getDestinationUrl();
                         String s = SolrUtils.sendToDest(destinationUrl, this.client, batch);
                         LOGGER.info(s);
                     }
@@ -131,7 +131,7 @@ public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<Wor
                             Element resultElem2 = XMLUtils.findElement(response2, (elm) -> {
                                 return elm.getNodeName().equals("result");
                             });
-                            UpdateSolrBatchCreator batch = new UpdateSolrBatchCreator(processConfig, resultElem2, null);
+                            UpdateSolrBatchCreator batch = new UpdateSolrBatchCreator(migrationConfig, resultElem2, null);
                             destBatch = batch.createBatchForUpdate();
 
                         } else {

@@ -1,7 +1,7 @@
 package cz.inovatika.kramerius.services.workers.copy;
 
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 
 public abstract class CopyMigrationIndexFeeder<T extends WorkerIndexedItem, C extends CopyMigrationIndexFeederContext<T>> extends MigrationIndexFeeder<C> {
 
-    public CopyMigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
-        super(processConfig, client, enricher, items, finisher);
+    public CopyMigrationIndexFeeder(MigrationConfig migrationConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
+        super(migrationConfig, client, enricher, items, finisher);
     }
 
     protected Element fetchDocumentFromRemoteSOLR(CloseableHttpClient client, List<String> pids, String fieldlist)
             throws IOException, SAXException, ParserConfigurationException {
-        String idIdentifier = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.processConfig.getIteratorConfig().getIdField();
+        String idIdentifier = this.config.getRequestConfig().getIdIdentifier() != null ?  this.config.getRequestConfig().getIdIdentifier() :  this.migrationConfig.getIteratorConfig().getIdField();
 
         String requestUrl = this.config.getRequestConfig().getUrl();
         String requestEndpoint =  this.config.getRequestConfig().getEndpoint();

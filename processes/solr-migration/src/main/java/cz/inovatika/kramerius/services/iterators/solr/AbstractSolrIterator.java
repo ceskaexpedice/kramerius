@@ -2,9 +2,9 @@ package cz.inovatika.kramerius.services.iterators.solr;
 
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
-import cz.inovatika.kramerius.services.iterators.ProcessIterator;
+import cz.inovatika.kramerius.services.iterators.MigrationIterator;
 
-public abstract class AbstractSolrIterator implements ProcessIterator {
+public abstract class AbstractSolrIterator implements MigrationIterator {
 
     protected String address;
     protected String masterQuery;

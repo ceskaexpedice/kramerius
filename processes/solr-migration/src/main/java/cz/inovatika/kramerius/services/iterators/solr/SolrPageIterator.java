@@ -1,10 +1,9 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationCallback;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
@@ -68,7 +67,7 @@ public class SolrPageIterator extends AbstractSolrIterator {
     }
 
     @Override
-    public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+    public void iterate(CloseableHttpClient client, MigrationIterationCallback iterationCallback, MigrationIterationEndCallback endCallback) {
         try {
             int offset = 0;
             int numberOfResult = Integer.MAX_VALUE;

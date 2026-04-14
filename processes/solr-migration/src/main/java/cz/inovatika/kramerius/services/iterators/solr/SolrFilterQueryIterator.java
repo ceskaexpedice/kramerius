@@ -2,8 +2,8 @@ package cz.inovatika.kramerius.services.iterators.solr;
 
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationCallback;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
@@ -92,7 +92,7 @@ public class SolrFilterQueryIterator extends AbstractSolrIterator {
     }
 
     @Override
-    public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+    public void iterate(CloseableHttpClient client, MigrationIterationCallback iterationCallback, MigrationIterationEndCallback endCallback) {
         try {
             String lastPid = null;
             String previousPid = null;

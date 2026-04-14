@@ -2,10 +2,10 @@ package cz.incad.kramerius.services.workers.copy.cdk;
 
 import cz.incad.kramerius.services.utils.ResultsUtils;
 import cz.incad.kramerius.services.workers.batch.CDKUpdateSolrBatchCreator;
-import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictWorkerItem;
+import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictFeederItem;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.StringUtils;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
@@ -35,19 +35,19 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
     private static final Logger LOGGER = Logger.getLogger(CDKCopyMigrationIndexFeeder.class.getName());
 
-    public CDKCopyMigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
-        super(processConfig, client, enricher, items, finisher);
+    public CDKCopyMigrationIndexFeeder(MigrationConfig migrationConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
+        super(migrationConfig, client, enricher, items, finisher);
     }
 
 
     @Override
     public void process() {
         try {
-            int batchSize = processConfig.getWorkerConfig().getRequestConfig().getBatchSize();
-            String onIndexedFieldList = processConfig.getWorkerConfig().getDestinationConfig().getOnIndexedFieldList();
-            String fieldList = processConfig.getWorkerConfig().getRequestConfig().getFieldList();
+            int batchSize = migrationConfig.getFeederConfig().getRequestConfig().getBatchSize();
+            String onIndexedFieldList = migrationConfig.getFeederConfig().getDestinationConfig().getOnIndexedFieldList();
+            String fieldList = migrationConfig.getFeederConfig().getRequestConfig().getFieldList();
 
-            CDKCopyFinisher.WORKERS.addAndGet(this.itemsToBeProcessed.size());
+            CDKCopyFinisher.FEEDERS.addAndGet(this.itemsToBeProcessed.size());
             LOGGER.info("["+Thread.currentThread().getName()+"] processing list of items "+this.itemsToBeProcessed.size());
             int batches = this.itemsToBeProcessed.size() / batchSize + (this.itemsToBeProcessed.size() % batchSize == 0 ? 0 :1);
             LOGGER.info("["+Thread.currentThread().getName()+"] creating  "+batches+" batch ");
@@ -76,7 +76,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
                         });
 
                         // Create batch; no trasnformers
-                        CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(cdkReplicateContext, processConfig,resultElem);
+                        CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(cdkReplicateContext, migrationConfig,resultElem);
                         Document batch = updateSolrBatch.createBatchForInsert();
 
                         Element addDocument = batch.getDocumentElement();
@@ -86,7 +86,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
                         onIndexUpdateEvent(addDocument);
 
                         CDKCopyFinisher.NEWINDEXED.addAndGet(XMLUtils.getElements(addDocument).size());
-                        String s = HTTPSolrUtils.sendToDest(processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl(), this.client, batch);
+                        String s = HTTPSolrUtils.sendToDest(migrationConfig.getFeederConfig().getDestinationConfig().getDestinationUrl(), this.client, batch);
                         LOGGER.info(s);
                     }
 
@@ -113,7 +113,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
                                     return elm.getNodeName().equals("result");
                                 });
 
-                                CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(cdkReplicateContext, processConfig,resultElem);
+                                CDKUpdateSolrBatchCreator updateSolrBatch = new CDKUpdateSolrBatchCreator(cdkReplicateContext, migrationConfig,resultElem);
                                 destBatch = updateSolrBatch.createBatchForUpdate();
                             } else {
                                 /** If there is no update list, then no update */
@@ -164,7 +164,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 //            } catch (InterruptedException | BrokenBarrierException e) {
 //                LOGGER.log(Level.SEVERE, e.getMessage(),e);
 //            }
-            LOGGER.info(String.format("Worker finished; All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  CDKCopyFinisher.WORKERS.get(), CDKCopyFinisher.BATCHES.get(), CDKCopyFinisher.NEWINDEXED.get(), CDKCopyFinisher.UPDATED.get(), CDKCopyFinisher.NOT_INDEXED_COMPOSITEID.get()));
+            LOGGER.info(String.format("Feeder finished; All work for feeders: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  CDKCopyFinisher.FEEDERS.get(), CDKCopyFinisher.BATCHES.get(), CDKCopyFinisher.NEWINDEXED.get(), CDKCopyFinisher.UPDATED.get(), CDKCopyFinisher.NOT_INDEXED_COMPOSITEID.get()));
         }
     }
 
@@ -200,10 +200,10 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
 
         List<CDKWorkerIndexedItem> indexedRecordList = new ArrayList<>();
-        List<CDKExistingConflictWorkerItem> econflicts = findIndexConflict(docs);
+        List<CDKExistingConflictFeederItem> econflicts = findIndexConflict(docs);
         removePids(econflicts, docs);
 
-        List<String> econflictPids = econflicts.stream().map(CDKExistingConflictWorkerItem::getPid).toList();
+        List<String> econflictPids = econflicts.stream().map(CDKExistingConflictFeederItem::getPid).toList();
 
         docElms.forEach(d -> {
             Map<String, Object> map = ResultsUtils.doc(d);
@@ -236,14 +236,14 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
     }
 
 
-    private static void removePids(List<CDKExistingConflictWorkerItem> conflicts, List<Map<String, Object>> docs) {
+    private static void removePids(List<CDKExistingConflictFeederItem> conflicts, List<Map<String, Object>> docs) {
         Set<String> pids = conflicts.stream()
-                .map(CDKExistingConflictWorkerItem::getPid)
+                .map(CDKExistingConflictFeederItem::getPid)
                 .collect(Collectors.toSet());
         docs.removeIf(doc -> pids.contains(doc.get("pid")));
     }
 
-    private List<CDKExistingConflictWorkerItem> findIndexConflict(List<Map<String,Object>> docs) {
+    private List<CDKExistingConflictFeederItem> findIndexConflict(List<Map<String,Object>> docs) {
         String childOfComposite = this.config.getRequestConfig().getChildOfComposite();
 
         Map<String, List<String>> pidToCompositeIds = docs.stream()
@@ -259,9 +259,9 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
 
         return pidToCompositeIds.entrySet().stream()
-                .map(entry -> new CDKExistingConflictWorkerItem(entry.getKey(),
+                .map(entry -> new CDKExistingConflictFeederItem(entry.getKey(),
                         entry.getValue().stream().distinct().collect(Collectors.toList())))
-                .filter(CDKExistingConflictWorkerItem::isConflict)
+                .filter(CDKExistingConflictFeederItem::isConflict)
                 .collect(Collectors.toList());
     }
 

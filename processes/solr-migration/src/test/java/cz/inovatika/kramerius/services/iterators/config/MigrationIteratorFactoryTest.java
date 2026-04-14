@@ -1,8 +1,8 @@
 package cz.inovatika.kramerius.services.iterators.config;
 
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
+import cz.inovatika.kramerius.services.iterators.MigrationIterator;
+import cz.inovatika.kramerius.services.iterators.MigrationIteratorFactory;
 import cz.inovatika.kramerius.services.iterators.solr.AbstractSolrIterator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ProcessIteratorFactoryTest {
+public class MigrationIteratorFactoryTest {
 
     @Test
     public void testFactory() throws ParserConfigurationException, IOException, SAXException, ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -22,11 +22,11 @@ public class ProcessIteratorFactoryTest {
 
         SolrIteratorConfig config = SolrConfigParser.parse(XMLUtils.findElement(document.getDocumentElement(), "migration"), "fq");
 
-        ProcessIteratorFactory processIteratorFactory = ProcessIteratorFactory.create(config);
-        ProcessIterator processIterator = processIteratorFactory.createProcessIterator(config, null);
-        Assert.assertTrue(processIterator instanceof AbstractSolrIterator);
+        MigrationIteratorFactory migrationIteratorFactory = MigrationIteratorFactory.create(config);
+        MigrationIterator migrationIterator = migrationIteratorFactory.createMigrationIterator(config, null);
+        Assert.assertTrue(migrationIterator instanceof AbstractSolrIterator);
 
-        AbstractSolrIterator abstractSolrIterator = (AbstractSolrIterator) processIterator;
+        AbstractSolrIterator abstractSolrIterator = (AbstractSolrIterator) migrationIterator;
         Assert.assertEquals(abstractSolrIterator.getMasterQuery(), "*:*");
         Assert.assertEquals(abstractSolrIterator.getEndpoint(), "select");
         Assert.assertEquals(abstractSolrIterator.getAddress(), "$iteration.url$");

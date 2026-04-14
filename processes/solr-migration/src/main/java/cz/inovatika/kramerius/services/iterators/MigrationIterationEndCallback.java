@@ -8,7 +8,7 @@ package cz.inovatika.kramerius.services.iterators;
  * or triggering further processing steps.
  * </p>
  */
-public interface ProcessIterationEndCallback {
+public interface MigrationIterationEndCallback {
 
     /**
      * Called when the iteration process has completed.
