@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * generate.text.service_api.base_url=https://alto-processing.trinera.cloud
  * generate.text.service_api.auth_token=TOKEN
  * <p>
- * generate.text.email.sender=kramerius-epub@trinera.cloud
+ * generate.text.email.sender=kramerius-text-export@trinera.cloud
  * generate.text.email.subject=Textový přepis připraven ke stažení
  * generate.text.email.body.k7_doc_url_template=https://www.k7.trinera.cloud/uuid/$pid$
  */
@@ -85,12 +85,12 @@ public class SpecialNeedsTextProcess {
         Configuration config = KConfiguration.getInstance().getConfiguration();
         String serviceApiBaseUrl = normalizUrl(config.getString(GENERATE_TEXT_SERVICE_API_BASE_URL));
         if (serviceApiBaseUrl == null) {
-            throw new RuntimeException("Base URL for Export Service is not specified in configuration. Please setup property '" + GENERATE_TEXT_SERVICE_API_BASE_URL + "' to enable Epub export functionality.");
+            throw new RuntimeException("Base URL for Export Service is not specified in configuration. Please setup property '" + GENERATE_TEXT_SERVICE_API_BASE_URL + "' to enable TEXT export functionality.");
         }
         LOGGER.info("serviceApiBaseUrl: " + serviceApiBaseUrl);
         String authToken = config.getString(GENERATE_TEXT_SERVICE_API_AUTH_TOKEN);
         if (authToken == null || authToken.isEmpty()) {
-            throw new RuntimeException("Authentication token for Export Service is not specified in environment variables. Please setup variable '" + GENERATE_TEXT_SERVICE_API_AUTH_TOKEN + "' to enable Epub export functionality.");
+            throw new RuntimeException("Authentication token for Export Service is not specified in environment variables. Please setup variable '" + GENERATE_TEXT_SERVICE_API_AUTH_TOKEN + "' to enable TEXT export functionality.");
         }
         String authHeader = "Bearer " + authToken;
         String k7BaseUrl = normalizUrl(config.getString(GENERATE_TEXT_K7_CLIENT_API_BASE_URL));
@@ -131,14 +131,14 @@ public class SpecialNeedsTextProcess {
                 }
                 Thread.sleep(1000); //wait for 1 second before checking again
             } catch (final InterruptedException e) {
-                throw new RuntimeException("Thread was interrupted while waiting for Epub export to finish", e);
+                throw new RuntimeException("Thread was interrupted while waiting for TEXT export to finish", e);
             }
         }
 
         //3. process Job's results
         File tmpFile = serv.saveJobResultToTmpFile(serviceApiBaseUrl, pid, authHeader, job);
         LOGGER.info("Saved into tmp file: " + tmpFile.getAbsolutePath());
-        String downloadToken = serv.saveFileToUserContentSpace(tmpFile, DocumentType.EPUB, user, pid);
+        String downloadToken = serv.saveFileToUserContentSpace(tmpFile, DocumentType.TEXT, user, pid);
         LOGGER.info("Download token: " + downloadToken);
         notifyUsersWithEmail(pid, tmpFile.getName(), email, serv, downloadToken);
     }
