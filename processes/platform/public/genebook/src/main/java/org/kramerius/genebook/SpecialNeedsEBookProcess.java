@@ -214,7 +214,7 @@ public class SpecialNeedsEBookProcess {
 
     private static String buildDownloadUrl(String token) {
         String k7BaseUrl = normalizUrl(KConfiguration.getInstance().getConfiguration().getString(GENERATE_EPUB_K7_CLIENT_API_BASE_URL));
-        String link = String.format("%s/%s/%s", k7BaseUrl, "userrequests/userspace", token);
+        String link = String.format("%s/%s/%s/epub", k7BaseUrl, "userrequests/userspace", token);
         LOGGER.info("Download URL: " + link);
         return link;
     }
