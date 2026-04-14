@@ -63,74 +63,63 @@ public class UsersRequestsResource extends ClientApiResource {
         };
     }
 
-
     @GET
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
-        System.err.println("Requesting user space with token: " + token + " and docType: " + docTypeStr);
-        System.err.println("DocumentType: " + docTypeStr);
+        LOGGER.fine("Requesting user space with token: " + token + " and docType: " + docTypeStr);
         DocumentType docType;
         try {
             docType = DocumentType.valueOf(docTypeStr.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException("Invalid document type: " + docTypeStr);
         }
-        System.err.println("Parsed document type: " + docType);
-        String contentType = switch (docType) {
-            case PDF -> "application/pdf";
-            case TEXT -> "text/plain";
-            case EPUB -> "application/epub+zip";
-        };
-
         User user = this.userProvider.get();
-        System.err.println("User requesting the content: " + user.getLoginname());
-        boolean exists = this.userContentSpace.exists(token);
-        System.err.println("Content exists: " + exists);
-        if (exists) {
-            try {
-                //POZOR: tady to haze vyjimku: java.io.IOException: Denní limit 2 stažení byl pro uživatele not_logged vyčerpán.
-                Optional<InputStream> bundle = this.userContentSpace.getBundle(token, user.getLoginname(), docType);
-                if (bundle.isPresent()) {
-                    InputStream is = bundle.get();
-                    StreamingOutput stream = output -> {
-                        try (is) {
-                            is.transferTo(output);
-                        } catch (Exception e) {
-                            throw new WebApplicationException(e);
-                        }
-                    };
 
-                    String filename = switch (docType) {
-                        case PDF -> "export_" + token + ".pdf";
-                        case TEXT -> "export_" + token + ".txt";
-                        case EPUB -> "export_" + token + ".epub";
-                    };
-                    return Response.ok(stream)
-                            .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
-                            .type(contentType)
-                            .build();
-                } else {
-                    return Response.status(Response.Status.NOT_FOUND)
-                            .entity(new JSONObject().put("error", "Bundle for token=" + token + ", user=" + user.getLoginname() + " and docType=" + docType + " not found").toString())
-                            .type(MediaType.APPLICATION_JSON)
-                            .build();
-                }
-            } catch (UserContentSpace.UsageException e) {
-                return Response.status(429)
-                        .entity(new JSONObject().put("error", "Usage limited for user=" + user.getLoginname()).put("message", e.getMessage()).toString())
-                        .type(MediaType.APPLICATION_JSON)
-                        .build();
-            } catch (ClientErrorException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new WebApplicationException(e);
-            }
-        } else {
+        if (!this.userContentSpace.exists(token)) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new JSONObject().put("error", "User content space for token=" + token + " not found").toString())
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
+        try {
+            Optional<InputStream> bundle = this.userContentSpace.getBundle(token, user.getLoginname(), docType);
+            if (!bundle.isPresent()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(new JSONObject().put("error", "Bundle for token=" + token + ", user=" + user.getLoginname() + " and docType=" + docType + " not found").toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
 
+            InputStream is = bundle.get();
+            StreamingOutput stream = output -> {
+                try (is) {
+                    is.transferTo(output);
+                } catch (Exception e) {
+                    throw new WebApplicationException(e);
+                }
+            };
+            return Response.ok(stream)
+                    .header("Content-Disposition", "attachment; filename=\"" +
+                            switch (docType) {
+                                case PDF -> "export_" + token + ".pdf";
+                                case TEXT -> "export_" + token + ".txt";
+                                case EPUB -> "export_" + token + ".epub";
+                            } + "\"")
+                    .type(switch (docType) {
+                        case PDF -> "application/pdf";
+                        case TEXT -> "text/plain";
+                        case EPUB -> "application/epub+zip";
+                    })
+                    .build();
+        } catch (UserContentSpace.UsageException e) {
+            return Response.status(429)
+                    .entity(new JSONObject().put("error", "Usage limited for user=" + user.getLoginname()).put("message", e.getMessage()).toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (ClientErrorException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebApplicationException(e);
+        }
     }
 }

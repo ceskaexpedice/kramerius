@@ -33,6 +33,8 @@ import java.util.logging.Logger;
  */
 public class FileUserContentSpaceImpl implements UserContentSpace {
 
+    Logger LOGGER = Logger.getLogger(UserContentSpace.class.getName());
+
     public static final String DATA_FOLDER = "data";
 
     private final Path rootPath;
@@ -65,11 +67,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
             throw new UsageException("Expiration information is missing for token: " + token);
         }
         String dateStr = Files.readString(expirePath, StandardCharsets.UTF_8);
-        System.out.println("Expiration date string: " + dateStr);
         Instant expiryDate = Instant.parse(dateStr);
-        System.out.println("Expiry date: " + expiryDate.toString());
-        Instant now = Instant.now();
-        System.out.println("Current time: " + now.toString());
         boolean expired = Instant.now().isAfter(expiryDate);
         if (expired) {
             throw new UsageException("Token is expired");
@@ -97,27 +95,29 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
 
     @Override
     public String storeBundle(InputStream is, String user, String pid, DocumentType type, String auditInfo) throws IOException {
-        Logger LOGGER = Logger.getLogger("TEST");
-        LOGGER.warning("Storing bundle for user: " + user);
-        System.err.println("storing bundle");
+        LOGGER.info("Storing bundle for user: " + user);
         String token = generateHash(user, pid);
         Path targetDir = resolveTokenPath(token);
-        LOGGER.warning("targetDir: " + targetDir);
-        System.err.println("target dir: " + targetDir);
+        LOGGER.info("targetDir: " + targetDir);
         Files.createDirectories(targetDir);
 
         int expirationHours = KConfiguration.getInstance()
                 .getConfiguration()
                 .getInt("dochub.user.expiration.hours", 48);
-        LOGGER.warning("Expiration hours: " + expirationHours);
-        System.err.println("expiration hours: " + expirationHours);
+        LOGGER.info("Expiration hours: " + expirationHours);
         Instant expiresAt = Instant.now().plus(expirationHours, ChronoUnit.HOURS);
-        LOGGER.warning("expires at: " + expiresAt);
-        System.err.println("expires at: " + expiresAt);
-
+        LOGGER.info("Expires at: " + expiresAt);
         Path filePath = targetDir.resolve("content." + type.name().toLowerCase());
-        LOGGER.warning("file path: " + filePath);
-        System.err.println("file path: " + filePath);
+        LOGGER.info("File path: " + filePath);
+
+        if (filePath.toFile().exists()) { //delete file, if already exists
+            try {
+                Files.delete(filePath);
+            } catch (IOException e) {
+                throw new IOException("Failed to delete previous version of the file: " + filePath, e);
+            }
+        }
+
         try (OutputStream os = Files.newOutputStream(filePath)) {
             is.transferTo(os);
         }
@@ -134,10 +134,9 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
     @Override
     public Optional<InputStream> getBundle(String token, String user, DocumentType type) throws UsageException, IOException {
         String filename = "content." + type.name().toLowerCase();
-        System.out.println("Getting bundle for token: " + token + ", user: " + user + ", type: " + type);
-        System.out.println("File: " + filename);
+        LOGGER.fine("Getting bundle for token: " + token + ", user: " + user + ", type: " + type);
         Path filePath = resolveTokenPath(token).resolve(filename);
-        System.out.println("Resolved file path: " + filePath);
+        LOGGER.fine("Resolved file path: " + filePath);
         if (Files.exists(filePath)) {
             return Optional.of(Files.newInputStream(filePath));
         }
@@ -149,9 +148,6 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
     @Override
     public boolean exists(String token) {
         Path path = resolveTokenPath(token);
-        Logger logger = Logger.getLogger("TEST");
-        logger.warning("Checking if exists for token: " + path);
-        System.err.println("checking if exists for token: " + path);
         return Files.exists(path);
     }
 

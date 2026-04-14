@@ -149,6 +149,7 @@ public class SpecialNeedsEbookServiceImpl implements org.kramerius.genebook.Spec
     @Override
     public String saveFileToUserContentSpace(File file, DocumentType type, String user, String pid) {
         try {
+            LOGGER.info("Saving file " + file.getAbsolutePath() + " to user content space for user '" + user + "' and pid '" + pid + "' ...");
             userContentSpace.storeBundle(new FileInputStream(file), user, pid, type, "{audit}");
             return userContentSpace.getToken(pid, user);
         } catch (IOException e) {
