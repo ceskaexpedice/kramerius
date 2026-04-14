@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.libs;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import com.sun.jersey.api.client.Client;
 
@@ -84,7 +85,7 @@ public interface OneInstance {
 	 * @param remoteAddr Remote addr
 	 * @return
 	 */
-	public ProxyItemHandler createProxyItemHandler(User user, CloseableHttpClient closeableHttpClient, DeleteTriggerSupport triggerSupport, SolrAccess solrAccess, String source, String pid, String remoteAddr);
+	public ProxyItemHandler createProxyItemHandler(User user, CloseableHttpClient closeableHttpClient, DeleteTriggerSupport triggerSupport,  SolrAccess solrAccess, String source, String pid, String remoteAddr);
 
 	/**
 	 * Creates user's proxy handler; The class responsible for handling requests from item resource forwarding them to destination DL
@@ -94,7 +95,7 @@ public interface OneInstance {
 	 * @param remoteAddr
 	 * @return
 	 */
-	public ProxyUserHandler createProxyUserHandler(User user, CloseableHttpClient closeableHttpClient,  SolrAccess solrAccess, String source, String remoteAddr);
+	public ProxyUserHandler createProxyUserHandler(User user, CloseableHttpClient closeableHttpClient,   SolrAccess solrAccess, String source, String remoteAddr);
 
 
 

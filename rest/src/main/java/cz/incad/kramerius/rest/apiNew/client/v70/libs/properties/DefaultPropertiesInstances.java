@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -49,6 +51,7 @@ public class DefaultPropertiesInstances implements Instances {
     private final ReharvestManager reharvestManager;
     private final ConfigManager configManager;
     private final CDKRequestCacheSupport cacheSupport;
+    private final ExecutorService executor;
     private final DeleteTriggerSupport deleteTriggerSupport;
 
     @Inject
@@ -61,6 +64,10 @@ public class DefaultPropertiesInstances implements Instances {
         this.reharvestManager = reharvestManager;
         this.configManager = configManager;
         this.deleteTriggerSupport = deleteTriggerSupport;
+
+        int executors = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.executor", 40);
+        this.executor = Executors.newFixedThreadPool(executors);
+
         LOGGER.info("Refreshing configuration with reharvestManager "+this.reharvestManager);
         //refresh();
     }
@@ -107,25 +114,13 @@ public class DefaultPropertiesInstances implements Instances {
 
         names.add(acronym);
 
-        /*
-    public DefaultOnePropertiesInstance(
-            CDKRequestCacheSupport cacheSupport,
-            ConfigManager configManager,
-            ReharvestManager reharvestManager,
-            DeleteTriggerSupport triggerSupport,
-            Instances instances,
-            String instanceAcronym,
-            boolean connectedState,
-            TypeOfChangedStatus typeOfChangedStatus
-    ) {
-
-         */
 
         DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(
                 this, this.cacheSupport,
                 this.configManager,
                 this.reharvestManager,
                 this.deleteTriggerSupport,
+                this.executor,
                 acronym,
                 connected,
                 typeOfChange);
@@ -201,8 +196,6 @@ public class DefaultPropertiesInstances implements Instances {
     public void cronRefresh() {
         this.refresh();
         try {
-            
-            
             Map<String, Boolean> statuses = new HashMap<>();
             Client client = Client.create();
             String string = registerData(client, STATUS_URL);

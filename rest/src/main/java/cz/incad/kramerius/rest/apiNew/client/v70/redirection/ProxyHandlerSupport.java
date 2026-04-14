@@ -185,33 +185,35 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 
                 LOGGER.log(Level.FINE, String.format(" -> code %d", code));
                 HttpEntity entity = response.getEntity();
-                long length = entity.getContentLength();
                 String responseMimeType = entity.getContentType();
-
-                //TODO: Jak kopirovat data
-                byte[] bytes = IOUtils.toByteArray(entity.getContent());
+                InputStream contentStream = entity.getContent();
+                StreamingOutput outputStream = null;
                 if (dataConsumer != null) {
+                    byte[] bytes = IOUtils.toByteArray(contentStream);
                     dataConsumer.accept(bytes, responseMimeType);
-                }
-
-                StreamingOutput stream = new StreamingOutput() {
-                    public void write(OutputStream output) throws IOException, WebApplicationException {
-                        try {
-                            IOUtils.copy(new ByteArrayInputStream(bytes), output);
-                        } catch (Exception e) {
-                            throw new WebApplicationException(e);
+                    outputStream = output -> {
+                        output.write(bytes);
+                        output.flush();
+                        EntityUtils.consumeQuietly(entity);
+                    };
+                } else {
+                    outputStream = output -> {
+                        try (InputStream in = contentStream) {
+                            IOUtils.copy(in, output);
+                            output.flush();
                         } finally {
                             EntityUtils.consumeQuietly(entity);
                         }
-                    }
-                };
+                    };
+                }
+
                 ResponseBuilder respEntity = null;
                 if (mimetype != null) {
-                    respEntity = Response.status(200).entity(stream).type(mimetype);
+                    respEntity = Response.status(200).entity(outputStream).type(mimetype);
                 } else if (responseMimeType != null) {
-                    respEntity = Response.status(200).entity(stream).type(responseMimeType);
+                    respEntity = Response.status(200).entity(outputStream).type(responseMimeType);
                 } else {
-                    respEntity = Response.status(200).entity(stream);
+                    respEntity = Response.status(200).entity(outputStream);
                 }
                 long contentLength = entity.getContentLength();
                 if (contentLength >= 0) {
