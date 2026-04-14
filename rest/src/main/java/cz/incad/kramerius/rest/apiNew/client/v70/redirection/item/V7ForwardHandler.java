@@ -6,8 +6,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,8 +46,18 @@ public class V7ForwardHandler extends V7RedirectHandler {
 
     public static final Logger LOGGER = Logger.getLogger(V7ForwardHandler.class.getName());
 
-    public V7ForwardHandler(CDKRequestCacheSupport cacheSupport, ReharvestManager reharvestManager, Instances instances, User user, CloseableHttpClient closeableHttpClient, DeleteTriggerSupport triggerSupport, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
-        super(cacheSupport, reharvestManager,instances, user,  closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+    public V7ForwardHandler(CDKRequestCacheSupport cacheSupport,
+                            ReharvestManager reharvestManager,
+                            Instances instances,
+                            User user,
+                            CloseableHttpClient closeableHttpClient,
+                            DeleteTriggerSupport triggerSupport,
+                            ExecutorService executorService,
+                            SolrAccess solrAccess,
+                            String source,
+                            String pid,
+                            String remoteAddr) {
+        super(cacheSupport, reharvestManager,instances, user,  closeableHttpClient, triggerSupport, executorService, solrAccess, source, pid, remoteAddr);
 	}
 
     protected String forwardUrl() {
@@ -52,120 +66,104 @@ public class V7ForwardHandler extends V7RedirectHandler {
         return baseurl;
     }
 
-
     @Override
     public Response info(ApiCallEvent event) throws ProxyHandlerException {
-
-        JSONArray licenses = null;
+        long startTime = System.currentTimeMillis();
         String baseurl = this.forwardUrl();
         String providedByUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/providedBy/" + this.pid;
+        String infoUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/info";
         LOGGER.fine("Provided by url "+providedByUrl +  " = "+ this.user.toString());
+        long[] taskTimes = new long[2];
 
-        String providedByLicenses = super.cacheStringHit_PID_USER(providedByUrl, this.pid, true,"info", event);
-        if (providedByLicenses == null) {
-
-
-            HttpGet providedByHttpGet =  apacheGet(providedByUrl, apiKey(), true);
-            try (CloseableHttpResponse response = apacheClient.execute(providedByHttpGet)) {
-                int code = response.getCode();
-                if (code == 200) {
-                    HttpEntity entity = response.getEntity();
-                    InputStream is = entity.getContent();
-                    String providedByString = IOUtils.toString(is, Charset.forName("UTF-8"));
-                    try {
-                        CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
-                                providedByString,
-                                "application/json",
-                                providedByUrl,
-                                this.pid,
-                                source,
-                                LocalDateTime.now(),
-                                userCacheIdentification()
-                        );
-                        LOGGER.fine( String.format("Storing cache item is %s", cacheItem.toString()));
-                        this.cacheSupport.save(cacheItem);
-                    } catch (SQLException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        CompletableFuture<String> providedByFuture = CompletableFuture.supplyAsync(() -> {
+            long s = System.currentTimeMillis();
+            String cached = super.cacheStringHit_PID_USER(providedByUrl, this.pid, true, "info", event);
+            if (cached == null) {
+                try {
+                    HttpGet get = apacheGet(providedByUrl, apiKey(), true);
+                    try (CloseableHttpResponse response = apacheClient.execute(get)) {
+                        if (response.getCode() == 200) {
+                            String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+                            CompletableFuture.runAsync(() -> saveToCache(result, providedByUrl, true), this.executor);
+                            cached = result;
+                        }
                     }
-
-                    JSONObject providedByJSON = new JSONObject(providedByString);
-                    licenses = providedByJSON.optJSONArray("licenses");
-                    if (licenses != null)  providedByJSON.put("providedByLicenses", licenses);
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "ProvidedBy fetch failed", e);
                 }
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
             }
-        } else {
-            JSONObject providedByJSON = new JSONObject(providedByLicenses);
-            licenses = providedByJSON.optJSONArray("licenses");
-        }
-        LOGGER.fine(String.format("Resolved licenses %s, finding info",licenses));
+            taskTimes[0] = System.currentTimeMillis() - s;
+            return cached;
+        }, this.executor);
 
-
-        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/info";
-        // Delete trigger
-        HttpHead infoHead =  apacheHead(url, apiKey(), true);
-        try (CloseableHttpResponse response = apacheClient.execute(infoHead)) {
-            int code = response.getCode();
-            if (code == 404 && this.deleteTriggerSupport != null) {
-                this.deleteTriggerSupport.executeDeleteTrigger(this.pid);
-            }
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
-        }
-        String infoContentString = super.cacheStringHit_PID_USER(url, this.pid, false,"info", event);
-        JSONObject infoContentJSON = null;
-        if (infoContentString != null) {
-            // found in cache
-            infoContentJSON = new JSONObject(infoContentString);
-            if (licenses != null) {
-                CACHE_LOGGER.log(Level.FINE, "<<< CACHE HIT !!! /info");
-                infoContentJSON.put("providedByLicenses", licenses);
-            }
-        } else {
-            HttpGet infoGet =  apacheGet(url,apiKey(), true);
-            try (CloseableHttpResponse response = apacheClient.execute(infoGet)) {
-                int code = response.getCode();
-                if (code == 200) {
-                    HttpEntity entity = response.getEntity();
-                    InputStream is = entity.getContent();
-                    infoContentString = IOUtils.toString(is, Charset.forName("UTF-8"));
-                    infoContentJSON = new JSONObject(infoContentString);
-                    try {
-                        CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
-                                infoContentString,
-                                "application/json",
-                                url,
-                                this.pid,
-                                source,
-                                LocalDateTime.now(),
-                                null
-                        );
-                        LOGGER.fine( String.format("Storing cache item %s", cacheItem.toString()));
-                        this.cacheSupport.save(cacheItem);
-
-                    } catch (SQLException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+        CompletableFuture<String> infoFuture = CompletableFuture.supplyAsync(() -> {
+            long s = System.currentTimeMillis();
+            String cached = super.cacheStringHit_PID_USER(infoUrl, this.pid, false, "info", event);
+            if (cached == null) {
+                try {
+                    HttpGet get = apacheGet(infoUrl, apiKey(), true);
+                    try (CloseableHttpResponse response = apacheClient.execute(get)) {
+                        if (response.getCode() == 200) {
+                            String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+                            // Krok C: Asynchronní uložení
+                            CompletableFuture.runAsync(() -> saveToCache(result, infoUrl, false), this.executor);
+                            cached = result;
+                        }
                     }
-
-                    if (licenses != null) {
-                        infoContentJSON.put("providedByLicenses", licenses);
-                    }
-
-                } else {
-                    return Response.status(code).build();
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Info fetch failed", e);
                 }
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
-            }
-        }
 
-        if (infoContentJSON != null) {
-            LOGGER.fine(String.format("Returning from json %s", infoContentJSON.toString()));
-            ResponseBuilder respEntity = Response.status(200).entity(infoContentJSON.toString());
-            return respEntity.build();
-        } else {
-            return super.info(event);
+            }
+            taskTimes[1] = System.currentTimeMillis() - s;
+            return cached;
+        }, this.executor);
+
+        try {
+            String providedByString = providedByFuture.get(5, TimeUnit.SECONDS);
+            String infoString = infoFuture.get(5, TimeUnit.SECONDS);
+            long totalExecutionTime = System.currentTimeMillis() - startTime;
+
+            LOGGER.fine(String.format(
+                    "PERF STATS [%s]: Total proxy time: %dms | ProvidedBy Task: %dms | Info Task: %dms | Parallel Gain: %dms",
+                    this.pid,
+                    totalExecutionTime,
+                    taskTimes[0],
+                    taskTimes[1],
+                    (taskTimes[0] + taskTimes[1]) - totalExecutionTime
+            ));
+
+            JSONArray licenses = null;
+            if (providedByString != null) {
+                JSONObject pbJson = new JSONObject(providedByString);
+                licenses = pbJson.optJSONArray("licenses");
+            }
+
+            if (infoString != null) {
+                JSONObject infoJson = new JSONObject(infoString);
+                if (licenses != null) {
+                    infoJson.put("providedByLicenses", licenses);
+                }
+                return Response.ok(infoJson.toString()).build();
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Parallel execution failed", e);
+        }
+        return super.info(event);
+    }
+
+
+
+    private void saveToCache(String content, String url, boolean isUserSpecific) {
+        try {
+            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>) CDKRequestItemFactory.createCacheItem(
+                    content, "application/json", url, this.pid, source, LocalDateTime.now(),
+                    isUserSpecific ? userCacheIdentification() : null
+            );
+            this.cacheSupport.save(cacheItem);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Async cache save failed", e);
         }
     }
 
@@ -174,37 +172,37 @@ public class V7ForwardHandler extends V7RedirectHandler {
     public Response imageThumb(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/image/thumb";
+
         if (method == RequestMethodName.head) {
             return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, true, true);
-        } else {
-            CDKRequestItem cdkRequestItem = cacheItemHit_PID_USER(url, pid, false, "thumb", event);
-            if (cdkRequestItem != null) {
-                byte[] data = ((ByteBuffer)cdkRequestItem.getData()).array();
-                StreamingOutput stream = new StreamingOutput() {
-                    public void write(OutputStream output) throws IOException, WebApplicationException {
-                        try {
-                            IOUtils.copy(new ByteArrayInputStream(data), output);
-                        } catch (Exception e) {
-                            throw new WebApplicationException(e);
-                        }
-                    }
-                };
-                ResponseBuilder respEntity = null;
-                if (cdkRequestItem.getMimeType() != null) {
-                    respEntity = Response.status(200).entity(stream).type(cdkRequestItem.getMimeType());
-                } else {
-                    respEntity = Response.status(200).entity(stream);
-                }
-                long contentLength = data.length;
-                if (contentLength >= 0) {
-                    respEntity.header("Content-Length", String.valueOf(contentLength));
-                }
-                return respEntity.build();
-            } else {
-                return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, (data, mimetype)-> {
+        }
 
+        CDKRequestItem cdkRequestItem = cacheItemHit_PID_USER(url, pid, false, "thumb", event);
+        if (cdkRequestItem != null) {
+            ByteBuffer buffer = (ByteBuffer) cdkRequestItem.getData();
+            final int contentLength = buffer.remaining();
+            StreamingOutput stream = output -> {
+                if (buffer.hasArray()) {
+                    output.write(buffer.array(), buffer.arrayOffset() + buffer.position(), contentLength);
+                } else {
+                    byte[] bytes = new byte[contentLength];
+                    buffer.get(bytes);
+                    output.write(bytes);
+                }
+                output.flush();
+            };
+
+            ResponseBuilder respEntity = Response.ok(stream);
+            if (cdkRequestItem.getMimeType() != null) {
+                respEntity.type(cdkRequestItem.getMimeType());
+            }
+            respEntity.header("Content-Length", contentLength);
+            return respEntity.build();
+        } else {
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, (data, mimetype) -> {
+                CompletableFuture.runAsync(() -> {
                     try {
-                        CDKRequestItem<ByteBuffer> cacheItem = (CDKRequestItem<ByteBuffer>)  CDKRequestItemFactory.createCacheItem(
+                        CDKRequestItem<ByteBuffer> cacheItem = (CDKRequestItem<ByteBuffer>) CDKRequestItemFactory.createCacheItem(
                                 ByteBuffer.wrap(data),
                                 mimetype,
                                 url,
@@ -215,10 +213,10 @@ public class V7ForwardHandler extends V7RedirectHandler {
                         );
                         this.cacheSupport.save(cacheItem);
                     } catch (SQLException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        LOGGER.log(Level.SEVERE, "Async thumb cache save failed: " + e.getMessage(), e);
                     }
-                });
-            }
+                }, this.executor);
+            });
         }
     }
 
@@ -257,21 +255,23 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String modsString = super.cacheStringHit_PID_USER(url, this.pid, false,"mods", event);
             if (modsString == null) {
                 return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, false, event, (data, mimeType)-> {
-                    try {
-                        CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
-                                new String(data, Charset.forName("UTF-8")),
-                                "application/xml",
-                                url,
-                                this.pid,
-                                source,
-                                LocalDateTime.now(),
-                                null
-                        );
-                        LOGGER.fine( String.format("Storing cache item %s", cacheItem.toString()));
-                        this.cacheSupport.save(cacheItem);
-                    } catch (SQLException e) {
-                        LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                    }
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
+                                    new String(data, Charset.forName("UTF-8")),
+                                    "application/xml",
+                                    url,
+                                    this.pid,
+                                    source,
+                                    LocalDateTime.now(),
+                                    null
+                            );
+                            LOGGER.fine( String.format("Storing cache item %s", cacheItem.toString()));
+                            this.cacheSupport.save(cacheItem);
+                        } catch (SQLException e) {
+                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                        }
+                    });
                 });
             } else {
                 //CACHE_LOGGER.log(Level.FINE, "<<< CACHE HIT !!! /metadata/mods");
@@ -285,11 +285,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
         if (method == RequestMethodName.head) {
             return super.zoomifyImageProperties(method,event);
         } else {
-            
             String baseurl = forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
                     + "/ImageProperties.xml";
-
             return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
        }
     }
@@ -303,8 +301,6 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
 
-
-    
     @Override
     public Response textOCR(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = this.forwardUrl();
@@ -362,9 +358,16 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 + "/streams/BIBLIO_MODS";
         return inputStream(url,apiKey());
     }
-//
+
+
+
+
 //    @Override
 //    public void iiifTileAsync(String pid, String iiifPath, HttpServletResponse resp, ApiCallEvent event) throws ProxyHandlerException {
+//        String baseurl = this.forwardUrl();
+//        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
+//                + "/streams/BIBLIO_MODS";
+//
 //        // 1. Sestavíme URL na zdrojový Kramerius
 //        OneInstance remote = instances.instance(this.source);
 //        String remoteUrl = remote.getBaseUrl() + "/search/iiif/" + pid + "/" + iiifPath;

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,8 +24,14 @@ public class V7RedirectHandler extends ProxyItemHandler{
 
 	public static final Logger LOGGER = Logger.getLogger(V7RedirectHandler.class.getName());
     
-    public V7RedirectHandler(CDKRequestCacheSupport cacheSupport, ReharvestManager reharvestManager, Instances instances, User user, CloseableHttpClient closeableHttpClient, DeleteTriggerSupport deleteTriggerSupport, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
-		super(cacheSupport, reharvestManager, instances, user,closeableHttpClient, deleteTriggerSupport, solrAccess, source, pid, remoteAddr);
+    public V7RedirectHandler(CDKRequestCacheSupport cacheSupport,
+                             ReharvestManager reharvestManager,
+                             Instances instances,
+                             User user,
+                             CloseableHttpClient closeableHttpClient,
+                             DeleteTriggerSupport deleteTriggerSupport,
+                             ExecutorService executorService, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
+		super(cacheSupport, reharvestManager, instances, user,closeableHttpClient, deleteTriggerSupport, executorService, solrAccess, source, pid, remoteAddr);
 	}
 
 
