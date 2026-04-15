@@ -9,9 +9,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,85 +73,105 @@ public class V7ForwardHandler extends V7RedirectHandler {
         LOGGER.fine("Provided by url "+providedByUrl +  " = "+ this.user.toString());
         long[] taskTimes = new long[2];
 
-        CompletableFuture<String> providedByFuture = CompletableFuture.supplyAsync(() -> {
+        ExecutorService vtExecutor = Executors.newVirtualThreadPerTaskExecutor();
+        Future<String> providedByFuture = vtExecutor.submit(() -> {
             long s = System.currentTimeMillis();
             String cached = super.cacheStringHit_PID_USER(providedByUrl, this.pid, true, "info", event);
-            if (cached == null) {
-                try {
-                    HttpGet get = apacheGet(providedByUrl, apiKey(), true);
-                    try (CloseableHttpResponse response = apacheClient.execute(get)) {
-                        if (response.getCode() == 200) {
-                            String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                            CompletableFuture.runAsync(() -> saveToCache(result, providedByUrl, true), this.executor);
-                            cached = result;
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "ProvidedBy fetch failed", e);
-                }
+            if (cached != null) {
+                taskTimes[0] = System.currentTimeMillis() - s;
+                return cached;
             }
-            taskTimes[0] = System.currentTimeMillis() - s;
-            return cached;
-        }, this.executor);
+            HttpGet get = apacheGet(providedByUrl, apiKey(), true);
+            try (CloseableHttpResponse response = apacheClient.execute(get)) {
+                if (response.getCode() == 200) {
+                    String result = IOUtils.toString(
+                            response.getEntity().getContent(),
+                            StandardCharsets.UTF_8
+                    );
 
-        CompletableFuture<String> infoFuture = CompletableFuture.supplyAsync(() -> {
+                    CompletableFuture.runAsync(
+                            () -> saveToCache(result, providedByUrl, true),
+                            this.executor
+                    );
+
+                    taskTimes[0] = System.currentTimeMillis() - s;
+                    return result;
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "ProvidedBy fetch failed", e);
+            }
+
+            taskTimes[0] = System.currentTimeMillis() - s;
+            return null;
+        });
+
+        Future<String> infoFuture = vtExecutor.submit(() -> {
             long s = System.currentTimeMillis();
             String cached = super.cacheStringHit_PID_USER(infoUrl, this.pid, false, "info", event);
-            if (cached == null) {
-                try {
-                    HttpGet get = apacheGet(infoUrl, apiKey(), true);
-                    try (CloseableHttpResponse response = apacheClient.execute(get)) {
-                        if (response.getCode() == 200) {
-                            String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                            // Krok C: Asynchronní uložení
-                            CompletableFuture.runAsync(() -> saveToCache(result, infoUrl, false), this.executor);
-                            cached = result;
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Info fetch failed", e);
-                }
 
+            if (cached != null) {
+                taskTimes[1] = System.currentTimeMillis() - s;
+                return cached;
             }
+
+            HttpGet get = apacheGet(infoUrl, apiKey(), true);
+
+            try (CloseableHttpResponse response = apacheClient.execute(get)) {
+                if (response.getCode() == 200) {
+                    String result = IOUtils.toString(
+                            response.getEntity().getContent(),
+                            StandardCharsets.UTF_8
+                    );
+
+                    CompletableFuture.runAsync(
+                            () -> saveToCache(result, infoUrl, false),
+                            this.executor
+                    );
+
+                    taskTimes[1] = System.currentTimeMillis() - s;
+                    return result;
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Info fetch failed", e);
+            }
+
             taskTimes[1] = System.currentTimeMillis() - s;
-            return cached;
-        }, this.executor);
+            return null;
+        });
 
         try {
-            String providedByString = providedByFuture.get(5, TimeUnit.SECONDS);
-            String infoString = infoFuture.get(5, TimeUnit.SECONDS);
-            long totalExecutionTime = System.currentTimeMillis() - startTime;
+            // parallel wait (virtual threads make this cheap)
+            String providedByString = providedByFuture.get();
+            String infoString = infoFuture.get();
+
+            long totalTime = System.currentTimeMillis() - startTime;
 
             LOGGER.fine(String.format(
-                    "PERF STATS [%s]: Total proxy time: %dms | ProvidedBy Task: %dms | Info Task: %dms | Parallel Gain: %dms",
+                    "PERF [%s] total=%dms providedBy=%dms info=%dms gain=%dms",
                     this.pid,
-                    totalExecutionTime,
+                    totalTime,
                     taskTimes[0],
                     taskTimes[1],
-                    (taskTimes[0] + taskTimes[1]) - totalExecutionTime
+                    (taskTimes[0] + taskTimes[1]) - totalTime
             ));
 
-            JSONArray licenses = null;
+            JSONObject infoJson = new JSONObject(infoString);
+
             if (providedByString != null) {
                 JSONObject pbJson = new JSONObject(providedByString);
-                licenses = pbJson.optJSONArray("licenses");
+                infoJson.put(
+                        "providedByLicenses",
+                        pbJson.optJSONArray("licenses")
+                );
             }
 
-            if (infoString != null) {
-                JSONObject infoJson = new JSONObject(infoString);
-                if (licenses != null) {
-                    infoJson.put("providedByLicenses", licenses);
-                }
-                return Response.ok(infoJson.toString()).build();
-            }
+            return Response.ok(infoJson.toString()).build();
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Parallel execution failed", e);
+            return super.info(event);
         }
-        return super.info(event);
     }
-
-
 
     private void saveToCache(String content, String url, boolean isUserSpecific) {
         try {
@@ -198,25 +216,53 @@ public class V7ForwardHandler extends V7RedirectHandler {
             }
             respEntity.header("Content-Length", contentLength);
             return respEntity.build();
-        } else {
-            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, (data, mimetype) -> {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        CDKRequestItem<ByteBuffer> cacheItem = (CDKRequestItem<ByteBuffer>) CDKRequestItemFactory.createCacheItem(
-                                ByteBuffer.wrap(data),
-                                mimetype,
-                                url,
-                                this.pid,
-                                source,
-                                LocalDateTime.now(),
-                                null
-                        );
-                        this.cacheSupport.save(cacheItem);
-                    } catch (SQLException e) {
-                        LOGGER.log(Level.SEVERE, "Async thumb cache save failed: " + e.getMessage(), e);
+        }
+
+        // CACHE MISS → use virtual thread for upstream fetch
+        ExecutorService vtExecutor = Executors.newVirtualThreadPerTaskExecutor();
+
+        Future<Response> future = vtExecutor.submit(() -> {
+
+            return buildForwardApacheResponseGET(
+                    url,
+                    apiKey(),
+                    null,
+                    this.pid,
+                    true,
+                    true,
+                    event,
+                    (data, mimetype) -> {
+
+                        // async cache save (keep lightweight)
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                CDKRequestItem<ByteBuffer> cacheItem =
+                                        (CDKRequestItem<ByteBuffer>) CDKRequestItemFactory.createCacheItem(
+                                                ByteBuffer.wrap(data),
+                                                mimetype,
+                                                url,
+                                                this.pid,
+                                                source,
+                                                LocalDateTime.now(),
+                                                null
+                                        );
+
+                                this.cacheSupport.save(cacheItem);
+
+                            } catch (SQLException e) {
+                                LOGGER.log(Level.SEVERE,
+                                        "Async thumb cache save failed: " + e.getMessage(), e);
+                            }
+                        }, this.executor);
                     }
-                }, this.executor);
-            });
+            );
+        });
+
+        try {
+            return future.get(); // safe: virtual thread blocks cheaply
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "imageThumb fetch failed", e);
+            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, true, true);
         }
     }
 
@@ -246,40 +292,71 @@ public class V7ForwardHandler extends V7RedirectHandler {
 
     @Override
     public Response mods(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
+
         if (method == RequestMethodName.head) {
             return super.mods(method, event);
-        } else {
-            String baseurl = this.forwardUrl();
-            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
-                    + "/streams/BIBLIO_MODS";
-            String modsString = super.cacheStringHit_PID_USER(url, this.pid, false,"mods", event);
-            if (modsString == null) {
-                return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, false, event, (data, mimeType)-> {
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
-                                    new String(data, Charset.forName("UTF-8")),
-                                    "application/xml",
-                                    url,
-                                    this.pid,
-                                    source,
-                                    LocalDateTime.now(),
-                                    null
-                            );
-                            LOGGER.fine( String.format("Storing cache item %s", cacheItem.toString()));
-                            this.cacheSupport.save(cacheItem);
-                        } catch (SQLException e) {
-                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                        }
-                    });
-                });
-            } else {
-                //CACHE_LOGGER.log(Level.FINE, "<<< CACHE HIT !!! /metadata/mods");
-                return Response.ok(modsString).type("application/xml").build();
-            }
+        }
+
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/")
+                + "api/cdk/v7.0/forward/item/" + this.pid
+                + "/streams/BIBLIO_MODS";
+
+        String modsString = super.cacheStringHit_PID_USER(url, this.pid, false, "mods", event);
+        if (modsString != null) {
+            return Response.ok(modsString)
+                    .type("application/xml")
+                    .build();
+        }
+
+        // CACHE MISS → virtual thread for upstream fetch
+        ExecutorService vtExecutor = Executors.newVirtualThreadPerTaskExecutor();
+
+        Future<Response> future = vtExecutor.submit(() -> {
+
+            return buildForwardApacheResponseGET(
+                    url,
+                    apiKey(),
+                    null,
+                    this.pid,
+                    true,
+                    false,
+                    event,
+                    (data, mimeType) -> {
+
+                        // async cache write (non-blocking)
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                CDKRequestItem<String> cacheItem =
+                                        (CDKRequestItem<String>) CDKRequestItemFactory.createCacheItem(
+                                                new String(data, java.nio.charset.StandardCharsets.UTF_8),
+                                                "application/xml",
+                                                url,
+                                                this.pid,
+                                                source,
+                                                LocalDateTime.now(),
+                                                null
+                                        );
+
+                                LOGGER.fine("Storing cache item " + cacheItem);
+                                this.cacheSupport.save(cacheItem);
+
+                            } catch (SQLException e) {
+                                LOGGER.log(Level.SEVERE,
+                                        "mods cache save failed", e);
+                            }
+                        }, this.executor);
+                    }
+            );
+        });
+
+        try {
+            return future.get();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "mods fetch failed", e);
+            return super.mods(method, event);
         }
     }
-
     @Override
     public Response zoomifyImageProperties(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         if (method == RequestMethodName.head) {
