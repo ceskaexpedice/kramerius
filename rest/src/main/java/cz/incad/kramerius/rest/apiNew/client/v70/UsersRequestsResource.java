@@ -3,6 +3,7 @@ package cz.incad.kramerius.rest.apiNew.client.v70;
 import com.google.inject.Inject;
 import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.security.User;
+import cz.inovatika.dochub.DocumentType;
 import cz.inovatika.dochub.UserContentSpace;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -62,42 +63,63 @@ public class UsersRequestsResource extends ClientApiResource {
         };
     }
 
-
     @GET
-    @Path("userspace/{spacetoken}")
-    @Produces("application/pdf")
-    public Response userspace(@PathParam("spacetoken") String token) {
-        User user = this.userProvider.get();
-        boolean exists = this.userContentSpace.exists(token);
-        if (exists) {
-            try {
-                Optional<InputStream> bundle = this.userContentSpace.getBundle(token, user.getLoginname());
-                if (bundle.isPresent()) {
-                    InputStream is = bundle.get();
-                    StreamingOutput stream = output -> {
-                        try (is) {
-                            is.transferTo(output);
-                        } catch (Exception e) {
-                            throw new WebApplicationException(e);
-                        }
-                    };
-
-                    return Response.ok(stream)
-                            .header("Content-Disposition", "attachment; filename=\"" + token + ".pdf\"")
-                            //.header("Content-Disposition", "inline; filename=\"" + token + ".pdf\"")
-                            .type("application/pdf")
-                            .build();
-                } else {
-                    throw new cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException();
-                }
-            } catch (ClientErrorException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new WebApplicationException(e);
-            }
-        } else {
-            throw new cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException();
+    @Path("userspace/{spacetoken}/{docType}")
+    public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
+        LOGGER.fine("Requesting user space with token: " + token + " and docType: " + docTypeStr);
+        DocumentType docType;
+        try {
+            docType = DocumentType.valueOf(docTypeStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException("Invalid document type: " + docTypeStr);
         }
+        User user = this.userProvider.get();
 
+        if (!this.userContentSpace.exists(token)) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new JSONObject().put("error", "User content space for token=" + token + " not found").toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+        try {
+            Optional<InputStream> bundle = this.userContentSpace.getBundle(token, user.getLoginname(), docType);
+            if (!bundle.isPresent()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(new JSONObject().put("error", "Bundle for token=" + token + ", user=" + user.getLoginname() + " and docType=" + docType + " not found").toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+            InputStream is = bundle.get();
+            StreamingOutput stream = output -> {
+                try (is) {
+                    is.transferTo(output);
+                } catch (Exception e) {
+                    throw new WebApplicationException(e);
+                }
+            };
+            return Response.ok(stream)
+                    .header("Content-Disposition", "attachment; filename=\"" +
+                            switch (docType) {
+                                case PDF -> "export_" + token + ".pdf";
+                                case TEXT -> "export_" + token + ".txt";
+                                case EPUB -> "export_" + token + ".epub";
+                            } + "\"")
+                    .type(switch (docType) {
+                        case PDF -> "application/pdf";
+                        case TEXT -> "text/plain";
+                        case EPUB -> "application/epub+zip";
+                    })
+                    .build();
+        } catch (UserContentSpace.UsageException e) {
+            return Response.status(429)
+                    .entity(new JSONObject().put("error", "Usage limited for user=" + user.getLoginname()).put("message", e.getMessage()).toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (ClientErrorException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebApplicationException(e);
+        }
     }
 }

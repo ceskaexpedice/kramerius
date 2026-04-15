@@ -39,9 +39,9 @@ public class GenerateFullPDFProcess {
     @ProcessMethod
     public static void generate(
             @ParameterName("pid") @IsRequired String pid,
-            @ParameterName("user") @IsRequired  String user,
-            @ParameterName("roles") @IsRequired  String roles,
-            @ParameterName("providedByLicense")   String providedByLicenses,
+            @ParameterName("user") @IsRequired String user,
+            @ParameterName("roles") @IsRequired String roles,
+            @ParameterName("providedByLicense") String providedByLicenses,
             @ParameterName("locale") String locale,
             @ParameterName("email") String email
     ) {
@@ -89,8 +89,8 @@ public class GenerateFullPDFProcess {
                         String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
                         String text = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification, \ndownload is accessible here $link$");
                         String subject = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification");
-                        String api =  KConfiguration.getInstance().getConfiguration().getString("api.client.point");
-                        String link = String.format("%s/%s/%s", api, "userrequests/userspace", token);
+                        String api = KConfiguration.getInstance().getConfiguration().getString("api.client.point");
+                        String link = String.format("%s/%s/%s/pdf", api, "userrequests/userspace", token);
                         StringTemplate template = new StringTemplate(text);
                         template.setAttribute("link", link);
                         serv.sendEmailNotification(administratorEmail, Arrays.asList(email), subject, template.toString());

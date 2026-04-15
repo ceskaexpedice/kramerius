@@ -39,7 +39,6 @@ public class GenerateFullPDFServiceImpl implements GenerateFullPDFService {
     public static final Logger LOGGER = Logger.getLogger(GenerateFullPDFServiceImpl.class.getName());
 
 
-
     @Inject
     @Named("USERPROCESS")
     FirstPagePDFService textFirstPage;
@@ -65,33 +64,33 @@ public class GenerateFullPDFServiceImpl implements GenerateFullPDFService {
     UserContentSpace userContentSpace;
 
 
-
     public String generate(String pid, String user, String providedByLicense) throws DocumentException, IOException, OutOfRangeException {
         this.documentService.setUseAlto(false); // no alto in the process
 
         FontMap fmap = new FontMap(deprectedService.fontsFolder());
 
         ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
-        final ObjectPidsPath path = paths.length> 0 ? paths[0] : new ObjectPidsPath(pid);
+        final ObjectPidsPath path = paths.length > 0 ? paths[0] : new ObjectPidsPath(pid);
         // NOT page size
         Rectangle rect = PageSize.A4;
 
         File firstPageFile = null;
         try {
-            AkubraDocument rdoc =  null;
+            AkubraDocument rdoc = null;
             String token = userContentSpace.getToken(pid, user);
-            if (userContentSpace.exists(token)) {
+
+            //this is disabled, because PDF exports would delete results of other exports (EPUB, TEXT)
+            //instead FileUserContentSpaceImpl.storeBundle() deletes previous version of file if found
+            /*if (userContentSpace.exists(token)) {
                 userContentSpace.deleteBundle(token);
-            }
-
-
+            }*/
 
             if (permanentContentSpace.exists(pid, DocumentType.PDF)) {
-                rdoc = this.documentService.buildDocumentAsFlat(path, pid, 1, new float[] {rect.getWidth(), rect.getHeight()});
+                rdoc = this.documentService.buildDocumentAsFlat(path, pid, 1, new float[]{rect.getWidth(), rect.getHeight()});
                 rdoc.pageDimensionFromFirstPage();
-                LOGGER.info("Found existing pdf content for pid "+pid);
+                LOGGER.info("Found existing pdf content for pid " + pid);
             } else {
-                rdoc = this.documentService.buildDocumentAsFlat(path, pid, 1000, new float[] {rect.getWidth(), rect.getHeight()});
+                rdoc = this.documentService.buildDocumentAsFlat(path, pid, 1000, new float[]{rect.getWidth(), rect.getHeight()});
                 rdoc.pageDimensionFromFirstPage();
 
                 try (OutputStream os = permanentContentSpace.createOutputStream(pid, DocumentType.PDF)) {
@@ -110,7 +109,7 @@ public class GenerateFullPDFServiceImpl implements GenerateFullPDFService {
                 mergeToOutput(fos, permanentContentSpace.getContent(pid, DocumentType.PDF), firstPageFile);
                 userContentSpace.storeBundle(new FileInputStream(generatedPDF), user, pid, DocumentType.PDF, "{audit}");
                 return userContentSpace.getToken(pid, user);
-            } else throw new RuntimeException("Persistent store doesn't contain data for pid '"+pid+"'");
+            } else throw new RuntimeException("Persistent store doesn't contain data for pid '" + pid + "'");
         } catch (OutOfRangeException e) {
             throw new RuntimeException(e);
         }

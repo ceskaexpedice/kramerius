@@ -749,10 +749,10 @@ paths:
         - in: path
           name: reqid
           required: true
-          description: Typ požadavku (aktuálně podporováno "generate_pdf")
+          description: Typ požadavku (aktuálně podporováno "generate_pdf", "special_needs_ebook")
           schema:
             type: string
-            enum: [generate_pdf]
+            enum: [generate_pdf, special_needs_ebook]
             example: "generate_pdf"
         - in: query
           name: lang

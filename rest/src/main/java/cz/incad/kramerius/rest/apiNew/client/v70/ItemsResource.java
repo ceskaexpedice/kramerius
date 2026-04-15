@@ -126,11 +126,11 @@ public class ItemsResource extends ClientApiResource {
 
     // Specificke endpointy; funguji pouze pro konkretni mimethype 
     // GET/HEAD {pid}/specific/epub
-    
+
 
     //private static final int MAX_TIME_SIZE = KConfiguration.getInstance().getConfiguration().getInt("iiif.tile.maxsize",512);
-    
-    
+
+
     public static final Logger LOGGER = Logger.getLogger(ItemsResource.class.getName());
     /**
      * Serve audio data through proxy from Audio repository, not through Kramerius Repository (Akubra).
@@ -171,13 +171,13 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     RightsResolver rightsResolver;
-    
+
     @Inject
     AggregatedAccessLogs accessLog;
-    
+
     @Inject
     LicensesManager licensesManager;
-    
+
     @Inject
     protected transient HttpAsyncClient client;
 
@@ -189,13 +189,13 @@ public class ItemsResource extends ClientApiResource {
     private CloseableHttpClient apacheClient;
 
 
-
     public ItemsResource() {
         super();
     }
 
     public static Map<String, String> IIIF_SUPPORTED_MIMETYPES = new HashMap<>();
-    static  {
+
+    static {
         ItemsResource.IIIF_SUPPORTED_MIMETYPES.put("jpg", "image/jpeg");
         ItemsResource.IIIF_SUPPORTED_MIMETYPES.put("tif", "image/tiff");
         ItemsResource.IIIF_SUPPORTED_MIMETYPES.put("png", "image/png");
@@ -208,7 +208,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}")
     public Response checkItemExists(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s",pid), "", "HEAD", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -229,23 +229,23 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info",pid), "", "GET", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
             JSONObject json = new JSONObject();
             json.put("data", extractAvailableDataInfo(pid));
-            
+
             //json.put("structure", extractStructureInfo(pid));
             json.put("image", extractImageSourceInfo(pid));
-            
-            
+
+
             RuntimeInformation extracrtedInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, pid);
-            
+
             json.put(RightRuntimeInformations.PROVIDED_BY_LICENSES, extracrtedInformation.getProvidingLicensesAsJSONArray());
             json.put(RightRuntimeInformations.ACCESSIBLE_LOCSK, extracrtedInformation.getLockAsJSONArray());
-                       
-            
+
+
             return Response.ok(json).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -313,7 +313,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/structure")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoStructure(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/structure",pid), "", "GET", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/structure", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -338,7 +338,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/info/image")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfoImage(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/image",pid), "", "GET", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/image", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectExists(pid);
@@ -403,7 +403,7 @@ public class ItemsResource extends ClientApiResource {
                 if (ImageMimeType.JPEG2000.getValue().equals(imgFullMimetype)) {
                     // convert to jpeg 
                     json.put("type", ImageMimeType.JPEG.getValue());
-                } else  if (ImageMimeType.DJVU.getValue().equals(imgFullMimetype) || ImageMimeType.VNDDJVU.getValue().equals(imgFullMimetype) || ImageMimeType.XDJVU.getValue().equals(imgFullMimetype)) {
+                } else if (ImageMimeType.DJVU.getValue().equals(imgFullMimetype) || ImageMimeType.VNDDJVU.getValue().equals(imgFullMimetype) || ImageMimeType.XDJVU.getValue().equals(imgFullMimetype)) {
                     json.put("type", ImageMimeType.JPEG.getValue());
                 } else {
                     // transform jp2 or djvu
@@ -418,7 +418,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/mods")
     public Response isMetadataModsAvailable(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "HEAD", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_MODS.toString());
@@ -439,7 +439,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/mods")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataMods(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods",pid), "", "GET", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/mods", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_MODS.toString());
@@ -464,7 +464,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "HEAD", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_DC.toString());
@@ -485,7 +485,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/metadata/dc")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getMetadataDublinCore(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc",pid), "", "GET", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/metadata/dc", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             checkObjectAndDatastreamExist(pid, KnownDatastreams.BIBLIO_DC.toString());
@@ -610,7 +610,7 @@ public class ItemsResource extends ClientApiResource {
     @HEAD
     @Path("{pid}/image")
     public Response isImgFullAvailable(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "HEAD", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image", pid), "", "HEAD", pid);
         try {
             checkSupportedObjectPid(pid);
             KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
@@ -637,7 +637,7 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/image")
     public Response getImgFull(@PathParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image",  pid), "", "GET", pid);
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image", pid), "", "GET", pid);
         try {
             checkSupportedObjectPid(pid);
             KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
@@ -695,8 +695,6 @@ public class ItemsResource extends ClientApiResource {
     }
 
 
-
-
     //TODO: Discuss - how to
     public static String createSafeFileName(String pid, String name) {
         String rawName = pid + "_" + name;
@@ -706,7 +704,6 @@ public class ItemsResource extends ClientApiResource {
         String safeName = noAccent.replaceAll("[^a-zA-Z0-9.\\-]", "_");
         return safeName.toLowerCase();
     }
-
 
 
     private void checkGenerateActionAllowed(User user) {
@@ -806,7 +803,7 @@ public class ItemsResource extends ClientApiResource {
     public Response requests(@PathParam("pid") String pid,
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
-                             @HeaderParam("Accept-Language") Locale locale , JSONObject reqDefinition) {
+                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
 
 
         User user = this.userProvider.get();
@@ -819,7 +816,7 @@ public class ItemsResource extends ClientApiResource {
             License lic = findLicenseAllowingGeneration(user, pid, childPids);
 
             switch (reqid) {
-                case "generate_pdf":
+                case "generate_pdf": {
                     if (lic != null
                             && lic.getLicenseOfflineGenerationConf() != null
                             && lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) {
@@ -830,14 +827,16 @@ public class ItemsResource extends ClientApiResource {
                                 throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
                             }
                         }
-                        lic.checkUsageLimit(user, pid, this.userContentSpace );
+                        lic.checkUsageLimit(user, pid, this.userContentSpace);
                         JSONObject process = new JSONObject();
                         process.put(ProcessManagerMapper.PCP_PROFILE_ID, GENERATE_PDF_PROCESS);
                         process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
 
                         JSONObject payload = new JSONObject();
                         payload.put("pid", pid);
-                        if (reqDefinition.has("email")) { payload.put("email", reqDefinition.getString("email")); }
+                        if (reqDefinition.has("email")) {
+                            payload.put("email", reqDefinition.getString("email"));
+                        }
                         payload.put("user", user.getLoginname());
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 
@@ -856,7 +855,7 @@ public class ItemsResource extends ClientApiResource {
                             scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
                         }
 
-                        LOGGER.fine("Scheduler process -> "+process.toString());
+                        LOGGER.fine("Scheduler process -> " + process.toString());
                         String processId = processManagerClient.scheduleProcess(process);
                         JSONObject result = new JSONObject();
                         result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
@@ -865,11 +864,12 @@ public class ItemsResource extends ClientApiResource {
                         result.put("token", token);
 
                         return Response.ok().entity(result.toString()).build();
+                    } else {
+                        return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "PDF generation not allowed by license").toString()).build();
                     }
-                    return null;
+                }
 
-                default: {
-
+                default: { //dynamically loaded process definitions
                     String clientRequests = KConfiguration.getInstance().getConfiguration().getString("api.client.requests");
                     if (clientRequests != null && !clientRequests.isEmpty()) {
                         String[] values = clientRequests.split(",");
@@ -889,7 +889,7 @@ public class ItemsResource extends ClientApiResource {
                                 throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
                             }
                         }
-                        lic.checkUsageLimit(user, pid, this.userContentSpace );
+                        lic.checkUsageLimit(user, pid, this.userContentSpace);
                         JSONObject process = new JSONObject();
                         process.put(ProcessManagerMapper.PCP_PROFILE_ID, reqid);
                         process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
@@ -897,7 +897,7 @@ public class ItemsResource extends ClientApiResource {
                         JSONObject payload = new JSONObject();
                         payload.put("pid", pid);
 
-                        reqDefinition.keySet().forEach(k-> {
+                        reqDefinition.keySet().forEach(k -> {
                             payload.put(k.toString(), reqDefinition.get(k.toString()));
                         });
 
@@ -912,14 +912,17 @@ public class ItemsResource extends ClientApiResource {
 
                         ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
 
-                        JSONObject profile = processManagerClient.getProfile(GENERATE_PDF_PROCESS);
+                        JSONObject profile = processManagerClient.getProfile(reqid);
+                        if (profile == null) {
+                            return Response.status(Response.Status.BAD_REQUEST).entity(new JSONObject().put("error", "Process profile not found").toString()).build();
+                        }
                         JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
                         org.json.JSONArray scheduledProfiles = null;
                         if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
                             scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
                         }
 
-                        LOGGER.fine("Scheduler process -> "+process.toString());
+                        LOGGER.fine("Scheduler process -> " + process.toString());
                         String processId = processManagerClient.scheduleProcess(process);
                         JSONObject result = new JSONObject();
                         result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
@@ -928,14 +931,15 @@ public class ItemsResource extends ClientApiResource {
                         result.put("token", token);
 
                         return Response.ok().entity(result.toString()).build();
+                    } else {
+                        return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "Process scheduling not allowed by license").toString()).build();
                     }
-                    return null;
                 }
             }
         } catch (ProcessManagerClientException e) {
             if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
                 throw new NotFoundException(e.getMessage());
-            } else if  (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
+            } else if (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
                 LOGGER.log(Level.SEVERE, "Error message from processManagerClient", e);
                 throw new BadRequestException(e.getMessage());
             } else {
@@ -982,7 +986,7 @@ public class ItemsResource extends ClientApiResource {
                     String collectionClipsContent = null;
                     // clipping_items
                     if (akubraRepository.datastreamExists(pid, streamName)) {
-                        try(InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName).asInputStream()) {
+                        try (InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName).asInputStream()) {
                             if (cutters != null) {
                                 byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
                                 collectionClipsContent = new String(content, "UTF-8");
@@ -990,32 +994,32 @@ public class ItemsResource extends ClientApiResource {
                         }
                     }
                     // thumbs from cutters
-                    if (collectionClipsContent!= null) {
+                    if (collectionClipsContent != null) {
                         org.json.JSONArray jsonArray = new org.json.JSONArray(collectionClipsContent);
-                        
+
                         List<CutItem> cutItems = CutItem.fromJSONArray(jsonArray);
                         for (CutItem cutItem : cutItems) {
                             try {
                                 cutItem.initGeneratedThumbnail(akubraRepository, pid);
                             } catch (NoSuchAlgorithmException | IOException e) {
-                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             }
-                            
+
                             if (cutItem.containsGeneratedThumbnail()) {
                                 String clipThumbName = cutItem.getThumbnailmd5();
                                 // clipThumbName
-                                try(InputStream cutters = akubraRepository.getDatastreamContent(pid, clipThumbName).asInputStream()) {
+                                try (InputStream cutters = akubraRepository.getDatastreamContent(pid, clipThumbName).asInputStream()) {
                                     if (cutters != null) {
-                                       replaceLocationByBinaryContent(modifiedFoxml, cutters, clipThumbName);
+                                        replaceLocationByBinaryContent(modifiedFoxml, cutters, clipThumbName);
                                     }
                                 }
-                                
+
                             }
                         }
                     }
                     // thumb
                     if (this.akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB)) {
-                        try(InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream()) {
+                        try (InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream()) {
                             if (imgThumb != null) {
                                 String streamThumbName = "IMG_THUMB";
                                 replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
@@ -1027,7 +1031,7 @@ public class ItemsResource extends ClientApiResource {
             } else {
                 throw new InternalErrorException("I cannot return the foxml object => Not all protected datastreams could be removed.");
             }
-            
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1044,7 +1048,9 @@ public class ItemsResource extends ClientApiResource {
         byte[] bytes = IOUtils.toByteArray(imgThumb);
         if (thumbNode != null) {
             List<Node> contentLocation = Dom4jUtils.buildXpath("//foxml:contentLocation").selectNodes(thumbNode);
-            for (Node node : contentLocation) { node.detach(); }
+            for (Node node : contentLocation) {
+                node.detach();
+            }
             Element thumbElement = (Element) thumbNode;
             Element binaryContent = thumbElement.addElement("binaryContent", thumbElement.getNamespaceURI());
             binaryContent.setText(new String(Base64.encodeBase64(bytes)));
@@ -1066,7 +1072,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     private static Document removeSecuredDatastreams(Document foxmlDoc) {
-        synchronized(foxmlDoc) {
+        synchronized (foxmlDoc) {
             List<String> allSecuredStreams = FedoraUtils.getSecuredStreams();
             List<Node> toRemove = new ArrayList<>();
             for (String dsId : allSecuredStreams) {
@@ -1075,9 +1081,9 @@ public class ItemsResource extends ClientApiResource {
                 List<Node> streamsEls = Dom4jUtils.buildXpath(xpath).selectNodes(foxmlDoc);
                 toRemove.addAll(streamsEls);
             }
-            toRemove.stream().forEach(it-> {
+            toRemove.stream().forEach(it -> {
                 Node detach = it.detach();
-                
+
             });
             return foxmlDoc;
         }
@@ -1233,7 +1239,7 @@ public class ItemsResource extends ClientApiResource {
             String type = controlGroup2Type(controlGroup);
             return type != null && type.equals("INDIRECT");
         } catch (RepositoryException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return false;
         }
     }
@@ -1457,12 +1463,14 @@ public class ItemsResource extends ClientApiResource {
     public Response iiiFManifest(@PathParam("pid") String pid) {
         try {
             pid = URLDecoder.decode(pid, "UTF-8");
-            checkUserIsAllowedToReadObject(pid); 
-            reportAccess( pid, null);
+            checkUserIsAllowedToReadObject(pid);
+            reportAccess(pid, null);
             String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
             if (u != null) {
-                if (!u.endsWith("/")) { u = u+"/"; }
-                u = u +"info.json";
+                if (!u.endsWith("/")) {
+                    u = u + "/";
+                }
+                u = u + "info.json";
 
                 HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(u, "", "");
                 InputStream inputStream = con.getInputStream();
@@ -1471,7 +1479,7 @@ public class ItemsResource extends ClientApiResource {
                 HttpServletRequest req = this.requestProvider.get();
                 String urlRequest = req.getRequestURL().toString();
                 object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
-                
+
                 return Response.ok().entity(object.toString()).build();
 
             } else {
@@ -1482,20 +1490,20 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
-    
-    
+
+
     @GET
     @Produces("image/jpeg")
     @Path("{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
     public void tile(
-            @PathParam("pid") String pid, 
-            @PathParam("region") String region, 
+            @PathParam("pid") String pid,
+            @PathParam("region") String region,
             @PathParam("size") String size,
             @PathParam("rotation") String rotation,
             @PathParam("qualityformat") String qf
             /*,@Context HttpServletResponse response*/) throws IOException {
         try {
-            
+
             if (region.toLowerCase().trim().equals("full") || region.toLowerCase().trim().equals("square") || region.toLowerCase().trim().contains("pct:")) {
                 checkUserIsAllowedToReadObject(pid);
             } else {
@@ -1506,31 +1514,33 @@ public class ItemsResource extends ClientApiResource {
                 }
             }
             String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
-            if(u != null) {
+            if (u != null) {
                 // size can contain ^ or ! 
                 if (size.contains("^") || size.contains("!")) {
-                    size = URLEncoder.encode(size,"UTF-8");
+                    size = URLEncoder.encode(size, "UTF-8");
                 }
                 String defaultMime = IIIF_SUPPORTED_MIMETYPES.get("jpg");
 
                 StringBuilder url = new StringBuilder(u);
-                if (!u.endsWith("/")) { url.append("/"); }
-                
-                url.append(String.format("%s/%s/%s/%s", region, size, rotation,qf));
-     
+                if (!u.endsWith("/")) {
+                    url.append("/");
+                }
+
+                url.append(String.format("%s/%s/%s/%s", region, size, rotation, qf));
+
                 String mime = defaultMime;
                 String[] splited = qf.split("\\.");
                 if (splited.length > 1) {
-                    mime =  IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) :  defaultMime;
+                    mime = IIIF_SUPPORTED_MIMETYPES.containsKey(splited[1]) ? IIIF_SUPPORTED_MIMETYPES.get(splited[1]) : defaultMime;
                 }
                 LOGGER.fine(String.format("Copy tile from IIIF server %s", url.toString()));
-                
+
                 RequestDispatcher requestDispatcher = this.requestProvider.get().getRequestDispatcher(String.format("/iiif/%s/%s/%s/%s/%s", pid, region, size, rotation, qf));
                 requestDispatcher.forward(this.requestProvider.get(), this.responseProvider.get());
-                
-           } else {
-               throw new BadRequestException("bad request");
-           }
+
+            } else {
+                throw new BadRequestException("bad request");
+            }
 
         } catch (WebApplicationException e) {
             throw e;
@@ -1541,13 +1551,13 @@ public class ItemsResource extends ClientApiResource {
     }
 
     private void checkIIIFSize(String pid, String size) {
-     
+
         org.apache.commons.lang3.tuple.Pair<String, String> iiifValues = iiifValues(size);
         if (iiifValues != null) {
-            int maxSize = KConfiguration.getInstance().getConfiguration().getInt("iiif.tile.maxsize",512);
-            
-            int width = StringUtils.isAnyString(iiifValues.getLeft())  ? Integer.parseInt(iiifValues.getLeft()) : 0;
-            int height = StringUtils.isAnyString(iiifValues.getRight()) ? Integer.parseInt(iiifValues.getRight()) :0;
+            int maxSize = KConfiguration.getInstance().getConfiguration().getInt("iiif.tile.maxsize", 512);
+
+            int width = StringUtils.isAnyString(iiifValues.getLeft()) ? Integer.parseInt(iiifValues.getLeft()) : 0;
+            int height = StringUtils.isAnyString(iiifValues.getRight()) ? Integer.parseInt(iiifValues.getRight()) : 0;
 
             if (width > maxSize || height > maxSize) {
                 checkUserIsAllowedToReadObject(pid);
@@ -1558,27 +1568,27 @@ public class ItemsResource extends ClientApiResource {
     static String iiifVal(String val) {
         String retval = val;
         if (retval.contains("^")) {
-            retval = retval.replace("^","");
+            retval = retval.replace("^", "");
         }
-        
+
         if (retval.contains("!")) {
-            retval = retval.replace("!","");
+            retval = retval.replace("!", "");
         }
         return retval;
     }
-    
-    static org.apache.commons.lang3.tuple.Pair<String,String> iiifValues(String val) {
+
+    static org.apache.commons.lang3.tuple.Pair<String, String> iiifValues(String val) {
         String[] split = val.split(",");
-        if (split.length >=2) {
+        if (split.length >= 2) {
 
             String firstVal = split[0];
             String secondVal = split[1];
-            
+
             firstVal = ItemsResource.iiifVal(firstVal);
             secondVal = ItemsResource.iiifVal(secondVal);
             return org.apache.commons.lang3.tuple.Pair.of(firstVal, secondVal);
-            
-        } else  if (split.length >= 1) {
+
+        } else if (split.length >= 1) {
 
             String firstVal = split[0];
             firstVal = ItemsResource.iiifVal(firstVal);
@@ -1586,7 +1596,7 @@ public class ItemsResource extends ClientApiResource {
             return org.apache.commons.lang3.tuple.Pair.of(firstVal, null);
         }
         return null;
-      }
+    }
 
 
     @GET
@@ -1606,7 +1616,7 @@ public class ItemsResource extends ClientApiResource {
                 val.put("knowndatastream", knownDatastream);
                 result.put(val);
             }
-            return Response.ok().entity(result.toString()).build(); 
+            return Response.ok().entity(result.toString()).build();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
@@ -1615,15 +1625,15 @@ public class ItemsResource extends ClientApiResource {
 
     @GET
     @Path("{pid}/introspect/{data}")
-    public Response introspect(@PathParam("pid") String pid,@PathParam("data") String data) {
+    public Response introspect(@PathParam("pid") String pid, @PathParam("data") String data) {
         try {
             List<String> knownDataStreams = Arrays.stream(KnownDatastreams.values()).map(KnownDatastreams::toString).collect(Collectors.toList());
             boolean knownDatastream = knownDataStreams.contains(data);
             if (knownDatastream) {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             } else {
-                String mimeType = akubraRepository.getDatastreamMetadata(pid,data).getMimetype();
-                if (akubraRepository.datastreamExists(pid,data)) {
+                String mimeType = akubraRepository.getDatastreamMetadata(pid, data).getMimetype();
+                if (akubraRepository.datastreamExists(pid, data)) {
                     InputStream dataStream = akubraRepository.getDatastreamContent(pid, data).asInputStream();
                     StreamingOutput stream = output -> {
                         IOUtils.copy(dataStream, output);
@@ -1651,36 +1661,36 @@ public class ItemsResource extends ClientApiResource {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid + ", stream name: " + streamName, e);
         }
     }
-    
+
     // =========== Collection specific endpoints
 
     @GET
     @Path("{pid}/collection/cuttings")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getCollectionClips(@PathParam("pid") String pid) {
-            try {
-                checkSupportedObjectPid(pid);
-                checkObjectExists(pid);
-                if(!akubraRepository.datastreamExists(pid, "COLLECTION_CLIPS")) {
-                    throw new NotFoundException();
-                } else {
-                    String mimetype = akubraRepository.getDatastreamMetadata(pid, "COLLECTION_CLIPS").getMimetype();
-                    org.json.JSONArray outputValue = new org.json.JSONArray();
-                    try(InputStream istream = akubraRepository.getDatastreamContent(pid, "COLLECTION_CLIPS").asInputStream()) {
-                        org.json.JSONArray inputValue = new org.json.JSONArray(IOUtils.toString(istream, "UTF-8"));
+        try {
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            if (!akubraRepository.datastreamExists(pid, "COLLECTION_CLIPS")) {
+                throw new NotFoundException();
+            } else {
+                String mimetype = akubraRepository.getDatastreamMetadata(pid, "COLLECTION_CLIPS").getMimetype();
+                org.json.JSONArray outputValue = new org.json.JSONArray();
+                try (InputStream istream = akubraRepository.getDatastreamContent(pid, "COLLECTION_CLIPS").asInputStream()) {
+                    org.json.JSONArray inputValue = new org.json.JSONArray(IOUtils.toString(istream, "UTF-8"));
 
-                        List<CutItem> cutItems = CutItem.fromJSONArray(inputValue);
-                        cutItems.forEach(cl-> {
-                            try {
-                                cl.initGeneratedThumbnail(akubraRepository, pid);
-                            } catch (NoSuchAlgorithmException | IOException e) {
-                                LOGGER.log(Level.SEVERE,e.getMessage(),e);
-                            }
-                            outputValue.put(cl.toJSON());
-                        });
-                    }
-                    return Response.ok().entity(outputValue.toString()).type(mimetype).build();
+                    List<CutItem> cutItems = CutItem.fromJSONArray(inputValue);
+                    cutItems.forEach(cl -> {
+                        try {
+                            cl.initGeneratedThumbnail(akubraRepository, pid);
+                        } catch (NoSuchAlgorithmException | IOException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                        }
+                        outputValue.put(cl.toJSON());
+                    });
                 }
+                return Response.ok().entity(outputValue.toString()).type(mimetype).build();
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1692,24 +1702,24 @@ public class ItemsResource extends ClientApiResource {
     @GET
     @Path("{pid}/collection/cuttings/image/{thumb_id}")
     public Response getCollectionThumb(@PathParam("pid") String pid, @PathParam("thumb_id") String thumbId) {
-            try {
-                checkSupportedObjectPid(pid);
-                checkObjectExists(pid);
-                if(!akubraRepository.datastreamExists(pid, thumbId)) {
-                    throw new NotFoundException("no image/thumb %s  available for object %s ", thumbId, pid);
+        try {
+            checkSupportedObjectPid(pid);
+            checkObjectExists(pid);
+            if (!akubraRepository.datastreamExists(pid, thumbId)) {
+                throw new NotFoundException("no image/thumb %s  available for object %s ", thumbId, pid);
+            } else {
+                if (akubraRepository.datastreamExists(pid, thumbId)) {
+                    String mimetype = akubraRepository.getDatastreamMetadata(pid, thumbId).getMimetype();
+                    InputStream istream = akubraRepository.getDatastreamContent(pid, thumbId).asInputStream();
+                    StreamingOutput stream = output -> {
+                        IOUtils.copy(istream, output);
+                        IOUtils.closeQuietly(istream);
+                    };
+                    return Response.ok().entity(stream).type(mimetype).build();
                 } else {
-                    if (akubraRepository.datastreamExists(pid,thumbId)) {
-                        String mimetype = akubraRepository.getDatastreamMetadata(pid, thumbId).getMimetype();
-                        InputStream istream = akubraRepository.getDatastreamContent(pid, thumbId).asInputStream();
-                        StreamingOutput stream = output -> {
-                            IOUtils.copy(istream, output);
-                            IOUtils.closeQuietly(istream);
-                        };
-                        return Response.ok().entity(stream).type(mimetype).build();
-                    } else {
-                        return Response.status(Response.Status.NOT_FOUND).build();
-                    }
+                    return Response.status(Response.Status.NOT_FOUND).build();
                 }
+            }
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1726,7 +1736,7 @@ public class ItemsResource extends ClientApiResource {
             checkSupportedObjectPid(pid);
             KnownDatastreams dsId = KnownDatastreams.IMG_FULL;
             checkObjectAndDatastreamExist(pid, dsId.toString());
-            checkUserIsAllowedToReadDatastream(pid, dsId); 
+            checkUserIsAllowedToReadDatastream(pid, dsId);
             checkObjectAndDatastreamExist(pid, KnownDatastreams.IMG_FULL.toString());
 
             boolean epub = isEpubMimeType(pid, dsId);
@@ -1744,23 +1754,23 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private boolean isEpubMimeType(String pid, KnownDatastreams dsId){
+    private boolean isEpubMimeType(String pid, KnownDatastreams dsId) {
         String datastreamMimetype = akubraRepository.getDatastreamMetadata(pid, dsId.name()).getMimetype();
-        boolean epub = datastreamMimetype != null  && datastreamMimetype.equals(ImageMimeType.EPUB.getValue());
+        boolean epub = datastreamMimetype != null && datastreamMimetype.equals(ImageMimeType.EPUB.getValue());
         return epub;
     }
 
     @GET
     @Path("{pid}/epub/{path: .*}")
-    public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment,@Context UriInfo info ) {
+    public Response getPaths(@PathParam("pid") String pid, @PathParam("path") PathSegment pathSegment, @Context UriInfo info) {
         try {
             List<PathSegment> segments = info.getPathSegments();
-            List<String> paths=  segments.stream().map(PathSegment::getPath).collect(Collectors.toList());
+            List<String> paths = segments.stream().map(PathSegment::getPath).collect(Collectors.toList());
             int indexOf = paths.indexOf("epub");
-            List<String> zipPath = paths.subList(indexOf+1, paths.size());
+            List<String> zipPath = paths.subList(indexOf + 1, paths.size());
 
             return getEpubInternalPart(pid, zipPath);
-            
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1856,7 +1866,7 @@ public class ItemsResource extends ClientApiResource {
     Pair<InputStream, String> getFirstAvailableImgThumb(String pid) {
         LOGGER.fine(String.format("Finding img thumb for '%s'", pid));
         InputStream is = null;
-        DatastreamContentWrapper datastreamContent =  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
+        DatastreamContentWrapper datastreamContent = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB);
         if (datastreamContent != null) {
             is = datastreamContent.asInputStream();
         }
@@ -1876,7 +1886,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
     Pair<InputStream, String> getFirstAvailableImgPreview(String pid) {
-        InputStream is = akubraRepository.datastreamExists(pid,  KnownDatastreams.IMG_PREVIEW) ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream() : null;
+        InputStream is = akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_PREVIEW) ? akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_PREVIEW).asInputStream() : null;
         if (is != null) {
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_PREVIEW).getMimetype();
             return new Pair<>(is, mimeType);

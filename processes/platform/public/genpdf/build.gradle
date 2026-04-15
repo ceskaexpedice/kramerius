@@ -6,20 +6,19 @@ plugins {
 description "Generate pdf"
 
 
-
 processPlugin {
-	spiImplementation='org.kramerius.genpdf.SpecialNeedsSPI'
-    profiles = [ [profileId: "generate_pdf",
-                  description: "Special needs",
-                  jvmArgs: ["-Xms1g","-Xmx16g"]] ]
+    spiImplementation = 'org.kramerius.genpdf.SpecialNeedsSPI'
+    profiles = [[profileId  : "generate_pdf",
+                 description: "Special needs",
+                 jvmArgs    : ["-Xms1g", "-Xmx16g"]]]
 
-	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+    excludeDependencies = [
+            'com.sun.jersey',
+            'javax.ws.rs'
     ]
 }
 
-dependencies{
+dependencies {
     implementation project(":shared:common")
     implementation project(":document-hub:content")
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
