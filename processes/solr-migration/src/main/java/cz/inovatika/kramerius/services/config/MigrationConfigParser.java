@@ -13,18 +13,18 @@ import java.util.logging.Level;
  * Main parser for the <migration> configuration XML structure.
  * Orchestrates the parsing of iteration and worker sub-configurations using specialized parsers.
  */
-public class ProcessConfigParser {
+public class MigrationConfigParser {
 
-    private static final Logger LOGGER = Logger.getLogger(ProcessConfigParser.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MigrationConfigParser.class.getName());
 
     /**
      * Parses the <migration> XML element and builds the complete configuration tree.
      * @param processElm The root <migration> XML element.
      * @return A fully configured ProcessConfig object.
      */
-    public static ProcessConfig parse(Element processElm) {
+    public static MigrationConfig parse(Element processElm) {
 
-        ProcessConfig.Builder builder = new ProcessConfig.Builder();
+        MigrationConfig.Builder builder = new MigrationConfig.Builder();
         Element sourceNameElm = XMLUtils.findElement(processElm, "source-name");
         if (sourceNameElm != null) {
             builder.sourceName(sourceNameElm.getTextContent());

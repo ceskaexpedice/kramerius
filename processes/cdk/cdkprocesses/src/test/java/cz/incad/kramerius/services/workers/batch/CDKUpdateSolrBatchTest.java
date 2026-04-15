@@ -4,8 +4,8 @@ import cz.incad.kramerius.services.workers.copy.cdk.CDKCopyContext;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.config.ProcessConfigParser;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfigParser;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class CDKUpdateSolrBatchTest {
     public void testBatchInsertSolr() throws ParserConfigurationException, IOException, SAXException, TransformerException {
         InputStream conf = CDKUpdateSolrBatchTest.class.getResourceAsStream("migrate.conf");
         Document parsedConf = XMLUtils.parseDocument(conf);
-        ProcessConfig config = ProcessConfigParser.parse(parsedConf.getDocumentElement());
+        MigrationConfig config = MigrationConfigParser.parse(parsedConf.getDocumentElement());
         Assert.assertNotNull(config);
 
         InputStream solrData = CDKUpdateSolrBatchTest.class.getResourceAsStream("solr-source-insert.xml");
@@ -104,7 +104,7 @@ public class CDKUpdateSolrBatchTest {
     public void testBatchCloudInsertSolr() throws ParserConfigurationException, IOException, SAXException, TransformerException {
         InputStream conf = CDKUpdateSolrBatchTest.class.getResourceAsStream("migrate.conf");
         Document parsedConf = XMLUtils.parseDocument(conf);
-        ProcessConfig config = ProcessConfigParser.parse(parsedConf.getDocumentElement());
+        MigrationConfig config = MigrationConfigParser.parse(parsedConf.getDocumentElement());
         Assert.assertNotNull(config);
 
         InputStream solrData = CDKUpdateSolrBatchTest.class.getResourceAsStream("solr-cloud-source-insert.xml");
@@ -139,7 +139,7 @@ public class CDKUpdateSolrBatchTest {
     public void testBatchUpdateSolr() throws ParserConfigurationException, IOException, SAXException, TransformerException {
         InputStream conf = CDKUpdateSolrBatchTest.class.getResourceAsStream("migrate.conf");
         Document parsedConf = XMLUtils.parseDocument(conf);
-        ProcessConfig config = ProcessConfigParser.parse(parsedConf.getDocumentElement());
+        MigrationConfig config = MigrationConfigParser.parse(parsedConf.getDocumentElement());
         Assert.assertNotNull(config);
 
         InputStream solrData = CDKUpdateSolrBatchTest.class.getResourceAsStream("solr-source-update.xml");

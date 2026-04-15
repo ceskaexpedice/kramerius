@@ -1,43 +1,26 @@
 package cz.inovatika.licenses;
 
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
-import cz.incad.kramerius.utils.IterationUtils;
-import cz.incad.kramerius.utils.IterationUtils.Endpoint;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
+import cz.inovatika.kramerius.services.iterators.MigrationIterator;
+import cz.inovatika.kramerius.services.iterators.MigrationIteratorFactory;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.ceskaexpedice.processplatform.api.context.PluginContext;
 import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.ceskaexpedice.processplatform.common.model.ScheduleSubProcess;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static cz.incad.kramerius.utils.IterationUtils.getSortField;
 
 /**
  * Transforming accesibility flag to license
@@ -113,9 +96,9 @@ public class FlagToLicenseProcess {
                             .filterQuery(query)
                             .factoryClz(SolrIteratorFactory.class.getName())
                             .build();
-            ProcessIteratorFactory iteratorFactory = ProcessIteratorFactory.create(config);
-            ProcessIterator processIterator = iteratorFactory.createProcessIterator(config, httpClient);
-            processIterator.iterate(httpClient, (itdocs) -> {
+            MigrationIteratorFactory iteratorFactory = MigrationIteratorFactory.create(config);
+            MigrationIterator migrationIterator = iteratorFactory.createMigrationIterator(config, httpClient);
+            migrationIterator.iterate(httpClient, (itdocs) -> {
                 itdocs.forEach(doc -> {
                     String pid = doc.getPid();
 

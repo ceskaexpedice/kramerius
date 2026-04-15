@@ -2,8 +2,8 @@ package cz.inovatika.kramerius.services.workers.batch;
 
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.config.ProcessConfigParser;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfigParser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -29,7 +29,7 @@ public class BatchTest {
 
         InputStream configStream = BatchTest.class.getResourceAsStream("config.xml");
         Document configDoc = XMLUtils.parseDocument(configStream);
-        ProcessConfig config = ProcessConfigParser.parse(configDoc.getDocumentElement());
+        MigrationConfig config = MigrationConfigParser.parse(configDoc.getDocumentElement());
 
         UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(config, result, null);
         Document batchForInsert = updateSolrBatchCreator.createBatchForInsert();
@@ -54,7 +54,7 @@ public class BatchTest {
 
         InputStream configStream = BatchTest.class.getResourceAsStream("config.xml");
         Document configDoc = XMLUtils.parseDocument(configStream);
-        ProcessConfig config = ProcessConfigParser.parse(configDoc.getDocumentElement());
+        MigrationConfig config = MigrationConfigParser.parse(configDoc.getDocumentElement());
 
 
         UpdateSolrBatchCreator updateSolrBatchCreator = new UpdateSolrBatchCreator(config, result, null);

@@ -9,10 +9,10 @@ import java.util.List;
  * <p>
  * Implementations of this interface define actions to be performed on each batch
  * of results obtained during the iteration process. This is typically used in
- * conjunction with {@link ProcessIterator} to process items in a structured manner.
+ * conjunction with {@link MigrationIterator} to process items in a structured manner.
  * </p>
  */
-public interface ProcessIterationCallback {
+public interface MigrationIterationCallback {
 
     /**
      * Handles the results obtained during the iteration process.

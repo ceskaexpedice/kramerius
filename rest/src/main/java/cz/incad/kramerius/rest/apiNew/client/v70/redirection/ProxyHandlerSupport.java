@@ -197,13 +197,11 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
                         EntityUtils.consumeQuietly(entity);
                     };
                 } else {
+                    byte[] bytes = IOUtils.toByteArray(contentStream);
                     outputStream = output -> {
-                        try (InputStream in = contentStream) {
-                            IOUtils.copy(in, output);
-                            output.flush();
-                        } finally {
-                            EntityUtils.consumeQuietly(entity);
-                        }
+                        output.write(bytes);
+                        output.flush();
+                        EntityUtils.consumeQuietly(entity);
                     };
                 }
 

@@ -1,6 +1,6 @@
 package cz.inovatika.kramerius.services.workers;
 
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import java.util.concurrent.CyclicBarrier;
@@ -9,13 +9,13 @@ public abstract class MigrationIndexFeederFinisher {
 
     protected CloseableHttpClient client;
     protected CyclicBarrier barrier;
-    protected ProcessConfig processConfig;
+    protected MigrationConfig migrationConfig;
 
     
-    public MigrationIndexFeederFinisher(ProcessConfig config, CloseableHttpClient client) {
+    public MigrationIndexFeederFinisher(MigrationConfig config, CloseableHttpClient client) {
         super();
         this.client = client;
-        this.processConfig = config;
+        this.migrationConfig = config;
     }
 
     public void exceptionDuringCrawl(Exception ex) {}

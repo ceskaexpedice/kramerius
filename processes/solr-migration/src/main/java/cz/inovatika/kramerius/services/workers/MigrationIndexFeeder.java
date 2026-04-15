@@ -1,6 +1,6 @@
 package cz.inovatika.kramerius.services.workers;
 
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -27,7 +27,7 @@ public abstract class MigrationIndexFeeder<C extends MigrationIndexFeederContext
     /** Barrier for synchronizing workers before processing new tasks. */
     //protected CyclicBarrier barrier;
 
-    protected ProcessConfig processConfig;
+    protected MigrationConfig migrationConfig;
     protected FeederConfig config;
 
     /** Finalization handler triggered when the worker completes its task. */
@@ -36,14 +36,14 @@ public abstract class MigrationIndexFeeder<C extends MigrationIndexFeederContext
     /** Apache http request enricher */
     protected ApacheHTTPRequestEnricher enricher;
 
-    public MigrationIndexFeeder(ProcessConfig processConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
+    public MigrationIndexFeeder(MigrationConfig migrationConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
         super();
         this.finisher = finisher;
         this.client = client;
         this.itemsToBeProcessed = items;
         this.enricher = enricher;
-        this.config = processConfig.getWorkerConfig();
-        this.processConfig = processConfig;
+        this.config = migrationConfig.getFeederConfig();
+        this.migrationConfig = migrationConfig;
     }
 
 

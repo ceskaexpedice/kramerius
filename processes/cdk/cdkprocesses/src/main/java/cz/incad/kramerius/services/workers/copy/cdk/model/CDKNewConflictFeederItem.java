@@ -16,29 +16,25 @@
  */
 package cz.incad.kramerius.services.workers.copy.cdk.model;
 
-import cz.incad.kramerius.utils.StringUtils;
-import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-public class CDKNewConflictWorkerItem extends CDKWorkerIndexedItem implements Conflict {
+public class CDKNewConflictFeederItem extends CDKWorkerIndexedItem implements Conflict {
 
-    public static final  Logger LOGGER = Logger.getLogger(CDKNewConflictWorkerItem.class.getName());
+    public static final  Logger LOGGER = Logger.getLogger(CDKNewConflictFeederItem.class.getName());
 
     private List<String> rootPids;
 
-    public CDKNewConflictWorkerItem(String idField, List<String> rootPids, Map<String, Object> document) {
+    public CDKNewConflictFeederItem(String idField, List<String> rootPids, Map<String, Object> document) {
         super(idField, document);
         this.rootPids = rootPids;
     }

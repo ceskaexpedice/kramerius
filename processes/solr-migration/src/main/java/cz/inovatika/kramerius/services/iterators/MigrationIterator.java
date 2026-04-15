@@ -18,7 +18,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
  * the preferred and future-proof option.
  * </p>
  */
-public interface ProcessIterator {
+public interface MigrationIterator {
 
 //	/**
 //	 * Iterates over a Solr collection or file using Jersey Client.
@@ -42,13 +42,13 @@ public interface ProcessIterator {
 	 * Iterates over a Solr collection or file using Apache CloseableHttpClient.
 	 * <p>
 	 * This method is the preferred way to iterate in newer versions of the software.
-	 * Each processed item triggers the {@link ProcessIterationCallback}, and at the end of the iteration,
-	 * {@link ProcessIterationEndCallback} is invoked.
+	 * Each processed item triggers the {@link MigrationIterationCallback}, and at the end of the iteration,
+	 * {@link MigrationIterationEndCallback} is invoked.
 	 * </p>
 	 *
 	 * @param client Apache HTTP client used for communication
 	 * @param iterationCallback callback invoked after each processed item
 	 * @param endCallback callback invoked after the entire iteration process completes
 	 */
-	public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback);
+	public void iterate(CloseableHttpClient client, MigrationIterationCallback iterationCallback, MigrationIterationEndCallback endCallback);
 }

@@ -8,7 +8,7 @@ import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
  * Immutable root configuration object for a replication process.
  * Encapsulates settings for the source (iterator) and the processing unit (worker).
  */
-public class  ProcessConfig {
+public class MigrationConfig {
 
     /** Default source name **/
     public static final String DEFAULT_SOURCE_NAME="default";
@@ -39,7 +39,7 @@ public class  ProcessConfig {
     private final SolrIteratorConfig iteratorConfig;
     private final FeederConfig feederConfig;
 
-    private ProcessConfig(Builder builder) {
+    private MigrationConfig(Builder builder) {
         this.sourceName = builder.sourceName;
         this.name = builder.name;
         this.threads = builder.threads;
@@ -133,7 +133,7 @@ public class  ProcessConfig {
      * such as the number of threads, working time windows, source names, and type identifiers.
      * @return The {@code WorkerConfig} instance.
      */
-    public FeederConfig getWorkerConfig() { return feederConfig; }
+    public FeederConfig getFeederConfig() { return feederConfig; }
 
 
     // ==========================================================
@@ -170,11 +170,11 @@ public class  ProcessConfig {
         public Builder iteratorConfig(SolrIteratorConfig config) { this.iteratorConfig = config; return this; }
         public Builder feederConfig(FeederConfig config) { this.feederConfig = config; return this; }
 
-        public ProcessConfig build() {
+        public MigrationConfig build() {
             if (sourceName == null || name == null || iteratorConfig == null || feederConfig == null) {
                 throw new IllegalStateException("ProcessConfig must contain sourceName, name, iteratorConfig, and workerConfig.");
             }
-            return new ProcessConfig(this);
+            return new MigrationConfig(this);
         }
     }
 

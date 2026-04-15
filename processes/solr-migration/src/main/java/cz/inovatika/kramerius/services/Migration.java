@@ -1,12 +1,12 @@
 package cz.inovatika.kramerius.services;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
-import cz.inovatika.kramerius.services.config.ProcessConfigParser;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfigParser;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
-import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
+import cz.inovatika.kramerius.services.iterators.MigrationIterator;
+import cz.inovatika.kramerius.services.iterators.MigrationIteratorFactory;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory;
 import cz.inovatika.kramerius.services.workers.MigrationIndexFeeder;
@@ -45,7 +45,7 @@ public class Migration {
     //protected Client client;
     protected CloseableHttpClient client;
     protected MigrationIndexFeederFinisher finisher;
-    protected ProcessIterator iterator;
+    protected MigrationIterator iterator;
     protected MigrationIndexFeederFactory migrationIndexFeederFactory;
 
 
@@ -76,17 +76,17 @@ public class Migration {
     public void migrate(File configFile) throws MigrateSolrIndexException, IllegalAccessException, InstantiationException, ClassNotFoundException, IOException, ParserConfigurationException, SAXException, NoSuchMethodException {
         LOGGER.info(String.format("Loading from configuration %s", configFile.getAbsolutePath()));
         Document document = XMLUtils.parseDocument(new FileInputStream(configFile));
-        ProcessConfig config = ProcessConfigParser.parse(document.getDocumentElement());
-        ProcessIteratorFactory processIteratorFactory = ProcessIteratorFactory.create(config.getIteratorConfig().getFactoryClz());
+        MigrationConfig config = MigrationConfigParser.parse(document.getDocumentElement());
+        MigrationIteratorFactory migrationIteratorFactory = MigrationIteratorFactory.create(config.getIteratorConfig().getFactoryClz());
 
-        this.iterator = processIteratorFactory.createProcessIterator(config.getIteratorConfig(), this.client);
-        this.migrationIndexFeederFactory = MigrationIndexFeederFactory.create(config.getWorkerConfig());
+        this.iterator = migrationIteratorFactory.createMigrationIterator(config.getIteratorConfig(), this.client);
+        this.migrationIndexFeederFactory = MigrationIndexFeederFactory.create(config.getFeederConfig());
 
         this.finisher = this.migrationIndexFeederFactory.createFinisher(config, this.client);
 
         try {
-            this.iterator.iterate(client, (List<IterationItem> idents) -> {
-                MigrationIndexFeeder feeder = createFeeder(config, this.iterator, idents);
+            this.iterator.iterate(client, (List<IterationItem> items) -> {
+                MigrationIndexFeeder feeder = createFeeder(config, this.iterator, items);
                 processFeederWithWorkingTimeCheck(feeder, config.getWorkingTime());
             }, () -> {
                 //finishRestFeeders(worksWhatHasToBeDone, config.getWorkingTime());
@@ -267,10 +267,10 @@ public class Migration {
         LOGGER.info("The date is " + startDateTimeLT + ". The calculated wait time is : " + hours + " hours, " + minutes + " minutes a " + seconds + " seconds.");
     }
 
-    protected MigrationIndexFeeder createFeeder(ProcessConfig config, ProcessIterator iteratorInstance, List<IterationItem> identifiers) {
+    protected MigrationIndexFeeder createFeeder(MigrationConfig config, MigrationIterator iteratorInstance, List<IterationItem> identifiers) {
         try {
             ApacheHTTPRequestEnricher enricher = ApacheHTTPRequestEnricher.NO_OP;
-            String apiKey = config.getWorkerConfig().getRequestConfig().getApiKey();
+            String apiKey = config.getFeederConfig().getRequestConfig().getApiKey();
             if (!StringUtils.isEmpty(apiKey)) {
                 enricher = new ApacheHTTPRequestEnricher() {
                     @Override

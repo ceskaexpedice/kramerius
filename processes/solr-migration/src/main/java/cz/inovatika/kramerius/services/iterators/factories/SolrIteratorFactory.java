@@ -3,16 +3,13 @@ package cz.inovatika.kramerius.services.iterators.factories;
 
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
-import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
+import cz.inovatika.kramerius.services.iterators.MigrationIterator;
+import cz.inovatika.kramerius.services.iterators.MigrationIteratorFactory;
 import cz.incad.kramerius.utils.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
-
-import javax.ws.rs.core.MediaType;
 
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import cz.inovatika.kramerius.services.iterators.config.TypeOfIteration;
@@ -25,7 +22,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 
-public class SolrIteratorFactory extends ProcessIteratorFactory {
+public class SolrIteratorFactory extends MigrationIteratorFactory {
 	
 	public static final String DEFAULT_TIMESTAMP_FIELD = "indexed";
     public static final String X_API_KEY = "X-API-KEY";
@@ -33,7 +30,7 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
 
 
     @Override
-    public ProcessIterator createProcessIterator(SolrIteratorConfig config, CloseableHttpClient client) {
+    public MigrationIterator createMigrationIterator(SolrIteratorConfig config, CloseableHttpClient client) {
         String masterQuery = config.getMasterQuery();
 
         String timestampField = config.getTimestampField();
