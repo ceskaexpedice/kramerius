@@ -1,10 +1,11 @@
 package cz.incad.kramerius.services.workers.copy.cdk;
 
 
-import cz.incad.kramerius.utils.StringUtils;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
+import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
-import cz.inovatika.kramerius.services.workers.WorkerFinisher;
+import cz.incad.kramerius.utils.StringUtils;
+
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ContentType;
@@ -22,11 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CDKCopyFinisher extends WorkerFinisher {
+public class CDKCopyFinisher extends MigrationIndexFeederFinisher {
 
     public static final Logger LOGGER = Logger.getLogger(CDKCopyFinisher.class.getName());
 
-    public static AtomicInteger WORKERS = new AtomicInteger(0);
+    public static AtomicInteger FEEDERS = new AtomicInteger(0);
 
     public static AtomicInteger BATCHES = new AtomicInteger(0);
 
@@ -46,7 +47,7 @@ public class CDKCopyFinisher extends WorkerFinisher {
     long start = System.currentTimeMillis();
 
 
-    public CDKCopyFinisher(ProcessConfig config, CloseableHttpClient client) {
+    public CDKCopyFinisher(MigrationConfig config, CloseableHttpClient client) {
         super(config, client);
     }
 
@@ -54,18 +55,18 @@ public class CDKCopyFinisher extends WorkerFinisher {
         String hostname = System.getenv("HOSTNAME");
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("workers", WORKERS.get());
+        jsonObject.put("workers", FEEDERS.get());
         jsonObject.put("batches", BATCHES.get());
         jsonObject.put("indexed", NEWINDEXED);
         jsonObject.put("updated", UPDATED);
         jsonObject.put("hostname", hostname);
 
-        String typeOfCrawl = this.processConfig.getType();
+        String typeOfCrawl = this.migrationConfig.getType();
         if (typeOfCrawl != null) {
             jsonObject.put("type", typeOfCrawl);
         }
 
-        String url = this.processConfig.getTimestampUrl();
+        String url = this.migrationConfig.getTimestampUrl();
         HttpPut putRequest = new HttpPut(url);
 
         putRequest.setHeader("Accept", "application/json");
@@ -107,11 +108,11 @@ public class CDKCopyFinisher extends WorkerFinisher {
 
     @Override
     public void finish() {
-        if (StringUtils.isAnyString(this.processConfig.getTimestampUrl()) && EXCEPTION_DURING_CRAWL.isEmpty()) {
+        if (StringUtils.isAnyString(this.migrationConfig.getTimestampUrl()) && EXCEPTION_DURING_CRAWL.isEmpty()) {
     		storeTimestamp();
     	}
-    	HTTPSolrUtils.commitApache(this.client, this.processConfig.getWorkerConfig().getDestinationConfig().getDestinationUrl());
-        LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), WORKERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
+    	HTTPSolrUtils.commitApache(this.client, this.migrationConfig.getFeederConfig().getDestinationConfig().getDestinationUrl());
+        LOGGER.info(String.format("Finishes in %d ms ;All work for workers: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d, skipped %d", (System.currentTimeMillis() - this.start), FEEDERS.get(), BATCHES.get(), NEWINDEXED.get(), UPDATED.get(), NOT_INDEXED_COMPOSITEID.get(), NOT_INDEXED_SKIPPED.get()));
 
         if (!EXCEPTION_DURING_CRAWL.isEmpty()) {
             LOGGER.log(Level.SEVERE, "Exception during crawl :");

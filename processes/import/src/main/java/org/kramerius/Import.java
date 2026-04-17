@@ -620,6 +620,7 @@ public class Import {
         DigitalObject finalObj = obj;
         akubraRepository.doWithLock(pid, () -> {
             try {
+                //TODO: Read again
                 akubraRepository.ingest(finalObj);
             } catch (RepositoryException sfex) {
                 if (objectExists(akubraRepository, pid)) {

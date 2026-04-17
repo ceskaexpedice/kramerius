@@ -43,6 +43,12 @@ public class SolrConfigParser {
         String finalFilterQuery = StringUtils.isAnyString(filterQueryOverride) ? filterQueryOverride : xmlFilterQuery;
         builder.filterQuery(finalFilterQuery);
 
+        Element apiKeyElm = XMLUtils.findElement(iteration, "apikey");
+        if (apiKeyElm != null) {
+            builder.apiKey(apiKeyElm.getTextContent());
+        }
+
+
         // B. Field List
         Element fieldListElm = XMLUtils.findElement(iteration, "fieldlist");
         builder.fieldList(fieldListElm != null ? fieldListElm.getTextContent() : "");

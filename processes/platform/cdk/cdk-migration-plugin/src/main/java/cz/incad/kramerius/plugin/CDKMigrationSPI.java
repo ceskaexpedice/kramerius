@@ -28,7 +28,7 @@ public class CDKMigrationSPI extends AbstractPluginSpi {
 
     @Override
     public String getMainClass() {
-        return "cz.incad.kramerius.services.CDKMigration";
+        return "cz.incad.kramerius.plugin.CDKMigration";
     }
 
     @Override

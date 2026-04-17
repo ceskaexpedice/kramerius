@@ -1,14 +1,13 @@
 package cz.inovatika.kramerius.services.workers.batch;
 
 import cz.incad.kramerius.utils.XMLUtils;
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,12 +15,12 @@ public class UpdateSolrBatchCreator {
 
     private static final List<String> PRIMITIVE_FIELD_TYPES = Arrays.asList("str", "int", "bool", "date");
 
-    protected ProcessConfig config;
+    protected MigrationConfig config;
     private Element resultElement;
     private BatchConsumer consumer;
 
-    public UpdateSolrBatchCreator(ProcessConfig processConfig, Element resultElem, BatchConsumer consumer) {
-        this.config = processConfig;
+    public UpdateSolrBatchCreator(MigrationConfig migrationConfig, Element resultElem, BatchConsumer consumer) {
+        this.config = migrationConfig;
         this.resultElement = resultElem;
         this.consumer = consumer;
     }
@@ -47,9 +46,9 @@ public class UpdateSolrBatchCreator {
             Element destDocElement = destBatch.createElement("doc");
             this.convertSourceToTargetFields(editMode, sourceDocElm, destBatch, destDocElement,consumer);
 
-            boolean compositeId = config.getWorkerConfig().getRequestConfig().isCompositeId();
-            String root = config.getWorkerConfig().getRequestConfig().getRootOfComposite();
-            String child = config.getWorkerConfig().getRequestConfig().getChildOfComposite();
+            boolean compositeId = config.getFeederConfig().getRequestConfig().isCompositeId();
+            String root = config.getFeederConfig().getRequestConfig().getRootOfComposite();
+            String child = config.getFeederConfig().getRequestConfig().getChildOfComposite();
 
             if (compositeId && root != null && child != null) {
                 boolean b = enhanceByCompositeId(destBatch, destDocElement, root, child);
@@ -64,8 +63,8 @@ public class UpdateSolrBatchCreator {
     }
 
     private void simpleValue(boolean edit, Document feedDoc, Element feedDocElm, Node node, String derivedName, BatchConsumer consumer) {
-        boolean compositeId = this.config.getWorkerConfig().getRequestConfig().isCompositeId();
-        String idIdentifier = this.config.getWorkerConfig().getRequestConfig().getIdIdentifier();
+        boolean compositeId = this.config.getFeederConfig().getRequestConfig().isCompositeId();
+        String idIdentifier = this.config.getFeederConfig().getRequestConfig().getIdIdentifier();
 
         String attributeName = derivedName != null ? derivedName : ((Element)node).getAttribute("name");
 

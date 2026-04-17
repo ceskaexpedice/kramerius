@@ -16,13 +16,23 @@
   */
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection;
 
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.monitoring.ApiCallEvent;
@@ -40,20 +50,17 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.AlreadyRegistedPidsException;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem.TypeOfReharvset;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
  /**
   * Base class for implementing various types of ProxyHandlers.
@@ -126,8 +133,9 @@ import java.util.stream.Collectors;
       * @param shibHeaders whether to include Shibboleth headers in the request
       * @return a Response object representing the result of the HEAD request
       */
-     public Response buildForwardApacheResponseHEAD(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders) {
-        HttpHead head = apacheHead(url, shibHeaders);
+     public Response buildForwardApacheResponseHEAD(String apiKey, String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders) {
+        HttpHead head = apacheHead(url, apiKey, shibHeaders);
+        if (apiKey != null && !apiKey.isEmpty()) { head.addHeader("X-API-KEY", apiKey);}
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
             int code = response.getCode();
             return Response.status(code).build();
@@ -147,11 +155,11 @@ import java.util.stream.Collectors;
       * @param shibHeaders whether to include Shibboleth headers in the request
       * @return a Response object representing the result of the HEAD request
       */
-     public Response buildForwardApacheResponseGET(String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
+     public Response buildForwardApacheResponseGET(String url, String apiKey, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
         List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ?  event.getGranularTimeSnapshots() : null;
         long start = System.currentTimeMillis();
 
-        HttpGet get = apacheGet(url, shibHeaders);
+        HttpGet get = apacheGet(url, apiKey, shibHeaders);
         String headers = "("+Arrays.stream(get.getHeaders()).map(h-> {
             return String.format("%s = %s", h.getName(), h.getValue());
         }).collect(Collectors.joining(", "))+")";
@@ -167,33 +175,33 @@ import java.util.stream.Collectors;
 
                 LOGGER.log(Level.FINE, String.format(" -> code %d", code));
                 HttpEntity entity = response.getEntity();
-                long length = entity.getContentLength();
                 String responseMimeType = entity.getContentType();
-
-                //TODO: Jak kopirovat data
-                byte[] bytes = IOUtils.toByteArray(entity.getContent());
+                InputStream contentStream = entity.getContent();
+                StreamingOutput outputStream = null;
                 if (dataConsumer != null) {
+                    byte[] bytes = IOUtils.toByteArray(contentStream);
                     dataConsumer.accept(bytes, responseMimeType);
+                    outputStream = output -> {
+                        output.write(bytes);
+                        output.flush();
+                        EntityUtils.consumeQuietly(entity);
+                    };
+                } else {
+                    byte[] bytes = IOUtils.toByteArray(contentStream);
+                    outputStream = output -> {
+                        output.write(bytes);
+                        output.flush();
+                        EntityUtils.consumeQuietly(entity);
+                    };
                 }
 
-                StreamingOutput stream = new StreamingOutput() {
-                    public void write(OutputStream output) throws IOException, WebApplicationException {
-                        try {
-                            IOUtils.copy(new ByteArrayInputStream(bytes), output);
-                        } catch (Exception e) {
-                            throw new WebApplicationException(e);
-                        } finally {
-                            EntityUtils.consumeQuietly(entity);
-                        }
-                    }
-                };
                 ResponseBuilder respEntity = null;
                 if (mimetype != null) {
-                    respEntity = Response.status(200).entity(stream).type(mimetype);
+                    respEntity = Response.status(200).entity(outputStream).type(mimetype);
                 } else if (responseMimeType != null) {
-                    respEntity = Response.status(200).entity(stream).type(responseMimeType);
+                    respEntity = Response.status(200).entity(outputStream).type(responseMimeType);
                 } else {
-                    respEntity = Response.status(200).entity(stream);
+                    respEntity = Response.status(200).entity(outputStream);
                 }
                 long contentLength = entity.getContentLength();
                 if (contentLength >= 0) {
@@ -215,9 +223,69 @@ import java.util.stream.Collectors;
         }
     }
 
+//     public Response buildAsyncForwardResponse(String url, String apiKey, ApiCallEvent event) {
+//         // Vracíme StreamingOutput, který uvnitř spustí váš asynchronní klient
+//         StreamingOutput stream = output -> {
+//             final WritableByteChannel channel = Channels.newChannel(output);
+//
+//             LOGGER.fine(String.format("Requesting %s", url));
+////             HttpGet get = new HttpGet(url);
+////             get.setHeader("User-Agent", "CDK/1.0");
+////             if (headers && isAuthenticated() && isDnntUser()) {
+////                 String header = prepareHeader(headers);
+////                 get.setHeader("CDK_TOKEN_PARAMETERS", header);
+////             }
+////             if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
+////             return get;
+//
+//             AsyncRequestBuilder asyncRequestBuilder = AsyncRequestBuilder.get(url)
+//                     .addHeader("User-Agent", "CDK/1.0");
+//             if (isAuthenticated() && isDnntUser()) {
+//                 String header = prepareHeader(true);
+//                 asyncRequestBuilder.addHeader("CDK_TOKEN_PARAMETERS", header);
+//             }
+////                     .addHeader("X-API-KEY", apiKey)
+////                     .build();
+//
+//
+////             AsyncRequestProducer producer = AsyncRequestBuilder.get(url)
+////                     .addHeader("User-Agent", "CDK/1.0")
+////
+////                     .addHeader("X-API-KEY", apiKey)
+////                     .build();
+//
+//             AbstractBinResponseConsumer<HttpResponse> consumer = new AbstractBinResponseConsumer<HttpResponse>() {
+//                 @Override
+//                 protected void data(ByteBuffer src, boolean endOfStream) throws IOException {
+//                     channel.write(src);
+//                 }
+//
+//                 @Override
+//                 protected void start(HttpResponse response, ContentType contentType) throws HttpException, IOException {
+//                     // V JAX-RS Response už je status nastaven, zde můžeme logovat nebo kontrolovat
+//                 }
+//
+//                 @Override
+//                 protected HttpResponse buildResult() { return null; }
+//                 @Override
+//                 public void releaseResources() {}
+//             };
+//
+//             try {
+//                 // httpClient je váš CloseableHttpAsyncClient
+//                 Future<HttpResponse> future = this.asyncClient.execute(producer, consumer, null);
+//                 future.get(); // Čekáme na dokončení streamu do outputu
+//             } catch (Exception e) {
+//                 throw new IOException("Async transfer failed", e);
+//             }
+//         };
+//
+//         return Response.ok(stream).header("Access-Control-Allow-Origin", "*").build();
+//     }
+
     //protected
-    protected boolean exists(String url) {
-        HttpGet head = apacheGet(url, false);
+    protected boolean exists(String url, String apiKey) {
+        HttpGet head = apacheGet(url, apiKey, false);
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
             int code = response.getCode();
             return code == 200;
@@ -226,8 +294,8 @@ import java.util.stream.Collectors;
         }
         return false;
     }
-    protected InputStream inputStream(String url) {
-        HttpGet head = apacheGet(url, false);
+    protected InputStream inputStream(String url, String apiKey) {
+        HttpGet head = apacheGet(url, apiKey, false);
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
             int code = response.getCode();
             if (code == 200) {
@@ -244,7 +312,7 @@ import java.util.stream.Collectors;
 
 
 
-    protected HttpHead apacheHead(String url, boolean headers) {
+    protected HttpHead apacheHead(String url, String apiKey, boolean headers) {
         LOGGER.fine(String.format("Requesting %s", url));
         HttpHead head = new HttpHead(url);
         head.setHeader("User-Agent", "CDK/1.0");
@@ -252,10 +320,11 @@ import java.util.stream.Collectors;
             String header = prepareHeader(headers);
             head.setHeader("CDK_TOKEN_PARAMETERS", header);
         }
+        if (apiKey != null && !apiKey.isEmpty()) { head.addHeader("X-API-KEY", apiKey);}
         return head;
     }
 
-    protected HttpGet apacheGet(String url, boolean headers) {
+    protected HttpGet apacheGet(String url, String apiKey, boolean headers) {
         LOGGER.fine(String.format("Requesting %s", url));
         HttpGet get = new HttpGet(url);
         get.setHeader("User-Agent", "CDK/1.0");
@@ -263,6 +332,8 @@ import java.util.stream.Collectors;
             String header = prepareHeader(headers);
             get.setHeader("CDK_TOKEN_PARAMETERS", header);
         }
+        if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
+
         return get;
     }
 
@@ -363,6 +434,12 @@ import java.util.stream.Collectors;
         if (!user.getSessionAttributes().containsKey("edupersonuniqueid")) {
             this.user.addSessionAttribute("edupersonuniqueid", "user@test.cz");
         }
+    }
+
+    protected String apiKey() {
+        String apikey = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + this.source + ".apikey");
+        return apikey;
     }
 
     protected String baseUrl() {

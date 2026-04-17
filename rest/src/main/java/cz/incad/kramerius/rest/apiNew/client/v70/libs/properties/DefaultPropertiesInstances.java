@@ -3,6 +3,16 @@ package cz.incad.kramerius.rest.apiNew.client.v70.libs.properties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -44,6 +54,7 @@ public class DefaultPropertiesInstances implements Instances {
     private final ReharvestManager reharvestManager;
     private final ConfigManager configManager;
     private final CDKRequestCacheSupport cacheSupport;
+    private final ExecutorService executor;
     private final DeleteTriggerSupport deleteTriggerSupport;
 
     @Inject
@@ -51,11 +62,17 @@ public class DefaultPropertiesInstances implements Instances {
                                       ReharvestManager reharvestManager,
                                       DeleteTriggerSupport deleteTriggerSupport,
                                       ConfigManager configManager) {
+        super();
         this.cacheSupport = cacheSupport;
         this.reharvestManager = reharvestManager;
         this.configManager = configManager;
         this.deleteTriggerSupport = deleteTriggerSupport;
-        LOGGER.info("Refreshing configuration with reharvestManager " + this.reharvestManager);
+
+        int executors = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.executor", 40);
+        this.executor = Executors.newFixedThreadPool(executors);
+
+        LOGGER.info("Refreshing configuration with reharvestManager "+this.reharvestManager);
+        //refresh();
     }
 
     @Override
@@ -105,66 +122,82 @@ public class DefaultPropertiesInstances implements Instances {
 
         names.add(acronym);
 
-        DefaultOnePropertiesInstance di =
-                new DefaultOnePropertiesInstance(
-                        this,
-                        this.cacheSupport,
-                        this.configManager,
-                        this.reharvestManager,
-                        this.deleteTriggerSupport,
-                        acronym,
-                        connected,
-                        typeOfChange
-                );
+
+        DefaultOnePropertiesInstance di = new DefaultOnePropertiesInstance(
+                this, this.cacheSupport,
+                this.configManager,
+                this.reharvestManager,
+                this.deleteTriggerSupport,
+                this.executor,
+                acronym,
+                connected,
+                typeOfChange);
         instances.add(di);
     }
 
     @Override
     public List<OneInstance> allInstances() {
-        refresh();
-        return new ArrayList<>(instances);
+        this.refresh();
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        return snapshot;
     }
 
     @Override
     public List<OneInstance> enabledInstances() {
-        refresh();
-        return instances.stream()
-                .filter(OneInstance::isConnected)
-                .collect(Collectors.toList());
+        this.refresh();
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        return snapshot.stream().filter(it-> {
+            return it.isConnected();
+        }).collect(Collectors.toList());
     }
 
     @Override
     public List<OneInstance> disabledInstances() {
-        refresh();
-        return instances.stream()
-                .filter(it -> !it.isConnected())
-                .collect(Collectors.toList());
+        this.refresh();
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        return snapshot.stream().filter(it -> {
+            return !it.isConnected();
+        }).collect(Collectors.toList());
     }
 
     @Override
     public boolean isAnyDisabled() {
-        refresh();
-        return allInstances().size() != enabledInstances().size();
+        this.refresh();
+        List<OneInstance> eInsts = this.enabledInstances();
+        return this.allInstances().size() != eInsts.size();
     }
 
     @Override
     public OneInstance find(String acronym) {
-        refresh();
-        return instances.stream()
-                .filter(it -> acronym.equals(it.getName()))
-                .findFirst()
-                .orElse(null);
+        this.refresh();
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        List<OneInstance> collect = snapshot.stream().filter(it -> {
+            return it.getName().equals(acronym);
+        }).collect(Collectors.toList());
+
+        if (!collect.isEmpty()) {
+            return collect.get(0);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean isEnabledInstance(String acronym) {
-        refresh();
-        return instances.stream()
-                .filter(inst -> inst.getName() != null)
-                .filter(inst -> inst.getName().equals(acronym))
-                .findFirst()
-                .map(OneInstance::isConnected)
-                .orElse(false);
+        this.refresh();
+        List<OneInstance> snapshot = new ArrayList<>(this.instances);
+        Optional<OneInstance> found = snapshot.stream().filter(inst -> {
+            boolean retval = inst.getName() != null;
+            if (!retval) {
+                LOGGER.warning("Null instance is "+inst.toString());
+            }
+            return retval;
+        }).filter(instance -> instance.getName().equals(acronym)).findFirst();
+        if (found.isPresent()) {
+            return found.get().isConnected();
+        } else {
+            return false;
+        }
     }
 
     @Override

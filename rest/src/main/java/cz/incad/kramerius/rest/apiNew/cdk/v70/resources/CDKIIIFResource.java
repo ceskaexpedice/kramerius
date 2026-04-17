@@ -47,7 +47,6 @@ public class CDKIIIFResource extends AbstractTileResource {
 
 	public static final Logger LOGGER = Logger.getLogger(CDKIIIFResource.class.getName());
 
-	
     @Inject
     @Named("new-index")
     private SolrAccess solrAccess;
@@ -172,5 +171,4 @@ public class CDKIIIFResource extends AbstractTileResource {
            throw new BadRequestException("bad request");
        }
 	}
-
 }

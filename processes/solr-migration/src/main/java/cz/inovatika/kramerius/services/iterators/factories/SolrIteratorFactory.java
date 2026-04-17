@@ -1,31 +1,36 @@
 package cz.inovatika.kramerius.services.iterators.factories;
 
 
-import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
-import cz.inovatika.kramerius.services.iterators.ProcessIterator;
-import cz.inovatika.kramerius.services.iterators.ProcessIteratorFactory;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
+import cz.inovatika.kramerius.services.iterators.MigrationIterator;
+import cz.inovatika.kramerius.services.iterators.MigrationIteratorFactory;
+import cz.incad.kramerius.utils.StringUtils;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import cz.inovatika.kramerius.services.iterators.config.TypeOfIteration;
 import cz.inovatika.kramerius.services.iterators.solr.SolrCursorIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrFilterQueryIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrPageIterator;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-
-public class SolrIteratorFactory extends ProcessIteratorFactory {
+public class SolrIteratorFactory extends MigrationIteratorFactory {
 	
 	public static final String DEFAULT_TIMESTAMP_FIELD = "indexed";
+    public static final String X_API_KEY = "X-API-KEY";
+
 
 
     @Override
-    public ProcessIterator createProcessIterator(SolrIteratorConfig config, CloseableHttpClient client) {
+    public MigrationIterator createMigrationIterator(SolrIteratorConfig config, CloseableHttpClient client) {
         String masterQuery = config.getMasterQuery();
 
         String timestampField = config.getTimestampField();
@@ -52,17 +57,28 @@ public class SolrIteratorFactory extends ProcessIteratorFactory {
         String id = config.getIdField();
         String sort  = config.getSort();
         int rowSize = config.getRows();
+        String apiKey = config.getApiKey();
+
         TypeOfIteration typeOfIteration = config.getTypeOfIteration();
-
         ResponseHandlingConfig responseHandling = config.getResponseHandlingConfig();
-
-
-        switch (typeOfIteration) {
-            case CURSOR: return new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort,rowSize, fieldList, responseHandling);
-            case FILTER: return new SolrFilterQueryIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize, fieldList, responseHandling);
-            case PAGINATION: return new SolrPageIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize,fieldList, responseHandling);
+        ApacheHTTPRequestEnricher enricher = null;
+        if (!org.apache.commons.lang3.StringUtils.isEmpty(apiKey)) {
+            enricher = new ApacheHTTPRequestEnricher() {
+                @Override
+                public void enrich(HttpUriRequestBase request) {
+                    request.setHeader(X_API_KEY, apiKey);
+                }
+            };
         }
 
+
+        //AtomicReference<ProcessIterator> ref = new AtomicReference<>();
+
+        switch (typeOfIteration) {
+            case CURSOR: return  new SolrCursorIterator(url, masterQuery, filterQuery, endpoint, id, sort, rowSize, fieldList, responseHandling, enricher);
+            case FILTER: return  new SolrFilterQueryIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize, fieldList, responseHandling ,enricher);
+            case PAGINATION:  return  new SolrPageIterator( url, masterQuery, filterQuery, endpoint, id, sort,rowSize,fieldList, responseHandling ,enricher);
+        }
         return null;
     }
 

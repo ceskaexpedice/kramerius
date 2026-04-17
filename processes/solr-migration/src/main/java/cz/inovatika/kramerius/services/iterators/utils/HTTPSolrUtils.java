@@ -4,6 +4,7 @@ package cz.inovatika.kramerius.services.iterators.utils;
 
 //import cz.incad.kramerius.rest.api.k5.client.utils.SOLRUtils;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -87,9 +89,9 @@ public class HTTPSolrUtils {
 
             if (statusCode != HttpStatus.SC_OK) {
                 StringWriter stringWriter = new StringWriter();
-                XMLUtils.print(batchDoc, stringWriter);
-                LOGGER.warning("Problematic batch: ");
-                LOGGER.warning(stringWriter.toString());
+                //XMLUtils.print(batchDoc, stringWriter);
+                LOGGER.warning("Problematic batch, status code  "+statusCode);
+                //LOGGER.warning(stringWriter.toString());
                 return bos.toString();
             } else {
                 return bos.toString();
@@ -201,10 +203,10 @@ public class HTTPSolrUtils {
     }
 
 
-    public static Element executeQueryApache(CloseableHttpClient apacheClient, String url, String query) {
+    public static Element executeQueryApache(CloseableHttpClient apacheClient, ApacheHTTPRequestEnricher enricher, String url, String query) {
         LOGGER.info(String.format("Executing url,query: %s, %s " ,url, query));
         try {
-            String t = executeSolrRequestApache(apacheClient, url, query);
+            String t = executeSolrRequestApache(apacheClient, url, query, enricher);
             return getElement(t);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
@@ -249,9 +251,12 @@ public class HTTPSolrUtils {
         return parseDocument.getDocumentElement();
     }
 
-    private static String executeSolrRequestApache(CloseableHttpClient client, String url, String query) {
+    private static String executeSolrRequestApache(CloseableHttpClient client, String url, String query, ApacheHTTPRequestEnricher enricher) {
         String u = url +(url.endsWith("/") ? "" : "/")+ query;
         HttpGet get = new HttpGet(u);
+        if (enricher != null) {
+            enricher.enrich(get);
+        }
         try(CloseableHttpResponse response = client.execute(get)) {
             InputStream is = response.getEntity().getContent();
             String content = org.apache.commons.io.IOUtils.toString(is, "UTF-8");

@@ -28,6 +28,7 @@ public class ApiEndpointRegistry {
     public static List<Class<?>> getResources() {
         boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
         boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+        boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
 
         List<Class<?>> resources = new ArrayList<>();
 
@@ -47,7 +48,7 @@ public class ApiEndpointRegistry {
         resources.add(LicensesResource.class);
 
         // CDK secured channel
-        if (channel) {
+        if (channel || apiKeyAuth) {
             resources.add(CDKForwardResource.class);
             resources.add(CDKIIIFResource.class);
             resources.add(CDKItemResource.class);

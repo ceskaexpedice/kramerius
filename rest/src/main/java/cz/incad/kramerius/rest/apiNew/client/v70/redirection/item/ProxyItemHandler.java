@@ -18,6 +18,7 @@
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,6 +59,7 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
 
     /** Persistent Identifier (PID) of the requested digital object. */
     protected String pid;
+    protected ExecutorService executor;
 
     /**
      * Constructor initializing the proxy handler with necessary dependencies.
@@ -72,10 +74,19 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
      * @param deleteTriggerSupport DeleteTriggerSupport instance
      * @param remoteAddr Remote client IP address.
      */
-    public ProxyItemHandler(CDKRequestCacheSupport cacheSupport, ReharvestManager reharvestManager, Instances instances, User user, CloseableHttpClient apacheClient, DeleteTriggerSupport deleteTriggerSupport, SolrAccess solrAccess, String source, String pid, String remoteAddr) {
+    public ProxyItemHandler(
+            CDKRequestCacheSupport cacheSupport,
+            ReharvestManager reharvestManager,
+            Instances instances,
+            User user,
+            CloseableHttpClient apacheClient,
+            DeleteTriggerSupport deleteTriggerSupport,
+            ExecutorService executorService,
+            SolrAccess solrAccess, String source, String pid, String remoteAddr) {
         super(cacheSupport, reharvestManager, instances,user, apacheClient,deleteTriggerSupport,solrAccess,source, remoteAddr);
         this.source = source;
         this.pid = pid;
+        this.executor = executorService;
     }
 
 
@@ -124,6 +135,7 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
      * @throws ProxyHandlerException if forwarding fails.
      */
     public abstract Response iiifTile(RequestMethodName method, String pid,  String region,  String size, String rotation, String qf, ApiCallEvent event) throws ProxyHandlerException;
+
 
 
     /**
@@ -274,6 +286,10 @@ public abstract class ProxyItemHandler extends ProxyHandlerSupport {
     public boolean imageThumbForceRedirection() {
         boolean redirection = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + this.source + ".thumb", false);
         return redirection;
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
     }
 
     protected CDKRequestItem cacheItemHit_PID_USER(String url, String pid, boolean user, String cacheModifier, ApiCallEvent event) {

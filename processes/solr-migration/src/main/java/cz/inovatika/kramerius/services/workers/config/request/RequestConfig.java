@@ -22,6 +22,9 @@ public class RequestConfig {
     private final String checkEndpoint;
 
     private final String url;
+    // pro cdk worker neni potreba
+    private final String apiKey;
+
     private final String endpoint;
     private final int batchSize;
 
@@ -37,6 +40,7 @@ public class RequestConfig {
         this.checkEndpoint = builder.checkEndpoint;
 
         this.url = builder.url;
+        this.apiKey= builder.apiKey;
         this.endpoint = builder.endpoint;
         this.batchSize = builder.batchSize;
     }
@@ -53,6 +57,11 @@ public class RequestConfig {
     public String getCheckEndpoint() { return checkEndpoint; }
 
     public String getUrl() { return url; }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
     public String getEndpoint() { return endpoint; }
     public int getBatchSize() { return batchSize; }
 
@@ -74,6 +83,8 @@ public class RequestConfig {
         private String checkEndpoint = DEFAULT_ENDPOINT;
 
         private String url;
+        private String apiKey;
+
         private String endpoint;
         private int batchSize= DEFAULT_BATCH_SIZE;
 
@@ -96,6 +107,9 @@ public class RequestConfig {
         public Builder childOfComposite(String childOfComposite) { this.childOfComposite = childOfComposite; return this; }
         public Builder checkUrl(String checkUrl) { this.checkUrl = checkUrl; return this; }
         public Builder checkEndpoint(String checkEndpoint) { this.checkEndpoint = checkEndpoint; return this; }
+
+        public Builder apiKey(String apiKey) { this.apiKey = apiKey; return this; }
+
 
         public RequestConfig build() {
             return new RequestConfig(this);

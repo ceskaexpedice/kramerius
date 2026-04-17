@@ -10,7 +10,6 @@ import cz.inovatika.kramerius.services.workers.config.request.RequestConfig;
 import cz.inovatika.kramerius.services.workers.config.request.RequestConfigParser;
 import org.w3c.dom.Element;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Static utility to build ReplicateWorkerConfig from the worker configuration XML element.
@@ -24,15 +23,15 @@ public class WorkerConfigParser {
      * @param workerElm The root <worker> element from the configuration file.
      * @return A fully configured ReplicateWorkerConfig object.
      */
-    public static WorkerConfig parse(SolrIteratorConfig config, Element workerElm) {
+    public static FeederConfig parse(SolrIteratorConfig config, Element workerElm) {
         
-        WorkerConfig.Builder builder = new WorkerConfig.Builder();
+        FeederConfig.Builder builder = new FeederConfig.Builder();
 
         DestinationConfig destinationConfig = null;
         RequestConfig  requestConfig = null;
 
-        Element workerFactoryElm = XMLUtils.findElement(workerElm, "workerFactory");
-        if (workerFactoryElm != null) builder.factoryClz(workerFactoryElm.getAttribute("class"));
+        Element feederFactoryElm = XMLUtils.findElement(workerElm, "feederFactory");
+        if (feederFactoryElm != null) builder.factoryClz(feederFactoryElm.getAttribute("class"));
 
 
         Element destinationElm = XMLUtils.findElement(workerElm, "destination");

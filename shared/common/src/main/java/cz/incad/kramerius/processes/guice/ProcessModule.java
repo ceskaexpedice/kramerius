@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
+import cz.incad.kramerius.processes.scheduler.SchedulersLifeCycleHook;
 import cz.incad.kramerius.processes.definition.ProcessDefinitionManagerImpl;
 import cz.incad.kramerius.processes.scheduler.SchedulersLifeCycleHook;
 import cz.incad.kramerius.service.LifeCycleHook;

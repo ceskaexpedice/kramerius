@@ -3,19 +3,28 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.proxy;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.security.*;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.google.inject.Inject;
+
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.api.k5.client.utils.UsersUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.PhysicalLocationMap;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.PhysicalLocationMap;
 import cz.incad.kramerius.timestamps.Timestamp;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestamp;
@@ -328,7 +337,7 @@ public class ConnectedInfoResource {
     private Pair<User, List<String>> parsedUsers(OneInstance inst, JSONObject notLoggedJSON) {
         switch(inst.getInstanceType()) {
             case V5:
-                return V5ForwardUserHandler.userFromJSON(notLoggedJSON);
+                throw new UnsupportedOperationException("V5 instances are not supported");
             case V7:
                 return V7ForwardUserHandler.userFromJSON(notLoggedJSON);
             default:

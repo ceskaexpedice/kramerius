@@ -19,7 +19,7 @@
 
     <threads>1</threads>
 
-    <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
+    <workerFactory class="cz.incad.kramerius.services.migrationIndexFeeders.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
     <worker>
         <request>
 

@@ -71,7 +71,7 @@ public class V7ForwardUserHandler extends ProxyUserHandler {
         if (userData != null) {
             return userFromJSON(new JSONObject(userData));
         }
-        HttpGet httpGet = super.apacheGet(url, true);
+        HttpGet httpGet = super.apacheGet(url,apiKey(), true);
         try (CloseableHttpResponse response = apacheClient.execute(httpGet)) {
             int code = response.getCode();
             if (code == 200) {

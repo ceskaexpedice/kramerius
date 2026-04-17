@@ -7,12 +7,14 @@
 	
 	<workingtime>$iteration.workingtime$</workingtime>
 	<timestamp>$timestamp.url$</timestamp>
-	
+
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
     <iteration>
+        <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
         <url>$iteration.url$</url>
+        <apikey>$iteration.apikey$</apikey>
         <endpoint>select</endpoint>
         <id>$iteration.id$</id>
         <rows>4000</rows>
@@ -24,8 +26,8 @@
 
     <threads>1</threads>
 
-    <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
-    <worker>
+    <feeder>
+        <feederFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrMigrationIndexFeederFactory"></feederFactory>
         <request>
             <url>$iteration.url$</url>
             <endpoint>select</endpoint>
@@ -39,6 +41,7 @@
 
             <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
+            <apikey>$iteration.apikey$</apikey>
 
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
@@ -57,10 +60,12 @@
                     <field name="collection"></field>
                 </remove.dest.field>
                 <!-- append to batch document -->
+                <!--
                 <update.dest.field>
                     <field name="cdk.collection">$iteration.dl$</field>
                     <field name="cdk.leader">$iteration.dl$</field>
                 </update.dest.field>
+                -->
             </onindex>
 
             <!-- on update -->
@@ -68,11 +73,13 @@
                <!--  updating fields  -->
                 <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr</fieldlist>
                 <!--  operations on update  -->
+                <!--
                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">$iteration.dl$</field>
                 </update.dest.field>
+                -->
             </onupdate>
 
         </destination>
-    </worker>
+    </feeder>
 </cdkprocess>
