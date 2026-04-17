@@ -19,7 +19,6 @@ package cz.incad.kramerius.processes.client;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;

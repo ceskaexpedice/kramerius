@@ -16,45 +16,37 @@
  */
 package cz.incad.kramerius.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.ext.Provider;
 
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientRequest;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.filter.ClientFilter;
-import com.sun.jersey.core.util.Base64;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-/**
- * @author pavels
- *
- */
-public class BasicAuthenticationFilter extends ClientFilter {
-    
+@Provider
+public class BasicAuthenticationFilter implements ClientRequestFilter {
+
+    private final String username;
+    private final String password;
+
     public BasicAuthenticationFilter(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
 
-    public ClientResponse handle(ClientRequest clientRequest) throws ClientHandlerException {
-        
-        encodeUserAndPass(clientRequest, this.username, this.password);
-
-        return getNext().handle(clientRequest);
+    @Override
+    public void filter(ClientRequestContext request) throws IOException {
+        encodeUserAndPass(request, username, password);
     }
 
-    public static void encodeUserAndPass(ClientRequest clientRequest, String unm,
-            String pswd) {
+    public static void encodeUserAndPass(ClientRequestContext request, String unm, String pswd) {
         // encode the password
-        byte[] encoded = Base64.encode((unm + ":" + pswd).getBytes());
+        String token = Base64.getEncoder()
+                .encodeToString((unm + ":" + pswd).getBytes(StandardCharsets.UTF_8));
 
         // add the header
-        List<Object> headerValue = new ArrayList<Object>();
-        headerValue.add("Basic " + new String(encoded));
-        clientRequest.getMetadata().put("Authorization", headerValue);
+        request.getHeaders().putSingle(HttpHeaders.AUTHORIZATION, "Basic " + token);
     }
-
-    private String username;
-    private String password;
-
 }

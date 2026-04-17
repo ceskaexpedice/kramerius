@@ -3,6 +3,9 @@ package cz.incad.kramerius.audio.jersey;
 import cz.incad.kramerius.audio.AbstractAudioHttpRequestForwarder;
 import cz.incad.kramerius.audio.AudioHttpRequestForwarder;
 import cz.incad.kramerius.audio.GetRequestHeaderForwarder;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -10,10 +13,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,19 +26,19 @@ import java.util.logging.Logger;
 /**
  * @deprecated use AudioStreamForwardingHelper instead
  */
-public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestForwarder<ResponseBuilder> implements AudioHttpRequestForwarder<ResponseBuilder> {
+public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestForwarder<Response.ResponseBuilder> implements AudioHttpRequestForwarder<Response.ResponseBuilder> {
 
     public static final Logger LOGGER = Logger.getLogger(JerseyResponseHeaderForwarder.class.getName());
 
     final HttpServletRequest clientToProxyRequest;
-    final ResponseBuilder responseBuilder;
+    final Response.ResponseBuilder responseBuilder;
 
-    public JerseyAudioHttpRequestForwarder(HttpServletRequest clientToProxyRequest, ResponseBuilder respBuilder) {
+    public JerseyAudioHttpRequestForwarder(HttpServletRequest clientToProxyRequest, Response.ResponseBuilder respBuilder) {
         this.clientToProxyRequest = clientToProxyRequest;
         this.responseBuilder = respBuilder;
     }
 
-    public ResponseBuilder forwardGetRequest(URL url) throws IOException, URISyntaxException {
+    public Response.ResponseBuilder forwardGetRequest(URL url) throws IOException, URISyntaxException {
         LOGGER.log(Level.FINE, "forwarding {0}", url);
         HttpGet proxyToRepositoryRequest = new HttpGet(url.toURI());
         forwardSelectedRequestHeaders(clientToProxyRequest, proxyToRepositoryRequest);
@@ -54,7 +54,7 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
     }
 
 
-    public ResponseBuilder forwardHeadRequest(URL url) throws IOException, URISyntaxException {
+    public Response.ResponseBuilder forwardHeadRequest(URL url) throws IOException, URISyntaxException {
         LOGGER.log(Level.FINE, "forwarding {0}", url);
         HttpHead repositoryRequest = new HttpHead(url.toURI());
         forwardSelectedRequestHeaders(clientToProxyRequest, repositoryRequest);
@@ -67,7 +67,7 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
         return this.responseBuilder;
     }
 
-    private void forwardSelectedResponseHeaders(HttpResponse repositoryResponse, ResponseBuilder builder) {
+    private void forwardSelectedResponseHeaders(HttpResponse repositoryResponse, Response.ResponseBuilder builder) {
         JerseyResponseHeaderForwarder forwarder = new JerseyResponseHeaderForwarder(repositoryResponse, builder);
         forwarder.forwardHeaderIfPresent("Content-Range");
         forwarder.forwardHeaderIfPresent("Content-Type");
@@ -92,7 +92,7 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
     }
 
 
-    private void forwardData(final InputStream input, ResponseBuilder respBuilder) {
+    private void forwardData(final InputStream input, Response.ResponseBuilder respBuilder) {
         StreamingOutput stream = new StreamingOutput() {
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
@@ -111,7 +111,7 @@ public class JerseyAudioHttpRequestForwarder extends AbstractAudioHttpRequestFor
         respBuilder.entity(stream);
     }
 
-    private void forwardResponseCode(HttpResponse repositoryResponse, ResponseBuilder builder) {
+    private void forwardResponseCode(HttpResponse repositoryResponse, Response.ResponseBuilder builder) {
         int repositoryResponseCode = repositoryResponse.getStatusLine().getStatusCode();
         builder.status(repositoryResponseCode);
     }

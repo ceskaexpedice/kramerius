@@ -17,189 +17,147 @@
 package cz.incad.kramerius.rest.api.client.v46;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
-
 /**
- * Simple testing utility
- * @author pavels
+ * Simple testing utility - Jersey 3 version
  */
 public class ProcessesClient {
 
     private static final String DEFAULT_NAME = "krameriusAdmin";
     private static final String DEFAULT_PSWD = "krameriusAdmin";
 
-    static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(ProcessesClient.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ProcessesClient.class.getName());
 
-    /**
-     * Returns logs
-     * 
-     * @param uuid Process indentifier
-     * @return Logs
-     */
+    private static Client createClient() {
+        return ClientBuilder.newBuilder()
+                .register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD))
+                .build();
+    }
+
     public static String logs(String uuid) {
-        try {
-            Client c = Client.create();
-            WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes/" + uuid + "/logs");
-            r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-            return t;
-        } catch (UniformInterfaceException e) {
-            int status = e.getResponse().getStatus();
-            if (status == 404) {
-                LOGGER.severe("Process not found ");
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes/" + uuid + "/logs");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            if (response.getStatus() == 404) {
+                LOGGER.severe("Process not found");
             }
-            throw new IllegalStateException(e);
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
         }
     }
 
-    /**
-     * Plan new process, wait 20 sec and kill it
-     * 
-     * @throws InterruptedException
-     * @throws JSONException 
-     */
-    public static void planAndStop() throws InterruptedException, JSONException {
-        String planned = ProcessesClient.planWithoutParams();
-        JSONObject obj = new JSONObject(planned);
-        System.out.println(obj);
-        Thread.sleep(20000);
-        String stopped = ProcessesClient.stop(obj.getString("uuid"));
-        System.out.println(stopped);
-    }
-
-    /**
-     * Plan new process, wait 20 sec, kill it and delete it
-     * @throws InterruptedException
-     * @throws JSONException 
-     */
-    public static void planStopAndDelete() throws InterruptedException, JSONException {
-        String planned = ProcessesClient.planWithoutParams();
-        JSONObject obj =  new JSONObject(planned);
-        System.out.println(obj);
-        Thread.sleep(20000);
-        String stopped = ProcessesClient.stop(obj.getString("uuid"));
-        System.out.println(stopped);
-        String deleted = delete(obj.getString("uuid"));
-        System.out.println(deleted);
-    }
-    
-    /**
-     * Stop the process
-     * 
-     * @param uuid Process indentification
-     */
     public static String stop(String uuid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes/" + uuid + "?stop=true");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).put(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes/" + uuid + "?stop=true");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).put(Entity.text(""))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Plan new process without parameters
-     * @return
-     */
     public static String planWithoutParams() {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes?def=mock");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).post(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes?def=mock");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.text(""))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Plan proc with params
-     * @return
-     * @throws JSONException 
-     */
     public static String planProcWithParams() throws JSONException {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes?def=mock");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes?def=mock");
+
         JSONObject object = new JSONObject();
         object.put("parameters", new JSONArray(Arrays.asList("first", "second", "third")));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
-        return t;
-    }
 
-    /**
-     * Plan new proc with named params
-     * @return
-     * @throws JSONException 
-     */
-    public static String planProcWithNamedParams() throws JSONException {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes?def=wmock");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        JSONObject object = new JSONObject();
-        JSONObject mapping = new JSONObject();
-        mapping.put("inputFolder", new JSONArray(new String[] { "/home/pavels/]" }));
-        mapping.put("processName", new JSONArray(new String[] { "Muj nazev procesu" }));
-        object.put("mapping", mapping);
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
-        return t;
-    }
-
-    /**
-     * Process description
-     * 
-     * @param uuid
-     * @return
-     */
-    public static String desc(String uuid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes/" + uuid);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
-    }
-
-    /**
-     * Delete process
-     * 
-     * @param uuid
-     */
-    public static String delete(String uuid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes/" + uuid);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).delete(String.class);
-        return t;
-    }
-    
-
-    public static String list() {
-        try {
-            Client c = Client.create();
-            WebResource r = c.resource("http://localhost:8080/search/api/v4.6/processes/" );
-            r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-            String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-            return t;
-        } catch (UniformInterfaceException e) {
-            int status = e.getResponse().getStatus();
-            if (status == 404) {
-                LOGGER.severe("Process not found ");
-            }
-            throw new IllegalStateException(e);
+        try (Response response = target
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(object.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
         }
     }
 
-    
-    public static void main(String[] args) {
+    public static String planProcWithNamedParams() throws JSONException {
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes?def=wmock");
+
+        JSONObject object = new JSONObject();
+        JSONObject mapping = new JSONObject();
+        mapping.put("inputFolder", new JSONArray(new String[]{"/home/pavels/"}));
+        mapping.put("processName", new JSONArray(new String[]{"Muj nazev procesu"}));
+        object.put("mapping", mapping);
+
+        try (Response response = target
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(object.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
+    }
+
+    public static String desc(String uuid) {
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes/" + uuid);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
+    }
+
+    public static String delete(String uuid) {
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes/" + uuid);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).delete()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
+    }
+
+    public static String list() {
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v4.6/processes/");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            if (response.getStatus() == 404) {
+                LOGGER.severe("Process not found");
+            }
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
+    }
+
+    public static void main(String[] args) throws JSONException, InterruptedException {
         String list = list();
         System.out.println(list);
     }
+
 }

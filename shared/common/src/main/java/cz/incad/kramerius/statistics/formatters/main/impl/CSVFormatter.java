@@ -19,17 +19,16 @@
  */
 package cz.incad.kramerius.statistics.formatters.main.impl;
 
+import cz.incad.kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
+import cz.incad.kramerius.statistics.formatters.utils.StringUtils;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.servlet.http.HttpServletResponse;
-
-import cz.incad.kramerius.statistics.formatters.main.StatisticsExportMainLogFormatter;
 import static cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter.DEFAULT_ENCODING;
-import cz.incad.kramerius.statistics.formatters.utils.StringUtils;
 
 /**
  * @author pavels

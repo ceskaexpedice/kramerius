@@ -4,7 +4,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class CDKIIIFServletUtils {
 

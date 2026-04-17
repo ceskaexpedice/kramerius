@@ -4,7 +4,7 @@ import cz.incad.kramerius.service.LifeCycleHook;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.logging.Logger;
 

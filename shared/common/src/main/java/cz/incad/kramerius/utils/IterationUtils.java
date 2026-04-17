@@ -10,15 +10,15 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.solr.SolrKeys;
@@ -329,13 +329,21 @@ public class IterationUtils {
 
     public static Element executeQuery(Client client, String url, String query)
             throws ParserConfigurationException, SAXException, IOException {
-        LOGGER.info(String.format("[" + Thread.currentThread().getName() + "] processing %s", query));
+
+        LOGGER.info(String.format("[%s] processing %s", Thread.currentThread().getName(), query));
+
         if (!query.contains("wt")) {
             query = query + "&wt=xml";
         }
-        WebResource r = client.resource(url + (url.endsWith("/") ? "" : "/") + query);
-        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-        Document parseDocument = XMLUtils.parseDocument(new StringReader(t));
+
+        WebTarget target = client.target(url + (url.endsWith("/") ? "" : "/") + query);
+
+        String responseText;
+        try (Response response = target.request(MediaType.APPLICATION_XML).get()) {
+            responseText = response.readEntity(String.class);
+        }
+
+        Document parseDocument = XMLUtils.parseDocument(new StringReader(responseText));
         return parseDocument.getDocumentElement();
     }
 

@@ -16,11 +16,8 @@
  */
 package cz.incad.kramerius.statistics;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Accesslog for statistics usages

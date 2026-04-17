@@ -16,8 +16,7 @@
  */
 package cz.incad.kramerius.audio.jersey;
 
-import javax.ws.rs.core.Response.ResponseBuilder;
-
+import jakarta.ws.rs.core.Response;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -33,7 +32,7 @@ import cz.incad.kramerius.audio.ResponseHeaderForwarder;
 public class JerseyResponseHeaderForwarder implements ResponseHeaderForwarder {
 
     private final HttpResponse repositoryResponse;
-    private final ResponseBuilder proxyResponse;
+    private final Response.ResponseBuilder proxyResponse;
 
     /**
      * Initializes Forwarder.
@@ -41,7 +40,7 @@ public class JerseyResponseHeaderForwarder implements ResponseHeaderForwarder {
      * @param repositoryResponse response from repository to proxy
      * @param proxyResponse      response from proxy to client
      */
-    public JerseyResponseHeaderForwarder(HttpResponse repositoryResponse, ResponseBuilder proxyResponse) {
+    public JerseyResponseHeaderForwarder(HttpResponse repositoryResponse, Response.ResponseBuilder proxyResponse) {
         this.repositoryResponse = repositoryResponse;
         this.proxyResponse = proxyResponse;
     }

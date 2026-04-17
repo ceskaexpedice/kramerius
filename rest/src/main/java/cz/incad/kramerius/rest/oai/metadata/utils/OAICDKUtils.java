@@ -35,8 +35,8 @@ import org.ceskaexpedice.akubra.pid.LexerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;

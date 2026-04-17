@@ -16,16 +16,14 @@
  */
 package cz.incad.kramerius.rest.oai.exceptions;
 
-import javax.ws.rs.WebApplicationException;
-
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import cz.incad.kramerius.rest.oai.*;
 import cz.incad.kramerius.rest.oai.strategies.MetadataExportStrategy;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

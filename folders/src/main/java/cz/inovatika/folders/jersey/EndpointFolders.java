@@ -3,17 +3,16 @@ package cz.inovatika.folders.jersey;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
 import cz.inovatika.folders.db.FolderDatabase;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

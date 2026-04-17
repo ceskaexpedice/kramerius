@@ -18,7 +18,6 @@ package cz.incad.kramerius.services.workers.copy.cdk.model;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import java.io.IOException;

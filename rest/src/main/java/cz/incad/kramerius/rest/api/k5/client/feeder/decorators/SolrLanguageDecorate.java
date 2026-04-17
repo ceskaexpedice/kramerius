@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.json.JSONException;
 import org.json.JSONObject;

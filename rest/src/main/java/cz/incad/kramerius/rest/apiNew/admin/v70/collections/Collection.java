@@ -1,16 +1,11 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
-import org.apache.commons.collections4.map.HashedMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /** 
  * Collection data object 

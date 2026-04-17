@@ -4,7 +4,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.ApiException;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.regex.Pattern;
 
 public abstract class ApiResource {
