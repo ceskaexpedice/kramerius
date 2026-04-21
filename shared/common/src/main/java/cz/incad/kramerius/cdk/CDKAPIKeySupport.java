@@ -1,4 +1,4 @@
-package cz.incad.kramerius.auth.thirdparty.keycloack.cdk;
+package cz.incad.kramerius.cdk;
 
 
 import java.io.File;

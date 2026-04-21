@@ -1,4 +1,4 @@
-package cz.incad.kramerius.auth.thirdparty.keycloack.cdk;
+package cz.incad.kramerius.cdk;
 
 import com.google.inject.Inject;
 import cz.incad.kramerius.service.LifeCycleHook;
@@ -7,7 +7,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class CDKApiKeyCycleHook implements LifeCycleHook {
 
     @Inject
-    CDKAPIKeySupport  cdkapikeysupport;
+    CDKAPIKeySupport cdkapikeysupport;
 
     @Override
     public void shutdownNotification() {

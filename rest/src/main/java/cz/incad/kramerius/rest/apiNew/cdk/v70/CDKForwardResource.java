@@ -8,6 +8,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
 
+import cz.incad.kramerius.cdk.CDKAPIKeySupport;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
@@ -35,11 +36,8 @@ public class CDKForwardResource {
 
     public static final String X_API_KEY = "X-API-KEY";
 
-    /* TODO pepoJ
     @Inject
     CDKAPIKeySupport cdkAPIKeySupport;
-
-     */
 
     @Inject
     Provider<HttpServletRequest> requestProvider;
@@ -208,13 +206,11 @@ public class CDKForwardResource {
     private boolean isAllowedByApiKey() {
         boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
         if (apiKeyAuth) {
-
-            // TODO pepoJ this.cdkAPIKeySupport.init();
+           this.cdkAPIKeySupport.init();
         }
         HttpServletRequest httpServletRequest = this.requestProvider.get();
         String header = httpServletRequest.getHeader(X_API_KEY);
-        // TODO pepoJ return this.cdkAPIKeySupport.isValidKey(header);
-        return false;
+        return this.cdkAPIKeySupport.isValidKey(header);
     }
 
     private boolean isAllowedByChannel() {

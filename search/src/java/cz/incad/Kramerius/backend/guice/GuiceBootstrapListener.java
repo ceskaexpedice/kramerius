@@ -4,7 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.ServletModule;
 import cz.incad.Kramerius.statistics.formatters.guice.FormatterModule;
-import cz.incad.kramerius.auth.thirdparty.keycloack.cdk.guice.CdkKeycloakModule;
+import cz.incad.kramerius.auth.thirdparty.keycloack.cdk.guice.CDKKeycloakModule;
 import cz.incad.kramerius.database.guice.DatabaseVersionGuiceModule;
 import cz.incad.kramerius.document.guice.DocumentServiceModule;
 import cz.incad.kramerius.fedora.RepoModule;
@@ -60,7 +60,7 @@ public class GuiceBootstrapListener implements ServletContextListener {
                 new GuiceSecurityModule(),
                 new GuiceSecurityHTTPModule(),
                 new ProcessModule(), // for long running processes
-                new CdkKeycloakModule(),
+                new CDKKeycloakModule(),
 
                 new PrintModule(), // printing
                 new DatabaseVersionGuiceModule(), // db versions
