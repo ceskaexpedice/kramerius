@@ -148,15 +148,15 @@ public class CDKIIIFResource extends AbstractTileResource {
         }
     }
 
-    public void iiifTile(String pid, String region, String size, String rotation,String qf) throws IOException {
+    public Response iiifTile(String pid, String region, String size, String rotation,String qf, String format) throws IOException {
         String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
         if(u != null) {
-
-            String defaultMime = ItemsResource.IIIF_SUPPORTED_MIMETYPES.get("jpg");
+            String defaultMime = ItemsResource.IIIF_SUPPORTED_MIMETYPES.get(format);
 
             StringBuilder url = new StringBuilder(u);
             if (!u.endsWith("/")) { url.append("/"); }
-            url.append(String.format("%s/%s/%s/%s", region, size, rotation,qf));
+            String file = qf+"."+format;
+            url.append(String.format("%s/%s/%s/%s", region, size, rotation, file));
  
             String mime = defaultMime;
             String[] splited = qf.split("\\.");
@@ -167,8 +167,9 @@ public class CDKIIIFResource extends AbstractTileResource {
             Response.ResponseBuilder builder = Response.ok();
 
             IIPImagesSupport.blockingCopyFromImageServer(this.getClient(), url.toString(),new ByteArrayOutputStream(), builder, mime);
+            return builder.build();
        } else {
-           throw new BadRequestException("bad request");
+           throw new BadRequestException("PID doesn't have iip server connection");
        }
 	}
 }

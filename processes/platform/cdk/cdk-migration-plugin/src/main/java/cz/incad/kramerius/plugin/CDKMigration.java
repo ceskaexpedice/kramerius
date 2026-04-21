@@ -145,7 +145,6 @@ public class CDKMigration {
     public static void main(String[] args) throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException {
 
         String configSource = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml";
-
         String destinationUrl = "http://localhost:8983/solr/search_v5";
         String iterationDl = "pepo";
         String iterationUrl = "https://k7.inovatika.dev/search/api/cdk/v7.0/forward/sync/solr";

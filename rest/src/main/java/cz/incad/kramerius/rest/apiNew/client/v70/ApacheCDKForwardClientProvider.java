@@ -39,7 +39,7 @@ public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpCli
     /** Timeout for establishing a connection (in seconds). */
     public static final int CONNECT_TIMEOUT = 5;
     /** Timeout for receiving a response (in seconds). */
-    public static final int RESPONSE_TIMEOUT = 10;
+    public static final int RESPONSE_TIMEOUT = 30;
 
     private CloseableHttpClient closeableHttpClient = null;
 
@@ -48,7 +48,7 @@ public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpCli
      * Reads configuration values and initializes the HTTP client with custom settings.
      */
     @Inject
-    public ApacheCDKForwardClientProvider(@Named("forward-client")Provider<PoolingHttpClientConnectionManager> poolManager) {
+    public ApacheCDKForwardClientProvider(@Named("forward-client")PoolingHttpClientConnectionManager poolManager) {
 
         int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.connect_timeout", CONNECT_TIMEOUT);
         int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.response_timeout", RESPONSE_TIMEOUT);
@@ -60,10 +60,11 @@ public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpCli
                 .build();
 
         this.closeableHttpClient = HttpClients.custom()
-                .setConnectionManager(poolManager.get())
+                .setConnectionManager(poolManager)
                 .disableAuthCaching()
                 .disableCookieManagement()
                 .setDefaultRequestConfig(requestConfig)
+                .evictIdleConnections(org.apache.hc.core5.util.TimeValue.ofMinutes(1))
                 .build();
     }
 

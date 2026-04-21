@@ -87,7 +87,7 @@ public class GenerateFullPDFProcess {
                 if (new File(mailPropertiesFile).exists()) {
                     try {
                         String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
-                        String text = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification, \ndownload is accessible here $link$");
+                        String text = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_TEXT_KEY, "Download notification, \ndownload is accessible here $link$");
                         String subject = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification");
                         String api =  KConfiguration.getInstance().getConfiguration().getString("api.client.point");
                         String link = String.format("%s/%s/%s", api, "userrequests/userspace", token);

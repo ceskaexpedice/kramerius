@@ -13,6 +13,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
@@ -50,6 +51,9 @@ public class IiifServlet extends AbstractImageServlet {
     @Inject
     @Named("cachedSolrAccess")
     private SolrAccess solrAccess;
+
+    @Inject
+    private CDKDocumentSourceProvider documentProvider;
 
     @Inject
     private RightsResolver rightsResolver;
@@ -110,7 +114,8 @@ public class IiifServlet extends AbstractImageServlet {
                 }
 
                 if (acronym == null) {
-                    acronym = defaultDocumentSource(pid);
+                    acronym = this.documentProvider.getDocumentSource(pid);
+                    //acronym = defaultDocumentSource(pid);
                 }
 
                 String forwardUrl = forwardUrl(acronym);
@@ -292,13 +297,5 @@ public class IiifServlet extends AbstractImageServlet {
             }
         }
     }
-
-    private String defaultDocumentSource(String pid) throws IOException {
-        org.w3c.dom.Document solrDataByPid = solrAccess.getSolrDataByPid(pid);
-        String leader = CDKUtils.findCDKLeader(solrDataByPid.getDocumentElement());
-        List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
-        return leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
-    }
-
 
 }

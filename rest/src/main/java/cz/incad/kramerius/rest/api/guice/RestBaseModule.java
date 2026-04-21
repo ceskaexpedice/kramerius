@@ -36,6 +36,8 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultPropertiesInstances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.impl.DeleteTriggerSupportImpl;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.impl.CDKDocumentSourceProviderImpl;
 import cz.incad.kramerius.rest.apiNew.monitoring.impl.SolrAPICallMonitor;
 import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
@@ -73,6 +75,8 @@ public class RestBaseModule extends AbstractModule {
         bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
         bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
         bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+        // cdk source provider
+        bind(CDKDocumentSourceProvider.class).to(CDKDocumentSourceProviderImpl.class).asEagerSingleton();
 
         // solr apache client
         bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);

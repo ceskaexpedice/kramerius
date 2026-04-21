@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.rest.apiNew.utils.ExtractDataInfoUtils;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import jakarta.ws.rs.WebApplicationException;
@@ -62,18 +64,34 @@ public class CDKItemResource {
         try {
             RuntimeInformation extractInformations = RightRuntimeInformations.extractInformations(this.actionAllowed, this.solrAccess, pid);
             JSONArray providingLicenses = extractInformations.getProvidingLicensesAsJSONArray();
-            
             JSONObject responseJson = new JSONObject();
             responseJson.put("licenses",
                     providingLicenses);
             return Response.ok(responseJson).type("application/json").build();
-
         } catch (IOException | RepositoryException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(500).build();
         }
-
     }
+
+
+    public Response info(String pid) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("data", ExtractDataInfoUtils.extractAvailableDataInfo(akubraRepository, pid));
+            json.put("image", ExtractDataInfoUtils.extractImageSourceInfo(akubraRepository,pid));
+            RuntimeInformation extractInformations = RightRuntimeInformations.extractInformations(this.actionAllowed, this.solrAccess, pid);
+            json.put(RightRuntimeInformations.PROVIDED_BY_LICENSES, extractInformations.getProvidingLicensesAsJSONArray());
+            json.put(RightRuntimeInformations.ACCESSIBLE_LOCSK, extractInformations.getLockAsJSONArray());
+            return Response.ok(json).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
 
     public Response stream(String pid, String dsid) {
         try {
