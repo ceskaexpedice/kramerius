@@ -3455,18 +3455,17 @@ paths:
               cdk-migration-plugin:
                 summary: Plánování procesu migrace čdk
                 description: Příklad procesu pro migraci knihovny
-
-
                 value: {"defid":"cdk-migration",
-                        "params":{
-                        "configSource":"/cz/incad/kramerius/services/workers/replicate/default_k7_v2.xml",
-                          "destinationUrl":"http://localhost:8983/solr/search_v1",
-                          "iterationDl":"mzk",
-                          "iterationId":"compositeId",
-                          "iterationUrl":"http://secured_channel",
-                          "showConfigurationOnly":"yes | no"
-                      }}
-
+                          "params":{
+                          "configSource":"/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml",
+                            "destinationUrl":"http://localhost:8983/solr/search_v1",
+                            "iterationDl":"mzk",
+                            "iterationId":"compositeId",
+                            "iterationWorkingtime": "",
+                            "iterationFQuery":"",
+                            "iterationUrl":"http://secured_channel | api key",
+                            "showConfigurationOnly":"yes | no"
+                        }}
 
       responses:
         '200':

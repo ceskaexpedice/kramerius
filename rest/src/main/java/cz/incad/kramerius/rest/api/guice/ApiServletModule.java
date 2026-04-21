@@ -66,6 +66,8 @@ import cz.incad.kramerius.rest.apiNew.client.v70.filter.DefaultFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultPropertiesInstances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.impl.CDKDocumentSourceProviderImpl;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestampStore;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -164,6 +166,9 @@ public class ApiServletModule extends JerseyServletModule {
         bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
         bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
         bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+        // cdk source provider
+        bind(CDKDocumentSourceProvider.class).to(CDKDocumentSourceProviderImpl.class).asEagerSingleton();
+
 
         // solr apache client
         bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);

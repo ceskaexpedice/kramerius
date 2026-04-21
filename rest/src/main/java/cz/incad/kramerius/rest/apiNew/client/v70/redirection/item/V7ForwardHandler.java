@@ -70,101 +70,17 @@ public class V7ForwardHandler extends V7RedirectHandler {
     public Response info(ApiCallEvent event) throws ProxyHandlerException {
         long startTime = System.currentTimeMillis();
         String baseurl = this.forwardUrl();
-        String providedByUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/providedBy/" + this.pid;
-        String infoUrl = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/info";
-        LOGGER.fine("Provided by url "+providedByUrl +  " = "+ this.user.toString());
-        long[] taskTimes = new long[2];
-
-        CompletableFuture<String> providedByFuture = CompletableFuture.supplyAsync(() -> {
-            long s = System.currentTimeMillis();
-            String cached = super.cacheStringHit_PID_USER(providedByUrl, this.pid, true, "info", event);
-            if (cached == null) {
-                try {
-                    HttpGet get = apacheGet(providedByUrl, apiKey(), true);
-                    try (CloseableHttpResponse response = apacheClient.execute(get)) {
-                        if (response.getCode() == 200) {
-                            String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                            CompletableFuture.runAsync(() -> saveToCache(result, providedByUrl, true), this.executor);
-                            cached = result;
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "ProvidedBy fetch failed", e);
-                }
-            }
-            taskTimes[0] = System.currentTimeMillis() - s;
-            return cached;
-        }, this.executor);
-
-        CompletableFuture<String> infoFuture = CompletableFuture.supplyAsync(() -> {
-            long s = System.currentTimeMillis();
-            String cached = super.cacheStringHit_PID_USER(infoUrl, this.pid, false, "info", event);
-            if (cached == null) {
-                try {
-                    HttpGet get = apacheGet(infoUrl, apiKey(), true);
-                    try (CloseableHttpResponse response = apacheClient.execute(get)) {
-                        if (response.getCode() == 200) {
-                            String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                            // Krok C: Asynchronní uložení
-                            CompletableFuture.runAsync(() -> saveToCache(result, infoUrl, false), this.executor);
-                            cached = result;
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Info fetch failed", e);
-                }
-
-            }
-            taskTimes[1] = System.currentTimeMillis() - s;
-            return cached;
-        }, this.executor);
-
+        String info = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/info/" + this.pid;
         try {
-            String providedByString = providedByFuture.get(5, TimeUnit.SECONDS);
-            String infoString = infoFuture.get(5, TimeUnit.SECONDS);
-            long totalExecutionTime = System.currentTimeMillis() - startTime;
-
-            LOGGER.fine(String.format(
-                    "PERF STATS [%s]: Total proxy time: %dms | ProvidedBy Task: %dms | Info Task: %dms | Parallel Gain: %dms",
-                    this.pid,
-                    totalExecutionTime,
-                    taskTimes[0],
-                    taskTimes[1],
-                    (taskTimes[0] + taskTimes[1]) - totalExecutionTime
-            ));
-
-            JSONArray licenses = null;
-            if (providedByString != null) {
-                JSONObject pbJson = new JSONObject(providedByString);
-                licenses = pbJson.optJSONArray("licenses");
+            HttpGet get = apacheGet(info, apiKey(), true);
+            try (CloseableHttpResponse response = apacheClient.execute(get)) {
+                String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+                return Response.status(response.getCode()).entity(result.toString()).build();
             }
-
-            if (infoString != null) {
-                JSONObject infoJson = new JSONObject(infoString);
-                if (licenses != null) {
-                    infoJson.put("providedByLicenses", licenses);
-                }
-                return Response.ok(infoJson.toString()).build();
-            }
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Parallel execution failed", e);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "ProvidedBy fetch failed", e);
         }
         return super.info(event);
-    }
-
-
-
-    private void saveToCache(String content, String url, boolean isUserSpecific) {
-        try {
-            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>) CDKRequestItemFactory.createCacheItem(
-                    content, "application/json", url, this.pid, source, LocalDateTime.now(),
-                    isUserSpecific ? userCacheIdentification() : null
-            );
-            this.cacheSupport.save(cacheItem);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Async cache save failed", e);
-        }
     }
 
 

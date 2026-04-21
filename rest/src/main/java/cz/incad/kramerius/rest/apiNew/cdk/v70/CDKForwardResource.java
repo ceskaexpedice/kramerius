@@ -3,14 +3,11 @@ package cz.incad.kramerius.rest.apiNew.cdk.v70;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -27,10 +24,14 @@ import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.monitoring.ApiCallEvent;
+import org.json.JSONObject;
 
 /**
  * CDK Forward resource
@@ -43,6 +44,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class CDKForwardResource {
 
     public static final String X_API_KEY = "X-API-KEY";
+
     @Inject
     CDKAPIKeySupport cdkAPIKeySupport;
 
@@ -106,12 +108,16 @@ public class CDKForwardResource {
 
     @GET
     //@Produces("image/jpeg")
-    @Path("iiif/{pid}/{region}/{size}/{rotation}/{qf}")
-    public void tile(@PathParam("pid") String pid, @PathParam("region") String region,
-            @PathParam("size") String size, @PathParam("rotation") String rotation,@PathParam("qf") String qf) {
+    @Path("iiif/{pid}/{region}/{size}/{rotation}/{qf}.{format}")
+    public Response tile(@PathParam("pid") String pid,
+                     @PathParam("region") String region,
+                     @PathParam("size") String size,
+                     @PathParam("rotation") String rotation,
+                     @PathParam("qf") String qf,
+                     @PathParam("format") String format) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             try {
-                this.iiifResource.iiifTile(pid, region, size, rotation, qf);
+                return this.iiifResource.iiifTile(pid, region, size, rotation, qf, format);
             } catch (IOException e) {
                 throw new GenericApplicationException(e.getMessage());
             }
@@ -160,8 +166,50 @@ public class CDKForwardResource {
         }
     }
 
-    
-    
+
+
+    @GET
+    @Path("info/{pid}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getInfo(@PathParam("pid") String pid) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return this.itemResource.info(pid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+
+//        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info",pid), "", "GET", pid);
+//        try {
+//            checkSupportedObjectPid(pid);
+//            checkObjectExists(pid);
+//            JSONObject json = new JSONObject();
+//            json.put("data", extractAvailableDataInfo(pid));
+//
+//            //json.put("structure", extractStructureInfo(pid));
+//            json.put("image", extractImageSourceInfo(pid));
+//
+//
+//            RightRuntimeInformations.RuntimeInformation extracrtedInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, pid);
+//
+//            json.put(RightRuntimeInformations.PROVIDED_BY_LICENSES, extracrtedInformation.getProvidingLicensesAsJSONArray());
+//            json.put(RightRuntimeInformations.ACCESSIBLE_LOCSK, extracrtedInformation.getLockAsJSONArray());
+//
+//
+//            return Response.ok(json).build();
+//        } catch (WebApplicationException e) {
+//            throw e;
+//        } catch (Throwable e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new InternalErrorException(e.getMessage());
+//        } finally {
+//            if (event != null) {
+//                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+//            }
+//        }
+    }
+
+
+
     // --------------- CDK Replication endpoint ---------------
     @GET
     @Path("sync/solr/select")
