@@ -237,17 +237,17 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                 // add part for page Number
                 DetailDefinition titleDetail = modsObjectFactory.createDetailDefinition();
                 titleDetail.setType("pageNumber");
-                XsString titleString = modsObjectFactory.createXsString();
+                StringPlusLanguage titleString = modsObjectFactory.createStringPlusLanguage();
                 titleString.setValue(pageTitle);
-                JAXBElement<XsString> titleElement = modsObjectFactory.createNumber(titleString);
+                JAXBElement<StringPlusLanguage> titleElement = modsObjectFactory.createNumber(titleString);
                 titleDetail.getNumberOrCaptionOrTitle().add(titleElement);
                 pagePart.getDetailOrExtentOrDate().add(titleDetail);
                 // add part for page Index
                 DetailDefinition orderDetail = modsObjectFactory.createDetailDefinition();
                 orderDetail.setType("pageIndex");
-                XsString orderString = modsObjectFactory.createXsString();
+                StringPlusLanguage orderString = modsObjectFactory.createStringPlusLanguage();
                 orderString.setValue(order != null ? order.toString() : "");
-                JAXBElement<XsString> orderElement = modsObjectFactory.createNumber(orderString);
+                JAXBElement<StringPlusLanguage> orderElement = modsObjectFactory.createNumber(orderString);
                 orderDetail.getNumberOrCaptionOrTitle().add(orderElement);
                 pagePart.getDetailOrExtentOrDate().add(orderDetail);
                 // add mods to page foxml
