@@ -16,46 +16,50 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.client;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 /**
- * Example of login in application
- * @author pavels
+ * Example of login in application - Jersey 3 / Jakarta
  */
 public class LoginModuleExample {
-	
-	public static boolean checkLogin(String checkingLoginName, String pswd) throws JSONException{ 
-		// get info from userResource
-		Client c = Client.create();
 
-		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/user");
-		r.addFilter(new BasicAuthenticationFilter(checkingLoginName, pswd));
-		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-		
-		JSONObject jsonObject = new JSONObject(t);
-		if (jsonObject.has("lname")) {
-			String loginName = jsonObject.getString("lname");
-			if (loginName.equals(checkingLoginName)) {
-				return true;
-			} else return false;
-		} else return false;
+	public static boolean checkLogin(String checkingLoginName, String pswd) throws JSONException {
+		try (Client client = ClientBuilder.newBuilder().build()) {
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/user");
+
+			// Add basic auth filter
+			client.register(new BasicAuthenticationFilter(checkingLoginName, pswd));
+
+			try (Response response = target.request(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON)
+					.get()) {
+				String jsonText = response.readEntity(String.class);
+				JSONObject jsonObject = new JSONObject(jsonText);
+
+				if (jsonObject.has("lname")) {
+					String loginName = jsonObject.getString("lname");
+					return loginName.equals(checkingLoginName);
+				} else {
+					return false;
+				}
+			}
+		}
 	}
-	
+
 	public static void main(String[] args) throws JSONException {
 		boolean validLogin = checkLogin("krameriusAdmin", "krameriusAdmin");
-		System.out.println("is valid login name and password ? "+validLogin);
+		System.out.println("is valid login name and password? " + validLogin);
 
 		boolean invalidLogin = checkLogin("krystof", "harant");
-		System.out.println("is valid login name and password ? "+invalidLogin);
-
+		System.out.println("is valid login name and password? " + invalidLogin);
 	}
-	
 }

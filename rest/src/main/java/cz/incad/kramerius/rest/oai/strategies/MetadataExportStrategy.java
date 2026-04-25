@@ -26,15 +26,15 @@ import cz.incad.kramerius.rest.oai.metadata.utils.OAICDKUtils;
 import cz.incad.kramerius.security.User;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

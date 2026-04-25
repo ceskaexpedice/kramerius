@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.client.v70.libs.properties;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,38 +17,40 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.ProcessingException;
 
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
-import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
-import org.apache.commons.configuration.Configuration;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.TypeOfChangedStatus;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
+
+import org.apache.commons.configuration.Configuration;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DefaultPropertiesInstances implements Instances {
 
-    public static final String INFO_URL = "https://api.registr.digitalniknihovna.cz/api/libraries";
-    private static final String STATUS_URL = "https://api.registr.digitalniknihovna.cz/api/libraries?detail=status";
+    public static final String INFO_URL =
+            "https://api.registr.digitalniknihovna.cz/api/libraries";
+    private static final String STATUS_URL =
+            "https://api.registr.digitalniknihovna.cz/api/libraries?detail=status";
 
-    
-    public static final Logger LOGGER = Logger.getLogger(DefaultPropertiesInstances.class.getName());
+    public static final Logger LOGGER =
+            Logger.getLogger(DefaultPropertiesInstances.class.getName());
 
     private final List<OneInstance> instances = new ArrayList<>();
     private final Set<String> names = new HashSet<>();
+
     private final ReharvestManager reharvestManager;
     private final ConfigManager configManager;
     private final CDKRequestCacheSupport cacheSupport;
@@ -74,12 +77,13 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public void refresh() {
-        this.instances.clear(); this.names.clear();
+        this.instances.clear();
+        this.names.clear();
 
-        Map<String,String> properties = new HashMap<>();
-        this.configManager.getPropertiesByRegularExpression("cdk.collections.sources.*").stream().forEach(it-> {
-            properties.put(it.getKey(),it.getValue());
-        });
+        Map<String, String> properties = new HashMap<>();
+        this.configManager
+                .getPropertiesByRegularExpression("cdk.collections.sources.*")
+                .forEach(it -> properties.put(it.getKey(), it.getValue()));
 
         Configuration configuration = KConfiguration.getInstance().getConfiguration();
         Iterator<String> keys = configuration.getKeys("cdk.collections.sources");
@@ -87,8 +91,8 @@ public class DefaultPropertiesInstances implements Instances {
             String key = keys.next();
             if (key.contains("cdk.collections.sources.")) {
                 String rest = key.substring("cdk.collections.sources.".length());
-                if (rest.lastIndexOf(".") > 0) {
-                    String acronym = rest.substring(0, rest.lastIndexOf("."));
+                if (rest.lastIndexOf('.') > 0) {
+                    String acronym = rest.substring(0, rest.lastIndexOf('.'));
                     if (!names.contains(acronym)) {
                         addOneInstance(acronym, properties);
                     }
@@ -97,14 +101,18 @@ public class DefaultPropertiesInstances implements Instances {
         }
     }
 
+    private void addOneInstance(String acronym, Map<String, String> properties) {
+        LOGGER.fine(String.format("Adding library %s with reharvestManager %s",
+                acronym, reharvestManager));
 
-    private void addOneInstance(String acronym, Map<String,String> properties) {
-        LOGGER.fine(String.format("Adding library %s with reharvestManager %s", acronym, reharvestManager.toString()));
+        String keyConnected =
+                String.format("cdk.collections.sources.%s.enabled", acronym);
+        String keyTypeofStatus =
+                String.format("cdk.collections.sources.%s.status", acronym);
 
-        String keyConnected = String.format("cdk.collections.sources.%s.enabled",acronym);
-        String keyTypeofStatus = String.format("cdk.collections.sources.%s.status", acronym);
         boolean connected = true;
         TypeOfChangedStatus typeOfChange = TypeOfChangedStatus.automat;
+
         if (properties.containsKey(keyConnected)) {
             connected = Boolean.parseBoolean(properties.get(keyConnected));
         }
@@ -126,7 +134,7 @@ public class DefaultPropertiesInstances implements Instances {
                 typeOfChange);
         instances.add(di);
     }
-    
+
     @Override
     public List<OneInstance> allInstances() {
         this.refresh();
@@ -194,72 +202,62 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public void cronRefresh() {
-        this.refresh();
+        refresh();
+
+        Client client = ClientBuilder.newClient();
         try {
             Map<String, Boolean> statuses = new HashMap<>();
-            Client client = Client.create();
-            String string = registerData(client, STATUS_URL);
-            JSONArray jsonArray = new JSONArray(string);
-            for (int i = 0, ll = jsonArray.length(); i < ll; i++) {
-                JSONObject oneObject = jsonArray.getJSONObject(i);
-                String code = oneObject.optString("code");
-                Boolean status = oneObject.optBoolean("alive");
-                statuses.put(code, status);
+            String statusString = registerData(client, STATUS_URL);
+            JSONArray jsonArray = new JSONArray(statusString);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                statuses.put(obj.optString("code"), obj.optBoolean("alive"));
             }
-            
-            Map<String,Map<String,String>> info = new HashMap<>();
+
+            Map<String, Map<String, String>> info = new HashMap<>();
             String infoString = registerData(client, INFO_URL);
             JSONArray infoArray = new JSONArray(infoString);
-            for (int i = 0, ll = infoArray.length(); i < ll; i++) {
-                JSONObject oneObject = infoArray.getJSONObject(i);
-                String czeName = oneObject.optString("name");
-                String engName = oneObject.optString("name_en");
-                String code =  oneObject.optString("code");
+
+            for (int i = 0; i < infoArray.length(); i++) {
+                JSONObject obj = infoArray.getJSONObject(i);
+                String code = obj.optString("code");
                 if (code != null) {
-                    if (!info.containsKey(code)) {
-                        info.put(code, new HashMap<>());
-                    }
-                    info.get(code).put(OneInstance.NAME_CZE, czeName);
-                    info.get(code).put(OneInstance.NAME_ENG, engName);
-                    
+                    info.computeIfAbsent(code, k -> new HashMap<>());
+                    info.get(code).put(OneInstance.NAME_CZE, obj.optString("name"));
+                    info.get(code).put(OneInstance.NAME_ENG, obj.optString("name_en"));
                 }
-            }            
-            
+            }
 
             for (OneInstance oneInstance : instances) {
-                // statuses
                 boolean isConnected = oneInstance.isConnected();
                 TypeOfChangedStatus type = oneInstance.getType();
-                if (type.equals(TypeOfChangedStatus.user) && !isConnected) {
-                    // musi vynechat, vypnul uzivatel
-                } else {
+
+                if (!(type == TypeOfChangedStatus.user && !isConnected)) {
                     Boolean registrStatus = statuses.get(oneInstance.getName());
-                    if (registrStatus != null) {
-                        if (registrStatus.booleanValue() != isConnected) {
-                            oneInstance.setConnected(registrStatus.booleanValue(), TypeOfChangedStatus.automat);
-                        }
+                    if (registrStatus != null && registrStatus != isConnected) {
+                        oneInstance.setConnected(registrStatus, TypeOfChangedStatus.automat);
                     }
                 }
-                
+
                 if (info.containsKey(oneInstance.getName())) {
-                    Map<String, String> instInfo = info.get(oneInstance.getName());
-                    instInfo.keySet().forEach(key-> {
-                        oneInstance.setRegistrInfo(key, instInfo.get(key));
-                    });
+                    info.get(oneInstance.getName())
+                            .forEach(oneInstance::setRegistrInfo);
                 }
-                
             }
-        } catch (UniformInterfaceException | ClientHandlerException | JSONException | IOException e) {
+
+        } catch (ProcessingException | JSONException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            client.close();
         }
     }
 
     protected String registerData(Client client, String url) throws IOException {
-        WebResource r = client.resource(url);
-        InputStream inputStream = r.accept(MediaType.APPLICATION_XML).get(InputStream.class);
-        String string = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
-        return string;
+        WebTarget target = client.target(url);
+        try (InputStream inputStream =
+                     target.request(MediaType.APPLICATION_JSON).get(InputStream.class)) {
+            return org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
+        }
     }
 }
-
-

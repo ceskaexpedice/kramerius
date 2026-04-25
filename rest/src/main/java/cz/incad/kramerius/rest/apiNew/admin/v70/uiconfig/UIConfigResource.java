@@ -10,15 +10,12 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.uiconfig.*;
-import org.json.JSONObject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +28,7 @@ public class UIConfigResource extends AdminApiResource {
     RightsResolver rightsResolver;
 
     @Inject
-    javax.inject.Provider<User> userProvider;
+    jakarta.inject.Provider<User> userProvider;
 
     @Inject
     @Named("kramerius4")

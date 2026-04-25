@@ -1,21 +1,14 @@
 package cz.incad.Kramerius.backend.guice;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import com.google.inject.Provider;
+import cz.incad.kramerius.service.ResourceBundleService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
-import cz.incad.kramerius.service.ResourceBundleService;
 
 public class CustomLocalizationContext extends LocalizationContext {
 

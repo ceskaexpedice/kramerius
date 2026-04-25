@@ -8,16 +8,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
@@ -26,7 +18,6 @@ import cz.inovatika.monitoring.ApiCallEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
@@ -43,6 +34,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
@@ -900,7 +895,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
 
-    public ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
+    public ProxyItemHandler findRedirectHandler(String pid, String source) throws IOException {
         if (source == null) {
         	//source = defaultDocumentSource(pid);
             source = documentSourceProvider.getDocumentSource(pid);

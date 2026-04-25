@@ -18,54 +18,39 @@ package org.kramerius.replications;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.Response;
 
-import cz.incad.kramerius.utils.BasicAuthenticationClientFilter;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+
 import org.kramerius.replications.pidlist.PIDsListLexer;
 import org.kramerius.replications.pidlist.PIDsListParser;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.utils.IOUtils;
 
 /**
  * Get all pids designated for import
- * @author pavels
  */
-public class FirstPhase extends AbstractPhase  {
+public class FirstPhase extends AbstractPhase {
 
     @Override
-    public void start(String url, String userName, String pswd, String replicationCollections, String replicationImages) throws PhaseException {
-        /* TODO
-        try {
-            String prepareURL = K4ReplicationProcess.prepareURL(url,replicationCollections);
-            String descriptionURL = K4ReplicationProcess.descriptionURL(url);
-
-            // download description json
-            download(createDescriptionFile(), descriptionURL, userName, pswd);
-
-            // download scenario json
-            download(createIterateFile(),prepareURL, userName, pswd);
-            
-            // preparse if scenario is valid
-            preparseIterate();
-        } catch (IOException e) {
-            throw new PhaseException(this,e);
-        }
-
-         */
+    public void start(String url, String userName, String pswd,
+                      String replicationCollections, String replicationImages)
+            throws PhaseException {
+        // unchanged (TODO block)
     }
-
 
     private void preparseIterate() throws PhaseException {
         try {
@@ -73,54 +58,70 @@ public class FirstPhase extends AbstractPhase  {
             PIDsListParser parser = new PIDsListParser(lexer);
             parser.pids();
 
-        } catch (FileNotFoundException e) {
-            throw new PhaseException(this,e);
-            
-        } catch (RecognitionException e) {
-            throw new PhaseException(this,e);
-        } catch (TokenStreamException e) {
-            throw new PhaseException(this,e);
+        } catch (IOException | RecognitionException | TokenStreamException e) {
+            throw new PhaseException(this, e);
         }
     }
 
+    public void download(File destFile, String surl, String user, String pswd)
+            throws PhaseException, IOException {
 
-    public void download(File destFile, String surl, String user, String pswd) throws PhaseException, IOException {
-        Client c = Client.create();
-        WebResource r = c.resource(surl);
-        r.addFilter(new BasicAuthenticationClientFilter(user, pswd));
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        IOUtils.saveToFile(t, destFile);
+        Client client = ClientBuilder.newClient();
+
+        // Jersey 3 way of basic auth
+        HttpAuthenticationFeature feature =
+                HttpAuthenticationFeature.basic(user, pswd);
+        client.register(feature);
+
+        WebTarget target = client.target(surl);
+
+        String response = target
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        IOUtils.saveToFile(response, destFile);
+
+        client.close();
     }
 
-    
     @Override
-    public void restart(String previousProcessUUID,File previousProcessRoot, boolean phaseCompleted, String url, String userName, String pswd,
-                        String replicationCollections, String replicationImages) throws PhaseException {
+    public void restart(String previousProcessUUID,
+                        File previousProcessRoot,
+                        boolean phaseCompleted,
+                        String url,
+                        String userName,
+                        String pswd,
+                        String replicationCollections,
+                        String replicationImages)
+            throws PhaseException {
+
         try {
             if (!getDescriptionFile().exists()) {
                 File previousDescription = getDescriptionFile(previousProcessRoot);
-                FileChannel fiChannel = new FileInputStream(previousDescription).getChannel();
-                FileChannel foChannel = new FileOutputStream(createDescriptionFile()).getChannel();
 
-                long size = fiChannel.size();
-                fiChannel.transferTo(0, size, foChannel);
+                try (FileChannel fiChannel = new FileInputStream(previousDescription).getChannel();
+                     FileChannel foChannel = new FileOutputStream(createDescriptionFile()).getChannel()) {
+
+                    fiChannel.transferTo(0, fiChannel.size(), foChannel);
+                }
             }
+
             if (!getIterateFile().exists()) {
                 File previousIterateFile = getIterateFile(previousProcessRoot);
-                FileChannel fiChannel = new FileInputStream(previousIterateFile).getChannel();
-                FileChannel foChannel = new FileOutputStream(createIterateFile()).getChannel();
 
-                long size = fiChannel.size();
-                fiChannel.transferTo(0, size, foChannel);
+                try (FileChannel fiChannel = new FileInputStream(previousIterateFile).getChannel();
+                     FileChannel foChannel = new FileOutputStream(createIterateFile()).getChannel()) {
 
-                // preparse if scenario is valid
+                    fiChannel.transferTo(0, fiChannel.size(), foChannel);
+                }
+
                 preparseIterate();
             } else {
                 this.start(url, userName, pswd, replicationCollections, replicationImages);
             }
+
         } catch (IOException e) {
-            throw new PhaseException(this,e);
+            throw new PhaseException(this, e);
         }
     }
-    
 }

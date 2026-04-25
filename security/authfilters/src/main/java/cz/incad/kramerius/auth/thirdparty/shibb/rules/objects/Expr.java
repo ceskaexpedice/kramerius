@@ -16,8 +16,6 @@
  */
 package cz.incad.kramerius.auth.thirdparty.shibb.rules.objects;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * Represents shibboleth rule expression
  * @author pavels

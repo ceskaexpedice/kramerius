@@ -1,26 +1,18 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import cz.incad.kramerius.SolrAccess;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.sun.jersey.api.client.Client;
-
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance.InstanceType;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import static cz.incad.kramerius.utils.IterationUtils.getSortField;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IntrospectUtils {
     

@@ -38,8 +38,8 @@ import org.ceskaexpedice.akubra.relsext.RelsExtRelation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;

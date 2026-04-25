@@ -7,9 +7,6 @@ import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
-
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
@@ -18,6 +15,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerExcepti
 import cz.incad.kramerius.security.User;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.monitoring.ApiCallEvent;
+import jakarta.ws.rs.core.Response;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 public class V7RedirectHandler extends ProxyItemHandler{

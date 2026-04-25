@@ -5,19 +5,11 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
 
-import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
+import cz.incad.kramerius.cdk.CDKAPIKeySupport;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
@@ -30,8 +22,10 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.monitoring.ApiCallEvent;
-import org.json.JSONObject;
+import jakarta.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 
 /**
  * CDK Forward resource
@@ -127,7 +121,7 @@ public class CDKForwardResource {
     }
 
     
-    
+
     @GET
     @Path("zoomify/{pid}/ImageProperties.xml")
     @Produces("application/xml")
@@ -261,7 +255,7 @@ public class CDKForwardResource {
     private boolean isAllowedByApiKey() {
         boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
         if (apiKeyAuth) {
-            this.cdkAPIKeySupport.init();
+           this.cdkAPIKeySupport.init();
         }
         HttpServletRequest httpServletRequest = this.requestProvider.get();
         String header = httpServletRequest.getHeader(X_API_KEY);

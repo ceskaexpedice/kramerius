@@ -4,9 +4,8 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.configuration.Configuration;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;

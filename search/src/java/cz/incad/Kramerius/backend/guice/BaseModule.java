@@ -37,10 +37,9 @@ import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl
 import cz.incad.kramerius.statistics.impl.*;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.impl.CDKRequestCacheSupportImpl;
+import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.ehcache.CacheManager;
-
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import java.io.File;
 import java.sql.Connection;
@@ -93,6 +92,7 @@ public class BaseModule extends AbstractModule {
         bind(ProcessScheduler.class).to(ProcessSchedulerImpl.class).in(Scopes.SINGLETON);
 
         // TODO: MOVE
+
         bind(LocalizationContext.class).toProvider(CustomLocalizedContextProvider.class);
 
         bind(MostDesirable.class).to(MostDesirableImpl.class);

@@ -1,6 +1,5 @@
 package cz.inovatika.kramerius.services.iterators;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.iterators.config.SolrIteratorConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 

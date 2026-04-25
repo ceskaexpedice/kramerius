@@ -1,14 +1,12 @@
 package cz.incad.Kramerius.backend.guice;
 
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
 import cz.incad.kramerius.service.ResourceBundleService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.jstl.fmt.LocalizationContext;
+
+import java.util.Locale;
 
 public class CustomLocalizedContextProvider implements Provider<LocalizationContext>{
 
@@ -40,3 +38,5 @@ public class CustomLocalizedContextProvider implements Provider<LocalizationCont
 	}
 	
 }
+
+

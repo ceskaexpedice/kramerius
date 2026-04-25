@@ -18,8 +18,8 @@ package cz.incad.kramerius.auth.thirdparty.shibb.utils;
 
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 

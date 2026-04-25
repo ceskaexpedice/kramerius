@@ -14,7 +14,7 @@ import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -33,12 +33,13 @@ public class ShibbolethTest {
     @Test
     public void testParse() throws IOException, TokenStreamException, RecognitionException {
         HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(req.getHeaderNames()).andAnswer(new IAnswer<Enumeration>() {
-            @Override
-            public Enumeration answer() {
-                return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
-            }
-        });
+        EasyMock.expect(req.getHeaderNames())
+                .andAnswer(new IAnswer<Enumeration<String>>() {
+                    @Override
+                    public Enumeration<String> answer() {
+                        return RequestSupportForTests.getLoggedShibLowerCaseTable().keys();
+                    }
+                });
 
         EasyMock.expect(req.getHeader("affilation")).andReturn("staff@mzk.cz;member@mzk.cz;employee@mzk.cz").anyTimes();
         EasyMock.expect(req.getHeader("remote_user")).andReturn("user@mzk.cz").anyTimes();
