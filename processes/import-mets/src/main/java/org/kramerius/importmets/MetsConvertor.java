@@ -56,6 +56,7 @@ public class MetsConvertor {
     //private static final String NONE_LICENSE = "-none-";
 
     private static final Logger log = Logger.getLogger(MetsConvertor.class);
+    public static boolean CONVERT_ONLY = false;
 
     private final Marshaller marshaller;
     private final Unmarshaller unmarshaller;
@@ -161,6 +162,9 @@ public class MetsConvertor {
         checkAndConvertDirectory(importRoot, exportRoot, policyPublic);
         if (!foundvalidPSP) {
             throw new RuntimeException("No valid PSP found.");
+        }
+        if(CONVERT_ONLY){
+            return;
         }
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
