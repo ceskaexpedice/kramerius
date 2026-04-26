@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/"
+           xmlns:mods="http://www.loc.gov/mods/v3"
+           xmlns:xlink="http://www.w3.org/1999/xlink"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           OBJID="uuid:parent-issue-123"
+           xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd">
+
+    <mets:dmdSec ID="MODSMD_PAGE_001">
+        <mets:mdWrap MDTYPE="MODS">
+            <mets:xmlData>
+                <mods:mods>
+                    <mods:titleInfo>
+                        <mods:title>Strana 1</mods:title>
+                    </mods:titleInfo>
+                    <mods:name type="personal">
+                        <mods:namePart>Jelínková, Andrea</mods:namePart>
+                        <mods:nameIdentifier type="orcid">0000-0003-2358-7134</mods:nameIdentifier>
+                    </mods:name>
+                </mods:mods>
+            </mets:xmlData>
+        </mets:mdWrap>
+    </mets:dmdSec>
+
+    <mets:fileSec>
+        <mets:fileGrp ID="UC_IMGGRP" USE="IMG_FULL">
+            <mets:file ID="FILE_0001" MIMETYPE="image/jpeg">
+                <mets:FLocat LOCTYPE="URL" xlink:href="page1.jpg"/>
+            </mets:file>
+        </mets:fileGrp>
+    </mets:fileSec>
+
+    <mets:structMap TYPE="PHYSICAL">
+        <mets:div ID="DIV_ISSUE_001" TYPE="issue">
+
+            <mets:div ID="DIV_PAGE_001"
+                      TYPE="page"
+                      ORDER="1"
+                      ORDERLABEL="s. 1"
+                      DMDID="MODSMD_PAGE_001">
+                <mets:fptr FILEID="FILE_0001"/>
+            </mets:div>
+
+        </mets:div>
+    </mets:structMap>
+
+    <mets:structLink/>
+</mets:mets>
