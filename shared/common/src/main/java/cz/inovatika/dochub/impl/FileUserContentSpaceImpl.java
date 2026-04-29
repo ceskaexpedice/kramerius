@@ -22,8 +22,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.Optional;
+import java.util.logging.Logger;
 
+/**
+ * #Sample configuration (configuration.properties)
+ * <p>
+ * dochub.storage.user=
+ * dochub.user.expiration.hours=96
+ * dochub.user.download.daily_limit=100
+ */
 public class FileUserContentSpaceImpl implements UserContentSpace {
+
+    Logger LOGGER = Logger.getLogger(UserContentSpace.class.getName());
 
     public static final String DATA_FOLDER = "data";
 
@@ -39,7 +49,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         if (userRoot == null || userRoot.isEmpty()) {
             throw new IllegalStateException("Configuration key 'dochub.storage.user' is missing or empty.");
         }
-        Path userContentRoot =  Paths.get(userRoot);
+        Path userContentRoot = Paths.get(userRoot);
         try {
             Files.createDirectories(userContentRoot);
         } catch (IOException e) {
@@ -50,17 +60,20 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         this.rootPath = userContentRoot.resolve(DATA_FOLDER);
 
     }
-    public boolean isExpired(String token) throws IOException {
+
+    private void checkExpiration(String token) throws IOException {
         Path expirePath = resolveTokenPath(token).resolve("expires");
         if (!Files.exists(expirePath)) {
-            return true;
+            throw new UsageException("Expiration information is missing for token: " + token);
         }
-
         String dateStr = Files.readString(expirePath, StandardCharsets.UTF_8);
         Instant expiryDate = Instant.parse(dateStr);
-
-        return Instant.now().isAfter(expiryDate);
+        boolean expired = Instant.now().isAfter(expiryDate);
+        if (expired) {
+            throw new UsageException("Token is expired");
+        }
     }
+
     public String generateHash(String user, String pid) {
         try {
             String input = user + "|" + pid;
@@ -72,6 +85,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }
     }
+
     private Path resolveTokenPath(String token) {
         String p1 = token.substring(0, Math.min(2, token.length()));
         String p2 = token.substring(Math.min(2, token.length()), Math.min(4, token.length()));
@@ -81,16 +95,29 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
 
     @Override
     public String storeBundle(InputStream is, String user, String pid, DocumentType type, String auditInfo) throws IOException {
+        LOGGER.info("Storing bundle for user: " + user);
         String token = generateHash(user, pid);
         Path targetDir = resolveTokenPath(token);
+        LOGGER.info("targetDir: " + targetDir);
         Files.createDirectories(targetDir);
 
         int expirationHours = KConfiguration.getInstance()
                 .getConfiguration()
-                .getInt("dochub.user.expiration.hours", 24);
+                .getInt("dochub.user.expiration.hours", 48);
+        LOGGER.info("Expiration hours: " + expirationHours);
         Instant expiresAt = Instant.now().plus(expirationHours, ChronoUnit.HOURS);
-
+        LOGGER.info("Expires at: " + expiresAt);
         Path filePath = targetDir.resolve("content." + type.name().toLowerCase());
+        LOGGER.info("File path: " + filePath);
+
+        if (filePath.toFile().exists()) { //delete file, if already exists
+            try {
+                Files.delete(filePath);
+            } catch (IOException e) {
+                throw new IOException("Failed to delete previous version of the file: " + filePath, e);
+            }
+        }
+
         try (OutputStream os = Files.newOutputStream(filePath)) {
             is.transferTo(os);
         }
@@ -105,21 +132,23 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
     }
 
     @Override
-    public Optional<InputStream> getBundle(String token, String user) throws IOException {
-        Path filePath = resolveTokenPath(token).resolve("content.pdf");
+    public Optional<InputStream> getBundle(String token, String user, DocumentType type) throws UsageException, IOException {
+        String filename = "content." + type.name().toLowerCase();
+        LOGGER.fine("Getting bundle for token: " + token + ", user: " + user + ", type: " + type);
+        Path filePath = resolveTokenPath(token).resolve(filename);
+        LOGGER.fine("Resolved file path: " + filePath);
         if (Files.exists(filePath)) {
             return Optional.of(Files.newInputStream(filePath));
         }
-        if (isExpired(token)) {
-            throw new IOException("Doesnt exist or is expired");
-        }
-        checkAndIncrementDailyLimit(user,2);
+        checkExpiration(token);
+        checkAndIncrementDailyLimit(user);
         return Optional.empty();
     }
 
     @Override
     public boolean exists(String token) {
-        return Files.exists(resolveTokenPath(token));
+        Path path = resolveTokenPath(token);
+        return Files.exists(path);
     }
 
     @Override
@@ -148,7 +177,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
 
     @Override
     public Optional<String> getAuditInfo(String token) throws IOException {
-        Path stampPath = resolveTokenPath (token).resolve("stamp.txt");
+        Path stampPath = resolveTokenPath(token).resolve("stamp.txt");
         if (Files.exists(stampPath)) {
             return Optional.of(Files.readString(stampPath, StandardCharsets.UTF_8));
         }
@@ -198,7 +227,9 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         return rootPath.resolve("counters").resolve(datePart).resolve(user + ".count");
     }
 
-    private void checkAndIncrementDailyLimit(String user, int limit) throws IOException {
+    private void checkAndIncrementDailyLimit(String user) throws UsageException, IOException {
+        int limit = KConfiguration.getInstance().getConfiguration().getInt("dochub.user.download.daily_limit", 10);
+
         Path counterFile = resolveDailyCounterPath(user);
         Files.createDirectories(counterFile.getParent());
 
@@ -212,7 +243,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         }
 
         if (currentCount >= limit) {
-            throw new IOException("Denní limit 2 stažení byl pro uživatele " + user + " vyčerpán.");
+            throw new UsageException("Denní limit " + limit + " stažení byl pro uživatele " + user + " vyčerpán.");
         }
 
         Files.writeString(counterFile, String.valueOf(currentCount + 1), StandardCharsets.UTF_8);
