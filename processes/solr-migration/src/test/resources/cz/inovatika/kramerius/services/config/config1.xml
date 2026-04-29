@@ -12,6 +12,7 @@
     <iteration>
         <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
         <url>$iteration.url$</url>
+        <apikey>$iteration.url$</apikey>
         <endpoint>select</endpoint>
         <id>$iteration.id$</id>
         <rows>4000</rows>
@@ -23,13 +24,12 @@
 
     <threads>1</threads>
 
-    <worker>
-        <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
+    <feeder>
+        <feederFactory class="cz.incad.kramerius.services.migrationIndexFeeders.copy.cdk.CDKCopySolrWorkerFactory"></feederFactory>
         <request>
             <url>$iteration.url$</url>
             <endpoint>select</endpoint>
             <batchsize>80</batchsize>
-
 
             <composite.id>true</composite.id>
             <composite.root>root.pid</composite.root>
@@ -72,5 +72,5 @@
             </onupdate>
 
         </destination>
-    </worker>
+    </feeder>
 </cdkprocess>

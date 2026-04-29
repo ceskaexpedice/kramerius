@@ -323,6 +323,9 @@ public class ProcessResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response scheduleProcess(JSONObject processDefinition) {
         try {
+
+            LOGGER.info(String.format("Requesting %s", processDefinition.toString()));
+
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
 
             JSONObject pcpSchedule = ProcessManagerMapper.mapScheduleMainProcess(processDefinition, userProvider.get().getLoginname());

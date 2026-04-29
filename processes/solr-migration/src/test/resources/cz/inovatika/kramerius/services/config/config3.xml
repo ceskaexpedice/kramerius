@@ -23,7 +23,7 @@
 
 
     <worker>
-        <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
+        <workerFactory class="cz.incad.kramerius.services.migrationIndexFeeders.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
         <request>
 
             <endpoint>select</endpoint>

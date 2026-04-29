@@ -9,7 +9,7 @@ import java.util.Objects;
  * <p>
  * Each iteration item contains a persistent identifier and information
  * about the source from which it originates. This class is used in conjunction
- * with {@link ProcessIterationCallback} to represent individual items retrieved
+ * with {@link MigrationIterationCallback} to represent individual items retrieved
  * during the iteration process.
  * </p>
  */

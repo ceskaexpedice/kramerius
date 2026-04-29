@@ -9,8 +9,8 @@ public class KeycloakCDKCycleHook implements LifeCycleHook{
 
     @Inject
     KeycloakCDKCache cdkCache;
-    
-    
+
+
     @Override
     public void shutdownNotification() {
         cdkCache.shutdown();
@@ -19,8 +19,9 @@ public class KeycloakCDKCycleHook implements LifeCycleHook{
     @Override
     public void startNotification() {
         cdkCache.init();
-        boolean channelEnabled  =  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel");
-        if (channelEnabled) {
+        boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
+        boolean channelEnabled  =  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
+        if (channelEnabled || apiKeyAuth) {
             cdkCache.scheduleNextTask();
         }
     }

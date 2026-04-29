@@ -1,9 +1,9 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
-import com.sun.jersey.api.client.Client;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationCallback;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
@@ -21,19 +21,19 @@ import java.util.stream.Collectors;
 
 public class SolrPageIterator extends AbstractSolrIterator {
 
-    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig);
+    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig ,enricher);
     }
 
-    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig);
+    public SolrPageIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig, enricher);
     }
 
 
 
-    public static Element paginationApache(CloseableHttpClient client, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList) throws IOException, SAXException, ParserConfigurationException {
+    public static Element paginationApache(CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, String url, String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList) throws IOException, SAXException, ParserConfigurationException {
         String query = parinationQuery(mq, offset, rows, filterQuery, endpoint, identifierField, sorting,fieldList);
-        return HTTPSolrUtils.executeQueryApache(client, url, query);
+        return HTTPSolrUtils.executeQueryApache(client, enricher, url, query);
     }
 
     private static String parinationQuery(String mq, String offset, int rows, String filterQuery, String endpoint, String identifierField, String sorting, String[] fieldList) throws UnsupportedEncodingException {
@@ -67,12 +67,12 @@ public class SolrPageIterator extends AbstractSolrIterator {
     }
 
     @Override
-    public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+    public void iterate(CloseableHttpClient client, MigrationIterationCallback iterationCallback, MigrationIterationEndCallback endCallback) {
         try {
             int offset = 0;
             int numberOfResult = Integer.MAX_VALUE;
             do {
-                Element element =  paginationApache( client, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.sorting, this.fieldList);
+                Element element =  paginationApache( client, enricher, address,masterQuery,  ""+offset, rows, filterQuery, endpoint, id, this.sorting, this.fieldList);
                 if (numberOfResult == Integer.MAX_VALUE) {
                     numberOfResult = findNumberOfResults(element);
                 }

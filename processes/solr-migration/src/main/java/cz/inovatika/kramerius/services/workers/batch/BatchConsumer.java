@@ -1,6 +1,6 @@
 package cz.inovatika.kramerius.services.workers.batch;
 
-import cz.inovatika.kramerius.services.config.ProcessConfig;
+import cz.inovatika.kramerius.services.config.MigrationConfig;
 import org.w3c.dom.Element;
 
 
@@ -52,9 +52,9 @@ public interface BatchConsumer {
      * The implementor can change, enrich, or clean up the XML structure of the document
      * based on its PID or root PID context.
      *
-     * @param processConfig
+     * @param migrationConfig
      * @param doc           The XML element representing the whole document.
      */
-    public void changeDocument(ProcessConfig processConfig, Element doc);
+    public void changeDocument(MigrationConfig migrationConfig, Element doc);
 
 }

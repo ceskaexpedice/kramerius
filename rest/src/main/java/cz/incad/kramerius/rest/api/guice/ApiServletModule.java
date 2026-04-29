@@ -34,6 +34,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RightsResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.RolesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.rights.UsersResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.statistics.StatisticsResource;
+import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.CDKForwardResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
@@ -65,6 +66,8 @@ import cz.incad.kramerius.rest.apiNew.client.v70.filter.DefaultFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.filter.ProxyFilter;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.properties.DefaultPropertiesInstances;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.impl.CDKDocumentSourceProviderImpl;
 import cz.incad.kramerius.timestamps.TimestampStore;
 import cz.incad.kramerius.timestamps.impl.SolrTimestampStore;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -127,11 +130,15 @@ public class ApiServletModule extends JerseyServletModule {
 
         // CDK Client 7.0 Resources
         boolean channel = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false);
-        if (channel) {
+        boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
+        if (channel || apiKeyAuth) {
             bind(CDKForwardResource.class);
             bind(CDKIIIFResource.class);
             bind(CDKItemResource.class);
             bind(CDKUsersResource.class);
+
+            bind(CDKAPIKeySupport.class);
+
         }
 
         
@@ -144,7 +151,6 @@ public class ApiServletModule extends JerseyServletModule {
         } else {
             bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
         }
-
 
         bind(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
         
@@ -160,6 +166,9 @@ public class ApiServletModule extends JerseyServletModule {
         bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
         bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
         bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+        // cdk source provider
+        bind(CDKDocumentSourceProvider.class).to(CDKDocumentSourceProviderImpl.class).asEagerSingleton();
+
 
         // solr apache client
         bind(SolrAccess.class).annotatedWith(Names.named("cachedSolrAccess")).to(CachedSolrAccessImpl.class).in(Scopes.SINGLETON);

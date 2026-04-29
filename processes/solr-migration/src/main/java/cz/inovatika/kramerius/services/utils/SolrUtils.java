@@ -72,9 +72,9 @@ public class SolrUtils {
 
             if (statusCode != HttpStatus.SC_OK) {
                 StringWriter stringWriter = new StringWriter();
-                XMLUtils.print(batchDoc, stringWriter);
-                LOGGER.warning("Problematic batch: ");
-                LOGGER.warning(stringWriter.toString());
+                //XMLUtils.print(batchDoc, stringWriter);
+                LOGGER.warning("Problematic batch, status code  "+statusCode);
+                //LOGGER.warning(stringWriter.toString());
                 return bos.toString();
             } else {
                 return bos.toString();

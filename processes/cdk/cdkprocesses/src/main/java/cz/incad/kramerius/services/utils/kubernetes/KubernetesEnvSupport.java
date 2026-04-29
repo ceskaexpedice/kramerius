@@ -7,6 +7,7 @@ public class KubernetesEnvSupport {
 
     public static final String TMSP_URL = "TIMESTAMP_URL";
     public static final String ITERATION_URL = "ITERATION_URL";
+    public static final String ITERATION_API_KEY = "ITERATION_API_KEY";
     public static final String CHECK_URL = "CHECK_URL";
     public static final String DESTINATION_URL = "DESTINATION_URL";
     public static final String CONFIG_SOURCE = "CONFIG_SOURCE";
@@ -67,6 +68,10 @@ public class KubernetesEnvSupport {
         if (env.containsKey(ITERATION_URL)) {
             iteration.put("url", env.get(ITERATION_URL));
         }
+        if (env.containsKey(ITERATION_API_KEY)) {
+            iteration.put("apikey", env.get(ITERATION_API_KEY));
+        }
+
         return iteration;
     }
 

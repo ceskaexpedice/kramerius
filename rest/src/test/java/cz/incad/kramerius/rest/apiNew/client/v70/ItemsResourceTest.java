@@ -16,6 +16,7 @@
  */
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
+import cz.incad.kramerius.rest.apiNew.utils.ExtractDataInfoUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -105,16 +106,16 @@ public class ItemsResourceTest {
     
     @Test
     public void testCacheDir() {
-        boolean bool = ItemsResource.isChacheDirDisabledAndFromCache(false, "kramerius4://deepZoomCache");
+        boolean bool = ExtractDataInfoUtils.isChacheDirDisabledAndFromCache(false, "kramerius4://deepZoomCache");
         Assert.assertFalse(bool);
 
-        bool = ItemsResource.isChacheDirDisabledAndFromCache(true, "kramerius4://deepZoomCache");
+        bool = ExtractDataInfoUtils.isChacheDirDisabledAndFromCache(true, "kramerius4://deepZoomCache");
         Assert.assertTrue(bool);
 
-        bool = ItemsResource.isChacheDirDisabledAndFromCache(false, "https://iip.server");
+        bool = ExtractDataInfoUtils.isChacheDirDisabledAndFromCache(false, "https://iip.server");
         Assert.assertFalse(bool);
 
-        bool = ItemsResource.isChacheDirDisabledAndFromCache(true, "https://iip.server");
+        bool = ExtractDataInfoUtils.isChacheDirDisabledAndFromCache(true, "https://iip.server");
         Assert.assertFalse(bool);
 
     }

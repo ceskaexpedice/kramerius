@@ -122,7 +122,10 @@ public enum SecuredActions {
     A_ADMIN_API_SPECIFICATION_READ("a_admin_api_specification_read"),
 
     /** Action for enable content generate*/
-    A_CONTENT_GENERATE("a_content_generate");
+    A_CONTENT_GENERATE("a_content_generate"),
+
+    /** Action for enable content generate*/
+    A_CDK_PROCESS("a_cdk_process"),;
 
     private String formalName;
     private boolean onlyGlobalAction;

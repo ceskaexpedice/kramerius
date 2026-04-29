@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.client.v70.libs.properties;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.ConfigManager;
@@ -10,12 +11,9 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V5ForwardHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V5RedirectHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V7ForwardHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.V7RedirectHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.ProxyUserHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V5ForwardUserHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.V7ForwardUserHandler;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -30,6 +28,7 @@ public class DefaultOnePropertiesInstance implements OneInstance {
     private String instanceAcronym;
     private ConfigManager configManager;
     private CDKRequestCacheSupport cacheSupport;
+    private ExecutorService executorService;
     private Map<String, String> info = new HashMap<>();
 
     private boolean connectedState = true;
@@ -41,6 +40,7 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             ConfigManager configManager,
             ReharvestManager reharvestManager,
             DeleteTriggerSupport triggerSupport,
+            ExecutorService executorService,
             String instanceAcronym,
             boolean connectedState,
             TypeOfChangedStatus typeOfChangedStatus
@@ -54,6 +54,7 @@ public class DefaultOnePropertiesInstance implements OneInstance {
         this.configManager = configManager;
         this.cacheSupport = cacheSupport;
         this.triggerSupport = triggerSupport;
+        this.executorService = executorService;
     }
 
     @Override
@@ -76,25 +77,53 @@ public class DefaultOnePropertiesInstance implements OneInstance {
     }
 
     @Override
-    public ProxyItemHandler createProxyItemHandler(User user,  CloseableHttpClient closeableHttpClient, DeleteTriggerSupport triggerSupport, SolrAccess solrAccess, String source,
+    public ProxyItemHandler createProxyItemHandler(
+            User user,
+            CloseableHttpClient closeableHttpClient,
+            DeleteTriggerSupport triggerSupport,
+            //ExecutorService executorService,
+            SolrAccess solrAccess,
+            String source,
             String pid, String remoteAddr) {
         if (hasFullAccess()) {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
-            case V5:
-                return new V5ForwardHandler(this.cacheSupport, this.reharvestManager, this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                case V5:
+                    throw new UnsupportedOperationException("V5 instances are not supported");
+                case V7:
+                    return new V7ForwardHandler(
+                            this.cacheSupport,
+                            this.reharvestManager,
+                            this.instances,
+                            user,
+                            closeableHttpClient,
+                            triggerSupport,
+                            this.executorService,
+                            solrAccess,
+                            source,
+                            pid,
+                            remoteAddr);
             default:
-                return new V7ForwardHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                return new V7ForwardHandler(
+                        this.cacheSupport,
+                        this.reharvestManager,
+                        this.instances,
+                        user,
+                        closeableHttpClient,
+                        triggerSupport,
+                        this.executorService,
+                        solrAccess, source, pid, remoteAddr);
             }
         } else {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                throw new UnsupportedOperationException("V5 instances are not supported");
+                //return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
             case V7:
-                return new V7RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient,triggerSupport, solrAccess, source, pid, remoteAddr);
+                return new V7RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient,triggerSupport, this.executorService, solrAccess, source, pid, remoteAddr);
             default:
-                return new V5RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient, triggerSupport, solrAccess, source, pid, remoteAddr);
+                return new V7RedirectHandler(this.cacheSupport, this.reharvestManager,this.instances, user, closeableHttpClient,triggerSupport, this.executorService, solrAccess, source, pid, remoteAddr);
             }
 
         }
@@ -107,7 +136,7 @@ public class DefaultOnePropertiesInstance implements OneInstance {
             InstanceType instanceType = getInstanceType();
             switch (instanceType) {
             case V5:
-                return new V5ForwardUserHandler(this.cacheSupport, this.reharvestManager,this.instances, user,  apacheClient, solrAccess, source, remoteAddr);
+                throw  new UnsupportedOperationException("V5 instances are not supported");
             default:
                 return new V7ForwardUserHandler(this.cacheSupport, this.reharvestManager,this.instances, user,  apacheClient, solrAccess, source, remoteAddr);
             }

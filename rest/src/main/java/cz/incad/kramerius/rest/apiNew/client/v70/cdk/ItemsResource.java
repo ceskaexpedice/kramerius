@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.inovatika.monitoring.ApiCallEvent;
 
@@ -143,6 +144,9 @@ public class ItemsResource extends ClientApiResource {
 
     @Inject
     DeleteTriggerSupport deleteTriggerSupport;
+
+    @Inject
+    CDKDocumentSourceProvider documentSourceProvider;
 
     @HEAD
     @Path("{pid}")
@@ -898,7 +902,8 @@ public class ItemsResource extends ClientApiResource {
 
     public ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
         if (source == null) {
-        	source = defaultDocumentSource(pid);
+        	//source = defaultDocumentSource(pid);
+            source = documentSourceProvider.getDocumentSource(pid);
         }
         OneInstance found = instances.find(source);
         if (found!= null) {
@@ -910,12 +915,12 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private String defaultDocumentSource(String pid) throws IOException {
-        org.w3c.dom.Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid);
-        String leader = CDKUtils.findCDKLeader(solrDataByPid.getDocumentElement());
-        List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
-        return leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
-    }
+//    private String defaultDocumentSource(String pid) throws IOException {
+//        org.w3c.dom.Document solrDataByPid = this.solrAccess.getSolrDataByPid(pid,"cdk.collection");
+//        String leader = CDKUtils.findCDKLeader(solrDataByPid.getDocumentElement());
+//        List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
+//        return leader != null ? leader : (!sources.isEmpty() ? sources.get(0) : null);
+//    }
 
 
     /***
@@ -1589,7 +1594,6 @@ public class ItemsResource extends ClientApiResource {
             @PathParam("rotation") String rotation,
             @PathParam("qualityformat") String qf
             ) {
-
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/image/%s/%s/%s/%s",  pid, region, size, rotation, qf), "", "GET", pid);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);

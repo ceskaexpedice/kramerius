@@ -1,8 +1,9 @@
 package cz.inovatika.kramerius.services.iterators.solr;
 
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationCallback;
-import cz.inovatika.kramerius.services.iterators.ProcessIterationEndCallback;
+import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationCallback;
+import cz.inovatika.kramerius.services.iterators.MigrationIterationEndCallback;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
@@ -19,15 +20,14 @@ import java.util.stream.Collectors;
 
 public class SolrCursorIterator extends AbstractSolrIterator {
 
-    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig);
-    }
-
-    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig) {
-        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig);
+    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, String[] fieldList, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, fieldList, responseHandlingConfig,enricher);
     }
 
 
+    public SolrCursorIterator(String address, String masterQuery, String filterQuery, String endpoint, String id, String sorting, int rows, ResponseHandlingConfig responseHandlingConfig, ApacheHTTPRequestEnricher enricher) {
+        super(address, masterQuery, filterQuery, endpoint, id, sorting, rows, responseHandlingConfig,enricher);
+    }
 
     private static String pidCursorQuery(String mq, String cursor, int rows, String fq, String endpoint, String identifierField, String sorting, String...flFields)  {
         try {
@@ -106,13 +106,13 @@ public class SolrCursorIterator extends AbstractSolrIterator {
 //    }
 
     @Override
-    public void iterate(CloseableHttpClient client, ProcessIterationCallback iterationCallback, ProcessIterationEndCallback endCallback) {
+    public void iterate(CloseableHttpClient client, MigrationIterationCallback iterationCallback, MigrationIterationEndCallback endCallback) {
         try {
             String cursorMark = null;
             String queryCursorMark = null;
             do {
                 String query = pidCursorQuery(masterQuery, cursorMark, rows, filterQuery, endpoint, id, sorting, this.fieldList);
-                Element element = HTTPSolrUtils.executeQueryApache(client, address, query);
+                Element element = HTTPSolrUtils.executeQueryApache(client, this.enricher, address, query);
 
                 cursorMark = findCursorMark(element);
                 queryCursorMark = findQueryCursorMark(element);

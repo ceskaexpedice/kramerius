@@ -7,12 +7,14 @@
 	
 	<workingtime>$iteration.workingtime$</workingtime>
 	<timestamp>$timestamp.url$</timestamp>
-	
+
 
     <!-- Iteration part -->
     <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
     <iteration>
+        <iteratorFactory class="cz.inovatika.kramerius.services.iterators.factories.SolrIteratorFactory"></iteratorFactory>
         <url>$iteration.url$</url>
+        <apikey>$iteration.apikey$</apikey>
         <endpoint>select</endpoint>
         <id>$iteration.id$</id>
         <rows>4000</rows>
@@ -24,8 +26,8 @@
 
     <threads>1</threads>
 
-    <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
-    <worker>
+    <feeder>
+        <feederFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrMigrationIndexFeederFactory"></feederFactory>
         <request>
             <url>$iteration.url$</url>
             <endpoint>select</endpoint>
@@ -39,11 +41,12 @@
 
             <checkUrl>$destination.url$</checkUrl>
             <checkEndpoint>select</checkEndpoint>
+            <apikey>$iteration.apikey$</apikey>
 
             <!-- cdk source field -->
             <collection>cdk.collection</collection>
 
-            <fieldlist>indexer_version pid root.pid model created modified indexed keywords.* geographic_* genres.* publishers.* publication_places.* authors authors.* titles.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_tiles ds.* collection.* mdt ddt donator text_ocr licenses contains_licenses licenses_of_ancestors</fieldlist>
+            <fieldlist>indexer_version pid subtype root.pid model created modified indexed keywords.* geographic_*  subject_* genres.* publishers.* publication_places.* authors authors.* titles.* title.* root.* own_parent.* own_pid_path own_model_path rels_ext_index.sort foster_parents.pids in_collections in_collections.direct collection.* level pid_paths date.* date_range_*  date.str part.* issue.*  page.* id_* count_* coords.* languages.* physical_locations.* shelf_locators accessibility has_* ds.* collection.* mdt ddt donator text_ocr licenses contains_licenses licenses_of_ancestors</fieldlist>
 
         </request>
 
@@ -57,22 +60,26 @@
                     <field name="collection"></field>
                 </remove.dest.field>
                 <!-- append to batch document -->
+                <!--
                 <update.dest.field>
                     <field name="cdk.collection">$iteration.dl$</field>
                     <field name="cdk.leader">$iteration.dl$</field>
                 </update.dest.field>
+                -->
             </onindex>
 
             <!-- on update -->
             <onupdate>
                <!--  updating fields  -->
-                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr</fieldlist>
+                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr count_* has_*</fieldlist>
                 <!--  operations on update  -->
+                <!--
                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">$iteration.dl$</field>
                 </update.dest.field>
+                -->
             </onupdate>
 
         </destination>
-    </worker>
+    </feeder>
 </cdkprocess>

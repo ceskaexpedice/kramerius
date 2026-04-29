@@ -15,8 +15,8 @@
 
     <threads>2</threads>
 
-    <worker>
-        <workerFactory class="cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrWorkerFactory"></workerFactory>
+    <feeder>
+        <feederFactory class="cz.incad.kramerius.services.migrationIndexFeeders.copy.cdk.CDKCopySolrWorkerFactory"></feederFactory>
         <request>
             <url>$iteration.url$</url>
             <endpoint>select</endpoint>
@@ -65,5 +65,5 @@
             </onupdate>
 
         </destination>
-    </worker>
+    </feeder>
 </cdkprocess>
