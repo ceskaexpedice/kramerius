@@ -393,7 +393,8 @@ public class SDNNTFetch {
     private static SolrDocumentList getById(HttpSolrClient client, List<String> pids, String collection)
             throws SolrServerException, IOException {
         SolrDocumentList list = new SolrDocumentList();
-        int getBatch = 100;
+        //int getBatch = 100;
+        int getBatch = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.query.byid", 20);
         int numberOfBatch = pids.size() / getBatch;
         numberOfBatch = numberOfBatch + (pids.size() % getBatch == 0 ? 0 : 1);
         for (int i = 0; i < numberOfBatch; i++) {

@@ -227,6 +227,7 @@ allprojects {
             url "http://download.java.net/maven/2/"
         }*/
 
+        maven { url "https://repo.osgeo.org/repository/release/" }
 
 		maven {
 			url "https://maven.pkg.github.com/ceskaexpedice/hazelcast-locks-server"
