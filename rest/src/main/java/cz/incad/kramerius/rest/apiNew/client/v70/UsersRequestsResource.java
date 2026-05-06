@@ -111,11 +111,6 @@ public class UsersRequestsResource extends ClientApiResource {
                         case EPUB -> "application/epub+zip";
                     })
                     .build();
-        } catch (UserContentSpace.UsageException e) {
-            return Response.status(429)
-                    .entity(new JSONObject().put("error", "Usage limited for user=" + user.getLoginname()).put("message", e.getMessage()).toString())
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
         } catch (ClientErrorException e) {
             throw e;
         } catch (Exception e) {

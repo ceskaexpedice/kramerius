@@ -44,18 +44,14 @@ public class FilePermanentContentSpaceImpl implements PermanentContentSpace, Cle
         return Files.newOutputStream(filePath);
     }
 
-
     @Override
     public void storeContent(String pid, DocumentType type, InputStream is) throws IOException {
         Path filePath = ResolvePathUtils.resolvePath(rootPath, pid, type);
-        Path parentDir = filePath.getParent();
         Files.createDirectories(filePath.getParent());
 
         try (OutputStream os = Files.newOutputStream(filePath)) {
             is.transferTo(os);
         }
-        Path pidFile = parentDir.resolve("_pid_");
-        Files.writeString(pidFile, pid, StandardCharsets.UTF_8);
     }
 
     @Override
