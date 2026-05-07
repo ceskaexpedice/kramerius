@@ -65,6 +65,7 @@ public class FilePermanentContentSpaceImpl implements PermanentContentSpace, Cle
     }
 
 
+    @Override
     public void cleanup(CleanupStrategy strategy) throws IOException {
         if (!Files.exists(rootPath)) return;
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
@@ -89,4 +90,5 @@ public class FilePermanentContentSpaceImpl implements PermanentContentSpace, Cle
             }
         });
     }
+
 }

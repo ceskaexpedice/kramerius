@@ -75,7 +75,7 @@ public class UsersRequestsResource extends ClientApiResource {
         }
         User user = this.userProvider.get();
 
-        if (!this.userContentSpace.exists(token)) {
+        if (!this.userContentSpace.exists(token, docType)) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new JSONObject().put("error", "User content space for token=" + token + " not found").toString())
                     .type(MediaType.APPLICATION_JSON)

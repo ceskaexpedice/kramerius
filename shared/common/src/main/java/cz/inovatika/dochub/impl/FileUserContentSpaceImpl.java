@@ -1,10 +1,7 @@
 package cz.inovatika.dochub.impl;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.dochub.CleanupStrategy;
-import cz.inovatika.dochub.DocumentType;
-import cz.inovatika.dochub.UsageCounter;
-import cz.inovatika.dochub.UserContentSpace;
+import cz.inovatika.dochub.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -32,7 +29,7 @@ import java.util.logging.Logger;
  * dochub.user.expiration.hours=96
  * dochub.user.download.daily_limit=100
  */
-public class FileUserContentSpaceImpl implements UserContentSpace {
+public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpace {
 
     Logger LOGGER = Logger.getLogger(UserContentSpace.class.getName());
 
@@ -150,6 +147,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         return generateHash(user, pid);
     }
 
+    @Override
     public void cleanup(CleanupStrategy strategy) throws IOException {
         if (!Files.exists(rootPath)) return;
 
