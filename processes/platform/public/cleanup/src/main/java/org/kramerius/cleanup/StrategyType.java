@@ -1,5 +1,9 @@
 package org.kramerius.cleanup;
 
+/**
+ * StrategyType
+ * @author ppodsednik
+ */
 public enum StrategyType {
     /**
      * Used primarily for Permanent Space.

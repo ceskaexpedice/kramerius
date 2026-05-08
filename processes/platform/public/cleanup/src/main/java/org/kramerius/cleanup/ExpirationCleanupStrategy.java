@@ -7,17 +7,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-public class UserContextCleanupStrategy implements CleanupStrategy {
-    private final int expirationDays;
+/**
+ * ExpirationCleanupStrategy
+ * @author ppodsednik
+ */
+public class ExpirationCleanupStrategy implements CleanupStrategy {
+    private final int expirationHours;
 
-    public UserContextCleanupStrategy(int expirationDays) {
-        this.expirationDays = expirationDays;
+    public ExpirationCleanupStrategy(int expirationHours) {
+        this.expirationHours = expirationHours;
     }
 
     @Override
     public boolean shouldDelete(Path file, BasicFileAttributes attrs) {
-        Instant expirationThreshold = Instant.now().minus(expirationDays, ChronoUnit.DAYS);
-        // Pokud je čas poslední změny starší než threshold, smažeme
+        Instant expirationThreshold = Instant.now().minus(expirationHours, ChronoUnit.HOURS);
         return attrs.lastModifiedTime().toInstant().isBefore(expirationThreshold);
     }
+
 }

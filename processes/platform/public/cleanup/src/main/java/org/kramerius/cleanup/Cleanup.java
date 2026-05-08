@@ -3,6 +3,7 @@ package org.kramerius.cleanup;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.CleanableSpace;
 import cz.inovatika.dochub.CleanupStrategy;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
@@ -10,9 +11,15 @@ import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * Cleanup
+ * @author ppodsednik
+ */
 public class Cleanup {
     public static Logger LOGGER = Logger.getLogger(Cleanup.class.getName());
 
@@ -23,11 +30,6 @@ public class Cleanup {
         this.spaces = spaces;
     }
 
-    /**
-     * Hlavní vstupní bod programu
-     * args[0] - typ prostoru (PERMANENT / USER_CONTEXT)
-     * args[1] - (volitelně) cesta k rootu, pokud není v configu
-     */
     @ProcessMethod
     public static void cleanup(
             @ParameterName("spaceType") @IsRequired String spaceTypeS,
@@ -50,9 +52,9 @@ public class Cleanup {
 
     private void execute(SpaceType spaceType, StrategyType strategyType) throws IOException {
         CleanableSpace space = spaces.get(spaceType);
-        if (space == null) throw new IllegalStateException("Space not found: " + spaceType);
-
-        // Strategii teď vybíráme na základě typu strategie
+        if (space == null) {
+            throw new IllegalStateException("Space not found: " + spaceType);
+        }
         CleanupStrategy strategy = createStrategy(strategyType, space);
         LOGGER.info("Starting " + strategyType + " cleanup on " + spaceType + " space...");
         space.cleanup(strategy);
@@ -62,16 +64,25 @@ public class Cleanup {
     private CleanupStrategy createStrategy(StrategyType strategyType, CleanableSpace space) throws IOException {
         return switch (strategyType) {
             case SIZE_LIMIT -> {
-                // Example: 10GB limit
-                long limitInBytes = 10L * 1024 * 1024 * 1024;
-                yield new PermanentSpaceCleanupStrategy(limitInBytes, space.getRootPath());
+                // TODO we use now only one config property for both spaces
+                String permanentRoot = KConfiguration.getInstance().getConfiguration().getString("dochub.storage.permanent");
+                if (permanentRoot == null || permanentRoot.isEmpty()) {
+                    throw new IllegalStateException("Configuration key 'dochub.storage.permanent' is missing or empty.");
+                }
+                Path rootPath = Paths.get(permanentRoot);
+                int maxGb = KConfiguration.getInstance().getConfiguration().getInt("dochub.permanent.max.size.gb", 10);
+                // Convert GB to Bytes: GB * 1024^3
+                // Use 'L' suffix to ensure the calculation is done in 64-bit precision
+                long limitInBytes = (long) maxGb * 1024 * 1024 * 1024;
+                yield new SizeLimitCleanupStrategy(limitInBytes, rootPath);
             }
             case EXPIRATION -> {
-                // Example: 30 days expiration
-                yield new UserContextCleanupStrategy(30);
+                // TODO we use now only one config property for both spaces
+                int expirationHours = KConfiguration.getInstance().getConfiguration().getInt("dochub.user.expiration.hours", 48);
+                yield new ExpirationCleanupStrategy(expirationHours);
             }
             case FORCE_EMPTY -> {
-                System.out.println("Warning: FORCE_EMPTY strategy selected. All files will be deleted.");
+                LOGGER.warning("Warning: FORCE_EMPTY strategy selected. All files will be deleted.");
                 yield (file, attrs) -> true;
             }
             default -> throw new UnsupportedOperationException("Strategy " + strategyType + " is not implemented yet.");

@@ -8,19 +8,26 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-public class PermanentSpaceCleanupStrategy implements CleanupStrategy {
+/**
+ * SizeLimitCleanupStrategy
+ * @author ppodsednik
+ */
+public class SizeLimitCleanupStrategy implements CleanupStrategy {
     private final long maxSpaceBytes;
     private final Set<Path> filesToDelete = new HashSet<>();
 
-    public PermanentSpaceCleanupStrategy(long maxSpaceBytes, Path rootPath) throws IOException {
+    public SizeLimitCleanupStrategy(long maxSpaceBytes, Path rootPath) throws IOException {
         this.maxSpaceBytes = maxSpaceBytes;
         calculateDeletions(rootPath);
     }
 
+    /**
+     * Initial scan to collect file sizes and modification times
+     * @param rootPath
+     * @throws IOException
+     */
     private void calculateDeletions(Path rootPath) throws IOException {
         List<FileMeta> allFiles = new ArrayList<>();
-
-        // Rychlý průchod pro zjištění velikostí a časů
         Files.walk(rootPath)
                 .filter(Files::isRegularFile)
                 .forEach(p -> {
@@ -33,9 +40,8 @@ public class PermanentSpaceCleanupStrategy implements CleanupStrategy {
         long currentTotalSize = allFiles.stream().mapToLong(f -> f.size).sum();
 
         if (currentTotalSize > maxSpaceBytes) {
-            // Seřadíme od nejstarších
+            // sort from the oldest
             allFiles.sort(Comparator.comparingLong(f -> f.lastModified));
-
             for (FileMeta file : allFiles) {
                 if (currentTotalSize > maxSpaceBytes) {
                     filesToDelete.add(file.path);
