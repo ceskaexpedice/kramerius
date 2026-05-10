@@ -276,7 +276,9 @@ public class SearchResource {
                 builder.append("&");
                 builder.append("fq=");
                 String newFilter = proxyFilter.newFilter();
-                if (newFilter != null) builder.append(URLEncoder.encode(proxyFilter.newFilter(), "UTF-8"));
+                if (newFilter != null) {
+                    builder.append(URLEncoder.encode(newFilter, "UTF-8"));
+                }
             }
         }
         if (cdkServerMode) {
