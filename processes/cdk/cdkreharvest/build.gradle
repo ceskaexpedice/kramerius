@@ -4,6 +4,7 @@ apply plugin: 'java'
 
 dependencies {
     api project(':shared:common')
+    api project(':rest')
     api project(':processes:cdk:cdkprocesses')
 
     implementation project(':processes:solr-migration')

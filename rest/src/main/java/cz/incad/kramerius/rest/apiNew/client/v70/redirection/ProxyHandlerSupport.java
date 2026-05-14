@@ -326,9 +326,14 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         LOGGER.fine(String.format("Requesting %s", url));
         HttpHead head = new HttpHead(url);
         head.setHeader("User-Agent", "CDK/1.0");
-        if (headers && isAuthenticated() && isDnntUser()) {
+        if (headers && isAuthenticated()) {
             String header = prepareHeader(headers);
-            head.setHeader("CDK_TOKEN_PARAMETERS", header);
+
+//            public static final String CDK_HEADER_KEY_LEGACY = "CDK_TOKEN_PARAMETERS";
+//            public static final String CDK_HEADER_KEY_NEW = "CDK-TOKEN-PARAMETERS";
+
+            head.setHeader("CDK-TOKEN-PARAMETERS", header);
+            head.setHeader("CDK_TOKEN_PARAMETERS", header); // deprecated
         }
         if (apiKey != null && !apiKey.isEmpty()) { head.addHeader("X-API-KEY", apiKey);}
         return head;
@@ -338,12 +343,12 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         LOGGER.fine(String.format("Requesting %s", url));
         HttpGet get = new HttpGet(url);
         get.setHeader("User-Agent", "CDK/1.0");
-        if (headers && isAuthenticated() && isDnntUser()) {
+        if (headers && isAuthenticated()) {
             String header = prepareHeader(headers);
-            get.setHeader("CDK_TOKEN_PARAMETERS", header);
+            get.setHeader("CDK-TOKEN-PARAMETERS", header);
+            get.setHeader("CDK_TOKEN_PARAMETERS", header); // deprecated
         }
         if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
-
         return get;
     }
 

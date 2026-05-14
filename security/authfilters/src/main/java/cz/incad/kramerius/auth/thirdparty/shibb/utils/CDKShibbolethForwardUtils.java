@@ -7,14 +7,13 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.collections.map.HashedMap;
-
 import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 
 public class CDKShibbolethForwardUtils {
 
     // must be controlled by IP or client certificate
-    public static final String CDK_HEADER_KEY = "CDK_TOKEN_PARAMETERS";
+    public static final String CDK_HEADER_KEY_LEGACY = "CDK_TOKEN_PARAMETERS";
+    public static final String CDK_HEADER_KEY_NEW = "CDK-TOKEN-PARAMETERS";
 
     private CDKShibbolethForwardUtils() {
     }
@@ -24,7 +23,7 @@ public class CDKShibbolethForwardUtils {
         Enumeration headerNames = httpServletRequest.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String hname = (String) headerNames.nextElement();
-            if (hname.toLowerCase().contains(CDK_HEADER_KEY.toLowerCase())) {
+            if (cdkParamName(hname)) {
                 String headerValue = httpServletRequest.getHeader(hname);
                 if ((headerValue != null) && (!headerValue.trim().equals(""))) {
                     foundIdentityProvider = true;
@@ -36,9 +35,13 @@ public class CDKShibbolethForwardUtils {
         return foundIdentityProvider;
     }
 
+    private static boolean cdkParamName(String hname) {
+        return hname.toLowerCase().contains(CDK_HEADER_KEY_LEGACY.toLowerCase()) || hname.toLowerCase().contains(CDK_HEADER_KEY_NEW.toLowerCase());
+    }
+
     public static Map<String, String> tokenHeaders(String tokenValue) {
         Map<String, String> map = new HashMap<>();
-        map.put(CDK_HEADER_KEY, tokenValue);
+        map.put(CDK_HEADER_KEY_LEGACY, tokenValue);
         StringTokenizer tokenizer = new StringTokenizer(tokenValue, "|");
         while (tokenizer.hasMoreTokens()) {
             String part = tokenizer.nextToken();

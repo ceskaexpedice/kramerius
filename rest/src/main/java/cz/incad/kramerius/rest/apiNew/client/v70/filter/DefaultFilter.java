@@ -425,7 +425,6 @@ public class DefaultFilter implements ProxyFilter{
                 return physicalLocations;
 
             }
-
         } catch (JSONException | IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return new ArrayList<>();

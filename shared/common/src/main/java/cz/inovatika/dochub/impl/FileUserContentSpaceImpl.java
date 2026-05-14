@@ -126,7 +126,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         Files.writeString(targetDir.resolve("pid"), pid, StandardCharsets.UTF_8);
         Files.writeString(targetDir.resolve("expires"), expiresAt.toString(), StandardCharsets.UTF_8);
 
-        //this.usageCounter.logUsage(user, pid);
+        this.usageCounter.logUsage(user, pid);
 
         return token;
     }
