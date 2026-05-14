@@ -76,7 +76,8 @@ public class V7ForwardHandler extends V7RedirectHandler {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "ProvidedBy fetch failed", e);
         }
-        return super.info(event);
+        return Response.status(500).build();
+        //return super.info(event);
     }
 
 

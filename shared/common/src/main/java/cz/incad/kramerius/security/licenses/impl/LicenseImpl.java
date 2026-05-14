@@ -120,13 +120,13 @@ public class LicenseImpl implements License, Serializable {
     @Override
     public boolean checkUsageLimit(User user, String pid, UserContentSpace userContentSpace) {// int intervalValue, LimitInterval limitInterval, int maxAllowedUsage) {
         try {
-            if (this.offlineGenerationConf.offlineGenrateAllowed() && this.offlineGenerationConf.limitConfiguration()!=null) {
+            if (this.offlineGenerationConf.offlineGenerateAllowed() && this.offlineGenerationConf.limitConfiguration()!=null) {
                 int maxAllowedUsage = this.offlineGenerationConf.limitConfiguration().maxAllowedUsage();
                 int intervalVal = this.offlineGenerationConf.limitConfiguration().intervalValue();
                 LimitInterval interval = this.offlineGenerationConf.limitConfiguration().limitInterval();
                 long usageCount = userContentSpace.getUsageCounter().getUsageCount(user.getLoginname(), pid, interval, intervalVal);
                 return usageCount < maxAllowedUsage;
-            } else if (this.offlineGenerationConf.offlineGenrateAllowed()) {
+            } else if (this.offlineGenerationConf.offlineGenerateAllowed()) {
                 return true;
             } else {
                 return false;

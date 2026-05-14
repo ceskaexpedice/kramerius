@@ -21,7 +21,7 @@ public record PageDimension(float width, float height) {
 
 // license settings int intervalValue, LimitInterval  limitInterval, int maxAllowedUsage)
 public record OfflineGenerationConf(
-        boolean offlineGenrateAllowed,
+        boolean offlineGenerateAllowed,
         LimitConfiguration limitConfiguration
 ) {
 

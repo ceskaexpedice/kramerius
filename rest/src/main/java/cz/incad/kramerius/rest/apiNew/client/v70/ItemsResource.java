@@ -711,7 +711,7 @@ public class ItemsResource extends ClientApiResource {
             License lic = licensesManager.getLicenseByName(licenseName);
             if (lic == null) continue;
             if (lic.getLicenseOfflineGenerationConf() == null) continue;
-            if (!lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) continue;
+            if (!lic.getLicenseOfflineGenerationConf().offlineGenerateAllowed()) continue;
             LimitConfiguration limitConf = lic.getLicenseOfflineGenerationConf().limitConfiguration();
             if (limitConf != null) {
                 boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
@@ -754,7 +754,7 @@ public class ItemsResource extends ClientApiResource {
                 case "generate_pdf": {
                     if (lic != null
                             && lic.getLicenseOfflineGenerationConf() != null
-                            && lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) {
+                            && lic.getLicenseOfflineGenerationConf().offlineGenerateAllowed()) {
                         LimitConfiguration limitConf = lic.getLicenseOfflineGenerationConf().limitConfiguration();
                         if (limitConf != null) {
                             boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
@@ -816,7 +816,7 @@ public class ItemsResource extends ClientApiResource {
                     // any process
                     if (lic != null
                             && lic.getLicenseOfflineGenerationConf() != null
-                            && lic.getLicenseOfflineGenerationConf().offlineGenrateAllowed()) {
+                            && lic.getLicenseOfflineGenerationConf().offlineGenerateAllowed()) {
                         LimitConfiguration limitConf = lic.getLicenseOfflineGenerationConf().limitConfiguration();
                         if (limitConf != null) {
                             boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
