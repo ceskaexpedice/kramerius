@@ -35,6 +35,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerExcepti
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.core5.net.URIBuilder;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 public class V7ForwardHandler extends V7RedirectHandler {
@@ -213,30 +214,44 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
     @Override
-    public Response requests(String reqid, String lang, JSONObject reqDefinition) throws ProxyHandlerException {
+    public Response requestsStatus(String processId) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/requests/" + processId;
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+    }
+
+    @Override
+    public Response requestsUserSpace(String token, String docType) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/userspace/" + token + "/" + docType;
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+    }
+
+    @Override
+    public Response requests(String reqType, String lang, JSONObject reqDefinition) throws ProxyHandlerException {
         try {
             String baseurl = this.forwardUrl();
-            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
-                    + "/requests/" + reqid;
-            // TODO pepo reqid = type
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + this.pid
+                    + "/requests/" + reqType;
             URIBuilder builder = new URIBuilder(url);
             if (lang != null) {
                 builder.setParameter("lang", lang);
             }
             Response response = buildForwardApacheResponsePOST(builder.toString(), reqDefinition, apiKey(), this.pid, false, null);
-            //String entity = response.getEntity();
+            InputStream is = (InputStream) response.getEntity();
+            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+            String entity = s.hasNext() ? s.next() : "";
             JSONObject jsonObject = new JSONObject(entity);
-            // TODO pepo "source" = this.source
-            /*
-            JSONObject result = new JSONObject();
-            result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
-            result.put("token", token);
-
-            "token":"mzk/xxxxabc"
-            "processId":"mzk/xxxxabc"
-            ->
-            */
-
+            String prefix = source + "/";
+            if (jsonObject.has(ProcessManagerMapper.PCP_PROCESS_ID)) {
+                String originalPid = jsonObject.getString(ProcessManagerMapper.PCP_PROCESS_ID);
+                jsonObject.put(ProcessManagerMapper.PCP_PROCESS_ID, prefix + originalPid);
+            }
+            if (jsonObject.has("token")) {
+                String originalToken = jsonObject.getString("token");
+                jsonObject.put("token", prefix + originalToken);
+            }
+            return response;
         } catch (URISyntaxException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

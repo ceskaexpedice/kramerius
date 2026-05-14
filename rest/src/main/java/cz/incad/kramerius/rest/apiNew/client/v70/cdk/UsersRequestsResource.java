@@ -51,25 +51,23 @@ public class UsersRequestsResource extends ClientApiResource {
     protected Provider<User> userProvider;
 
     @Inject
-    CDKDocumentSourceProvider documentSourceProvider;
-
-    @Inject
     Instances instances;
 
     @Inject
     com.google.inject.Provider<HttpServletRequest> requestProvider;
 
     @GET
-    @Path("requests/{reqid}")
+    @Path("requests/{processId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requests(@PathParam("processId") String processId) {
-        // TODO pepo ziskat source
-        // TODO pepo poslat dal orezane
+        String[] parts = processId.split("/", 2);
+        String source = parts[0];
+        String processIdWithoutSource = parts[1];
         try {
-            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
+            ProxyItemHandler redirectHandler = findRedirectHandler(source);
             if (redirectHandler != null) {
-                return redirectHandler.requestsStatus(reqid);
+                return redirectHandler.requestsStatus(processIdWithoutSource);
             } else {
                 return Response.ok().build();
             }
@@ -84,69 +82,29 @@ public class UsersRequestsResource extends ClientApiResource {
     @GET
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
-        // TODO pepo ziskat source z tokenu a orezat
-
-        LOGGER.fine("Requesting user space with token: " + token + " and docType: " + docTypeStr);
-        DocumentType docType;
+        String[] parts = token.split("/", 2);
+        String source = parts[0];
+        String tokenWithoutSource = parts[1];
         try {
-            docType = DocumentType.valueOf(docTypeStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException("Invalid document type: " + docTypeStr);
-        }
-        User user = this.userProvider.get();
-
-        if (!this.userContentSpace.exists(token, docType)) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(new JSONObject().put("error", "User content space for token=" + token + " not found").toString())
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-        try {
-            Optional<InputStream> bundle = this.userContentSpace.getBundle(token, user.getLoginname(), docType);
-            if (!bundle.isPresent()) {
-                return Response.status(Response.Status.NOT_FOUND)
-                        .entity(new JSONObject().put("error", "Bundle for token=" + token + ", user=" + user.getLoginname() + " and docType=" + docType + " not found").toString())
-                        .type(MediaType.APPLICATION_JSON)
-                        .build();
+            ProxyItemHandler redirectHandler = findRedirectHandler(source);
+            if (redirectHandler != null) {
+                return redirectHandler.requestsUserSpace(tokenWithoutSource, docTypeStr);
+            } else {
+                return Response.ok().build();
             }
-
-            InputStream is = bundle.get();
-            StreamingOutput stream = output -> {
-                try (is) {
-                    is.transferTo(output);
-                } catch (Exception e) {
-                    throw new WebApplicationException(e);
-                }
-            };
-            return Response.ok(stream)
-                    .header("Content-Disposition", "attachment; filename=\"" +
-                            switch (docType) {
-                                case PDF -> "export_" + token + ".pdf";
-                                case TEXT -> "export_" + token + ".txt";
-                                case EPUB -> "export_" + token + ".epub";
-                            } + "\"")
-                    .type(switch (docType) {
-                        case PDF -> "application/pdf";
-                        case TEXT -> "text/plain";
-                        case EPUB -> "application/epub+zip";
-                    })
-                    .build();
-        } catch (ClientErrorException e) {
+        } catch (WebApplicationException e) {
             throw e;
-        } catch (Exception e) {
-            throw new WebApplicationException(e);
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
         }
     }
 
-    private ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
-        if (source == null) {
-            //source = defaultDocumentSource(pid);
-            source = documentSourceProvider.getDocumentSource(pid);
-        }
+    private ProxyItemHandler findRedirectHandler(String source) throws LexerException, IOException {
         OneInstance found = instances.find(source);
-        if (found!= null) {
+        if (found != null) {
             String remoteAddress = IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
-            ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.apacheClient.get(), this.deleteTriggerSupport, this.solrAccess, source, pid, remoteAddress);
+            ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.apacheClient, null, this.solrAccess, source, null, remoteAddress);
             return proxyHandler;
         } else {
             return null;

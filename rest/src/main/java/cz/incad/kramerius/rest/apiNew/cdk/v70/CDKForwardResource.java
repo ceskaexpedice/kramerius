@@ -89,12 +89,12 @@ public class CDKForwardResource {
 
     // --------- Public worker requests --------------------
     @GET
-    @Path("requests/{reqid}")
+    @Path("requests/{processId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requests(@PathParam("processId") String processId) {
         UsersRequestsResource usersRequestsResource = new UsersRequestsResource();
-        Response response = usersRequestsResource.requests(reqid);
+        Response response = usersRequestsResource.requests(processId);
         return response;
     }
 

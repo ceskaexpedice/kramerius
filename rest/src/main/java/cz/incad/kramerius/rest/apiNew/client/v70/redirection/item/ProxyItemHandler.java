@@ -109,6 +109,10 @@
 
      public abstract Response requests(String reqid, String lang, JSONObject reqDefinition) throws ProxyHandlerException;
 
+     public abstract Response requestsStatus(String processId) throws ProxyHandlerException;
+
+     public abstract Response requestsUserSpace(String token, String docType) throws ProxyHandlerException;
+
      /**
       * Returns the preview image stream.
       *
