@@ -1,49 +1,45 @@
 package cz.incad.kramerius.rest.apiNew.cdk.v70;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
-import java.util.logging.Level;
+import com.google.inject.Inject;
+import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
+import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
+import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.*;
+import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.service.ReplicateException;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.dochub.UserContentSpace;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONObject;
 
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import javax.xml.xpath.XPathExpressionException;
-
-import com.google.inject.Inject;
-
-import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
-import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
-import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
-import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
-import cz.incad.kramerius.service.ReplicateException;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.monitoring.ApiCallEvent;
-import org.json.JSONObject;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 /**
  * CDK Forward resource
  * <p>
- *  Provides endpoints for secured channel between source and CDK instance; 
- *  The visibility of endpoints must be enabled and configuration by following <a href="https://github.com/ceskaexpedice/ceska-digitalni-knihovna/wiki/Zabezpe%C4%8Den%C3%A1-komunikace-chr%C3%A1n%C4%9Bn%C3%BD-kan%C3%A1l"> insructions </a>
- *</p>
+ * Provides endpoints for secured channel between source and CDK instance;
+ * The visibility of endpoints must be enabled and configuration by following <a href="https://github.com/ceskaexpedice/ceska-digitalni-knihovna/wiki/Zabezpe%C4%8Den%C3%A1-komunikace-chr%C3%A1n%C4%9Bn%C3%BD-kan%C3%A1l"> insructions </a>
+ * </p>
  */
 @Path("cdk/v7.0/forward")
 public class CDKForwardResource {
 
     public static final String X_API_KEY = "X-API-KEY";
+    private static final Logger LOGGER = Logger.getLogger(CDKForwardResource.class.getName());
 
     @Inject
     CDKAPIKeySupport cdkAPIKeySupport;
@@ -69,11 +65,20 @@ public class CDKForwardResource {
     @Inject
     AggregatedAccessLogs accessLog;
 
+    @javax.inject.Inject
+    @javax.inject.Named("forward-client")
+    private CloseableHttpClient apacheClient;
+
+    @Inject
+    UserContentSpace userContentSpace;
+
+    @javax.inject.Inject
+    protected Provider<User> userProvider;
 
     // --------- User's endpoint --------------------
     @GET
     @Path("user")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response user() {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.usersResource.user();
@@ -82,7 +87,37 @@ public class CDKForwardResource {
         }
     }
 
-    // PDF - to tu musim dodelat
+    // --------- Public worker requests --------------------
+    @GET
+    @Path("requests/{processId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requests(@PathParam("processId") String processId) {
+        UsersRequestsResource usersRequestsResource = new UsersRequestsResource();
+        Response response = usersRequestsResource.requests(processId);
+        return response;
+    }
+
+    @GET
+    @Path("userspace/{spacetoken}/{docType}")
+    public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
+        UsersRequestsResource usersRequestsResource = new UsersRequestsResource();
+        Response response = usersRequestsResource.userspace(token, docTypeStr);
+        return response;
+    }
+
+    @POST
+    @Path("{pid}/requests/{reqid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requests(@PathParam("pid") String pid,
+                             @PathParam("reqid") String reqid,
+                             @QueryParam("lang") String lang,
+                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
+        ItemsResource itemsResource = new ItemsResource();
+        Response response = itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
+        return response;
+    }
 
     // --------------- Item's endpoint ---------------
     @GET
@@ -110,11 +145,11 @@ public class CDKForwardResource {
     //@Produces("image/jpeg")
     @Path("iiif/{pid}/{region}/{size}/{rotation}/{qf}.{format}")
     public Response tile(@PathParam("pid") String pid,
-                     @PathParam("region") String region,
-                     @PathParam("size") String size,
-                     @PathParam("rotation") String rotation,
-                     @PathParam("qf") String qf,
-                     @PathParam("format") String format) {
+                         @PathParam("region") String region,
+                         @PathParam("size") String size,
+                         @PathParam("rotation") String rotation,
+                         @PathParam("qf") String qf,
+                         @PathParam("format") String format) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             try {
                 return this.iiifResource.iiifTile(pid, region, size, rotation, qf, format);
@@ -126,8 +161,7 @@ public class CDKForwardResource {
         }
     }
 
-    
-    
+
     @GET
     @Path("zoomify/{pid}/ImageProperties.xml")
     @Produces("application/xml")
@@ -143,7 +177,7 @@ public class CDKForwardResource {
     @Path("zoomify/{pid}/TileGroup0/{level}-{x}-{y}.jpg")
     @Produces("image/jpeg")
     public Response zoomifyTile(@PathParam("pid") String pid, @PathParam("level") String level,
-            @PathParam("x") String x, @PathParam("y") String y) {
+                                @PathParam("x") String x, @PathParam("y") String y) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             try {
                 return this.zoomifyResource.renderZoomifyTile(pid, level, x, y, "jpg");
@@ -165,7 +199,6 @@ public class CDKForwardResource {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
-
 
 
     @GET
@@ -209,11 +242,10 @@ public class CDKForwardResource {
     }
 
 
-
     // --------------- CDK Replication endpoint ---------------
     @GET
     @Path("sync/solr/select")
-    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
     public Response selectXML(@Context UriInfo uriInfo) throws IOException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.selectXML(uriInfo);
@@ -224,7 +256,7 @@ public class CDKForwardResource {
 
     @GET
     @Path("sync/solr/select")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response selectJSON(@Context UriInfo uriInfo) throws IOException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.selectJSON(uriInfo);
@@ -232,24 +264,24 @@ public class CDKForwardResource {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
-    
+
     @GET
     @Path("sync/batch/foxmls")
     @Produces("application/zip")
-    public Response batchedFOXL(@QueryParam("pids") String stringPids, @QueryParam("collection") String collection)  throws ReplicateException, IOException {
+    public Response batchedFOXL(@QueryParam("pids") String stringPids, @QueryParam("collection") String collection) throws ReplicateException, IOException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.batchedFOXL(stringPids, collection);
         } else {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
-    
+
     @GET
     @Path("sync/{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getExportedFOXML(@PathParam("pid") String pid,
-        @QueryParam("collection") String collection)
-        throws ReplicateException, UnsupportedEncodingException {
+                                     @QueryParam("collection") String collection)
+            throws ReplicateException, UnsupportedEncodingException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.getExportedFOXML(pid, collection);
         } else {

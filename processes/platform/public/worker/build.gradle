@@ -17,7 +17,8 @@ processWorker {
     plugins = [
             project(":processes:platform:public:genebook"),
             project(":processes:platform:public:gentext"),
-            project(":processes:platform:public:genpdf")
+            project(":processes:platform:public:genpdf"),
+            project(":processes:platform:public:cleanup")
     ]
 }
 

@@ -1,10 +1,8 @@
 package cz.inovatika.dochub.impl;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.dochub.CleanupStrategy;
-import cz.inovatika.dochub.DocumentType;
-import cz.inovatika.dochub.UsageCounter;
-import cz.inovatika.dochub.UserContentSpace;
+import cz.inovatika.dochub.*;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +29,7 @@ import java.util.logging.Logger;
  * dochub.user.expiration.hours=96
  * dochub.user.download.daily_limit=100
  */
-public class FileUserContentSpaceImpl implements UserContentSpace {
+public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpace {
 
     Logger LOGGER = Logger.getLogger(UserContentSpace.class.getName());
 
@@ -42,10 +40,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public FileUserContentSpaceImpl() {
-        String userRoot = KConfiguration.getInstance()
-                .getConfiguration()
-                .getString("dochub.storage.user");
-
+        String userRoot = KConfiguration.getInstance().getConfiguration().getString("dochub.storage.user");
         if (userRoot == null || userRoot.isEmpty()) {
             throw new IllegalStateException("Configuration key 'dochub.storage.user' is missing or empty.");
         }
@@ -55,21 +50,20 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
         } catch (IOException e) {
             throw new RuntimeException("Failed to create user storage directory: " + userRoot, e);
         }
-
         this.usageCounter = new FileUsageCounterImpl(userContentRoot);
         this.rootPath = userContentRoot.resolve(DATA_FOLDER);
-
     }
 
-    private void checkExpiration(String token) throws IOException {
-        Path expirePath = resolveTokenPath(token).resolve("expires");
-        if (!Files.exists(expirePath)) {
-            throw new UsageException("Expiration information is missing for token: " + token);
+    private void checkExpiration(String token, DocumentType type) throws IOException {
+        Path targetDir = resolveTokenPath(token, type);
+        Path referenceFile = targetDir.resolve("info.json");
+        if (!Files.exists(referenceFile)) {
+            throw new UsageException("Token information is missing for: " + token);
         }
-        String dateStr = Files.readString(expirePath, StandardCharsets.UTF_8);
-        Instant expiryDate = Instant.parse(dateStr);
-        boolean expired = Instant.now().isAfter(expiryDate);
-        if (expired) {
+        Instant creationTime = Files.getLastModifiedTime(referenceFile).toInstant();
+        int expirationHours = KConfiguration.getInstance().getConfiguration().getInt("dochub.user.expiration.hours", 48);
+        Instant expiryDate = creationTime.plus(expirationHours, ChronoUnit.HOURS);
+        if (Instant.now().isAfter(expiryDate)) {
             throw new UsageException("Token is expired");
         }
     }
@@ -79,81 +73,61 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
             String input = user + "|" + pid;
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-
             return HexFormat.of().formatHex(hashBytes).substring(0, 24);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-256 algorithm not found", e);
         }
     }
 
-    private Path resolveTokenPath(String token) {
+    private Path resolveTokenPath(String token, DocumentType type) {
         String p1 = token.substring(0, Math.min(2, token.length()));
         String p2 = token.substring(Math.min(2, token.length()), Math.min(4, token.length()));
         String p3 = token.substring(Math.min(4, token.length()), Math.min(6, token.length()));
-        return rootPath.resolve(p1).resolve(p2).resolve(p3).resolve(token);
+        return rootPath.resolve(p1).resolve(p2).resolve(p3).resolve(token).resolve(type.name().toLowerCase());
     }
 
     @Override
     public String storeBundle(InputStream is, String user, String pid, DocumentType type, String auditInfo) throws IOException {
         LOGGER.info("Storing bundle for user: " + user);
         String token = generateHash(user, pid);
-        Path targetDir = resolveTokenPath(token);
+        Path targetDir = resolveTokenPath(token, type);
         LOGGER.info("targetDir: " + targetDir);
         Files.createDirectories(targetDir);
-
-        int expirationHours = KConfiguration.getInstance()
-                .getConfiguration()
-                .getInt("dochub.user.expiration.hours", 48);
-        LOGGER.info("Expiration hours: " + expirationHours);
-        Instant expiresAt = Instant.now().plus(expirationHours, ChronoUnit.HOURS);
-        LOGGER.info("Expires at: " + expiresAt);
         Path filePath = targetDir.resolve("content." + type.name().toLowerCase());
         LOGGER.info("File path: " + filePath);
-
-        if (filePath.toFile().exists()) { //delete file, if already exists
-            try {
-                Files.delete(filePath);
-            } catch (IOException e) {
-                throw new IOException("Failed to delete previous version of the file: " + filePath, e);
-            }
-        }
-
         try (OutputStream os = Files.newOutputStream(filePath)) {
             is.transferTo(os);
         }
-
-        //Files.writeString(targetDir.resolve("stamp.txt"), auditInfo, StandardCharsets.UTF_8);
-        Files.writeString(targetDir.resolve("pid"), pid, StandardCharsets.UTF_8);
-        Files.writeString(targetDir.resolve("expires"), expiresAt.toString(), StandardCharsets.UTF_8);
-
+        JSONObject infoJson = new JSONObject();
+        infoJson.put("pid", pid);
+        Files.writeString(targetDir.resolve("info.json"), infoJson.toString(), StandardCharsets.UTF_8);
         this.usageCounter.logUsage(user, pid);
 
         return token;
     }
 
     @Override
-    public Optional<InputStream> getBundle(String token, String user, DocumentType type) throws UsageException, IOException {
+    public Optional<InputStream> getBundle(String token, String user, DocumentType type) throws IOException {
         String filename = "content." + type.name().toLowerCase();
         LOGGER.fine("Getting bundle for token: " + token + ", user: " + user + ", type: " + type);
-        Path filePath = resolveTokenPath(token).resolve(filename);
+        Path filePath = resolveTokenPath(token, type).resolve(filename);
         LOGGER.fine("Resolved file path: " + filePath);
         if (Files.exists(filePath)) {
             return Optional.of(Files.newInputStream(filePath));
         }
-        checkExpiration(token);
         checkAndIncrementDailyLimit(user);
         return Optional.empty();
     }
 
     @Override
-    public boolean exists(String token) {
-        Path path = resolveTokenPath(token);
+    public boolean exists(String token, DocumentType type) {
+        Path path = resolveTokenPath(token, type);
         return Files.exists(path);
     }
 
     @Override
-    public void deleteBundle(String token) throws IOException {
-        Path bundlePath = resolveTokenPath(token);
+    public void deleteBundle(String token, DocumentType type) throws IOException {
+        Path bundlePath = resolveTokenPath(token, type);
         if (Files.exists(bundlePath)) {
             try (var stream = Files.walk(bundlePath)) {
                 stream.sorted(Comparator.reverseOrder())
@@ -176,14 +150,6 @@ public class FileUserContentSpaceImpl implements UserContentSpace {
     }
 
     @Override
-    public Optional<String> getAuditInfo(String token) throws IOException {
-        Path stampPath = resolveTokenPath(token).resolve("stamp.txt");
-        if (Files.exists(stampPath)) {
-            return Optional.of(Files.readString(stampPath, StandardCharsets.UTF_8));
-        }
-        return Optional.empty();
-    }
-
     public void cleanup(CleanupStrategy strategy) throws IOException {
         if (!Files.exists(rootPath)) return;
 

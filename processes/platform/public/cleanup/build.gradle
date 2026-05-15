@@ -1,0 +1,36 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
+}
+
+description "Generate pdf"
+
+
+processPlugin {
+    spiImplementation = 'org.kramerius.cleanup.CleanupSPI'
+    profiles = [[profileId  : "cleanup_space",
+                 description: "Cleanup permanent and user space",
+                 jvmArgs    : ["-Xms1g", "-Xmx16g"]]]
+
+    excludeDependencies = [
+            'com.sun.jersey',
+            'javax.ws.rs'
+    ]
+}
+
+dependencies {
+    implementation project(":shared:common")
+    implementation project(":document-hub:content")
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+
+    // JUnit 5 (Jupiter)
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.2"
+    // Fluent assertions
+    testImplementation "org.assertj:assertj-core:3.25.3"
+}
+
+test {
+    useJUnitPlatform()
+}
+

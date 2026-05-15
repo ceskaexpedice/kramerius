@@ -1,43 +1,28 @@
 /*
-  * Copyright (C) 2025  Inovatika
-  *
-  * This program is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation, either version 3 of the License, or
-  * (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with this program. If not, see <http://www.gnu.org/licenses/>.
-  */
+ * Copyright (C) 2025  Inovatika
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
+import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.monitoring.ApiCallEvent;
@@ -45,53 +30,65 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.nio.AsyncRequestProducer;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.AlreadyRegistedPidsException;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem.TypeOfReharvset;
-import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
-import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.utils.StringUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-
- /**
-  * Base class for implementing various types of ProxyHandlers.
-  */
- public abstract class ProxyHandlerSupport {
+/**
+ * Base class for implementing various types of ProxyHandlers.
+ */
+public abstract class ProxyHandlerSupport {
 
     public static final boolean DEBUG = false;
 
     public static final Logger LOGGER = Logger.getLogger(ProxyHandlerSupport.class.getName());
 
-    /** Digital library source */
+    /**
+     * Digital library source
+     */
     protected String source;
-    /** Access to solr */
+    /**
+     * Access to solr
+     */
     protected SolrAccess solrAccess;
-    /** Requesting user */
+    /**
+     * Requesting user
+     */
     protected User user;
-    /** Remote address */
+    /**
+     * Remote address
+     */
     protected String remoteAddr;
-    /**  Instances mangaer */
+    /**
+     * Instances mangaer
+     */
     protected Instances instances;
-    /** Reharvest manager */
+    /**
+     * Reharvest manager
+     */
     protected ReharvestManager reharvestManager;
 
     protected CDKRequestCacheSupport cacheSupport;
@@ -113,12 +110,13 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         this.deleteTriggerSupport = triggerSupport;
     }
 
-     /**
-      * Method for building redirect response
-      * @param url Redirecting url
-      * @return Redirect response
-      * @throws ProxyHandlerException Malformed URL
-      */
+    /**
+     * Method for building redirect response
+     *
+     * @param url Redirecting url
+     * @return Redirect response
+     * @throws ProxyHandlerException Malformed URL
+     */
     public Response buildRedirectResponse(String url) throws ProxyHandlerException {
         try {
             LOGGER.fine(String.format("Redirecting to %s", url));
@@ -133,19 +131,21 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
     }
 
 
-     /**
-      * Builds a HEAD forward response using an Apache HTTP client.
-      *
-      * @param url the requested URL
-      * @param mimetype the requested MIME type, or null if not specified
-      * @param pid the requested PID
-      * @param deleteTrigger whether the handler should execute the delete trigger
-      * @param shibHeaders whether to include Shibboleth headers in the request
-      * @return a Response object representing the result of the HEAD request
-      */
-     public Response buildForwardApacheResponseHEAD(String apiKey, String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders) {
+    /**
+     * Builds a HEAD forward response using an Apache HTTP client.
+     *
+     * @param url           the requested URL
+     * @param mimetype      the requested MIME type, or null if not specified
+     * @param pid           the requested PID
+     * @param deleteTrigger whether the handler should execute the delete trigger
+     * @param shibHeaders   whether to include Shibboleth headers in the request
+     * @return a Response object representing the result of the HEAD request
+     */
+    public Response buildForwardApacheResponseHEAD(String apiKey, String url, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders) {
         HttpHead head = apacheHead(url, apiKey, shibHeaders);
-        if (apiKey != null && !apiKey.isEmpty()) { head.addHeader("X-API-KEY", apiKey);}
+        if (apiKey != null && !apiKey.isEmpty()) {
+            head.addHeader("X-API-KEY", apiKey);
+        }
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
             int code = response.getCode();
             return Response.status(code).build();
@@ -155,32 +155,32 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         }
     }
 
-     /**
-      * Builds a GET forward response using an Apache HTTP client.
-      *
-      * @param url the requested URL
-      * @param mimetype the requested MIME type, or null if not specified
-      * @param pid the requested PID
-      * @param deleteTrigger whether the handler should execute the delete trigger
-      * @param shibHeaders whether to include Shibboleth headers in the request
-      * @return a Response object representing the result of the HEAD request
-      */
-     public Response buildForwardApacheResponseGET(String url, String apiKey, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
-        List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ?  event.getGranularTimeSnapshots() : null;
+    /**
+     * Builds a GET forward response using an Apache HTTP client.
+     *
+     * @param url           the requested URL
+     * @param mimetype      the requested MIME type, or null if not specified
+     * @param pid           the requested PID
+     * @param deleteTrigger whether the handler should execute the delete trigger
+     * @param shibHeaders   whether to include Shibboleth headers in the request
+     * @return a Response object representing the result of the HEAD request
+     */
+    protected Response buildForwardApacheResponseGET(String url, String apiKey, String mimetype, String pid, boolean deleteTrigger, boolean shibHeaders, ApiCallEvent event, BiConsumer<byte[], String> dataConsumer) {
+        List<Triple<String, Long, Long>> granularTimeSnapshots = event != null ? event.getGranularTimeSnapshots() : null;
         long start = System.currentTimeMillis();
 
         HttpGet get = apacheGet(url, apiKey, shibHeaders);
-        String headers = "("+Arrays.stream(get.getHeaders()).map(h-> {
+        String headers = "(" + Arrays.stream(get.getHeaders()).map(h -> {
             return String.format("%s = %s", h.getName(), h.getValue());
-        }).collect(Collectors.joining(", "))+")";
-        LOGGER.log(Level.FINE,  String.format("GET %s %s", url, headers));
+        }).collect(Collectors.joining(", ")) + ")";
+        LOGGER.log(Level.FINE, String.format("GET %s %s", url, headers));
         try (CloseableHttpResponse response = apacheClient.execute(get)) {
             int code = response.getCode();
             if (code == 200) {
                 long stop = System.currentTimeMillis();
 
                 if (granularTimeSnapshots != null) {
-                    granularTimeSnapshots.add(Triple.of(String.format("http/%s", this.getSource()), start,stop));
+                    granularTimeSnapshots.add(Triple.of(String.format("http/%s", this.getSource()), start, stop));
                 }
 
                 LOGGER.log(Level.FINE, String.format(" -> code %d", code));
@@ -233,65 +233,59 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         }
     }
 
-//     public Response buildAsyncForwardResponse(String url, String apiKey, ApiCallEvent event) {
-//         // Vracíme StreamingOutput, který uvnitř spustí váš asynchronní klient
-//         StreamingOutput stream = output -> {
-//             final WritableByteChannel channel = Channels.newChannel(output);
-//
-//             LOGGER.fine(String.format("Requesting %s", url));
-////             HttpGet get = new HttpGet(url);
-////             get.setHeader("User-Agent", "CDK/1.0");
-////             if (headers && isAuthenticated() && isDnntUser()) {
-////                 String header = prepareHeader(headers);
-////                 get.setHeader("CDK_TOKEN_PARAMETERS", header);
-////             }
-////             if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
-////             return get;
-//
-//             AsyncRequestBuilder asyncRequestBuilder = AsyncRequestBuilder.get(url)
-//                     .addHeader("User-Agent", "CDK/1.0");
-//             if (isAuthenticated() && isDnntUser()) {
-//                 String header = prepareHeader(true);
-//                 asyncRequestBuilder.addHeader("CDK_TOKEN_PARAMETERS", header);
-//             }
-////                     .addHeader("X-API-KEY", apiKey)
-////                     .build();
-//
-//
-////             AsyncRequestProducer producer = AsyncRequestBuilder.get(url)
-////                     .addHeader("User-Agent", "CDK/1.0")
-////
-////                     .addHeader("X-API-KEY", apiKey)
-////                     .build();
-//
-//             AbstractBinResponseConsumer<HttpResponse> consumer = new AbstractBinResponseConsumer<HttpResponse>() {
-//                 @Override
-//                 protected void data(ByteBuffer src, boolean endOfStream) throws IOException {
-//                     channel.write(src);
-//                 }
-//
-//                 @Override
-//                 protected void start(HttpResponse response, ContentType contentType) throws HttpException, IOException {
-//                     // V JAX-RS Response už je status nastaven, zde můžeme logovat nebo kontrolovat
-//                 }
-//
-//                 @Override
-//                 protected HttpResponse buildResult() { return null; }
-//                 @Override
-//                 public void releaseResources() {}
-//             };
-//
-//             try {
-//                 // httpClient je váš CloseableHttpAsyncClient
-//                 Future<HttpResponse> future = this.asyncClient.execute(producer, consumer, null);
-//                 future.get(); // Čekáme na dokončení streamu do outputu
-//             } catch (Exception e) {
-//                 throw new IOException("Async transfer failed", e);
-//             }
-//         };
-//
-//         return Response.ok(stream).header("Access-Control-Allow-Origin", "*").build();
-//     }
+    protected Response buildForwardApacheResponsePOST(String url, JSONObject body, String apiKey, String pid, boolean shibHeaders, BiConsumer<byte[], String> dataConsumer) {
+        HttpPost post = apachePost(url, apiKey, shibHeaders);
+        StringEntity entityP = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
+        post.setEntity(entityP);
+        String headers = "(" + Arrays.stream(post.getHeaders()).map(h -> {
+            return String.format("%s = %s", h.getName(), h.getValue());
+        }).collect(Collectors.joining(", ")) + ")";
+        LOGGER.log(Level.FINE, String.format("POST %s %s", url, headers));
+        try (CloseableHttpResponse response = apacheClient.execute(post)) {
+            int code = response.getCode();
+            if (code == 200) {
+                long stop = System.currentTimeMillis();
+                LOGGER.log(Level.FINE, String.format(" -> code %d", code));
+                HttpEntity entity = response.getEntity();
+                String responseMimeType = entity.getContentType();
+                InputStream contentStream = entity.getContent();
+                StreamingOutput outputStream = null;
+                if (dataConsumer != null) {
+                    byte[] bytes = IOUtils.toByteArray(contentStream);
+                    dataConsumer.accept(bytes, responseMimeType);
+                    outputStream = output -> {
+                        output.write(bytes);
+                        output.flush();
+                        EntityUtils.consumeQuietly(entity);
+                    };
+                } else {
+                    byte[] bytes = IOUtils.toByteArray(contentStream);
+                    outputStream = output -> {
+                        output.write(bytes);
+                        output.flush();
+                        EntityUtils.consumeQuietly(entity);
+                    };
+                }
+
+                ResponseBuilder respEntity = null;
+                if (responseMimeType != null) {
+                    respEntity = Response.status(200).entity(outputStream).type(responseMimeType);
+                } else {
+                    respEntity = Response.status(200).entity(outputStream);
+                }
+                long contentLength = entity.getContentLength();
+                if (contentLength >= 0) {
+                    respEntity.header("Content-Length", String.valueOf(contentLength));
+                }
+                return respEntity.build();
+            } else {
+                return Response.status(code).build();
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     //protected
     protected boolean exists(String url, String apiKey) {
@@ -304,6 +298,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         }
         return false;
     }
+
     protected InputStream inputStream(String url, String apiKey) {
         HttpGet head = apacheGet(url, apiKey, false);
         try (CloseableHttpResponse response = apacheClient.execute(head)) {
@@ -321,7 +316,6 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
     }
 
 
-
     protected HttpHead apacheHead(String url, String apiKey, boolean headers) {
         LOGGER.fine(String.format("Requesting %s", url));
         HttpHead head = new HttpHead(url);
@@ -335,7 +329,9 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
             head.setHeader("CDK-TOKEN-PARAMETERS", header);
             head.setHeader("CDK_TOKEN_PARAMETERS", header); // deprecated
         }
-        if (apiKey != null && !apiKey.isEmpty()) { head.addHeader("X-API-KEY", apiKey);}
+        if (apiKey != null && !apiKey.isEmpty()) {
+            head.addHeader("X-API-KEY", apiKey);
+        }
         return head;
     }
 
@@ -347,9 +343,22 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
             String header = prepareHeader(headers);
             get.setHeader("CDK-TOKEN-PARAMETERS", header);
             get.setHeader("CDK_TOKEN_PARAMETERS", header); // deprecated
-        }
         if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
         return get;
+    }
+
+    protected HttpPost apachePost(String url, String apiKey, boolean headers) {
+        LOGGER.fine(String.format("Requesting %s", url));
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setHeader("User-Agent", "CDK/1.0");
+        if (headers && isAuthenticated() && isDnntUser()) {
+            String header = prepareHeader(headers);
+            httpPost.setHeader("CDK_TOKEN_PARAMETERS", header);
+        }
+        if (apiKey != null && !apiKey.isEmpty()) {
+            httpPost.addHeader("X-API-KEY", apiKey);
+        }
+        return httpPost;
     }
 
     //TODO: Fix; cannot be associated only with dnnto user
@@ -358,13 +367,13 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
         LOGGER.log(Level.FINE, String.format("Roles %s", names.toString()));
         //TODO: Fix; use constant
         boolean dnntUsersFlag = names.contains("dnnt_users");
-        LOGGER.log(Level.FINE, String.format("DNNT user roles %s", ""+dnntUsersFlag));
+        LOGGER.log(Level.FINE, String.format("DNNT user roles %s", "" + dnntUsersFlag));
         return dnntUsersFlag;
     }
 
     protected boolean isAuthenticated() {
         boolean retval = this.user.getId() != -1;
-        LOGGER.log(Level.FINE, String.format("Authenticated user %s", ""+retval));
+        LOGGER.log(Level.FINE, String.format("Authenticated user %s", "" + retval));
         return retval;
     }
 
@@ -413,7 +422,7 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
             header = prefixHeaders + header;
         }
 
-        LOGGER.log(Level.FINE,"HEADER "+header);
+        LOGGER.log(Level.FINE, "HEADER " + header);
         return header;
     }
 

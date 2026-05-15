@@ -212,7 +212,7 @@ public class SDNNTSyncResource {
                             }
                             
 
-                            /* TODO pepo scheduleSub pavel
+                            /* TODO scheduleSub pavel
                             LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, paramsList,
                                     user.getLoginname(), user.getLoginname(), batchToken, name);
                             ProcessInBatch batch = this.processManager

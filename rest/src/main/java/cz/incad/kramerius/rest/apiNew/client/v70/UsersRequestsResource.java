@@ -75,7 +75,7 @@ public class UsersRequestsResource extends ClientApiResource {
         }
         User user = this.userProvider.get();
 
-        if (!this.userContentSpace.exists(token)) {
+        if (!this.userContentSpace.exists(token, docType)) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new JSONObject().put("error", "User content space for token=" + token + " not found").toString())
                     .type(MediaType.APPLICATION_JSON)
@@ -110,11 +110,6 @@ public class UsersRequestsResource extends ClientApiResource {
                         case TEXT -> "text/plain";
                         case EPUB -> "application/epub+zip";
                     })
-                    .build();
-        } catch (UserContentSpace.UsageException e) {
-            return Response.status(429)
-                    .entity(new JSONObject().put("error", "Usage limited for user=" + user.getLoginname()).put("message", e.getMessage()).toString())
-                    .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (ClientErrorException e) {
             throw e;
