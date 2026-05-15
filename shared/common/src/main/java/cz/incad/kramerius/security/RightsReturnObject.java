@@ -54,4 +54,13 @@ public class RightsReturnObject implements Serializable  {
     public int hashCode() {
         return Objects.hash(right, state);
     }
+
+    @Override
+    public String toString() {
+        return "RightsReturnObject{" +
+                "right=" + right +
+                ", state=" + state +
+                ", evaluateInfoMap=" + evaluateInfoMap +
+                '}';
+    }
 }

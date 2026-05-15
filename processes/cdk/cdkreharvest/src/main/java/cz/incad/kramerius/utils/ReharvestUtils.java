@@ -47,7 +47,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.inovatika.kramerius.services.Migration;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
-import cz.inovatika.kramerius.services.iterators.ProcessIterator;
+import cz.inovatika.kramerius.services.iterators.MigrationIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrCursorIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrFilterQueryIterator;
 import cz.inovatika.kramerius.services.iterators.solr.SolrPageIterator;
@@ -111,18 +111,18 @@ public class ReharvestUtils {
 
             String sRows = iterationMap.containsKey("rows")   ? iterationMap.get("rows")  : ITERATION_ROWS_STRING_VALUE  ;
             TypeOfIteration typeOfIteration = iterationMap.containsKey("type")  ? TypeOfIteration.valueOf(iterationMap.get("type")) : TypeOfIteration.CURSOR;
-            ProcessIterator processIterator = null;
+            MigrationIterator processIterator = null;
             switch (typeOfIteration) {
                 case CURSOR: {
-                    processIterator =  new SolrCursorIterator(iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
+                    processIterator =  new SolrCursorIterator(iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null, null);
                     break;
                 }
                 case FILTER: {
-                    processIterator  = new SolrFilterQueryIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
+                    processIterator  = new SolrFilterQueryIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null, null);
                     break;
                 }
                 case PAGINATION: {
-                    processIterator = new SolrPageIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null);
+                    processIterator = new SolrPageIterator( iterationUrl, masterQuery, filterQuery, "select", "compositeId", "compositeId asc",Integer.parseInt(sRows), null, null);
                     break;
                 }
             }

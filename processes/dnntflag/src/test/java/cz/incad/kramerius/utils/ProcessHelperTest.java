@@ -31,7 +31,7 @@ public class ProcessHelperTest {
         Assert.assertNotNull(is);
         Document parseDocument = XMLUtils.parseDocument(is);
         SolrAccess solrAccess = EasyMock.createMock(SolrAccess.class);
-        EasyMock.expect(solrAccess.getSolrDataByPid("uuid:4b2d6a2d-e531-4871-bf3b-16f30769e7ed", "own_pid_path pid_paths")).andReturn(parseDocument).anyTimes();
+        EasyMock.expect(solrAccess.getSolrDataByPid("uuid:4b2d6a2d-e531-4871-bf3b-16f30769e7ed", "own_pid_path,pid_paths")).andReturn(parseDocument).anyTimes();
         EasyMock.replay(solrAccess);
 
         String onlyDescendantsQuery = new ProcessHelper.EffectivePidsOfDescendantsProducer("uuid:4b2d6a2d-e531-4871-bf3b-16f30769e7ed", solrAccess, true).getQ();

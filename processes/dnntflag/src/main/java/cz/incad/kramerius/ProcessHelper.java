@@ -1,5 +1,6 @@
 package cz.incad.kramerius;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import nl.siegmann.epublib.util.StringUtil;
 import org.json.JSONArray;
@@ -66,7 +67,7 @@ public class ProcessHelper {
             String ownPidPath = null;
             List<String> pidsPaths = null;
             try {
-                Document doc = this.searchIndex.getSolrDataByPid(targetPid, "own_pid_path pid_paths");
+                Document doc = this.searchIndex.getSolrDataByPid(targetPid, "own_pid_path,pid_paths");
                 Element oPPE = XMLUtils.findElement(doc.getDocumentElement(), (element) -> {
                     if (element.hasAttribute("name") && element.getAttribute("name").equals("own_pid_path")) {
                         return true;
@@ -95,13 +96,16 @@ public class ProcessHelper {
             }
 
             if (onlyOwnDescendants) {
-                this.q =  String.format("own_pid_path.children:\"%s\"", ownPidPath);
+                if (StringUtils.isAnyString(ownPidPath)) {
+                    this.q =  String.format("own_pid_path.children:\"%s\"", ownPidPath);
+                } else throw new  RuntimeException("own_pid_path.children:\"not found");
             } else {
-                String orQ = pidsPaths.stream().map(it-> {
-                    return "pid_paths.children:\"" + it + "\"";
-                }).collect(Collectors.joining(" OR "));
-                this.q =  orQ;
-
+                if (pidsPaths.size() > 0) {
+                    String orQ = pidsPaths.stream().map(it-> {
+                        return "pid_paths.children:\"" + it + "\"";
+                    }).collect(Collectors.joining(" OR "));
+                    this.q =  orQ;
+                } else throw new  RuntimeException("own_pid_path.children:\"not found");
             }
         }
 

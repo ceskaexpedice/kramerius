@@ -101,6 +101,8 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
         JSONObject infoJson = new JSONObject();
         infoJson.put("pid", pid);
         Files.writeString(targetDir.resolve("info.json"), infoJson.toString(), StandardCharsets.UTF_8);
+        this.usageCounter.logUsage(user, pid);
+
         return token;
     }
 

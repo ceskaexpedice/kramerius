@@ -151,7 +151,8 @@ public class ClientUserResource {
                 	return Response.ok().entity(UsersUtils.userToJSON(user,labels,flag).toString())
                             .build();
             	} else {
-                	return Response.ok().entity(UsersUtils.userToJSON(user,new ArrayList<>(),flag).toString())
+                    List<String> labels = findLabels(user,event);
+                	return Response.ok().entity(UsersUtils.userToJSON(user,labels,flag).toString())
                             .build();
             	}
             } else {
