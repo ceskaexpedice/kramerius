@@ -22,7 +22,6 @@
  import java.util.logging.Level;
  import java.util.logging.Logger;
 
- import javax.servlet.http.HttpServletResponse;
  import javax.ws.rs.core.Response;
 
  import cz.incad.kramerius.SolrAccess;
@@ -112,6 +111,8 @@
      public abstract Response requestsStatus(String processId) throws ProxyHandlerException;
 
      public abstract Response requestsUserSpace(String token, String docType) throws ProxyHandlerException;
+
+     public abstract Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException;
 
      /**
       * Returns the preview image stream.

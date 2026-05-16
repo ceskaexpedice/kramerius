@@ -229,6 +229,22 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
     @Override
+    public Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException {
+        try {
+            String baseurl = this.forwardUrl();
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/pdf/selection";
+            URIBuilder builder = new URIBuilder(url);
+            builder.setParameter("pidsParam", pidsParam);
+            builder.setParameter("firstPageType", firstPageType);
+            builder.setParameter("format", format);
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Override
     public Response requests(String reqType, String lang, JSONObject reqDefinition) throws ProxyHandlerException {
         try {
             String baseurl = this.forwardUrl();

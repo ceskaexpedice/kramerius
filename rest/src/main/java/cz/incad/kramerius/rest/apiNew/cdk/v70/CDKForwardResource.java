@@ -1,17 +1,17 @@
 package cz.incad.kramerius.rest.apiNew.cdk.v70;
 
 import com.google.inject.Inject;
+import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
-import cz.incad.kramerius.processes.client.ProcessManagerClient;
-import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.*;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.UserContentSpace;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -63,14 +63,17 @@ public class CDKForwardResource {
     SOLRResource solrResource;
 
     @Inject
-    AggregatedAccessLogs accessLog;
+    PDFResource pdfResource;
+
+    @Inject
+    ItemsResource itemsResource;
+
+    @Inject
+    UsersRequestsResource usersRequestsResource;
 
     @javax.inject.Inject
     @javax.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
-
-    @Inject
-    UserContentSpace userContentSpace;
 
     @javax.inject.Inject
     protected Provider<User> userProvider;
@@ -93,7 +96,6 @@ public class CDKForwardResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requests(@PathParam("processId") String processId) {
-        UsersRequestsResource usersRequestsResource = new UsersRequestsResource();
         Response response = usersRequestsResource.requests(processId);
         return response;
     }
@@ -101,7 +103,6 @@ public class CDKForwardResource {
     @GET
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
-        UsersRequestsResource usersRequestsResource = new UsersRequestsResource();
         Response response = usersRequestsResource.userspace(token, docTypeStr);
         return response;
     }
@@ -114,8 +115,18 @@ public class CDKForwardResource {
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
                              @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
-        ItemsResource itemsResource = new ItemsResource();
         Response response = itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
+        return response;
+    }
+
+    // --------------- pdf ---------------
+    @GET
+    @Path("pdf/selection")
+    @Produces({"application/pdf", "application/json"})
+    public Response selection(@QueryParam("pids") String pidsParam,
+                              @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
+                              @QueryParam("format") String format) throws OutOfRangeException {
+        Response response = pdfResource.selection(pidsParam, firstPageType, format);
         return response;
     }
 
