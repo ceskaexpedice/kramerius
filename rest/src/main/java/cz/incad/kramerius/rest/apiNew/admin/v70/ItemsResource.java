@@ -427,7 +427,7 @@ public class ItemsResource extends AdminApiResource {
                 }
             });
 
-            // TODO pepo scheduleSub scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
+            // TODO scheduleSub scheduleReindexation(pid, user.getLoginname(), user.getLoginname(), "OBJECT_AND_CHILDREN", false, pid);
             return Response.ok().build();
         } catch (WebApplicationException e) {
             throw e;

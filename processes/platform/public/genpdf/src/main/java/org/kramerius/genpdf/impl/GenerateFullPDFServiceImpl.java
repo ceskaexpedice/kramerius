@@ -78,13 +78,9 @@ public class GenerateFullPDFServiceImpl implements GenerateFullPDFService {
         try {
             AkubraDocument rdoc = null;
             String token = userContentSpace.getToken(pid, user);
-
-            //this is disabled, because PDF exports would delete results of other exports (EPUB, TEXT)
-            //instead FileUserContentSpaceImpl.storeBundle() deletes previous version of file if found
-            /*if (userContentSpace.exists(token)) {
-                userContentSpace.deleteBundle(token);
-            }*/
-
+            if (userContentSpace.exists(token, DocumentType.PDF)) {
+                userContentSpace.deleteBundle(token, DocumentType.PDF);
+            }
             if (permanentContentSpace.exists(pid, DocumentType.PDF)) {
                 rdoc = this.documentService.buildDocumentAsFlat(path, pid, 1, new float[]{rect.getWidth(), rect.getHeight()});
                 rdoc.pageDimensionFromFirstPage();

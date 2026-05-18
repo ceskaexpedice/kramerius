@@ -13,11 +13,9 @@ public interface UserContentSpace {
 
     public String getToken(String pid, String user);
 
-    public boolean exists(String token);
+    boolean exists(String token, DocumentType type);
 
-    public void deleteBundle(String token) throws IOException;
-
-    public Optional<String> getAuditInfo(String token) throws IOException;
+    public void deleteBundle(String token, DocumentType type) throws IOException;
 
     public UsageCounter getUsageCounter() throws IOException;
 

@@ -1,9 +1,8 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.item;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -11,16 +10,14 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
@@ -28,12 +25,8 @@ import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
 import cz.inovatika.monitoring.ApiCallEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
@@ -41,6 +34,9 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 public class V7ForwardHandler extends V7RedirectHandler {
 
@@ -57,8 +53,8 @@ public class V7ForwardHandler extends V7RedirectHandler {
                             String source,
                             String pid,
                             String remoteAddr) {
-        super(cacheSupport, reharvestManager,instances, user,  closeableHttpClient, triggerSupport, executorService, solrAccess, source, pid, remoteAddr);
-	}
+        super(cacheSupport, reharvestManager, instances, user, closeableHttpClient, triggerSupport, executorService, solrAccess, source, pid, remoteAddr);
+    }
 
     protected String forwardUrl() {
         String baseurl = KConfiguration.getInstance().getConfiguration()
@@ -137,8 +133,9 @@ public class V7ForwardHandler extends V7RedirectHandler {
         }
     }
 
+
     @Override
-    public Response image(RequestMethodName method,ApiCallEvent event) throws ProxyHandlerException {
+    public Response image(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_FULL";
@@ -169,12 +166,12 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                     + "/streams/BIBLIO_MODS";
-            String modsString = super.cacheStringHit_PID_USER(url, this.pid, false,"mods", event);
+            String modsString = super.cacheStringHit_PID_USER(url, this.pid, false, "mods", event);
             if (modsString == null) {
-                return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, false, event, (data, mimeType)-> {
+                return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, false, event, (data, mimeType) -> {
                     CompletableFuture.runAsync(() -> {
                         try {
-                            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>)  CDKRequestItemFactory.createCacheItem(
+                            CDKRequestItem<String> cacheItem = (CDKRequestItem<String>) CDKRequestItemFactory.createCacheItem(
                                     new String(data, Charset.forName("UTF-8")),
                                     "application/xml",
                                     url,
@@ -183,10 +180,10 @@ public class V7ForwardHandler extends V7RedirectHandler {
                                     LocalDateTime.now(),
                                     null
                             );
-                            LOGGER.fine( String.format("Storing cache item %s", cacheItem.toString()));
+                            LOGGER.fine(String.format("Storing cache item %s", cacheItem.toString()));
                             this.cacheSupport.save(cacheItem);
                         } catch (SQLException e) {
-                            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                     });
                 });
@@ -200,15 +197,15 @@ public class V7ForwardHandler extends V7RedirectHandler {
     @Override
     public Response zoomifyImageProperties(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         if (method == RequestMethodName.head) {
-            return super.zoomifyImageProperties(method,event);
+            return super.zoomifyImageProperties(method, event);
         } else {
             String baseurl = forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/zoomify/" + this.pid
                     + "/ImageProperties.xml";
             return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
-       }
+        }
     }
-    
+
     @Override
     public Response zoomifyTile(String tileGroupStr, String tileStr, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = forwardUrl();
@@ -217,6 +214,66 @@ public class V7ForwardHandler extends V7RedirectHandler {
         return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
     }
 
+    @Override
+    public Response requestsStatus(String processId) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/requests/" + processId;
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+    }
+
+    @Override
+    public Response requestsUserSpace(String token, String docType) throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/userspace/" + token + "/" + docType;
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+    }
+
+    @Override
+    public Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException {
+        try {
+            String baseurl = this.forwardUrl();
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/pdf/selection";
+            URIBuilder builder = new URIBuilder(url);
+            builder.setParameter("pidsParam", pidsParam);
+            builder.setParameter("firstPageType", firstPageType);
+            builder.setParameter("format", format);
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Override
+    public Response requests(String reqType, String lang, JSONObject reqDefinition) throws ProxyHandlerException {
+        try {
+            String baseurl = this.forwardUrl();
+            String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + this.pid
+                    + "/requests/" + reqType;
+            URIBuilder builder = new URIBuilder(url);
+            if (lang != null) {
+                builder.setParameter("lang", lang);
+            }
+            Response response = buildForwardApacheResponsePOST(builder.toString(), reqDefinition, apiKey(), this.pid, false, null);
+            InputStream is = (InputStream) response.getEntity();
+            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+            String entity = s.hasNext() ? s.next() : "";
+            JSONObject jsonObject = new JSONObject(entity);
+            String prefix = source + "/";
+            if (jsonObject.has(ProcessManagerMapper.PCP_PROCESS_ID)) {
+                String originalPid = jsonObject.getString(ProcessManagerMapper.PCP_PROCESS_ID);
+                jsonObject.put(ProcessManagerMapper.PCP_PROCESS_ID, prefix + originalPid);
+            }
+            if (jsonObject.has("token")) {
+                String originalToken = jsonObject.getString("token");
+                jsonObject.put("token", prefix + originalToken);
+            }
+            return response;
+        } catch (URISyntaxException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @Override
     public Response textOCR(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
@@ -273,10 +330,8 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String baseurl = this.forwardUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/BIBLIO_MODS";
-        return inputStream(url,apiKey());
+        return inputStream(url, apiKey());
     }
-
-
 
 
 //    @Override

@@ -105,6 +105,7 @@ include 'processes:platform:cdk:worker'
 include 'processes:platform:public:genpdf'
 include 'processes:platform:public:genebook'
 include 'processes:platform:public:gentext'
+include 'processes:platform:public:cleanup'
 include 'processes:platform:public:worker'
 
 
