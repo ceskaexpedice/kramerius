@@ -14,6 +14,11 @@ import java.io.InputStream;
 
 public class ProcessHelperTest {
 
+    @Test
+    public void testQueryOfPidsOfDescendantsProducer2() {
+        String onlyDescendantsQuery = new ProcessHelper.PidsOfDescendantsProducer("uuid:3b708d50-2b21-11dd-80c8-000d606f5dc6", null, true).getQ();
+        System.out.println(onlyDescendantsQuery);
+    }
 
     @Test
     public void testQueryOfPidsOfDescendantsProducer() {

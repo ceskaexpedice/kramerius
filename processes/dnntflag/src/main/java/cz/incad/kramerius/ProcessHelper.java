@@ -61,9 +61,11 @@ public class ProcessHelper {
         private String nextCursorMark = "*";
         private int total = 0;
         private int returned = 0;
+        private String targetPid;
 
         public EffectivePidsOfDescendantsProducer(String targetPid, SolrAccess searchIndex, boolean onlyOwnDescendants) {
             this.searchIndex = searchIndex;
+            this.targetPid = targetPid;
             String ownPidPath = null;
             List<String> pidsPaths = null;
             try {
@@ -145,7 +147,9 @@ public class ProcessHelper {
                     JSONArray docs = response.getJSONArray("docs");
                     for (int i = 0; i < docs.length(); i++) {
                         String pid = docs.getJSONObject(i).getString("pid");
-                        result.add(pid);
+                        if (!pid.equals(this.targetPid)) {
+                            result.add(pid);
+                        }
                     }
                 }
                 returned += result.size();
