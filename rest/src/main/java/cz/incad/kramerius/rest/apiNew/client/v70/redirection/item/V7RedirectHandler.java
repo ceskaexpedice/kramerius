@@ -85,6 +85,11 @@ public class V7RedirectHandler extends ProxyItemHandler{
     }
 
     @Override
+    public Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Response zoomifyImageProperties(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/image/zoomify/ImageProperties.xml";

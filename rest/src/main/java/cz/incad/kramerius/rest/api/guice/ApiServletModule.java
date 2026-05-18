@@ -148,12 +148,15 @@ public class ApiServletModule extends JerseyServletModule {
         // cdk server mode
         if (cdkServerMode) {
             bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ItemsResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.UsersRequestsResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.cdk.PDFResource.class);
         } else {
             bind(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
+            bind(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
         }
 
-        bind(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
-        
+
         bind(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.UIConfigResource.class);
         bind(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);

@@ -343,7 +343,10 @@ public abstract class ProxyHandlerSupport {
             String header = prepareHeader(headers);
             get.setHeader("CDK-TOKEN-PARAMETERS", header);
             get.setHeader("CDK_TOKEN_PARAMETERS", header); // deprecated
-        if (apiKey != null && !apiKey.isEmpty()) { get.addHeader("X-API-KEY", apiKey);}
+            if (apiKey != null && !apiKey.isEmpty()) {
+                get.addHeader("X-API-KEY", apiKey);
+            }
+        }
         return get;
     }
 
@@ -361,7 +364,7 @@ public abstract class ProxyHandlerSupport {
         return httpPost;
     }
 
-    //TODO: Fix; cannot be associated only with dnnto user
+        //TODO: Fix; cannot be associated only with dnnto user
     protected boolean isDnntUser() {
         List<String> names = Arrays.stream(this.user.getGroups()).map(Role::getName).collect(Collectors.toList());
         LOGGER.log(Level.FINE, String.format("Roles %s", names.toString()));
@@ -425,7 +428,6 @@ public abstract class ProxyHandlerSupport {
         LOGGER.log(Level.FINE, "HEADER " + header);
         return header;
     }
-
 
     protected void mockSession() {
         if (!user.getSessionAttributes().containsKey("shib-session-id")) {
