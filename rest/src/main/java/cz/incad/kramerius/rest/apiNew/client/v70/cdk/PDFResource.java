@@ -6,9 +6,11 @@ import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -40,18 +42,35 @@ public class PDFResource extends ClientApiResource {
     @Inject
     com.google.inject.Provider<HttpServletRequest> requestProvider;
 
+    @Inject
+    CDKDocumentSourceProvider documentSourceProvider;
+
+
+    //    @GET
+    //    @Path("{source}/{pid}/info")
+    //    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+
     @GET
-    @Path("selection")
+    @Path("{source}/selection")
     @Produces({"application/pdf", "application/json"})
-    public Response selection(@QueryParam("pids") String pidsParam,
+    public Response selectionWithSource(@PathParam("source") String source, @QueryParam("pids") String pidsParam,
                               @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
                               @QueryParam("format") String format) throws OutOfRangeException {
         try {
-            ProxyItemHandler redirectHandler = findRedirectHandler(pidsParam); // TODO pepo
-            if (redirectHandler != null) {
-                return redirectHandler.pdfSelection(pidsParam, firstPageType, format);
+            if (StringUtils.isAnyString(pidsParam)) {
+                String[] pids = pidsParam.split(",");
+                if (pids.length > 0) {
+                    ProxyItemHandler redirectHandler = findRedirectHandler(pids[0], source); // TODO pepo
+                    if (redirectHandler != null) {
+                        return redirectHandler.pdfSelection(pidsParam, firstPageType, format);
+                    } else {
+                        return Response.ok().build();
+                    }
+                } else {
+                    throw new OutOfRangeException("No pids provided");
+                }
             } else {
-                return Response.ok().build();
+                throw new OutOfRangeException("No pids provided");
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -61,11 +80,46 @@ public class PDFResource extends ClientApiResource {
         }
     }
 
-    private ProxyItemHandler findRedirectHandler(String source) throws LexerException, IOException {
+    @GET
+    @Path("selection")
+    @Produces({"application/pdf", "application/json"})
+    public Response selection(@QueryParam("pids") String pidsParam,
+                              @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
+                              @QueryParam("format") String format) throws OutOfRangeException {
+        try {
+            if (StringUtils.isAnyString(pidsParam)) {
+                String[] pids = pidsParam.split(",");
+                if (pids.length > 0) {
+                    ProxyItemHandler redirectHandler = findRedirectHandler(pids[0], null); // TODO pepo
+                    if (redirectHandler != null) {
+                        return redirectHandler.pdfSelection(pidsParam, firstPageType, format);
+                    } else {
+                        return Response.ok().build();
+                    }
+                } else {
+                    throw new OutOfRangeException("No pids provided");
+                }
+            } else {
+                throw new OutOfRangeException("No pids provided");
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    public ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
+        if (source == null) {
+            //source = defaultDocumentSource(pid);
+            source = documentSourceProvider.getDocumentSource(pid);
+        }
         OneInstance found = instances.find(source);
-        if (found != null) {
+        if (found!= null) {
             String remoteAddress = IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
-            ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.apacheClient, null, this.solrAccess, source, null, remoteAddress);
+            ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.apacheClient, null, this.solrAccess, source, pid, remoteAddress);
             return proxyHandler;
         } else {
             return null;
