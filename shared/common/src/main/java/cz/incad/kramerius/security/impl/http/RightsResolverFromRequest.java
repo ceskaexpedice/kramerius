@@ -61,6 +61,7 @@ public class RightsResolverFromRequest implements RightsResolver {
     public RightsReturnObject isActionAllowed(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
+            LOGGER.fine("isActionAllowed: " + actionName + " " + pid + " " + stream+" user "+user.toString());
             return isAllowedInternalForFedoraDocuments(actionName, pid, stream, path, user);
         } catch (RightCriteriumException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -81,6 +82,7 @@ public class RightsResolverFromRequest implements RightsResolver {
     public RightsReturnObject[] isActionAllowedForAllPath(String actionName, String pid, String stream, ObjectPidsPath path) {
         try {
             User user = this.currentLoggedUser.get();
+            LOGGER.info("isActionAllowed: " + actionName + " " + pid + " " + stream+" user "+user.toString());
             RightCriteriumContext ctx = this.ctxFactory.create(pid,stream, user, getRemoteHost(), IPAddressUtils.getRemoteAddress(this.provider.get()), this, this.exclusiveLockMaps);
             return this.rightsManager.resolveAllPath(ctx, pid, path, actionName, user);
         } catch (RightCriteriumException e) {
