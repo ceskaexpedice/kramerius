@@ -96,15 +96,23 @@ public class CDKForwardResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requests(@PathParam("processId") String processId) {
-        Response response = usersRequestsResource.requests(processId);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = usersRequestsResource.requests(processId);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @GET
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
-        Response response = usersRequestsResource.userspace(token, docTypeStr);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = usersRequestsResource.userspace(token, docTypeStr);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @POST
@@ -115,8 +123,12 @@ public class CDKForwardResource {
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
                              @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
-        Response response = itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     // --------------- pdf ---------------
@@ -126,8 +138,12 @@ public class CDKForwardResource {
     public Response selection(@QueryParam("pids") String pidsParam,
                               @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
                               @QueryParam("format") String format) throws OutOfRangeException {
-        Response response = pdfResource.selection(pidsParam, firstPageType, format);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = pdfResource.selection(pidsParam, firstPageType, format);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     // --------------- Item's endpoint ---------------
