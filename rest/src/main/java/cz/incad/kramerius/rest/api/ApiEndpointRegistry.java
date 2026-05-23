@@ -58,14 +58,16 @@ public class ApiEndpointRegistry {
         resources.add(cz.incad.kramerius.rest.apiNew.client.v70.InfoResource.class);
         if (cdkServerMode) {
             resources.add(cz.incad.kramerius.rest.apiNew.client.v70.cdk.ItemsResource.class);
+            resources.add(cz.incad.kramerius.rest.apiNew.client.v70.cdk.UsersRequestsResource.class);
+            resources.add(cz.incad.kramerius.rest.apiNew.client.v70.cdk.PDFResource.class);
         } else {
             resources.add(cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource.class);
+            resources.add(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
+            resources.add(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
         }
-        resources.add(cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource.class);
         resources.add(cz.incad.kramerius.rest.apiNew.client.v70.SearchResource.class);
         resources.add(cz.incad.kramerius.rest.apiNew.client.v70.UIConfigResource.class);
         resources.add(cz.incad.kramerius.rest.apiNew.client.v70.ConfigResource.class);
-        resources.add(cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource.class);
         resources.add(cz.incad.kramerius.rest.apiNew.client.v70.pdf.AsyncPDFResource.class);
         resources.add(cz.incad.kramerius.rest.apiNew.client.v70.LocksResource.class);
         resources.add(cz.incad.kramerius.rest.apiNew.client.v70.res.EmbeddedFilesResource.class);
