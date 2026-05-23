@@ -183,14 +183,14 @@ public class SetLicenseProcess {
 
         //5. Aktualizuji se indexy vsech (vlastnich i nevlastnich) potomku (prida se licenses_of_ancestors=L) atomic updaty po davkach (muzou to byt az stovky tisic objektu)
         LOGGER.info("updating search index for all (own) descendants of target object");
-        PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
+        //PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
+        ProcessHelper.EffectivePidsOfDescendantsProducer iterator = new ProcessHelper.EffectivePidsOfDescendantsProducer(targetPid, searchIndex, false);
         while (iterator.hasNext()) {
             List<String> pids = iterator.next();
             indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
+            LOGGER.info(String.format("Indexed pids: %s", pids.toString()));
             LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
         }
-
-        //6. Zmena indextime
 
         //commit changes in index 
         try {
@@ -298,7 +298,8 @@ public class SetLicenseProcess {
         if (!hasAncestorThatOwnsLicense(targetPid, license, akubraRepository)) {
             //5a. Aktualizuji se indexy vsech (vlastnich) potomku (odebere se licenses_of_ancestors=L) atomic updaty po davkach (muzou to byt az stovky tisic objektu)
             LOGGER.info("updating search index for all (own) descendants of target object");
-            PidsOfDescendantsProducer descendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, true);
+            //PidsOfDescendantsProducer descendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, true);
+            ProcessHelper.EffectivePidsOfDescendantsProducer descendantsIterator = new ProcessHelper.EffectivePidsOfDescendantsProducer(targetPid, searchIndex, true);
             while (descendantsIterator.hasNext()) {
                 List<String> pids = descendantsIterator.next();
                 indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
@@ -307,7 +308,8 @@ public class SetLicenseProcess {
             //5b. Vsem potomkum ciloveho objektu, ktere take vlastni licenci, budou aktualizovany licence jejich potomku (prida se licenses_of_ancestors=L), protoze byly nepravem odebrany v kroku 5a.
             List<String> pidsOfDescendantsOfTargetOwningLicence = getDescendantsOwningLicense(targetPid, license, akubraRepository);
             for (String pid : pidsOfDescendantsOfTargetOwningLicence) {
-                PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(pid, searchIndex, true);
+                //PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(pid, searchIndex, true);
+                ProcessHelper.EffectivePidsOfDescendantsProducer iterator = new ProcessHelper.EffectivePidsOfDescendantsProducer(pid, searchIndex, true);
                 while (iterator.hasNext()) {
                     List<String> pids = iterator.next();
                     indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
@@ -320,14 +322,15 @@ public class SetLicenseProcess {
         List<ProcessingIndexItem> fosterChildren = akubraRepository.pi().getOwnedAndFosteredChildren(targetPid).foster();
         if (fosterChildren != null && !fosterChildren.isEmpty()) {
             //6a. vsem potomkum (primi/neprimi, vlastni/nevlastni) budou aktualizovany licence (odebere se licenses_of_ancestors=L)
-            PidsOfDescendantsProducer allDescendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
+            //PidsOfDescendantsProducer allDescendantsIterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
+            ProcessHelper.EffectivePidsOfDescendantsProducer allDescendantsIterator = new ProcessHelper.EffectivePidsOfDescendantsProducer(targetPid, searchIndex, false);
             List<String> pids = allDescendantsIterator.next();
             indexerAccess.removeSingleFieldValueFromMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
             LOGGER.info(String.format("Indexed: %d/%d", allDescendantsIterator.getReturned(), allDescendantsIterator.getTotal()));
 
             //6b. naplanuje se reindexace target, aby byly opraveny pripadne chyby zanasene v bode 6a
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
-            // TODO pepo scheduleSub ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
+            // TODO scheduleSub ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
         //commit changes in index
         try {

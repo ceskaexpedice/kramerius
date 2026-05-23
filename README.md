@@ -21,10 +21,14 @@ Aktuální verze 7 vychází koncepčně z předchozích verzí 4 a 5, které by
 Uživatelské rozhraní je přístupné ve většině současných webových prohlížečů, vývoj a testování probíhá na aktuálních verzích prohlížečů Google Chrome, Firefox a Safari, uživatelská část rozhraní je funkční i v současných verzích prohlížeče Internet Explorer, který však není doporučován, vzhledem k tomu, že nepodporuje standardy. Rozhranní je vícejazyčné.
 
 ## Související moduly
-* [Kramerius Journals](https://github.com/ceskaexpedice/K5Journals) Prostředí pro správu a publikování vědeckých časopisů.
-* [Klient pro zvukové dokumenty](https://github.com/ceskaexpedice/kramerius-music-frontend) Univerzální přehrávací modul, který prostřednictvím API systému Kramerius.
-* [Mobilní klient pro iOS](https://github.com/ceskaexpedice/kramerius/wiki/Aplikace-pro-iOS) Klient pro mobilní zařízení s iOS, který zpřístupňuje obsah digitálních knihoven prostřednictvím portálu Digitalniknihovna.cz.
-* [Mobilní klient pro Android](https://github.com/ceskaexpedice/kramerius/wiki/Aplikace-pro-Android) Klient pro mobilní zařízení s OS Android, který zpřístupňuje obsah digitálních knihoven prostřednictvím portálu Digitalniknihovna.cz.
+* [Kramerius web client:](https://github.com/ceskaexpedice/kramerius-web-client) Webový klient pro Krameria 5 a 7 (do verze 7.1.x).
+* [Kramerius web client v3:](https://github.com/ceskaexpedice/kramerius-web-client-v3) Webový klient pro ČDK a Krameria od verze 7.2.
+* [Kramerius admin:](https://github.com/ceskaexpedice/kramerius-admin-client) Administrační rozhraní pro Krameria. 
+* [AS Journals:](https://github.com/ceskaexpedice/ASJournals) Prostředí pro správu a publikování vědeckých časopisů.
+* [Klient pro zvukové dokumenty:](https://github.com/ceskaexpedice/kramerius-music-frontend) Univerzální přehrávací modul, který prostřednictvím API systému Kramerius.
+* [ALTO Editor:](https://github.com/ceskaexpedice/altoEditorAPI) Nástroj pro přegenerování a nahrazení ALTO XML u jednotlivých a stran a dokumentů v Krameriovi.
+* [Kramerius Citace:](https://github.com/ceskaexpedice/kramerius-citace) Citační server pro Krameria
+
 
 ## Licence
 
@@ -36,8 +40,8 @@ Vývojový tým tvoří zaměstnanci Knihovny AV ČR, Národní knihovny ČR, Mo
 
 Členové vývojového týmu:
 KNAV - M. Lhoták, M. Duda, F. Kersch; 
-NK ČR – P. Burdová, J. Hrzinová, V. Jiroušek, K. Košťálová; 
-MZK – M. Dvořáková, P. Žabička, F. Jebavý; 
+NK ČR – V. Šubrta, J. Hrzinová, V. Jiroušek, M. Bežová; 
+MZK – M. Dvořáková, P. Žabička, F. Bím; 
 NTK - T. Lysoněk
 NLK – F. Kříž;
 KUK - A. Brožek;

@@ -6,21 +6,19 @@ plugins {
 description "Generate ebook "
 
 
-
-
 processPlugin {
-	spiImplementation='org.kramerius.genebook.SpecialNeedsSPI'
-    profiles = [ [profileId: "special_needs_ebook",
-                  description: "Special needs ebook",
-                  jvmArgs: ["-Xms1g","-Xmx16g"]] ]
+    spiImplementation = 'org.kramerius.genebook.SpecialNeedsSPI'
+    profiles = [[profileId  : "special_needs_ebook",
+                 description: "Special needs ebook",
+                 jvmArgs    : ["-Xms1g", "-Xmx16g"]]]
 
-	excludeDependencies = [
-        'com.sun.jersey',
-        'javax.ws.rs'
+    excludeDependencies = [
+            'com.sun.jersey',
+            'javax.ws.rs'
     ]
 }
 
-dependencies{
+dependencies {
     implementation project(":shared:common")
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }

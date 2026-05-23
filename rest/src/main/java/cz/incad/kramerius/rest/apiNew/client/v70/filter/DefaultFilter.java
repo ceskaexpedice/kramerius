@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Named;
 
+import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
@@ -77,14 +78,17 @@ public class DefaultFilter implements ProxyFilter{
     @Override
     public String enhancedFilter(String f) {
         if (this.libraries.isAnyDisabled()) {
-            String retval = f + " AND "  + filter();
-            LOGGER.fine(String.format("Enhanced filter %s", retval));
-            return retval;
+            String filter = filter();
+            if (StringUtils.isAnyString(filter)) {
+                String retval = f + " AND "  + filter;
+                LOGGER.fine(String.format("Enhanced filter %s", retval));
+                return retval;
+            } else return f;
         } else
             return f;
-    }	
+    }
 
-    
+
 
     @Override
     public void filterValue(Element rawDoc, ApiCallEvent event) {
@@ -421,7 +425,6 @@ public class DefaultFilter implements ProxyFilter{
                 return physicalLocations;
 
             }
-
         } catch (JSONException | IOException e) {
             LOGGER.log(Level.SEVERE,e.getMessage(),e);
             return new ArrayList<>();

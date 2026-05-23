@@ -84,8 +84,8 @@ import static cz.incad.kramerius.Constants.WORKING_DIR;
 public class ClientUserResource {
 
 //	public static final boolean DEBUG = true;
-
-    public static final Logger LOGGER = Logger.getLogger(ClientUserResource.class.getName());
+	
+    public static final Logger LOGGER  = Logger.getLogger(ClientUserResource.class.getName());
 
     public static final String[] LICENSES_CRITERIA = new String[]{
             "cz.incad.kramerius.security.impl.criteria.ReadDNNTLabels",
@@ -93,7 +93,7 @@ public class ClientUserResource {
             "cz.incad.kramerius.security.impl.criteria.Licenses",
             "cz.incad.kramerius.security.impl.criteria.LicensesIPFiltered",
             "cz.incad.kramerius.security.impl.criteria.LicensesGEOIPFiltered"
-
+            
     };
 
     @Inject
@@ -120,7 +120,7 @@ public class ClientUserResource {
 
     @Inject
     Provider<HttpServletRequest> provider;
-
+    
     @Inject
     Instances instances;
 
@@ -136,25 +136,26 @@ public class ClientUserResource {
     APICallMonitor apiCallMonitor;
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info(@QueryParam("sessionAttributes") String sessionAttributes) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user", String.format("sessionAttributes=%s", sessionAttributes), "GET");
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user", String.format("sessionAttributes=%s",sessionAttributes), "GET");
         try {
-            Boolean flag = Boolean.valueOf(sessionAttributes);
-            if (flag == null) {
-                flag = false;
-            }
-            User user = this.userProvider.get();
-            LOGGER.fine(String.format("Returning principal %s (%s)", user.getLoginname(), user.getGroups() != null ? Arrays.asList(user.getGroups()).stream().map(Role::getName).collect(Collectors.joining(",")) : ""));
+        	Boolean flag  = Boolean.valueOf(sessionAttributes);
+        	if (flag == null) {
+        		flag = false;
+        	}
+        	User user = this.userProvider.get();
+    		LOGGER.fine(String.format("Returning principal %s (%s)", user.getLoginname(), user.getGroups() != null ? Arrays.asList(user.getGroups()).stream().map(Role::getName).collect(Collectors.joining(",")): ""));
             if (user != null) {
-                if (user.getId() > -1) {
-                    List<String> labels = findLabels(user, event);
-                    return Response.ok().entity(UsersUtils.userToJSON(user, labels, flag).toString())
+            	if (user.getId() > -1) {
+                	List<String> labels = findLabels(user,event);
+                	return Response.ok().entity(UsersUtils.userToJSON(user,labels,flag).toString())
                             .build();
-                } else {
-                    return Response.ok().entity(UsersUtils.userToJSON(user, new ArrayList<>(), flag).toString())
+            	} else {
+                    List<String> labels = findLabels(user,event);
+                	return Response.ok().entity(UsersUtils.userToJSON(user,labels,flag).toString())
                             .build();
-                }
+            	}
             } else {
                 return Response.ok().entity("{}").build();
             }
@@ -168,13 +169,13 @@ public class ClientUserResource {
     }
 
     private List<String> findLabels(User user, ApiCallEvent event) {
-        List<String> licenses = new ArrayList<>();
+    	List<String> licenses = new ArrayList<>();
         boolean detectLabels = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.infer.licenses", true);
         if (detectLabels) {
             CloseableHttpClient closeableHttpClient = this.closeableHttpClientProvider.get();
 
             String remoteAddress = IPAddressUtils.getRemoteAddress(this.provider.get(), KConfiguration.getInstance().getConfiguration());
-
+            
             List<OneInstance> userAggegations = new ArrayList<>();
             List<OneInstance> eInstances = this.instances.enabledInstances();
             eInstances.forEach(eI -> {
@@ -182,11 +183,11 @@ public class ClientUserResource {
                     userAggegations.add(eI);
                 }
             });
-
+            
             for (OneInstance oneInstance : userAggegations) {
                 try {
-                    ProxyUserHandler proxyUserHandler = oneInstance.createProxyUserHandler(user, closeableHttpClient, solrAccess, oneInstance.getName(), remoteAddress);
-                    Pair<User, List<String>> retval = proxyUserHandler.user(event);
+                    ProxyUserHandler proxyUserHandler = oneInstance.createProxyUserHandler(user,  closeableHttpClient, solrAccess, oneInstance.getName(), remoteAddress);
+                    Pair<User,List<String>> retval = proxyUserHandler.user(event);
                     if (retval != null) {
                         licenses.addAll(retval.getValue());
                         /** disabled attributes
@@ -198,20 +199,20 @@ public class ClientUserResource {
                          */
                     }
                 } catch (ProxyHandlerException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage());
+                    LOGGER.log(Level.SEVERE,e.getMessage());
                 }
             }
         }
-
-        return licenses;
+    	
+    	return licenses;
     }
 
     //TODO: Merge with actionsForPids
     @GET
     @Path("actions")
-    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response allowedActions(@QueryParam("pid") String pid) {
-        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user/actions", String.format("pid=%s", pid), "GET");
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user/actions", String.format("pid=%s",pid), "GET");
         User user;
         try {
             user = this.userProvider.get();
@@ -221,15 +222,15 @@ public class ClientUserResource {
 
             ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
             user = this.userProvider.get();
-
+            
             SecuredActions[] values = SecuredActions.values();
             if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
-                values = Arrays.stream(values).filter(it -> {
+                values = Arrays.stream(values).filter(it-> {
                     return !it.isGlobalAction();
                 }).toArray(SecuredActions[]::new);
             }
 
-            values = Arrays.stream(values).filter(it -> {
+            values = Arrays.stream(values).filter(it-> {
                 String formalName = it.getFormalName();
                 return formalName.startsWith("a_");
             }).toArray(SecuredActions[]::new);
@@ -260,21 +261,21 @@ public class ClientUserResource {
         for (SecuredActions sa : values) {
             for (ObjectPidsPath pth : pidPaths) {
                 pth = pth.injectRepository();
-                RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(), pid, null, pth.injectRepository());
+                RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());
                 if (actionAllowed.getState() == EvaluatingResultState.TRUE) {
                     set.add(sa.getFormalName());
                 }
             }
-        }
+        }         
         return set;
     }
 
-
+    
     @POST
     @Path("pids_actions")
-    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response pidsActionsGET(String rawdataSt) {
+    public Response pidsActionsGET(JSONObject rawdata) {
         //@QueryParam("pids") String pids
         User user;
         try {
@@ -287,7 +288,7 @@ public class ClientUserResource {
                     String pid = jsonArray.getString(i);
 
                     SecuredActions[] values = actions(rawdata, pid);
-
+                    
                     ObjectPidsPath[] pidPaths = this.solrAccess.getPidPaths(pid);
                     user = this.userProvider.get();
 
@@ -301,7 +302,7 @@ public class ClientUserResource {
             } else {
                 throw new BadRequestException("expecting 'pids' array");
             }
-
+            
         } catch (UnsupportedEncodingException e) {
             throw new GenericApplicationException(e.getMessage());
         } catch (JSONException e) {
@@ -309,32 +310,30 @@ public class ClientUserResource {
         } catch (IOException e) {
             throw new GenericApplicationException(e.getMessage());
         }
-
+        
     }
 
     private SecuredActions[] actions(JSONObject rawdata, String pid) {
         SecuredActions[] values = SecuredActions.values();
         if (!SpecialObjects.REPOSITORY.getPid().equals(pid)) {
-            values = Arrays.stream(values).filter(it -> {
+            values = Arrays.stream(values).filter(it-> {
                 return !it.isGlobalAction();
             }).toArray(SecuredActions[]::new);
         }
 
-        values = Arrays.stream(values).filter(it -> {
+        values = Arrays.stream(values).filter(it-> {
             String formalName = it.getFormalName();
             return formalName.startsWith("a_");
         }).toArray(SecuredActions[]::new);
 
-
+        
         if (rawdata.has("actions")) {
 
             JSONArray actionsArray = rawdata.getJSONArray("actions");
             List<String> splitted = new ArrayList<>();
-            for (int i = 0; i < actionsArray.length(); i++) {
-                splitted.add(actionsArray.getString(i));
-            }
-
-            values = Arrays.stream(values).filter(it -> {
+            for (int i = 0; i < actionsArray.length(); i++) { splitted.add(actionsArray.getString(i)); }
+            
+            values = Arrays.stream(values).filter(it-> {
                 String formalName = it.getFormalName();
                 return splitted.contains(formalName);
             }).toArray(SecuredActions[]::new);
@@ -344,9 +343,9 @@ public class ClientUserResource {
     }
 
     @POST
-    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response changePassword(String rawdataSt) {
+    public Response changePassword(JSONObject rawdata) {
         User user;
         try {
             JSONObject rawdata = new JSONObject(rawdataSt);
@@ -357,7 +356,7 @@ public class ClientUserResource {
                             .getString("pswd"));
                     this.userManager.saveNewPassword(user.getId(), newPswd);
                     return Response.ok()
-                            .entity(UsersUtils.userToJSON(user, false).toString())
+                            .entity(UsersUtils.userToJSON(user,false).toString())
                             .build();
                 } else {
                     throw new ObjectNotFound("cannot find user " + user.getId());
@@ -376,13 +375,14 @@ public class ClientUserResource {
         }
     }
 
-
+    
+    
     @GET
     @Path("auth/login")
     public Response login(@QueryParam("redirect_uri") String redirectUri, @QueryParam("type") String type) {
         try {
             String path = WORKING_DIR + "/keycloak.json";
-            String str = IOUtils.toString(new FileInputStream(path), "UTF-8");
+            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
             ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
             URI uri = URI.create(cnf.loginKeycloak(redirectUri, type));
             return Response.temporaryRedirect(uri).build();
@@ -390,6 +390,8 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         }
     }
+    
+
 
 
     @GET
@@ -439,7 +441,7 @@ public class ClientUserResource {
     public Response logout(@QueryParam("redirect_uri") String redirectUri) {
         try {
             String path = WORKING_DIR + "/keycloak.json";
-            String str = IOUtils.toString(new FileInputStream(path), "UTF-8");
+            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
             ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
             URI uri = URI.create(cnf.logoutKeycloak(redirectUri));
             return Response.temporaryRedirect(uri).build();
@@ -447,7 +449,7 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         }
     }
-
+    
     // Legacy logout - support for old client. 
     // Will be removed in future
     @GET

@@ -1,0 +1,35 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+}
+
+description = 'CDK reharvest and delete processes'
+
+processPlugin {
+    spiImplementation='cz.incad.kramerius.plugin.CDKReharvestSPI'
+
+    profiles = [
+            [profileId: "cdk-reharvest",
+             description: "CDK reharvest by own_pid_path",
+             jvmArgs: ["-Xms1g","-Xmx32g"]],
+            [profileId: "cdk-delete-library",
+             description: "Remove library from cdk.collection or delete CDK documents",
+             jvmArgs: ["-Xms1g","-Xmx32g"]]
+    ]
+}
+
+dependencies {
+    api "org.ceskaexpedice:process-api:${processapiversion}"
+    api project(':processes:cdk:cdkreharvest')
+    api project(':processes:cdk:cdkprocesses')
+    api project(':processes:solr-migration')
+    api project(':shared:common')
+}
+
+configurations.api {
+    exclude group: 'org.bouncycastle'
+    exclude group: 'com.lowagie'
+    exclude group: 'org.apache.pdfbox'
+    exclude group: 'com.levigo.jbig2'
+    exclude group: 'org.apache.solr:solr-solrj'
+}

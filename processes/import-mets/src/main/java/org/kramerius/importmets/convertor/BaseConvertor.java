@@ -891,7 +891,7 @@ public abstract class BaseConvertor {
         for (Object mg : mods.getModsGroup()) {
             if (mg instanceof IdentifierDefinition) {
                 IdentifierDefinition id = (IdentifierDefinition) mg;
-                if ("uuid".equalsIgnoreCase(id.getType1())) {
+                if ("uuid".equalsIgnoreCase(id.getType())) {
                     String rawUUID = id.getValue();
                     if (rawUUID != null) {
                         uuid = rawUUID.replace("{", "").replace("}", "").toLowerCase();
@@ -902,26 +902,38 @@ public abstract class BaseConvertor {
         return uuid;
     }
 
-    /**
-     * Extract title + subtitle + partnumber as string from mods
-     *
-     * @param mods
-     * @return extracted title or empty string
-     */
     protected String getTitlefromMods(ModsDefinition mods) {
         StringBuilder title = new StringBuilder();
         for (Object mg : mods.getModsGroup()) {
             if (mg instanceof TitleInfoDefinition) {
                 TitleInfoDefinition ti = (TitleInfoDefinition) mg;
-                for (JAXBElement<XsString> el : ti.getTitleOrSubTitleOrPartNumber()) {
-                    XsString val = el.getValue();
-                    if (val != null) {
-                        title.append(" ").append(val.getValue());
+
+                // ti.getTitleOrSubTitleOrPartNumber() vrací List<Object>
+                for (Object item : ti.getTitleOrSubTitleOrPartNumber()) {
+
+                    // 1. Většinou to bude JAXBElement (protože prvky v MODS mají jména jako title, subTitle)
+                    if (item instanceof JAXBElement) {
+                        Object value = ((JAXBElement<?>) item).getValue();
+
+                        if (value instanceof StringPlusLanguage) {
+                            String text = ((StringPlusLanguage) value).getValue();
+                            if (text != null) title.append(" ").append(text);
+                        }
+                        else if (value instanceof String) {
+                            title.append(" ").append(value);
+                        }
+                    }
+                    // 2. Někdy JAXB rozbalí text přímo jako String nebo StringPlusLanguage bez JAXBElementu
+                    else if (item instanceof StringPlusLanguage) {
+                        title.append(" ").append(((StringPlusLanguage) item).getValue());
+                    }
+                    else if (item instanceof String) {
+                        title.append(" ").append(item);
                     }
                 }
             }
         }
-        return title.toString().trim();
+        return title.toString().trim().replace("  ", " ");
     }
 
     protected static enum Genre {NONE, CARTOGRAPHIC, SHEETMUSIC, GRAPHIC}

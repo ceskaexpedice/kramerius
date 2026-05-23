@@ -56,6 +56,7 @@ include 'processes:sdnnt'
 include 'processes:licenses'
 include 'processes:collections-backup'
 include 'processes:cdk:cdkprocesses'
+include 'processes:cdk:cdkreharvest'
 
 include 'installation'
 
@@ -94,6 +95,7 @@ include 'processes:platform:curator:worker'
 
 // CDK platform module
 include 'processes:platform:cdk:cdk-migration-plugin'
+include 'processes:platform:cdk:cdk-reharvest-plugin'
 include 'processes:platform:cdk:worker'
 
 // public pdf main
@@ -101,6 +103,7 @@ include 'processes:platform:cdk:worker'
 include 'processes:platform:public:genpdf'
 include 'processes:platform:public:genebook'
 include 'processes:platform:public:gentext'
+include 'processes:platform:public:cleanup'
 include 'processes:platform:public:worker'
 
 

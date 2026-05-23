@@ -17,6 +17,7 @@ import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.monitoring.ApiCallEvent;
 import jakarta.ws.rs.core.Response;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONObject;
 
 public class V7RedirectHandler extends ProxyItemHandler{
 
@@ -64,6 +65,26 @@ public class V7RedirectHandler extends ProxyItemHandler{
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/image";
         return buildRedirectResponse(url);
+    }
+
+    @Override
+    public Response requests(String reqid, String lang, JSONObject reqDefinition) throws ProxyHandlerException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Response requestsStatus(String processId) throws ProxyHandlerException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Response requestsUserSpace(String token, String docType) throws ProxyHandlerException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException {
+        throw new UnsupportedOperationException();
     }
 
     @Override

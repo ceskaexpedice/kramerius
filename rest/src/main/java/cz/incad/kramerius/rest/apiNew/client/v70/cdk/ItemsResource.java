@@ -4,15 +4,27 @@ import static cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyIt
 import static cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName.head;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 
+import cz.incad.kramerius.processes.client.ErrorCode;
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
+import cz.incad.kramerius.processes.client.ProcessManagerClientException;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
+import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
+import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.limits.LimitConfiguration;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.inovatika.monitoring.ApiCallEvent;
 
@@ -40,6 +52,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONObject;
 
 
 /**
@@ -1642,6 +1655,32 @@ public class ItemsResource extends ClientApiResource {
                 this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
             }
         }
+    }
+
+    @POST
+    @Path("{pid}/requests/{reqid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requests(@PathParam("pid") String pid,
+                             @PathParam("reqid") String reqid,
+                             @QueryParam("lang") String lang,
+                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
+        // TODO Pepo jeste jednu metodu pro zdroj
+        try {
+            checkSupportedObjectPid(pid);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                return redirectHandler.requests(reqid, lang, reqDefinition);
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+
     }
 
 }

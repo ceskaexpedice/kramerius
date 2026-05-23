@@ -19,12 +19,15 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Utility class for disecting <code>providedBy</code> information
  * @author happy
  */
 public class RightRuntimeInformations {
+
+    public static final Logger LOGGER = Logger.getLogger(RightRuntimeInformations.class.getName());
 
     public static final String PROVIDED_BY_LICENSES = "providedByLicenses";
     public static final String ACCESSIBLE_LOCSK = "accessibleLocks";
@@ -46,6 +49,7 @@ public class RightRuntimeInformations {
     
         JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
         if (docs.length() > 0) {
+            LOGGER.fine("-> r docs.length: " + docs.length());
             JSONArray pidPaths = docs.getJSONObject(0).getJSONArray("pid_paths");
             List<ObjectPidsPath> pidsPathList = new ArrayList<>();
             for (int i = 0; i < pidPaths.length(); i++) {
@@ -53,18 +57,21 @@ public class RightRuntimeInformations {
             }
             for (ObjectPidsPath p : pidsPathList) {
                 RightsReturnObject actionAllowed = rightsResolver.isActionAllowed(SecuredActions.A_READ.getFormalName(), pid, ImageStreams.IMG_FULL.getStreamName(), p);
-             
+                LOGGER.fine("-> r actionAllowed: " + actionAllowed.toString());
                 if (actionAllowed.getRight() != null && actionAllowed.getRight().getCriteriumWrapper() != null) {
                     String qName = actionAllowed.getRight().getCriteriumWrapper().getRightCriterium().getQName();
-                    
+                    LOGGER.fine("-> r qName: " + qName);
+
                     if (/*qName.equals(ReadDNNTFlag.class.getName()) ||
                             qName.equals(ReadDNNTFlagIPFiltered.class.getName()) ||*/
                             
                             LicensesCriteria(qName)
                     ) {
                         Map<String, String> evaluateInfoMap = actionAllowed.getEvaluateInfoMap();
+                        LOGGER.fine("-> r evaluateInfoMap: " + evaluateInfoMap);
                         if (evaluateInfoMap.containsKey(Licenses.PROVIDED_BY_LABEL)) {
                             licenseList.add(evaluateInfoMap.get(Licenses.PROVIDED_BY_LABEL));
+                            LOGGER.fine("-> r liscenseList: " + licenseList);
                         }
                         
                         if (evaluateInfoMap.containsKey(ExclusiveLockMap.LOCK_HASH)) {
@@ -78,9 +85,8 @@ public class RightRuntimeInformations {
                 }
             }
         }
-        
+        LOGGER.fine("-> r runtimeInformation: " + new RuntimeInformation(licenseList, locks));
         return new RuntimeInformation(licenseList, locks);
-        
     }
     
     public static boolean LicensesCriteria(String qName) {

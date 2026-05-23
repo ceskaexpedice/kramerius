@@ -8,36 +8,38 @@ import java.util.logging.Level;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.Inject;
-
-import cz.incad.kramerius.cdk.CDKAPIKeySupport;
+import cz.incad.kramerius.pdf.OutOfRangeException;
+import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKIIIFResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKItemResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKUsersResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.CDKZoomifyResource;
-import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.SOLRResource;
-import cz.incad.kramerius.rest.apiNew.client.v70.utils.RightRuntimeInformations;
+import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.*;
+import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
-import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
-import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import jakarta.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import cz.inovatika.dochub.UserContentSpace;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONObject;
 
 /**
  * CDK Forward resource
  * <p>
- *  Provides endpoints for secured channel between source and CDK instance; 
- *  The visibility of endpoints must be enabled and configuration by following <a href="https://github.com/ceskaexpedice/ceska-digitalni-knihovna/wiki/Zabezpe%C4%8Den%C3%A1-komunikace-chr%C3%A1n%C4%9Bn%C3%BD-kan%C3%A1l"> insructions </a>
- *</p>
+ * Provides endpoints for secured channel between source and CDK instance;
+ * The visibility of endpoints must be enabled and configuration by following <a href="https://github.com/ceskaexpedice/ceska-digitalni-knihovna/wiki/Zabezpe%C4%8Den%C3%A1-komunikace-chr%C3%A1n%C4%9Bn%C3%BD-kan%C3%A1l"> insructions </a>
+ * </p>
  */
 @Path("cdk/v7.0/forward")
 public class CDKForwardResource {
 
     public static final String X_API_KEY = "X-API-KEY";
+    private static final Logger LOGGER = Logger.getLogger(CDKForwardResource.class.getName());
 
     @Inject
     CDKAPIKeySupport cdkAPIKeySupport;
@@ -61,13 +63,25 @@ public class CDKForwardResource {
     SOLRResource solrResource;
 
     @Inject
-    AggregatedAccessLogs accessLog;
+    PDFResource pdfResource;
 
+    @Inject
+    ItemsResource itemsResource;
+
+    @Inject
+    UsersRequestsResource usersRequestsResource;
+
+    @Inject
+    @Named("forward-client")
+    private CloseableHttpClient apacheClient;
+
+    @javax.inject.Inject
+    protected Provider<User> userProvider;
 
     // --------- User's endpoint --------------------
     @GET
     @Path("user")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response user() {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.usersResource.user();
@@ -76,7 +90,61 @@ public class CDKForwardResource {
         }
     }
 
-    // PDF - to tu musim dodelat
+    // --------- Public worker requests --------------------
+    @GET
+    @Path("requests/{processId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requests(@PathParam("processId") String processId) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = usersRequestsResource.requests(processId);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    @GET
+    @Path("userspace/{spacetoken}/{docType}")
+    public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = usersRequestsResource.userspace(token, docTypeStr);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    @POST
+    @Path("{pid}/requests/{reqid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requests(@PathParam("pid") String pid,
+                             @PathParam("reqid") String reqid,
+                             @QueryParam("lang") String lang,
+                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    // --------------- pdf ---------------
+    @GET
+    @Path("pdf/selection")
+    @Produces({"application/pdf", "application/json"})
+    public Response selection(@QueryParam("pids") String pidsParam,
+                              @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
+                              @QueryParam("format") String format) throws OutOfRangeException {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            Response response = pdfResource.selection(pidsParam, firstPageType, format);
+            return response;
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
 
     // --------------- Item's endpoint ---------------
     @GET
@@ -104,11 +172,11 @@ public class CDKForwardResource {
     //@Produces("image/jpeg")
     @Path("iiif/{pid}/{region}/{size}/{rotation}/{qf}.{format}")
     public Response tile(@PathParam("pid") String pid,
-                     @PathParam("region") String region,
-                     @PathParam("size") String size,
-                     @PathParam("rotation") String rotation,
-                     @PathParam("qf") String qf,
-                     @PathParam("format") String format) {
+                         @PathParam("region") String region,
+                         @PathParam("size") String size,
+                         @PathParam("rotation") String rotation,
+                         @PathParam("qf") String qf,
+                         @PathParam("format") String format) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             try {
                 return this.iiifResource.iiifTile(pid, region, size, rotation, qf, format);
@@ -120,7 +188,6 @@ public class CDKForwardResource {
         }
     }
 
-    
 
     @GET
     @Path("zoomify/{pid}/ImageProperties.xml")
@@ -137,7 +204,7 @@ public class CDKForwardResource {
     @Path("zoomify/{pid}/TileGroup0/{level}-{x}-{y}.jpg")
     @Produces("image/jpeg")
     public Response zoomifyTile(@PathParam("pid") String pid, @PathParam("level") String level,
-            @PathParam("x") String x, @PathParam("y") String y) {
+                                @PathParam("x") String x, @PathParam("y") String y) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             try {
                 return this.zoomifyResource.renderZoomifyTile(pid, level, x, y, "jpg");
@@ -159,7 +226,6 @@ public class CDKForwardResource {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
-
 
 
     @GET
@@ -203,11 +269,10 @@ public class CDKForwardResource {
     }
 
 
-
     // --------------- CDK Replication endpoint ---------------
     @GET
     @Path("sync/solr/select")
-    @Produces({ MediaType.APPLICATION_XML + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_XML + ";charset=utf-8"})
     public Response selectXML(@Context UriInfo uriInfo) throws IOException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.selectXML(uriInfo);
@@ -218,7 +283,7 @@ public class CDKForwardResource {
 
     @GET
     @Path("sync/solr/select")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
     public Response selectJSON(@Context UriInfo uriInfo) throws IOException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.selectJSON(uriInfo);
@@ -226,24 +291,24 @@ public class CDKForwardResource {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
-    
+
     @GET
     @Path("sync/batch/foxmls")
     @Produces("application/zip")
-    public Response batchedFOXL(@QueryParam("pids") String stringPids, @QueryParam("collection") String collection)  throws ReplicateException, IOException {
+    public Response batchedFOXL(@QueryParam("pids") String stringPids, @QueryParam("collection") String collection) throws ReplicateException, IOException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.batchedFOXL(stringPids, collection);
         } else {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
-    
+
     @GET
     @Path("sync/{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
     public Response getExportedFOXML(@PathParam("pid") String pid,
-        @QueryParam("collection") String collection)
-        throws ReplicateException, UnsupportedEncodingException {
+                                     @QueryParam("collection") String collection)
+            throws ReplicateException, UnsupportedEncodingException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
             return this.solrResource.getExportedFOXML(pid, collection);
         } else {
@@ -255,7 +320,7 @@ public class CDKForwardResource {
     private boolean isAllowedByApiKey() {
         boolean apiKeyAuth = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.apikey", false);
         if (apiKeyAuth) {
-           this.cdkAPIKeySupport.init();
+            this.cdkAPIKeySupport.init();
         }
         HttpServletRequest httpServletRequest = this.requestProvider.get();
         String header = httpServletRequest.getHeader(X_API_KEY);

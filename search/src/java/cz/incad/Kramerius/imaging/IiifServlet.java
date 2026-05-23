@@ -136,7 +136,7 @@ public class IiifServlet extends AbstractImageServlet {
                 if (isInfoRequest) {
                     proxyInfoJson(acronym, iiifUrl.toString(), req, resp);
                 } else {
-                    proxyTile(acronym, iiifUrl.toString(), resp);
+                    proxyTile(acronym, iiifUrl.toString(), req, resp);
                 }
             } else {
                 String requestURL = req.getRequestURL().toString();
@@ -233,6 +233,8 @@ public class IiifServlet extends AbstractImageServlet {
         org.apache.hc.client5.http.classic.methods.HttpGet get = new org.apache.hc.client5.http.classic.methods.HttpGet(url);
 
         CDKIIIFServletUtils.httpRequestAPIKey(source, get);
+        String remoteAddress = IPAddressUtils.getRemoteAddress(req, KConfiguration.getInstance().getConfiguration());
+        CDKIIIFServletUtils.httpRequestCDKPARAMETERS(source, this.userProvider.get(),remoteAddress, get);
 
         try (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse response = (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse) apacheClient.get().execute(get)) {
             int code = response.getCode();
@@ -263,10 +265,13 @@ public class IiifServlet extends AbstractImageServlet {
     }
 
 
-    private void proxyTile(String source, String url, HttpServletResponse resp) throws IOException {
+    private void proxyTile(String source, String url,HttpServletRequest req, HttpServletResponse resp) throws IOException {
         org.apache.hc.client5.http.classic.methods.HttpGet get = new org.apache.hc.client5.http.classic.methods.HttpGet(url);
 
         CDKIIIFServletUtils.httpRequestAPIKey(source, get);
+        String remoteAddress = IPAddressUtils.getRemoteAddress(req, KConfiguration.getInstance().getConfiguration());
+        CDKIIIFServletUtils.httpRequestCDKPARAMETERS(source, this.userProvider.get(),remoteAddress, get);
+
 
         try (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse response = (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse) apacheClient.get().execute(get)) {
             int code = response.getCode();
