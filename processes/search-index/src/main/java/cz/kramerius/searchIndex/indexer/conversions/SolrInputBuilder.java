@@ -468,6 +468,9 @@ public class SolrInputBuilder {
                 solrInput.addField("coords.bbox.corner_sw", String.format(locale, "%.6f,%.6f", bb.s, bb.w));
                 solrInput.addField("coords.bbox.corner_ne", String.format(locale, "%.6f,%.6f", bb.n, bb.e));
                 solrInput.addField("coords.is_point", bb.isPoint() ? "true" : "false");
+
+                solrInput.addField("coords.rpt", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
+
             }
         }
 
