@@ -242,6 +242,10 @@
         <field name="coords.bbox.corner_ne" type="location_rpt" indexed="true" stored="true" multiValued="false"/>
         <!-- if the coordinates represent a single point -->
         <field name="coords.is_point" type="boolean" indexed="true" stored="true"/>
+        <!-- Issue 1245 - vyhledavani v mapach -->
+        <field name="coords.rpt" type="location_rpt" indexed="true" stored="false" multiValued="false"/>
+        <field name="coords.point" type="location" indexed="true" stored="true" docValues="true"/>
+        <copyField source="coords.bbox.center" dest="coords.point"/>
 
 
         <!--languages
