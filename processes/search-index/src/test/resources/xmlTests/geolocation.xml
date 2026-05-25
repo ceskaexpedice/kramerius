@@ -17,6 +17,7 @@
             <field name="coords.bbox.corner_ne">51.050000,19.183333</field>
             <field name="coords.bbox.corner_sw">48.516667,12.033333</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(12.033333,19.183333,51.050000,48.516667)</field>
         </out>
     </test>
 
@@ -37,6 +38,8 @@
             <field name="coords.bbox.corner_ne">51.050000,19.183333</field>
             <field name="coords.bbox.corner_sw">48.516667,12.033333</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(12.033333,19.183333,51.050000,48.516667)</field>
+
         </out>
     </test>
 
@@ -58,6 +61,7 @@
             <field name="coords.bbox.corner_ne">49.226505,16.592991</field>
             <field name="coords.bbox.corner_sw">49.226505,16.592991</field>
             <field name="coords.is_point">true</field>
+            <field name="coords.rpt">ENVELOPE(16.592991,16.592991,49.226505,49.226505)</field>
         </out>
     </test>
 
@@ -78,6 +82,7 @@
             <field name="coords.bbox.corner_ne">63.500000,-34.854200</field>
             <field name="coords.bbox.corner_sw">37.533300,-25.416700</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(-25.416700,-34.854200,63.500000,37.533300)</field>
         </out>
     </test>
 
@@ -98,6 +103,7 @@
             <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
             <field name="coords.bbox.corner_sw">49.171667,16.563056</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(16.563056,16.651944,49.235000,49.171667)</field>
         </out>
     </test>
 
@@ -116,6 +122,7 @@
             <field name="coords.bbox.corner_ne">55.534722,-5.097500</field>
             <field name="coords.bbox.corner_sw">51.151667,-11.227778</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(-11.227778,-5.097500,55.534722,51.151667)</field>
         </out>
     </test>
 
@@ -134,6 +141,7 @@
             <field name="coords.bbox.corner_ne">75.674167,-17.160556</field>
             <field name="coords.bbox.corner_sw">59.623056,-58.683333</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(-58.683333,-17.160556,75.674167,59.623056)</field>
         </out>
     </test>
 
@@ -152,6 +160,7 @@
             <field name="coords.bbox.corner_ne">59.955000,1.911389</field>
             <field name="coords.bbox.corner_sw">50.078056,-10.898333</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(-10.898333,1.911389,59.955000,50.078056)</field>
         </out>
     </test>
 
@@ -170,6 +179,7 @@
             <field name="coords.bbox.corner_ne">-24.000000,126.000000</field>
             <field name="coords.bbox.corner_sw">-36.000000,108.000000</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(108.000000,126.000000,-24.000000,-36.000000)</field>
         </out>
     </test>
 
@@ -188,6 +198,8 @@
             <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
             <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
+
         </out>
     </test>
 
@@ -206,6 +218,7 @@
             <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
             <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
         </out>
     </test>
 
@@ -224,6 +237,7 @@
             <field name="coords.bbox.corner_ne">46.133333,14.146389</field>
             <field name="coords.bbox.corner_sw">45.773056,12.964722</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(12.964722,14.146389,46.133333,45.773056)</field>
         </out>
     </test>
 
@@ -242,6 +256,7 @@
             <field name="coords.bbox.corner_ne">73.970833,59.589722</field>
             <field name="coords.bbox.corner_sw">-55.578333,-62.402222</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(-62.402222,59.589722,73.970833,-55.578333)</field>
         </out>
     </test>
 
@@ -260,6 +275,8 @@
             <field name="coords.bbox.corner_ne">50.254444,14.802500</field>
             <field name="coords.bbox.corner_sw">49.922778,14.035556</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(14.035556,14.802500,50.254444,49.922778)</field>
+
         </out>
     </test>
 
@@ -278,6 +295,8 @@
             <field name="coords.bbox.corner_ne">46.000000,17.000000</field>
             <field name="coords.bbox.corner_sw">44.000000,15.000000</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(15.000000,17.000000,46.000000,44.000000)</field>
+
         </out>
     </test>
 
@@ -296,6 +315,8 @@
             <field name="coords.bbox.corner_ne">51.333333,23.000000</field>
             <field name="coords.bbox.corner_sw">47.333333,11.500000</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(11.500000,23.000000,51.333333,47.333333)</field>
+
         </out>
     </test>
 
@@ -314,6 +335,8 @@
             <field name="coords.bbox.corner_ne">46.000000,17.000000</field>
             <field name="coords.bbox.corner_sw">44.000000,15.000000</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(15.000000,17.000000,46.000000,44.000000)</field>
+
         </out>
     </test>
 
@@ -332,6 +355,7 @@
             <field name="coords.bbox.corner_ne">49.257500,16.707778</field>
             <field name="coords.bbox.corner_sw">49.122778,16.481389</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(16.481389,16.707778,49.257500,49.122778)</field>
         </out>
     </test>
 
@@ -350,6 +374,8 @@
             <field name="coords.bbox.corner_ne">49.235000,16.651944</field>
             <field name="coords.bbox.corner_sw">49.171667,16.563056</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(16.563056,16.651944,49.235000,49.171667)</field>
+
         </out>
     </test>
 
@@ -368,6 +394,8 @@
             <field name="coords.bbox.corner_ne">49.257500,16.707778</field>
             <field name="coords.bbox.corner_sw">49.122778,16.481389</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(16.481389,16.707778,49.257500,49.122778)</field>
+
         </out>
     </test>
 
@@ -386,6 +414,7 @@
             <field name="coords.bbox.corner_ne">2.547778,178.813333</field>
             <field name="coords.bbox.corner_sw">-47.694722,102.656111</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(102.656111,178.813333,2.547778,-47.694722)</field>
         </out>
     </test>
 
@@ -464,6 +493,7 @@
             <field name="coords.bbox.corner_ne">71.000000,-169.000000</field>
             <field name="coords.bbox.corner_sw">61.000000,157.000000</field>
             <field name="coords.is_point">false</field>
+            <field name="coords.rpt">ENVELOPE(157.000000,-169.000000,71.000000,61.000000)</field>
         </out>
     </test>
 
