@@ -1,58 +1,42 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.cdk;
 
-import static cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName.get;
-import static cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName.head;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import cz.incad.kramerius.processes.client.ErrorCode;
-import cz.incad.kramerius.processes.client.ProcessManagerClient;
-import cz.incad.kramerius.processes.client.ProcessManagerClientException;
-import cz.incad.kramerius.processes.client.ProcessManagerMapper;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
-import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.licenses.License;
-import cz.incad.kramerius.security.licenses.limits.LimitConfiguration;
-import cz.inovatika.monitoring.APICallMonitor;
-import cz.inovatika.monitoring.ApiCallEvent;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.sun.jersey.api.client.Client;
-
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
-import cz.incad.kramerius.cdk.CDKUtils;
+import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName;
+import cz.incad.kramerius.rest.apiNew.client.v70.redirection.source.CDKDocumentSourceProvider;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
-import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
-import org.ceskaexpedice.akubra.KnownDatastreams;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.json.JSONObject;
+
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName.get;
+import static cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler.RequestMethodName.head;
 
 
 /**
@@ -1681,6 +1665,59 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
 
+    }
+
+    // =========== Collection specific endpoints
+
+    @GET
+    @Path("{pid}/collection/cuttings")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getCollectionClips(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/collection/cuttings", pid), "", "GET", pid);
+        try {
+            LOGGER.info(String.format("Rendering  collection cuttings (%s)", pid));
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
+                return redirectHandler.collectionClips(event);
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
+        }
+    }
+
+    @GET
+    @Path("{pid}/collection/cuttings/image/{thumb_id}")
+    public Response getCollectionThumb(@PathParam("pid") String pid, @PathParam("thumb_id") String thumbId) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/collection/cuttings/image/%s", pid, thumbId), "", "GET", pid);
+        try {
+            LOGGER.info(String.format("Rendering  collection cuttings image(%s, %s)", pid, thumbId));
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
+                return redirectHandler.collectionThumb(event, thumbId);
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
+        }
     }
 
 }
