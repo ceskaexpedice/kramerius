@@ -131,6 +131,29 @@ public class CDKForwardResource {
         }
     }
 
+    // =========== Collection specific endpoints
+
+    @GET
+    @Path("{pid}/collection/cuttings")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getCollectionClips(@PathParam("pid") String pid) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemsResource.getCollectionClips(pid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    @GET
+    @Path("{pid}/collection/cuttings/image/{thumb_id}")
+    public Response getCollectionThumb(@PathParam("pid") String pid, @PathParam("thumb_id") String thumbId) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemsResource.getCollectionThumb(pid, thumbId);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
     // --------------- pdf ---------------
     @GET
     @Path("pdf/selection")

@@ -1683,4 +1683,57 @@ public class ItemsResource extends ClientApiResource {
 
     }
 
+    // =========== Collection specific endpoints
+
+    @GET
+    @Path("{pid}/collection/cuttings")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getCollectionClips(@PathParam("pid") String pid) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/collection/cuttings", pid), "", "GET", pid);
+        try {
+            LOGGER.info(String.format("Rendering  collection cuttings (%s)", pid));
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
+            if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
+                return redirectHandler.collectionClips(event);
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
+        }
+    }
+
+    @GET
+    @Path("{pid}/collection/cuttings/image/{thumb_id}")
+    public Response getCollectionThumb(@PathParam("pid") String pid, @PathParam("thumb_id") String thumbId) {
+        ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/collection/cuttings/image/%s", pid, thumbId), "", "GET", pid);
+        try {
+            LOGGER.info(String.format("Rendering  collection cuttings image(%s, %s)", pid, thumbId));
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
+            if (redirectHandler != null) {
+                event.addLabel(redirectHandler.getSource());
+                return redirectHandler.collectionThumb(event, thumbId);
+            } else {
+                return Response.ok().build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        } finally {
+            if (event != null) {
+                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+            }
+        }
+    }
+
 }
