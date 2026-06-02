@@ -1665,7 +1665,6 @@ public class ItemsResource extends ClientApiResource {
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
                              @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
-        // TODO Pepo jeste jednu metodu pro zdroj
         try {
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
@@ -1680,7 +1679,8 @@ public class ItemsResource extends ClientApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
-
     }
+
+
 
 }

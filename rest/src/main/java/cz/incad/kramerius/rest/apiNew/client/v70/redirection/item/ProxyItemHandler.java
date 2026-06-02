@@ -112,7 +112,8 @@
 
      public abstract Response requestsUserSpace(String token, String docType) throws ProxyHandlerException;
 
-     public abstract Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException;
+     public abstract Response pdfSelection(String pidsParam, String firstPageType, String format, String language) throws ProxyHandlerException;
+     //public abstract Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException;
 
      /**
       * Returns the preview image stream.

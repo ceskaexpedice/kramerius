@@ -343,9 +343,9 @@ public abstract class ProxyHandlerSupport {
             String header = prepareHeader(headers);
             get.setHeader("CDK-TOKEN-PARAMETERS", header);
             get.setHeader("CDK_TOKEN_PARAMETERS", header); // deprecated
-            if (apiKey != null && !apiKey.isEmpty()) {
-                get.addHeader("X-API-KEY", apiKey);
-            }
+        }
+        if (apiKey != null && !apiKey.isEmpty()) {
+            get.addHeader("X-API-KEY", apiKey);
         }
         return get;
     }

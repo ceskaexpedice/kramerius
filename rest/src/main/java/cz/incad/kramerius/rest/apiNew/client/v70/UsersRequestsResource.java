@@ -4,9 +4,11 @@ import com.google.inject.Inject;
 import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.security.User;
 import cz.inovatika.dochub.DocumentType;
+import cz.inovatika.dochub.UserContentBundle;
 import cz.inovatika.dochub.UserContentSpace;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.inject.Provider;
@@ -17,6 +19,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -61,6 +64,30 @@ public class UsersRequestsResource extends ClientApiResource {
                 }
             }
         };
+    }
+
+    @GET
+    @Path("userspace")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response userspace() {
+        User user = this.userProvider.get();
+        try {
+            List<UserContentBundle> bundles = this.userContentSpace.listBundles(user.getLoginname());
+            JSONArray jsonArray = new JSONArray();
+            for (UserContentBundle bundle : bundles) {
+                JSONObject item = new JSONObject();
+                item.put("token", bundle.getToken());
+                item.put("pid", bundle.getPid());
+                item.put("type", bundle.getType().name().toLowerCase());
+                item.put("created", bundle.getCreated().toString());
+                item.put("size", bundle.getSize());
+                item.put("available", bundle.isAvailable());
+                jsonArray.put(item);
+            }
+            return Response.ok(jsonArray.toString()).type(MediaType.APPLICATION_JSON).build();
+        } catch (Exception e) {
+            throw new WebApplicationException(e);
+        }
     }
 
     @GET

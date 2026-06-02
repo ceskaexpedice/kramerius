@@ -1678,6 +1678,60 @@ paths:
         '404':
           description: Neexistujici požadavek
 
+  /userrequests/userspace:
+    get:
+      tags:
+        - Uživatelské požadavky
+      summary: Ziskani seznamu uzivatelskych dat
+      description: Vraci seznam bundlu ulozenych v uzivatelskem prostoru prihlaseneho uzivatele.
+      operationId: listUserFiles
+      responses:
+        '200':
+          description: Seznam souboru v uzivatelskem prostoru
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Token pro stazeni ulozeneho bundlu
+                      example: "b5d56622"
+                    pid:
+                      type: string
+                      description: PID objektu
+                      example: "uuid:9cd57b03-0797-4e8f-90cb-6987dd633034"
+                    type:
+                      type: string
+                      description: Typ dokumentu
+                      enum: ["pdf", "epub", "text"]
+                      example: "pdf"
+                    created:
+                      type: string
+                      format: date-time
+                      description: Cas vytvoreni bundlu
+                      example: "2026-05-26T07:30:00Z"
+                    size:
+                      type: integer
+                      format: int64
+                      description: Velikost souboru v bajtech
+                      example: 1048576
+                    available:
+                      type: boolean
+                      description: Priznak, zda fyzicky soubor existuje na disku
+                      example: true
+              example:
+                - token: "b5d56622"
+                  pid: "uuid:9cd57b03-0797-4e8f-90cb-6987dd633034"
+                  type: "pdf"
+                  created: "2026-05-26T07:30:00Z"
+                  size: 1048576
+                  available: true
+        '403':
+          description: Uzivatel nema opravneni k pozadovane akci
+
   /userrequests/userspace/{token}:
     get:
       tags:

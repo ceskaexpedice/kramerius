@@ -26,11 +26,13 @@ public class CDKDeleteLibrary {
 
     private static final Logger LOGGER = Logger.getLogger(CDKDeleteLibrary.class.getName());
     private static final int UPDATE_BATCH_SIZE = 1000;
+    private static final String DEFAULT_ID_FIELD = "compositeId";
 
     private CDKDeleteLibrary() {
     }
 
-    public static void deleteLibrary(String destinationUrl, String library, String filterQuery, int rows, boolean onlyShowConfiguration) throws Exception {
+    public static void deleteLibrary(String destinationUrl, String library, String filterQuery, int rows, String idField, boolean onlyShowConfiguration) throws Exception {
+        String effectiveIdField = effectiveIdField(idField);
         String libraryFilter = String.format("cdk.collection:\"%s\"", escapeQueryValue(library));
         String finalFilter = StringUtils.isBlank(filterQuery) ? libraryFilter : String.format("(%s) AND (%s)", libraryFilter, filterQuery);
 
@@ -40,44 +42,44 @@ public class CDKDeleteLibrary {
                     "*:*",
                     finalFilter,
                     "select",
-                    "compositeId",
-                    "compositeId asc",
+                    effectiveIdField,
+                    effectiveIdField + " asc",
                     rows,
-                    new String[]{"pid", "cdk.collection"},
+                    new String[]{"pid", "compositeId", "cdk.collection", "cdk.leader"},
                     null,
                     null);
 
             List<String> deleteIds = new ArrayList<>();
-            List<String> updateIds = new ArrayList<>();
+            List<UpdateItem> updateItems = new ArrayList<>();
 
             iterator.iterate(client, items -> {
                 for (IterationItem item : items) {
                     List<String> collections = values(item.getDoc().get("cdk.collection"));
                     if (collections.size() > 1) {
-                        updateIds.add(item.getId());
+                        updateItems.add(new UpdateItem(item.getId(), nextLeader(library, collections, firstValue(item.getDoc().get("cdk.leader")))));
                     } else {
                         deleteIds.add(item.getId());
                     }
 
-                    if (deleteIds.size() + updateIds.size() >= UPDATE_BATCH_SIZE) {
-                        flush(client, destinationUrl, library, deleteIds, updateIds, onlyShowConfiguration);
+                    if (deleteIds.size() + updateItems.size() >= UPDATE_BATCH_SIZE) {
+                        flush(client, destinationUrl, library, effectiveIdField, deleteIds, updateItems, onlyShowConfiguration);
                     }
                 }
-            }, () -> flush(client, destinationUrl, library, deleteIds, updateIds, onlyShowConfiguration));
+            }, () -> flush(client, destinationUrl, library, effectiveIdField, deleteIds, updateItems, onlyShowConfiguration));
         }
     }
 
-    private static void flush(CloseableHttpClient client, String destinationUrl, String library, List<String> deleteIds, List<String> updateIds, boolean onlyShowConfiguration) {
-        if (deleteIds.isEmpty() && updateIds.isEmpty()) {
+    private static void flush(CloseableHttpClient client, String destinationUrl, String library, String idField, List<String> deleteIds, List<UpdateItem> updateItems, boolean onlyShowConfiguration) {
+        if (deleteIds.isEmpty() && updateItems.isEmpty()) {
             return;
         }
 
         try {
-            if (!updateIds.isEmpty()) {
-                Document update = updateBatch(library, updateIds);
+            if (!updateItems.isEmpty()) {
+                Document update = updateBatch(library, idField, updateItems);
                 sendOrLog(client, destinationUrl + "/update?commit=true", update, onlyShowConfiguration);
-                LOGGER.info(String.format("Updated %d documents; removed cdk.collection=%s", updateIds.size(), library));
-                updateIds.clear();
+                LOGGER.info(String.format("Updated %d documents; removed cdk.collection=%s", updateItems.size(), library));
+                updateItems.clear();
             }
 
             if (!deleteIds.isEmpty()) {
@@ -91,15 +93,15 @@ public class CDKDeleteLibrary {
         }
     }
 
-    private static Document updateBatch(String library, List<String> ids) throws ParserConfigurationException {
+    private static Document updateBatch(String library, String idFieldName, List<UpdateItem> items) throws ParserConfigurationException {
         Document update = XMLUtils.crateDocument("add");
-        for (String id : ids) {
+        for (UpdateItem item : items) {
             Element doc = update.createElement("doc");
             update.getDocumentElement().appendChild(doc);
 
             Element idField = update.createElement("field");
-            idField.setAttribute("name", "compositeId");
-            idField.setTextContent(id);
+            idField.setAttribute("name", idFieldName);
+            idField.setTextContent(item.id);
             doc.appendChild(idField);
 
             Element collection = update.createElement("field");
@@ -107,6 +109,14 @@ public class CDKDeleteLibrary {
             collection.setAttribute("update", "remove");
             collection.setTextContent(library);
             doc.appendChild(collection);
+
+            if (StringUtils.isNotBlank(item.nextLeader)) {
+                Element leader = update.createElement("field");
+                leader.setAttribute("name", "cdk.leader");
+                leader.setAttribute("update", "set");
+                leader.setTextContent(item.nextLeader);
+                doc.appendChild(leader);
+            }
         }
         return update;
     }
@@ -145,6 +155,34 @@ public class CDKDeleteLibrary {
         return new ArrayList<>(values);
     }
 
+    private static String firstValue(Object value) {
+        List<String> values = values(value);
+        return values.isEmpty() ? null : values.get(0);
+    }
+
+    private static String nextLeader(String library, List<String> collections, String currentLeader) {
+        if (!library.equals(currentLeader)) {
+            return null;
+        }
+        for (String collection : collections) {
+            if (!library.equals(collection)) {
+                return collection;
+            }
+        }
+        return null;
+    }
+
+    private static String effectiveIdField(String idField) {
+        if (StringUtils.isBlank(idField)) {
+            return DEFAULT_ID_FIELD;
+        }
+        String trimmed = idField.trim();
+        if ("pid".equals(trimmed) || DEFAULT_ID_FIELD.equals(trimmed)) {
+            return trimmed;
+        }
+        throw new IllegalArgumentException("idField must be 'pid' or 'compositeId'");
+    }
+
     private static void addValue(Set<String> values, Object value) {
         if (value != null && StringUtils.isNotBlank(value.toString())) {
             values.add(value.toString());
@@ -153,5 +191,15 @@ public class CDKDeleteLibrary {
 
     private static String escapeQueryValue(String value) {
         return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    private static class UpdateItem {
+        private final String id;
+        private final String nextLeader;
+
+        private UpdateItem(String id, String nextLeader) {
+            this.id = id;
+            this.nextLeader = nextLeader;
+        }
     }
 }

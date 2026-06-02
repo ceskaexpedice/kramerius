@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
@@ -92,7 +94,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
 
         CDKRequestItem cdkRequestItem = cacheItemHit_PID_USER(url, pid, false, "thumb", event);
         if (cdkRequestItem != null) {
-            ByteBuffer buffer = (ByteBuffer) cdkRequestItem.getData();
+            final ByteBuffer buffer = ((ByteBuffer) cdkRequestItem.getData()).duplicate();
             final int contentLength = buffer.remaining();
             StreamingOutput stream = output -> {
                 if (buffer.hasArray()) {
@@ -116,7 +118,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 CompletableFuture.runAsync(() -> {
                     try {
                         CDKRequestItem<ByteBuffer> cacheItem = (CDKRequestItem<ByteBuffer>) CDKRequestItemFactory.createCacheItem(
-                                ByteBuffer.wrap(data),
+                                ByteBuffer.wrap(Arrays.copyOf(data, data.length)),
                                 mimetype,
                                 url,
                                 this.pid,
@@ -229,7 +231,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
     @Override
-    public Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException {
+    public Response pdfSelection(String pidsParam, String firstPageType, String format, String language) throws ProxyHandlerException {
         try {
             String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/pdf/selection";
@@ -237,6 +239,10 @@ public class V7ForwardHandler extends V7RedirectHandler {
             builder.setParameter("pidsParam", pidsParam);
             builder.setParameter("firstPageType", firstPageType);
             builder.setParameter("format", format);
+            if (StringUtils.isAnyString(language)) {
+                builder.setParameter("language", language);
+
+            }
             return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
         } catch (URISyntaxException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
