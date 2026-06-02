@@ -245,6 +245,20 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
     @Override
+    public Response  collectionClips(ApiCallEvent event) {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + pid + "collection/cuttings";
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
+    }
+
+    @Override
+    public Response  collectionThumb(ApiCallEvent event, String thumbId) {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + pid + "collection/cuttings/image/" + thumbId;
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
+    }
+
+    @Override
     public Response requests(String reqType, String lang, JSONObject reqDefinition) throws ProxyHandlerException {
         try {
             String baseurl = this.forwardUrl();

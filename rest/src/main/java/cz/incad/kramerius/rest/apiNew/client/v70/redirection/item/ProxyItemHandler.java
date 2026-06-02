@@ -114,6 +114,10 @@
 
      public abstract Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException;
 
+     public abstract Response collectionClips(ApiCallEvent event) throws ProxyHandlerException;
+
+     public abstract Response collectionThumb(ApiCallEvent event, String thumbId) throws ProxyHandlerException;
+
      /**
       * Returns the preview image stream.
       *

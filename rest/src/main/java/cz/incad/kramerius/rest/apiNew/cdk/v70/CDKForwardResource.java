@@ -11,9 +11,7 @@ import cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
-
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.dochub.UserContentSpace;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONObject;
 
@@ -96,15 +94,21 @@ public class CDKForwardResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requests(@PathParam("processId") String processId) {
-        Response response = usersRequestsResource.requests(processId);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return usersRequestsResource.requests(processId);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @GET
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
-        Response response = usersRequestsResource.userspace(token, docTypeStr);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return usersRequestsResource.userspace(token, docTypeStr);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     @POST
@@ -115,8 +119,34 @@ public class CDKForwardResource {
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
                              @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
-        Response response = itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    // =========== Collection specific endpoints
+
+    @GET
+    @Path("{pid}/collection/cuttings")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getCollectionClips(@PathParam("pid") String pid) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemsResource.getCollectionClips(pid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    @GET
+    @Path("{pid}/collection/cuttings/image/{thumb_id}")
+    public Response getCollectionThumb(@PathParam("pid") String pid, @PathParam("thumb_id") String thumbId) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemsResource.getCollectionThumb(pid, thumbId);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     // --------------- pdf ---------------
@@ -126,8 +156,11 @@ public class CDKForwardResource {
     public Response selection(@QueryParam("pids") String pidsParam,
                               @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
                               @QueryParam("format") String format) throws OutOfRangeException {
-        Response response = pdfResource.selection(pidsParam, firstPageType, format);
-        return response;
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return pdfResource.selection(pidsParam, firstPageType, format);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
     }
 
     // --------------- Item's endpoint ---------------

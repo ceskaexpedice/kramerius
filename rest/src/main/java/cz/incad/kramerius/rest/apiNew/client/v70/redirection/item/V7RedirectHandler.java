@@ -90,6 +90,16 @@ public class V7RedirectHandler extends ProxyItemHandler{
     }
 
     @Override
+    public Response  collectionClips(ApiCallEvent event) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Response  collectionThumb(ApiCallEvent event, String thumbId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Response zoomifyImageProperties(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {
         String baseurl = baseUrl();
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/image/zoomify/ImageProperties.xml";
