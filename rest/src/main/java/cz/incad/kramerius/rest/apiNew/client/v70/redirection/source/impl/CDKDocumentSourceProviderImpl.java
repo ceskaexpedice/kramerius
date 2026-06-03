@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 public class CDKDocumentSourceProviderImpl implements CDKDocumentSourceProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CDKDocumentSourceProviderImpl.class.getName());
-    private static final int MAX_CACHE_SIZE = 2000;
+    private static final int MAX_CACHE_SIZE = 2000000;
 
     private final SolrAccess solrAccess;
     
