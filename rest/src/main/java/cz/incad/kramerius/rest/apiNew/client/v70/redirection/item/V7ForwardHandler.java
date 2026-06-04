@@ -231,6 +231,13 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
     @Override
+    public Response requestsUserSpace() throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/userspace";
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+    }
+
+    @Override
     public Response pdfSelection(String pidsParam, String firstPageType, String format, String language) throws ProxyHandlerException {
         try {
             String baseurl = this.forwardUrl();

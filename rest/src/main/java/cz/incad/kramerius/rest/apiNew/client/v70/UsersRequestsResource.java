@@ -91,6 +91,13 @@ public class UsersRequestsResource extends ClientApiResource {
     }
 
     @GET
+    @Path("{source}/userspace")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response userspace(@PathParam("source") String source) {
+        throw new UnsupportedOperationException("Supported for CDK only");
+    }
+
+    @GET
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
         LOGGER.fine("Requesting user space with token: " + token + " and docType: " + docTypeStr);
