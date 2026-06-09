@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -104,35 +105,35 @@ public class UsersRequestsResource extends ClientApiResource {
         }
     }
 
-    @GET
-    @Path("userspace}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response userspace() {
-        try {
-            List<OneInstance> oneInstances = instances.allInstances();
-            JSONArray aggregated = new JSONArray();
-            for (OneInstance instance : oneInstances) {
-                ProxyItemHandler redirectHandler = findRedirectHandler(instance);
-                if (redirectHandler == null) {
-                    continue;
-                }
-                Response response = redirectHandler.requestsUserSpace();
-                String json = (String) response.getEntity();
-                JSONArray responseArray = new JSONArray(json);
-                for (int i = 0; i < responseArray.length(); i++) {
-                    JSONObject item = responseArray.getJSONObject(i);
-                    item.put("source", instance.getName());
-                    aggregated.put(item);
-                }
-            }
-            return Response.ok(aggregated.toString()).type(MediaType.APPLICATION_JSON).build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
+//    @GET
+//    @Path("userspace}")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response userspace() {
+//        try {
+//            List<OneInstance> oneInstances = instances.allInstances();
+//            JSONArray aggregated = new JSONArray();
+//            for (OneInstance instance : oneInstances) {
+//                ProxyItemHandler redirectHandler = findRedirectHandler(instance);
+//                if (redirectHandler == null) {
+//                    continue;
+//                }
+//                Response response = redirectHandler.requestsUserSpace();
+//                String json = (String) response.getEntity();
+//                JSONArray responseArray = new JSONArray(json);
+//                for (int i = 0; i < responseArray.length(); i++) {
+//                    JSONObject item = responseArray.getJSONObject(i);
+//                    item.put("source", instance.getName());
+//                    aggregated.put(item);
+//                }
+//            }
+//            return Response.ok(aggregated.toString()).type(MediaType.APPLICATION_JSON).build();
+//        } catch (WebApplicationException e) {
+//            throw e;
+//        } catch (Throwable e) {
+//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+//            throw new InternalErrorException(e.getMessage());
+//        }
+//    }
 
     @GET
     @Path("userspace")

@@ -125,16 +125,6 @@ public class CDKForwardResource {
         }
     }
 
-    @GET
-    @Path("userspace}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response userspace() {
-        if (isAllowedByApiKey() || isAllowedByChannel()) {
-            return usersRequestsResource.userspace();
-        } else {
-            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
-        }
-    }
 
     @POST
     @Path("{pid}/requests/{reqid}")
