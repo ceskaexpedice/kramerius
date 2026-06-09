@@ -58,7 +58,7 @@ public class SpecialNeedsEBookProcess {
     public static void run(
             @ParameterName("pid") @IsRequired String pid,
             @ParameterName("user") String user,
-            @ParameterName("email") @IsRequired String email
+            @ParameterName("email")  String email
     ) {
         LOGGER.info("Generating EPUB for special needs");
         LOGGER.info("pid: " + pid);
@@ -139,7 +139,9 @@ public class SpecialNeedsEBookProcess {
         LOGGER.info("Saved into tmp file: " + tmpFile.getAbsolutePath());
         String downloadToken = serv.saveFileToUserContentSpace(tmpFile, DocumentType.EPUB, user, pid);
         LOGGER.info("Download token: " + downloadToken);
-        notifyUsersWithEmail(pid, tmpFile.getName(), email, serv, downloadToken);
+        if (StringUtils.isAnyString(email)) {
+            notifyUsersWithEmail(pid, tmpFile.getName(), email, serv, downloadToken);
+        }
     }
 
     private static void logProgress(JSONObject progress) {

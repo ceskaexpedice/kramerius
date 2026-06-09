@@ -1732,7 +1732,8 @@ paths:
         '403':
           description: Uzivatel nema opravneni k pozadovane akci
 
-  /userrequests/userspace/{token}:
+
+  /userrequests/userspace/{token}/{docType}:
     get:
       tags:
         - Uživatelské požadavky
@@ -1747,6 +1748,16 @@ paths:
           schema:
             type: string
             example: "b5d56622"
+        - name: docType
+          in: path
+          required: true
+          description: Typ souboru pro stažení
+          schema:
+            type: string
+            enum: [ "pdf","epub","text" ]
+            example: "pdf"
+
+
       responses:
         '200':
           description: Ziska soubor
@@ -1755,6 +1766,15 @@ paths:
               schema:
                 type: string
                 format: binary
+            application/epub+zip:
+              schema:
+                type: string
+                format: binary
+            text/plain:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Neplatny typ souboru
         '404':
           description: Neexistujici soubor
-

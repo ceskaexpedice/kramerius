@@ -59,7 +59,7 @@ public class SpecialNeedsTextProcess {
     public static void run(
             @ParameterName("pid") @IsRequired String pid,
             @ParameterName("user") String user,
-            @ParameterName("email") @IsRequired String email
+            @ParameterName("email")  String email
     ) {
         LOGGER.info("Generating TEXT for special needs");
         LOGGER.info("pid: " + pid);
@@ -140,7 +140,9 @@ public class SpecialNeedsTextProcess {
         LOGGER.info("Saved into tmp file: " + tmpFile.getAbsolutePath());
         String downloadToken = serv.saveFileToUserContentSpace(tmpFile, DocumentType.TEXT, user, pid);
         LOGGER.info("Download token: " + downloadToken);
-        notifyUsersWithEmail(pid, tmpFile.getName(), email, serv, downloadToken);
+        if (StringUtils.isAnyString(email)) {
+            notifyUsersWithEmail(pid, tmpFile.getName(), email, serv, downloadToken);
+        }
     }
 
     private static void logProgress(JSONObject progress) {

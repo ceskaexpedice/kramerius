@@ -66,11 +66,10 @@ public class CDKDocumentSourceProviderImpl implements CDKDocumentSourceProvider 
 
     /**
      * Queries Solr to determine the source library for the given PID.
-     * Prefers 'cdk.leader' if present, otherwise returns the first entry from 'sources'.
+     * Returns the first source from 'cdk.collection'.
      */
     private String fetchFromSolr(String pid) throws IOException {
         try {
-            // Retrieve only the 'cdk.collection' field to minimize payload
             Document solrDataByPid = solrAccess.getSolrDataByPid(pid, "cdk.collection");
             if (solrDataByPid == null || solrDataByPid.getDocumentElement() == null) {
                 return null;
@@ -78,7 +77,7 @@ public class CDKDocumentSourceProviderImpl implements CDKDocumentSourceProvider 
 
             List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
             if (sources != null && !sources.isEmpty()) {
-                return sources.get(0);
+                return normalizeSource(sources.get(0));
             }
 
             return null;
@@ -86,5 +85,24 @@ public class CDKDocumentSourceProviderImpl implements CDKDocumentSourceProvider 
             LOGGER.log(Level.SEVERE, "Error fetching document source from Solr for PID: " + pid, e);
             return null;
         }
+    }
+
+    @Override
+    public List<String> getDocumentSources(String pid) throws IOException {
+        Document solrDataByPid = solrAccess.getSolrDataByPid(pid, "cdk.collection");
+        if (solrDataByPid == null || solrDataByPid.getDocumentElement() == null) {
+            return null;
+        }
+
+        List<String> sources = CDKUtils.findSources(solrDataByPid.getDocumentElement());
+        return sources;
+    }
+
+    private String normalizeSource(String source) {
+        if (source == null) {
+            return null;
+        }
+        String normalized = source.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 }

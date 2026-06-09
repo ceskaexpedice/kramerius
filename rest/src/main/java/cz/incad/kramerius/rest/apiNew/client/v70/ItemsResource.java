@@ -738,8 +738,13 @@ public class ItemsResource extends ClientApiResource {
     public Response requests(@PathParam("pid") String pid,
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
-                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
+                             @HeaderParam("Accept-Language") Locale locale, String reqDefinition) {
+        return requests(pid, reqid, lang, locale, parseRequestDefinition(pid, reqid, reqDefinition));
+    }
 
+    public Response requests(String pid, String reqid, String lang, Locale locale, JSONObject reqDefinition) {
+
+        final JSONObject safeReqDefinition = reqDefinition != null ? reqDefinition : new JSONObject();
 
         User user = this.userProvider.get();
         String username = user.getLoginname();
@@ -759,6 +764,10 @@ public class ItemsResource extends ClientApiResource {
                         if (limitConf != null) {
                             boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
                             if (!allowGenerate) {
+                                LOGGER.log(Level.WARNING, String.format(
+                                        "PDF generation denied by usage limit: pid=%s, user=%s, license=%s",
+                                        pid, user.getLoginname(), lic.getName()
+                                ));
                                 throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
                             }
                         }
@@ -769,8 +778,8 @@ public class ItemsResource extends ClientApiResource {
 
                         JSONObject payload = new JSONObject();
                         payload.put("pid", pid);
-                        if (reqDefinition.has("email")) {
-                            payload.put("email", reqDefinition.getString("email"));
+                        if (safeReqDefinition.has("email")) {
+                            payload.put("email", safeReqDefinition.getString("email"));
                         }
                         payload.put("user", user.getLoginname());
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
@@ -800,6 +809,10 @@ public class ItemsResource extends ClientApiResource {
 
                         return Response.ok().entity(result.toString()).build();
                     } else {
+                        LOGGER.log(Level.WARNING, String.format(
+                                "PDF generation denied by license: pid=%s, user=%s, licenseFound=%s",
+                                pid, user.getLoginname(), lic != null
+                        ));
                         return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "PDF generation not allowed by license").toString()).build();
                     }
                 }
@@ -832,8 +845,8 @@ public class ItemsResource extends ClientApiResource {
                         JSONObject payload = new JSONObject();
                         payload.put("pid", pid);
 
-                        reqDefinition.keySet().forEach(k -> {
-                            payload.put(k.toString(), reqDefinition.get(k.toString()));
+                        safeReqDefinition.keySet().forEach(k -> {
+                            payload.put(k.toString(), safeReqDefinition.get(k.toString()));
                         });
 
                         payload.put("user", user.getLoginname());
@@ -849,6 +862,10 @@ public class ItemsResource extends ClientApiResource {
 
                         JSONObject profile = processManagerClient.getProfile(reqid);
                         if (profile == null) {
+                            LOGGER.log(Level.WARNING, String.format(
+                                    "Process profile not found: pid=%s, reqid=%s, user=%s",
+                                    pid, reqid, user.getLoginname()
+                            ));
                             return Response.status(Response.Status.BAD_REQUEST).entity(new JSONObject().put("error", "Process profile not found").toString()).build();
                         }
                         JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
@@ -867,17 +884,29 @@ public class ItemsResource extends ClientApiResource {
 
                         return Response.ok().entity(result.toString()).build();
                     } else {
+                        LOGGER.log(Level.WARNING, String.format(
+                                "Process scheduling denied by license: pid=%s, reqid=%s, user=%s, licenseFound=%s",
+                                pid, reqid, user.getLoginname(), lic != null
+                        ));
                         return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "Process scheduling not allowed by license").toString()).build();
                     }
                 }
             }
         } catch (ProcessManagerClientException e) {
             if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
+                LOGGER.log(Level.WARNING, String.format(
+                        "Process manager returned NOT_FOUND: pid=%s, reqid=%s, user=%s, message=%s",
+                        pid, reqid, username, e.getMessage()
+                ), e);
                 throw new NotFoundException(e.getMessage());
             } else if (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
                 LOGGER.log(Level.SEVERE, "Error message from processManagerClient", e);
                 throw new BadRequestException(e.getMessage());
             } else {
+                LOGGER.log(Level.SEVERE, String.format(
+                        "Process manager error: pid=%s, reqid=%s, user=%s, message=%s",
+                        pid, reqid, username, e.getMessage()
+                ), e);
                 throw e;
             }
         } catch (WebApplicationException e) {
@@ -887,6 +916,21 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
 
+    }
+
+    private JSONObject parseRequestDefinition(String pid, String reqid, String reqDefinition) {
+        if (reqDefinition == null || reqDefinition.trim().isEmpty()) {
+            return new JSONObject();
+        }
+        try {
+            return new JSONObject(reqDefinition);
+        } catch (JSONException e) {
+            LOGGER.log(Level.WARNING, String.format(
+                    "Invalid item request JSON: pid=%s, reqid=%s, body=%s",
+                    pid, reqid, reqDefinition
+            ), e);
+            throw new BadRequestException("Invalid JSON request definition");
+        }
     }
 
     private static Locale detectFinalLocale(String lang, Locale locale) {
