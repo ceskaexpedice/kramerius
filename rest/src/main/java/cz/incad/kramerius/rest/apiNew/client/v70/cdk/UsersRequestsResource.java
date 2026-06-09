@@ -1,6 +1,7 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.cdk;
 
 import com.google.inject.Inject;
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
@@ -46,9 +47,6 @@ public class UsersRequestsResource extends ClientApiResource {
     @Inject
     Instances instances;
 
-//    @Inject
-//    UserContentSpace userContentSpace;
-
     @Inject
     com.google.inject.Provider<HttpServletRequest> requestProvider;
 
@@ -67,6 +65,67 @@ public class UsersRequestsResource extends ClientApiResource {
             } else {
                 return Response.ok().build();
             }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("{source}/userspace")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response userspace(@PathParam("source") String source) {
+        try {
+            OneInstance oneInstance = instances.find(source);
+            if (oneInstance == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            JSONArray aggregated = new JSONArray();
+            ProxyItemHandler redirectHandler = findRedirectHandler(oneInstance);
+            if (redirectHandler == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            Response response = redirectHandler.requestsUserSpace();
+            String json = (String) response.getEntity();
+            JSONArray responseArray = new JSONArray(json);
+            for (int i = 0; i < responseArray.length(); i++) {
+                JSONObject item = responseArray.getJSONObject(i);
+                item.put("source", oneInstance.getName());
+                aggregated.put(item);
+            }
+            return Response.ok(aggregated.toString()).type(MediaType.APPLICATION_JSON).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    @GET
+    @Path("userspace}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response userspace() {
+        try {
+            List<OneInstance> oneInstances = instances.allInstances();
+            JSONArray aggregated = new JSONArray();
+            for (OneInstance instance : oneInstances) {
+                ProxyItemHandler redirectHandler = findRedirectHandler(instance);
+                if (redirectHandler == null) {
+                    continue;
+                }
+                Response response = redirectHandler.requestsUserSpace();
+                String json = (String) response.getEntity();
+                JSONArray responseArray = new JSONArray(json);
+                for (int i = 0; i < responseArray.length(); i++) {
+                    JSONObject item = responseArray.getJSONObject(i);
+                    item.put("source", instance.getName());
+                    aggregated.put(item);
+                }
+            }
+            return Response.ok(aggregated.toString()).type(MediaType.APPLICATION_JSON).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -126,12 +185,16 @@ public class UsersRequestsResource extends ClientApiResource {
     private ProxyItemHandler findRedirectHandler(String source) throws LexerException, IOException {
         OneInstance found = instances.find(source);
         if (found != null) {
-            String remoteAddress = IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
-            ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.apacheClient, null, this.solrAccess, source, null, remoteAddress);
-            return proxyHandler;
+            return findRedirectHandler(found);
         } else {
             return null;
         }
+    }
+
+    private ProxyItemHandler findRedirectHandler(OneInstance oneInstance) {
+        String remoteAddress = IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
+        ProxyItemHandler proxyHandler = oneInstance.createProxyItemHandler(this.userProvider.get(), this.apacheClient, null, this.solrAccess, oneInstance.getName(), null, remoteAddress);
+        return proxyHandler;
     }
 
     private JSONArray requestUserspace(String source) throws IOException {
