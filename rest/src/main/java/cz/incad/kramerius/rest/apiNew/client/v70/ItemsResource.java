@@ -781,6 +781,15 @@ public class ItemsResource extends ClientApiResource {
                         if (safeReqDefinition.has("email")) {
                             payload.put("email", safeReqDefinition.getString("email"));
                         }
+                        if (safeReqDefinition.has("notificationMode")) {
+                            payload.put("notificationMode", safeReqDefinition.getString("notificationMode"));
+                        }
+                        if (safeReqDefinition.has("notificationCallbackUrl")) {
+                            payload.put("notificationCallbackUrl", safeReqDefinition.getString("notificationCallbackUrl"));
+                        }
+                        if (safeReqDefinition.has("notificationSource")) {
+                            payload.put("notificationSource", safeReqDefinition.getString("notificationSource"));
+                        }
                         payload.put("user", user.getLoginname());
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 

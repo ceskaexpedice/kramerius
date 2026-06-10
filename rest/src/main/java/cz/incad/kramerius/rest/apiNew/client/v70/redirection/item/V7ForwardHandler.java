@@ -310,13 +310,17 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + this.pid
                     + "/requests/" + reqType;
+            JSONObject forwardedReqDefinition = reqDefinition != null ? new JSONObject(reqDefinition.toString()) : new JSONObject();
+            forwardedReqDefinition.put("notificationMode", "cdk");
+            forwardedReqDefinition.put("notificationCallbackUrl", notificationCallbackUrl());
+            forwardedReqDefinition.put("notificationSource", this.source);
             URIBuilder builder = new URIBuilder(url);
             if (lang != null) {
                 builder.setParameter("lang", lang);
             }
             AtomicReference<byte[]> responseBytes = new AtomicReference<>();
             AtomicReference<String> responseMimeType = new AtomicReference<>();
-            Response response = buildForwardApacheResponsePOST(builder.toString(), reqDefinition, apiKey(), this.pid, true, (data, mimeType) -> {
+            Response response = buildForwardApacheResponsePOST(builder.toString(), forwardedReqDefinition, apiKey(), this.pid, true, (data, mimeType) -> {
                 responseBytes.set(data);
                 responseMimeType.set(mimeType);
             });
@@ -351,6 +355,17 @@ public class V7ForwardHandler extends V7RedirectHandler {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private String notificationCallbackUrl() {
+        String configured = KConfiguration.getInstance().getConfiguration()
+                .getString("generate.notification.cdk.callback_url", null);
+        if (StringUtils.isAnyString(configured)) {
+            return configured;
+        }
+        String clientPoint = KConfiguration.getInstance().getConfiguration()
+                .getString("api.client.point");
+        return clientPoint + (clientPoint.endsWith("/") ? "" : "/") + "userrequests/notifications";
     }
 
     @Override

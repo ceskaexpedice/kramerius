@@ -15,7 +15,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,10 @@ public class CDKDeleteLibrary {
     private static final Logger LOGGER = Logger.getLogger(CDKDeleteLibrary.class.getName());
     private static final int UPDATE_BATCH_SIZE = 1000;
     private static final String DEFAULT_ID_FIELD = "compositeId";
+    private static final List<LicenseFieldPair> LICENSE_FIELDS = Arrays.asList(
+            new LicenseFieldPair("licenses", "cdk.licenses"),
+            new LicenseFieldPair("contains_licenses", "cdk.contains_licenses"),
+            new LicenseFieldPair("licenses_of_ancestors", "cdk.licenses_of_ancestors"));
 
     private CDKDeleteLibrary() {
     }
@@ -45,7 +51,7 @@ public class CDKDeleteLibrary {
                     effectiveIdField,
                     effectiveIdField + " asc",
                     rows,
-                    new String[]{"pid", "compositeId", "cdk.collection", "cdk.leader"},
+                    new String[]{"pid", "compositeId", "cdk.collection", "cdk.leader", "licenses", "contains_licenses", "licenses_of_ancestors", "cdk.*"},
                     null,
                     null);
 
@@ -56,7 +62,7 @@ public class CDKDeleteLibrary {
                 for (IterationItem item : items) {
                     List<String> collections = values(item.getDoc().get("cdk.collection"));
                     if (collections.size() > 1) {
-                        updateItems.add(new UpdateItem(item.getId(), nextLeader(library, collections, firstValue(item.getDoc().get("cdk.leader")))));
+                        updateItems.add(updateItem(library, item.getId(), item.getDoc(), collections));
                     } else {
                         deleteIds.add(item.getId());
                     }
@@ -93,7 +99,7 @@ public class CDKDeleteLibrary {
         }
     }
 
-    private static Document updateBatch(String library, String idFieldName, List<UpdateItem> items) throws ParserConfigurationException {
+    static Document updateBatch(String library, String idFieldName, List<UpdateItem> items) throws ParserConfigurationException {
         Document update = XMLUtils.crateDocument("add");
         for (UpdateItem item : items) {
             Element doc = update.createElement("doc");
@@ -110,6 +116,19 @@ public class CDKDeleteLibrary {
             collection.setTextContent(library);
             doc.appendChild(collection);
 
+            for (String fieldName : item.fieldsToClear) {
+                Element field = update.createElement("field");
+                field.setAttribute("name", fieldName);
+                field.setAttribute("update", "set");
+                field.setAttribute("null", "true");
+                doc.appendChild(field);
+            }
+
+            for (LicenseUpdate licenseUpdate : item.licenseUpdates) {
+                appendSetFields(update, doc, licenseUpdate.cdkField, licenseUpdate.cdkValues);
+                appendSetFields(update, doc, licenseUpdate.sourceField, licenseUpdate.sourceValues);
+            }
+
             if (StringUtils.isNotBlank(item.nextLeader)) {
                 Element leader = update.createElement("field");
                 leader.setAttribute("name", "cdk.leader");
@@ -121,7 +140,25 @@ public class CDKDeleteLibrary {
         return update;
     }
 
-    private static Document deleteBatch(List<String> ids) throws ParserConfigurationException {
+    static UpdateItem updateItem(String library, String id, Map<String, Object> doc, List<String> collections) {
+        List<LicenseUpdate> licenseUpdates = new ArrayList<>();
+        String prefix = library + "_";
+        for (LicenseFieldPair pair : LICENSE_FIELDS) {
+            List<String> remainingCdkValues = new ArrayList<>(values(doc.get(pair.cdkField)));
+            boolean changed = remainingCdkValues.removeIf(value -> value.startsWith(prefix));
+            if (changed) {
+                licenseUpdates.add(new LicenseUpdate(pair.sourceField, pair.cdkField, remainingCdkValues, sourceLicenseValues(remainingCdkValues)));
+            }
+        }
+
+        return new UpdateItem(
+                id,
+                nextLeader(library, collections, firstValue(doc.get("cdk.leader"))),
+                fieldsToClear(library, doc),
+                licenseUpdates);
+    }
+
+    static Document deleteBatch(List<String> ids) throws ParserConfigurationException {
         Document delete = XMLUtils.crateDocument("delete");
         for (String id : ids) {
             Element idElement = delete.createElement("id");
@@ -129,6 +166,24 @@ public class CDKDeleteLibrary {
             delete.getDocumentElement().appendChild(idElement);
         }
         return delete;
+    }
+
+    private static void appendSetFields(Document update, Element doc, String name, List<String> values) {
+        if (values.isEmpty()) {
+            Element field = update.createElement("field");
+            field.setAttribute("name", name);
+            field.setAttribute("update", "set");
+            field.setAttribute("null", "true");
+            doc.appendChild(field);
+        } else {
+            for (String value : values) {
+                Element field = update.createElement("field");
+                field.setAttribute("name", name);
+                field.setAttribute("update", "set");
+                field.setTextContent(value);
+                doc.appendChild(field);
+            }
+        }
     }
 
     private static void sendOrLog(CloseableHttpClient client, String destinationUrl, Document batch, boolean onlyShowConfiguration)
@@ -158,6 +213,29 @@ public class CDKDeleteLibrary {
     private static String firstValue(Object value) {
         List<String> values = values(value);
         return values.isEmpty() ? null : values.get(0);
+    }
+
+    private static List<String> fieldsToClear(String library, Map<String, Object> doc) {
+        String suffix = "_" + library;
+        List<String> fields = new ArrayList<>();
+        for (String fieldName : doc.keySet()) {
+            if (fieldName.startsWith("cdk.") && fieldName.endsWith(suffix)) {
+                fields.add(fieldName);
+            }
+        }
+        Collections.sort(fields);
+        return fields;
+    }
+
+    private static List<String> sourceLicenseValues(List<String> cdkValues) {
+        Set<String> values = new LinkedHashSet<>();
+        for (String cdkValue : cdkValues) {
+            int separator = cdkValue.indexOf('_');
+            if (separator >= 0 && separator + 1 < cdkValue.length()) {
+                values.add(cdkValue.substring(separator + 1));
+            }
+        }
+        return new ArrayList<>(values);
     }
 
     private static String nextLeader(String library, List<String> collections, String currentLeader) {
@@ -193,13 +271,41 @@ public class CDKDeleteLibrary {
         return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
-    private static class UpdateItem {
+    static class UpdateItem {
         private final String id;
         private final String nextLeader;
+        private final List<String> fieldsToClear;
+        private final List<LicenseUpdate> licenseUpdates;
 
-        private UpdateItem(String id, String nextLeader) {
+        private UpdateItem(String id, String nextLeader, List<String> fieldsToClear, List<LicenseUpdate> licenseUpdates) {
             this.id = id;
             this.nextLeader = nextLeader;
+            this.fieldsToClear = fieldsToClear;
+            this.licenseUpdates = licenseUpdates;
+        }
+    }
+
+    private static class LicenseFieldPair {
+        private final String sourceField;
+        private final String cdkField;
+
+        private LicenseFieldPair(String sourceField, String cdkField) {
+            this.sourceField = sourceField;
+            this.cdkField = cdkField;
+        }
+    }
+
+    private static class LicenseUpdate {
+        private final String sourceField;
+        private final String cdkField;
+        private final List<String> cdkValues;
+        private final List<String> sourceValues;
+
+        private LicenseUpdate(String sourceField, String cdkField, List<String> cdkValues, List<String> sourceValues) {
+            this.sourceField = sourceField;
+            this.cdkField = cdkField;
+            this.cdkValues = cdkValues;
+            this.sourceValues = sourceValues;
         }
     }
 }

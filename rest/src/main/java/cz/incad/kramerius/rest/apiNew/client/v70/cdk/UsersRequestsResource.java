@@ -1,14 +1,19 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.cdk;
 
 import com.google.inject.Inject;
-import cz.incad.kramerius.processes.client.ProcessManagerClient;
+import cz.incad.kramerius.processes.notifications.GenerationNotification;
+import cz.incad.kramerius.processes.notifications.GenerationNotificationDispatcher;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.service.impl.MailerImpl;
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import org.apache.commons.io.IOUtils;
@@ -18,6 +23,11 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -34,6 +44,7 @@ import java.util.stream.Collectors;
 public class UsersRequestsResource extends ClientApiResource {
 
     public static final String DELIMITER = ":";
+    public static final String X_API_KEY = "X-API-KEY";
 
 
     public static Logger LOGGER = Logger.getLogger(UsersRequestsResource.class.getName());
@@ -50,6 +61,51 @@ public class UsersRequestsResource extends ClientApiResource {
 
     @Inject
     com.google.inject.Provider<HttpServletRequest> requestProvider;
+
+    @POST
+    @Path("notifications")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response notifications(@HeaderParam(X_API_KEY) String apiKey, String notificationBody) {
+        JSONObject payload = parseNotification(notificationBody);
+        String source = payload.optString("source", null);
+        if (!isAllowedNotificationSource(source, apiKey)) {
+            LOGGER.log(Level.WARNING, String.format(
+                    "CDK notification denied: source=%s, xApiKeyPresent=%s",
+                    source,
+                    apiKey != null
+            ));
+            throw new ForbiddenException("Access denied: Valid source API key required.");
+        }
+
+        GenerationNotificationDispatcher.notify(
+                new GenerationNotification.Builder()
+                        .pid(payload.optString("pid", null))
+                        .user(payload.optString("user", null))
+                        .email(payload.optString("email", null))
+                        .documentType(payload.optString("documentType", null))
+                        .filename(payload.optString("filename", null))
+                        .downloadToken(payload.optString("downloadToken", null))
+                        .downloadUrl(payload.optString("downloadUrl", null))
+                        .title(payload.optString("title", payload.optString("filename", null)))
+                        .source(source)
+                        .build(),
+                GenerationNotificationDispatcher.MODE_LOCAL,
+                null,
+                new GenerationNotificationDispatcher.LocalMailConfiguration(
+                        "generate.notification.email.sender",
+                        "generate.notification.email.subject",
+                        "generate.notification.email.body",
+                        null,
+                        null,
+                        "Soubor pripraven ke stazeni",
+                        "Dobry den,\nsoubor $filename$ je pripraven ke stazeni.\nOdkaz ke stazeni: $link$"
+                ),
+                this::sendEmailNotification
+        );
+
+        return Response.ok(new JSONObject().put("status", "accepted").toString()).type(MediaType.APPLICATION_JSON).build();
+    }
 
     @GET
     @Path("requests/{processId}")
@@ -262,6 +318,39 @@ public class UsersRequestsResource extends ClientApiResource {
     private String apiKey(String source) {
         return KConfiguration.getInstance().getConfiguration()
                 .getString("cdk.collections.sources." + source + ".apikey");
+    }
+
+    private JSONObject parseNotification(String notificationBody) {
+        if (!StringUtils.isAnyString(notificationBody)) {
+            throw new BadRequestException("Notification body is empty");
+        }
+        try {
+            return new JSONObject(notificationBody);
+        } catch (Exception e) {
+            throw new BadRequestException("Invalid notification JSON");
+        }
+    }
+
+    private boolean isAllowedNotificationSource(String source, String apiKey) {
+        if (!StringUtils.isAnyString(source) || !StringUtils.isAnyString(apiKey)) {
+            return false;
+        }
+        String expectedApiKey = apiKey(source);
+        return StringUtils.isAnyString(expectedApiKey) && expectedApiKey.equals(apiKey);
+    }
+
+    private void sendEmailNotification(String emailFrom, List<Object> recipients, String subject, String text) throws javax.mail.MessagingException {
+        Session session = new MailerImpl().getSession(null, null);
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(emailFrom));
+        InternetAddress[] addresses = new InternetAddress[recipients.size()];
+        for (int i = 0; i < recipients.size(); i++) {
+            addresses[i] = new InternetAddress(String.valueOf(recipients.get(i)));
+        }
+        message.setRecipients(Message.RecipientType.TO, addresses);
+        message.setSubject(subject);
+        message.setText(text);
+        Transport.send(message);
     }
 
 }
