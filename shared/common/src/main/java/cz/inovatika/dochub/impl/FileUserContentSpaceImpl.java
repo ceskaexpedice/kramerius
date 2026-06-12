@@ -17,10 +17,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * #Sample configuration (configuration.properties)
@@ -68,6 +71,11 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
         }
     }
 
+    @Override
+    public Path getRootPath() {
+        return this.rootPath;
+    }
+
     public String generateHash(String user, String pid) {
         try {
             String input = user + "|" + pid;
@@ -86,6 +94,33 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
         return rootPath.resolve(p1).resolve(p2).resolve(p3).resolve(token).resolve(type.name().toLowerCase());
     }
 
+    private Path resolveUserBundlesPath(String user) {
+        String userHash = generateHash(user, "salt-for-user-content");
+        String p1 = userHash.substring(0, Math.min(2, userHash.length()));
+        String p2 = userHash.substring(Math.min(2, userHash.length()), Math.min(4, userHash.length()));
+        return rootPath.resolve("users").resolve(p1).resolve(p2).resolve(userHash);
+    }
+
+    private Path resolveUserBundleInfoPath(String user, String token, DocumentType type) {
+        return resolveUserBundlesPath(user).resolve(token).resolve(type.name().toLowerCase() + ".json");
+    }
+
+    private void writeBundleInfo(String user, String pid, String token, DocumentType type, Path contentPath) throws IOException {
+        JSONObject infoJson = new JSONObject();
+        infoJson.put("pid", pid);
+        infoJson.put("user", user);
+        infoJson.put("token", token);
+        infoJson.put("type", type.name());
+        infoJson.put("created", Instant.now().toString());
+        infoJson.put("size", Files.size(contentPath));
+
+        Files.writeString(resolveTokenPath(token, type).resolve("info.json"), infoJson.toString(), StandardCharsets.UTF_8);
+
+        Path userBundleInfoPath = resolveUserBundleInfoPath(user, token, type);
+        Files.createDirectories(userBundleInfoPath.getParent());
+        Files.writeString(userBundleInfoPath, infoJson.toString(), StandardCharsets.UTF_8);
+    }
+
     @Override
     public String storeBundle(InputStream is, String user, String pid, DocumentType type, String auditInfo) throws IOException {
         LOGGER.info("Storing bundle for user: " + user);
@@ -98,12 +133,45 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
         try (OutputStream os = Files.newOutputStream(filePath)) {
             is.transferTo(os);
         }
-        JSONObject infoJson = new JSONObject();
-        infoJson.put("pid", pid);
-        Files.writeString(targetDir.resolve("info.json"), infoJson.toString(), StandardCharsets.UTF_8);
+        writeBundleInfo(user, pid, token, type, filePath);
         this.usageCounter.logUsage(user, pid);
 
         return token;
+    }
+
+    @Override
+    public List<UserContentBundle> listBundles(String user) throws IOException {
+        Path userBundlesPath = resolveUserBundlesPath(user);
+        List<UserContentBundle> bundles = new ArrayList<>();
+        if (!Files.exists(userBundlesPath)) {
+            return bundles;
+        }
+
+        try (Stream<Path> stream = Files.walk(userBundlesPath)) {
+            stream.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().endsWith(".json"))
+                    .forEach(path -> {
+                        try {
+                            JSONObject infoJson = new JSONObject(Files.readString(path, StandardCharsets.UTF_8));
+                            String token = infoJson.getString("token");
+                            DocumentType type = DocumentType.valueOf(infoJson.getString("type"));
+                            Path contentPath = resolveTokenPath(token, type).resolve("content." + type.name().toLowerCase());
+                            boolean available = Files.exists(contentPath);
+                            bundles.add(new UserContentBundle(
+                                    token,
+                                    infoJson.getString("pid"),
+                                    type,
+                                    Instant.parse(infoJson.getString("created")),
+                                    available ? Files.size(contentPath) : 0,
+                                    available));
+                        } catch (Exception e) {
+                            LOGGER.warning("Cannot read user bundle info: " + path + ", " + e.getMessage());
+                        }
+                    });
+        }
+
+        bundles.sort(Comparator.comparing(UserContentBundle::getCreated).reversed());
+        return bundles;
     }
 
     @Override
@@ -128,6 +196,17 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
     @Override
     public void deleteBundle(String token, DocumentType type) throws IOException {
         Path bundlePath = resolveTokenPath(token, type);
+        Path infoPath = bundlePath.resolve("info.json");
+        if (Files.exists(infoPath)) {
+            try {
+                JSONObject infoJson = new JSONObject(Files.readString(infoPath, StandardCharsets.UTF_8));
+                if (infoJson.has("user")) {
+                    Files.deleteIfExists(resolveUserBundleInfoPath(infoJson.getString("user"), token, type));
+                }
+            } catch (Exception e) {
+                LOGGER.warning("Cannot delete user bundle index for token: " + token + ", " + e.getMessage());
+            }
+        }
         if (Files.exists(bundlePath)) {
             try (var stream = Files.walk(bundlePath)) {
                 stream.sorted(Comparator.reverseOrder())
@@ -151,9 +230,19 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
 
     @Override
     public void cleanup(CleanupStrategy strategy) throws IOException {
+        LOGGER.info("Starting cleanup of user content space "+rootPath.toString());
         if (!Files.exists(rootPath)) return;
 
+        Path usersPath = rootPath.resolve("users");
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                if (dir.equals(usersPath)) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 if (strategy.shouldDelete(file, attrs)) {

@@ -272,19 +272,21 @@ public class IiifServlet extends AbstractImageServlet {
         String remoteAddress = IPAddressUtils.getRemoteAddress(req, KConfiguration.getInstance().getConfiguration());
         CDKIIIFServletUtils.httpRequestCDKPARAMETERS(source, this.userProvider.get(),remoteAddress, get);
 
+        org.apache.hc.core5.http.HttpEntity entity = null;
 
         try (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse response = (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse) apacheClient.get().execute(get)) {
             int code = response.getCode();
             resp.setStatus(code);
             if (code == 200) {
-                org.apache.hc.core5.http.HttpEntity entity = response.getEntity();
+                entity = response.getEntity();
 
                 if (entity.getContentType() != null) {
                     resp.setContentType(entity.getContentType());
                 }
 
-                if (entity.getContentLength() >= 0) {
-                    resp.setHeader("Content-Length", String.valueOf(entity.getContentLength()));
+                long contentLength = entity.getContentLength();
+                if (contentLength >= 0) {
+                    resp.setHeader("Content-Length", String.valueOf(contentLength));
                 }
                 resp.setHeader("Access-Control-Allow-Origin", "*");
                 CDKIIIFServletUtils.copyCacheHeaders(response, resp);
@@ -294,13 +296,22 @@ public class IiifServlet extends AbstractImageServlet {
                 resp.getOutputStream().flush();
             } else {
                 LOGGER.log(Level.WARNING, "Remote tile failed with code: {0} for URL: {1}", new Object[]{code, url});
+                org.apache.hc.core5.http.io.entity.EntityUtils.consume(response.getEntity());
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during proxying tile from: " + url, e);
             if (!resp.isCommitted()) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
+        } finally {
+            if (entity != null) {
+                try {
+                    org.apache.hc.core5.http.io.entity.EntityUtils.consume(entity);
+                } catch (Exception e) {
+                }
+            }
         }
+
     }
 
 }
