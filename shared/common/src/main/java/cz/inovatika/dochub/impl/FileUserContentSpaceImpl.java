@@ -227,7 +227,16 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
     public void cleanup(CleanupStrategy strategy) throws IOException {
         if (!Files.exists(rootPath)) return;
 
+        Path usersPath = rootPath.resolve("users");
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                if (dir.equals(usersPath)) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 if (strategy.shouldDelete(file, attrs)) {

@@ -199,6 +199,29 @@ public class FileUserContentSpaceImplTest {
         Assert.assertFalse(Files.exists(bundlePath));
     }
 
+    @Test
+    public void cleanupSkipsUserIndexButDeletesShardedBundleData() throws Exception {
+        String user = "cleanup-index-user";
+        String token = space.storeBundle(
+                new ByteArrayInputStream("text content".getBytes(StandardCharsets.UTF_8)),
+                user,
+                "uuid:cleanup-index",
+                DocumentType.TEXT,
+                "audit");
+
+        Path bundlePath = resolveBundlePath(token, DocumentType.TEXT);
+        Path contentFile = bundlePath.resolve("content.text");
+        Path infoFile = bundlePath.resolve("info.json");
+        Path userIndexFile = findUserIndexFile(user, token, DocumentType.TEXT);
+
+        space.cleanup((file, attrs) -> true);
+
+        Assert.assertFalse(Files.exists(contentFile));
+        Assert.assertFalse(Files.exists(infoFile));
+        Assert.assertFalse(Files.exists(bundlePath));
+        Assert.assertTrue(Files.exists(userIndexFile));
+    }
+
     private Path resolveBundlePath(String token, DocumentType type) {
         String p1 = token.substring(0, Math.min(2, token.length()));
         String p2 = token.substring(Math.min(2, token.length()), Math.min(4, token.length()));
@@ -223,5 +246,26 @@ public class FileUserContentSpaceImplTest {
             }
         }
         return false;
+    }
+
+    private Path findUserIndexFile(String user, String token, DocumentType type) throws Exception {
+        Path usersPath = storageRoot
+                .resolve(FileUserContentSpaceImpl.DATA_FOLDER)
+                .resolve("users");
+        try (Stream<Path> stream = Files.walk(usersPath)) {
+            return stream.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().equals(type.name().toLowerCase() + ".json"))
+                    .filter(path -> {
+                        try {
+                            JSONObject json = new JSONObject(Files.readString(path, StandardCharsets.UTF_8));
+                            return user.equals(json.getString("user"))
+                                    && token.equals(json.getString("token"));
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    })
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("User index file not found"));
+        }
     }
 }
