@@ -54,6 +54,11 @@ public class GenerateFullPDFProcess {
         LOGGER.info("roles: " + roles);
         LOGGER.info("locale: " + locale);
         LOGGER.info("email: " + email);
+        LOGGER.info("providedByLicense: " + providedByLicenses);
+        LOGGER.info("notificationMode:" + notificationMode);
+        LOGGER.info("notificationCallbackUrl:" + notificationCallbackUrl);
+        LOGGER.info("notificationSource:" + notificationSource);
+
 
         System.setProperty(ArgumentLocalesProvider.LOCALE_PROPERTY_KEY, locale);
 
@@ -81,6 +86,7 @@ public class GenerateFullPDFProcess {
             pluginContext.updateProcessName(String.format("Generování pdf pro  %s, pid %s, pod licencí %s, jazyková mutace %s", user, pid, providedByLicenses, locale));
 
             String token = serv.generate(pid, user, providedByLicenses);
+
 
             String api = KConfiguration.getInstance().getConfiguration().getString("api.client.point");
             String link = String.format("%s/%s/%s/pdf", api, "userrequests/userspace", token);

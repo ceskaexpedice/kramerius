@@ -224,6 +224,7 @@ public abstract class ProxyHandlerSupport {
             } else {
                 // event for reharvest
                 if (code == 404) {
+                    LOGGER.log(Level.FINE, String.format(" NOT FOUND -> code %s,  %d", url, code));
                     if (deleteTrigger && this.deleteTriggerSupport != null) {
                         this.deleteTriggerSupport.executeDeleteTrigger(pid);
                     }

@@ -15,6 +15,7 @@ import cz.incad.kramerius.service.impl.MailerImpl;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.dochub.DocumentType;
 import cz.incad.kramerius.utils.pid.LexerException;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -78,15 +79,24 @@ public class UsersRequestsResource extends ClientApiResource {
             throw new ForbiddenException("Access denied: Valid source API key required.");
         }
 
+        String downloadToken = payload.optString("downloadToken", null);
+        String downloadCDKToken = payload.optString("downloadCDKToken", null);
+        //String downloadUrl = payload.optString("downloadUrl", null);
+        String documentType = payload.optString("documentType", null);
+
+        String api = KConfiguration.getInstance().getConfiguration().getString("api.client.point");
+        String link = String.format("%s/%s/%s/%s", api, "userrequests/userspace", downloadCDKToken != null ? downloadCDKToken : downloadToken, documentType);
+
         GenerationNotificationDispatcher.notify(
                 new GenerationNotification.Builder()
                         .pid(payload.optString("pid", null))
                         .user(payload.optString("user", null))
                         .email(payload.optString("email", null))
-                        .documentType(payload.optString("documentType", null))
+                        .documentType(documentType)
+                        .downloadCDKToken(downloadCDKToken)
                         .filename(payload.optString("filename", null))
-                        .downloadToken(payload.optString("downloadToken", null))
-                        .downloadUrl(payload.optString("downloadUrl", null))
+                        .downloadToken(downloadToken)
+                        .downloadUrl(link)
                         .title(payload.optString("title", payload.optString("filename", null)))
                         .source(source)
                         .build(),
@@ -222,12 +232,23 @@ public class UsersRequestsResource extends ClientApiResource {
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
         String[] parts = token.split(DELIMITER, 2);
+        if (parts.length != 2 || !StringUtils.isAnyString(parts[0]) || !StringUtils.isAnyString(parts[1])) {
+            throw new BadRequestException("Invalid userspace token: " + token);
+        }
         String source = parts[0];
         String tokenWithoutSource = parts[1];
+        DocumentType docType = parseDocumentType(docTypeStr);
         try {
             ProxyItemHandler redirectHandler = findRedirectHandler(source);
             if (redirectHandler != null) {
-                return redirectHandler.requestsUserSpace(tokenWithoutSource, docTypeStr);
+                Response response = redirectHandler.requestsUserSpace(tokenWithoutSource, docTypeStr);
+                if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                    return Response.fromResponse(response)
+                            .header("Content-Disposition", contentDisposition(tokenWithoutSource, docType))
+                            .type(mediaType(docType))
+                            .build();
+                }
+                return response;
             } else {
                 return Response.ok().build();
             }
@@ -237,6 +258,30 @@ public class UsersRequestsResource extends ClientApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    private DocumentType parseDocumentType(String docTypeStr) {
+        try {
+            return DocumentType.valueOf(docTypeStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid document type: " + docTypeStr);
+        }
+    }
+
+    private String contentDisposition(String token, DocumentType docType) {
+        return "attachment; filename=\"" + switch (docType) {
+            case PDF -> "export_" + token + ".pdf";
+            case TEXT -> "export_" + token + ".txt";
+            case EPUB -> "export_" + token + ".epub";
+        } + "\"";
+    }
+
+    private String mediaType(DocumentType docType) {
+        return switch (docType) {
+            case PDF -> "application/pdf";
+            case TEXT -> "text/plain";
+            case EPUB -> "application/epub+zip";
+        };
     }
 
     private ProxyItemHandler findRedirectHandler(String source) throws LexerException, IOException {

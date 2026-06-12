@@ -1,4 +1,4 @@
-openapi: 3.0.2
+﻿openapi: 3.0.2
 info:
   title: Klientské API v systému Kramerius
   description: |
@@ -799,6 +799,75 @@ paths:
           description: Interní chyba serveru nebo problém při komunikaci s Process Managerem
 
   # Dotazy na obrazová data       
+  /items/{pid}/requests/{reqid}/availability:
+    get:
+      tags:
+        - User requests
+      summary: Request availability
+      description: Returns whether the request type is supported and currently available for the object.
+      operationId: getRequestAvailability
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Object PID
+          schema:
+            type: string
+            example: "uuid:5f69fed8-6e54-40de-938e-14c34f745428"
+        - in: path
+          name: reqid
+          required: true
+          description: Request type, for example "generate_pdf"
+          schema:
+            type: string
+            example: "generate_pdf"
+      responses:
+        '200':
+          description: Request availability
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - pid
+                  - reqid
+                  - supported
+                  - available
+                properties:
+                  pid:
+                    type: string
+                  reqid:
+                    type: string
+                  supported:
+                    type: boolean
+                    description: True if the request type is supported by configuration.
+                  available:
+                    type: boolean
+                    description: True if the request can currently be started.
+                  reason:
+                    type: string
+                    description: Reason code when supported or available is false.
+              examples:
+                available:
+                  value:
+                    pid: "uuid:5f69fed8-6e54-40de-938e-14c34f745428"
+                    reqid: "generate_pdf"
+                    supported: true
+                    available: true
+                unsupported:
+                  value:
+                    pid: "uuid:5f69fed8-6e54-40de-938e-14c34f745428"
+                    reqid: "unknown_request"
+                    supported: false
+                    available: false
+                    reason: "unsupported_request"
+        '400':
+          description: Invalid PID format or value.
+        '404':
+          description: PID was not found.
+        '500':
+          description: Internal server error.
+
   /items/{pid}/image:
     head:
       tags:

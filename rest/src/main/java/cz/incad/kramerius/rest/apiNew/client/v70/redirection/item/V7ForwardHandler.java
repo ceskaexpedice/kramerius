@@ -140,7 +140,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
 
         } else {
             LOGGER.log(Level.FINE, String.format("[THUMB-CACHE-MISS] Data nejsou v cache, jdu na Apache pro PID: %s", this.pid));
-            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, (data, mimetype) -> {
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, (data, mimetype) -> {
                 CompletableFuture.runAsync(() -> {
                     try {
                         LOGGER.log(Level.FINE, String.format("[THUMB-ASYNC-SAVE] Ukladam do cache pro PID: %s, velikost dat: %d", this.pid, data.length));

@@ -46,12 +46,14 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -113,6 +115,7 @@ public class ItemsResource extends ClientApiResource {
      * It would be inefficient to use byte-serving this way. Since Kramerius Repository (Akubra) has to fetch whole audio file again for every byte-serving request
      */
     private static final boolean AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE = true;
+    //private static final String GENERATE_PDF_PROCESS = "generate_pdf";
 
     //public static final String API_V7 = "v7";
 
@@ -1724,7 +1727,7 @@ public class ItemsResource extends ClientApiResource {
             if (redirectHandler != null) {
                 return redirectHandler.requests(reqid, lang, safeReqDefinition);
             } else {
-                return Response.ok().build();
+                return Response.status(Response.Status.FORBIDDEN).entity("Requests are not enabled for given source").build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -1734,6 +1737,42 @@ public class ItemsResource extends ClientApiResource {
         }
 
     }
+
+    @GET
+    @Path("{pid}/requests/{reqid}/availability")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response requestAvailability(@PathParam("pid") String pid,
+                                        @PathParam("reqid") String reqid) {
+        try {
+            checkSupportedObjectPid(pid);
+            JSONArray array = new JSONArray();
+
+            List<String> sources = documentSourceProvider.getDocumentSources(pid);
+            if (sources != null) {
+                for (String source : sources) {
+                    ProxyItemHandler sourceHandler = findRedirectHandler(pid, source);
+                    if (sourceHandler != null) {
+                        boolean available =  isRequestAvailable(sourceHandler.getSource(), reqid);
+                        JSONObject retobject = new JSONObject();
+                        retobject.put("source", source); // cdk navic
+                        retobject.put("reqid", reqid);
+                        retobject.put("available", available);
+                        array.put(retobject);
+                    }
+                }
+            }
+
+            return Response.ok(array.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
 
     private JSONObject parseRequestDefinition(String pid, String reqid, String reqDefinition) {
         if (reqDefinition == null || reqDefinition.trim().isEmpty()) {
@@ -1749,5 +1788,38 @@ public class ItemsResource extends ClientApiResource {
             throw new BadRequestException("Invalid JSON request definition");
         }
     }
+
+    private boolean isRequestAvailable(String source, String reqid) {
+        return isSourceRequestsEnabled(source) && isRequestSupportedByConfiguration(source, reqid);
+    }
+
+    private boolean isSourceRequestsEnabled(String source) {
+        return KConfiguration.getInstance().getConfiguration()
+                .getBoolean("cdk.collections.sources." + source + ".requests.enabled", false);
+    }
+
+    private boolean isRequestSupportedByConfiguration(String source, String reqid) {
+        String sourceRequests = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + source + ".requests");
+        if (StringUtils.isAnyString(sourceRequests)) {
+            boolean f = Arrays.stream(sourceRequests.split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::isAnyString)
+                    .anyMatch(reqid::equals);
+            if (f) return true;
+        }
+        String clientRequests = KConfiguration.getInstance().getConfiguration().getString("api.client.requests");
+        if (StringUtils.isAnyString(sourceRequests)) {
+            return containsRequest(clientRequests, reqid);
+        } else return false;
+    }
+
+    private boolean containsRequest(String requests, String reqid) {
+        return Arrays.stream(requests.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isAnyString)
+                .anyMatch(reqid::equals);
+    }
+
 
 }

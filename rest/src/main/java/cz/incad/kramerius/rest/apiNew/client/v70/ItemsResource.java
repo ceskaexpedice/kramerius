@@ -742,6 +742,22 @@ public class ItemsResource extends ClientApiResource {
         return requests(pid, reqid, lang, locale, parseRequestDefinition(pid, reqid, reqDefinition));
     }
 
+    @GET
+    @Path("{pid}/requests/{reqid}/availability")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response requestAvailability(@PathParam("pid") String pid,
+                                        @PathParam("reqid") String reqid) {
+        try {
+            checkSupportedObjectPid(pid);
+            return requestAvailabilityResponse(pid, reqid);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
     public Response requests(String pid, String reqid, String lang, Locale locale, JSONObject reqDefinition) {
 
         final JSONObject safeReqDefinition = reqDefinition != null ? reqDefinition : new JSONObject();
@@ -771,16 +787,18 @@ public class ItemsResource extends ClientApiResource {
                                 throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
                             }
                         }
+
                         lic.checkUsageLimit(user, pid, this.userContentSpace);
                         JSONObject process = new JSONObject();
                         process.put(ProcessManagerMapper.PCP_PROFILE_ID, GENERATE_PDF_PROCESS);
                         process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
-
+                        LOGGER.info("Safe definition: " + safeReqDefinition);
                         JSONObject payload = new JSONObject();
                         payload.put("pid", pid);
                         if (safeReqDefinition.has("email")) {
                             payload.put("email", safeReqDefinition.getString("email"));
                         }
+
                         if (safeReqDefinition.has("notificationMode")) {
                             payload.put("notificationMode", safeReqDefinition.getString("notificationMode"));
                         }
@@ -794,7 +812,7 @@ public class ItemsResource extends ClientApiResource {
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 
                         Locale finalLocale = detectFinalLocale(lang, locale);
-
+                        LOGGER.info("Payload: " + payload);
                         payload.put("locale", finalLocale);
                         payload.put("providedByLicense", lic.getName());
                         process.put("payload", payload);
@@ -862,6 +880,17 @@ public class ItemsResource extends ClientApiResource {
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 
                         Locale finalLocale = detectFinalLocale(lang, locale);
+
+                        if (safeReqDefinition.has("notificationMode")) {
+                            payload.put("notificationMode", safeReqDefinition.getString("notificationMode"));
+                        }
+                        if (safeReqDefinition.has("notificationCallbackUrl")) {
+                            payload.put("notificationCallbackUrl", safeReqDefinition.getString("notificationCallbackUrl"));
+                        }
+                        if (safeReqDefinition.has("notificationSource")) {
+                            payload.put("notificationSource", safeReqDefinition.getString("notificationSource"));
+                        }
+
 
                         payload.put("locale", finalLocale);
                         payload.put("providedByLicense", lic.getName());
@@ -940,6 +969,46 @@ public class ItemsResource extends ClientApiResource {
             ), e);
             throw new BadRequestException("Invalid JSON request definition");
         }
+    }
+
+    private Response requestAvailabilityResponse(String pid, String reqid) {
+        if (isRequestSupportedByConfiguration(reqid)) {
+            return Response.ok(requestAvailability(pid, reqid, true, true, null).toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+
+        return Response.ok(requestAvailability(pid, reqid, false, false, "unsupported_request").toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    private boolean isRequestSupportedByConfiguration(String reqid) {
+        if (GENERATE_PDF_PROCESS.equals(reqid)) {
+            return true;
+        }
+
+        String clientRequests = KConfiguration.getInstance().getConfiguration().getString("api.client.requests");
+        if (!StringUtils.isAnyString(clientRequests)) {
+            return true;
+        }
+
+        return Arrays.stream(clientRequests.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isAnyString)
+                .anyMatch(reqid::equals);
+    }
+
+    private JSONObject requestAvailability(String pid, String reqid, boolean supported, boolean available, String reason) {
+        JSONObject result = new JSONObject();
+        result.put("pid", pid);
+        result.put("reqid", reqid);
+        result.put("supported", supported);
+        result.put("available", available);
+        if (reason != null) {
+            result.put("reason", reason);
+        }
+        return result;
     }
 
     private static Locale detectFinalLocale(String lang, Locale locale) {
