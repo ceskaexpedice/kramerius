@@ -64,12 +64,7 @@ public class Cleanup {
     private CleanupStrategy createStrategy(StrategyType strategyType, CleanableSpace space) throws IOException {
         return switch (strategyType) {
             case SIZE_LIMIT -> {
-                // TODO we use now only one config property for both spaces
-                String permanentRoot = KConfiguration.getInstance().getConfiguration().getString("dochub.storage.permanent");
-                if (permanentRoot == null || permanentRoot.isEmpty()) {
-                    throw new IllegalStateException("Configuration key 'dochub.storage.permanent' is missing or empty.");
-                }
-                Path rootPath = Paths.get(permanentRoot);
+                Path rootPath = space.getRootPath();
                 int maxGb = KConfiguration.getInstance().getConfiguration().getInt("dochub.permanent.max.size.gb", 10);
                 // Convert GB to Bytes: GB * 1024^3
                 // Use 'L' suffix to ensure the calculation is done in 64-bit precision

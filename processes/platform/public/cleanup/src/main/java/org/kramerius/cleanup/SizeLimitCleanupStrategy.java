@@ -7,12 +7,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * SizeLimitCleanupStrategy
  * @author ppodsednik
  */
 public class SizeLimitCleanupStrategy implements CleanupStrategy {
+
+    public static final Logger LOGGER = Logger.getLogger(SizeLimitCleanupStrategy.class.getName());
+
     private final long maxSpaceBytes;
     private final Set<Path> filesToDelete = new HashSet<>();
 
@@ -34,11 +38,13 @@ public class SizeLimitCleanupStrategy implements CleanupStrategy {
                     try {
                         BasicFileAttributes attrs = Files.readAttributes(p, BasicFileAttributes.class);
                         allFiles.add(new FileMeta(p, attrs.size(), attrs.lastModifiedTime().toMillis()));
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                        LOGGER.warning("Cannot read file attributes for " + p);
+                    }
                 });
 
         long currentTotalSize = allFiles.stream().mapToLong(f -> f.size).sum();
-
+        LOGGER.info("Total size of files in " + rootPath + ": " + currentTotalSize + " and max allowed: " + maxSpaceBytes + "");
         if (currentTotalSize > maxSpaceBytes) {
             // sort from the oldest
             allFiles.sort(Comparator.comparingLong(f -> f.lastModified));

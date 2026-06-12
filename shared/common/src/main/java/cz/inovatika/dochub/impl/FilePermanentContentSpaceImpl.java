@@ -64,6 +64,10 @@ public class FilePermanentContentSpaceImpl implements PermanentContentSpace, Cle
         return Files.exists(ResolvePathUtils.resolvePath(rootPath, pid, type));
     }
 
+    @Override
+    public Path getRootPath() {
+        return this.rootPath;
+    }
 
     @Override
     public void cleanup(CleanupStrategy strategy) throws IOException {

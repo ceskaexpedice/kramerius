@@ -71,6 +71,11 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
         }
     }
 
+    @Override
+    public Path getRootPath() {
+        return this.rootPath;
+    }
+
     public String generateHash(String user, String pid) {
         try {
             String input = user + "|" + pid;
@@ -225,6 +230,7 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
 
     @Override
     public void cleanup(CleanupStrategy strategy) throws IOException {
+        LOGGER.info("Starting cleanup of user content space "+rootPath.toString());
         if (!Files.exists(rootPath)) return;
 
         Path usersPath = rootPath.resolve("users");
