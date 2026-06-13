@@ -8,7 +8,7 @@ public interface CleanableSpace {
 
     public Path getRootPath();
 
-    public int getConfiguredMaxLimit();
+    public double getConfiguredMaxLimit();
 
     public int getConfiguredMaxAge();
 

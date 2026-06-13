@@ -83,8 +83,8 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
     }
 
     @Override
-    public int getConfiguredMaxLimit() {
-        int maxGb = KConfiguration.getInstance().getConfiguration().getInt("dochub.user.max.size.gb", 10);
+    public double getConfiguredMaxLimit() {
+        double maxGb = KConfiguration.getInstance().getConfiguration().getDouble("dochub.user.max.size.gb", 10);
         return maxGb;
     }
 

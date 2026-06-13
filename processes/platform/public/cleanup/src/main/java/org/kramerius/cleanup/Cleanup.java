@@ -65,8 +65,9 @@ public class Cleanup {
         return switch (strategyType) {
             case SIZE_LIMIT -> {
                 Path rootPath = space.getRootPath();
-                int maxGb = space.getConfiguredMaxLimit();
-                long limitInBytes = (long) maxGb * 1024 * 1024 * 1024;
+                double maxGb = space.getConfiguredMaxLimit();
+                long limitInBytes = Math.round(maxGb * 1024 * 1024 * 1024);;
+                LOGGER.info("Size  limit set to " + limitInBytes + " bytes ("+maxGb+" Gb)");
                 yield new SizeLimitCleanupStrategy(limitInBytes, rootPath);
             }
             case EXPIRATION -> {
