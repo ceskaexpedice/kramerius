@@ -8,5 +8,9 @@ public interface CleanableSpace {
 
     public Path getRootPath();
 
+    public double getConfiguredMaxLimit();
+
+    public int getConfiguredMaxAge();
+
     void cleanup(CleanupStrategy strategy) throws IOException;
 }

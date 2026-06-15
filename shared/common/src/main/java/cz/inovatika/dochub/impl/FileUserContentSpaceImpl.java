@@ -76,6 +76,19 @@ public class FileUserContentSpaceImpl implements UserContentSpace, CleanableSpac
         return this.rootPath;
     }
 
+    @Override
+    public int getConfiguredMaxAge() {
+        int expirationHours = KConfiguration.getInstance().getConfiguration().getInt("dochub.user.expiration.hours", 48);
+        return expirationHours;
+    }
+
+    @Override
+    public double getConfiguredMaxLimit() {
+        double maxGb = KConfiguration.getInstance().getConfiguration().getDouble("dochub.user.max.size.gb", 10);
+        return maxGb;
+    }
+
+
     public String generateHash(String user, String pid) {
         try {
             String input = user + "|" + pid;

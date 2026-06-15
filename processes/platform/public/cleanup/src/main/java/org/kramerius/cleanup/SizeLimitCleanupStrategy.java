@@ -34,6 +34,15 @@ public class SizeLimitCleanupStrategy implements CleanupStrategy {
         List<FileMeta> allFiles = new ArrayList<>();
         Files.walk(rootPath)
                 .filter(Files::isRegularFile)
+                .filter(p -> {
+                    Path relativePath = rootPath.relativize(p);
+
+                    boolean containsUsersSubFolder = java.util.stream.StreamSupport
+                            .stream(relativePath.spliterator(), false)
+                            .anyMatch(component -> component.toString().equals("users"));
+
+                    return !containsUsersSubFolder;
+                })
                 .forEach(p -> {
                     try {
                         BasicFileAttributes attrs = Files.readAttributes(p, BasicFileAttributes.class);
@@ -46,16 +55,12 @@ public class SizeLimitCleanupStrategy implements CleanupStrategy {
         long currentTotalSize = allFiles.stream().mapToLong(f -> f.size).sum();
         LOGGER.info("Total size of files in " + rootPath + ": " + currentTotalSize + " and max allowed: " + maxSpaceBytes + "");
         if (currentTotalSize > maxSpaceBytes) {
-            // sort from the oldest
-            allFiles.sort(Comparator.comparingLong(f -> f.lastModified));
+            LOGGER.info("Number of files to delete: " + allFiles.size() + "");
             for (FileMeta file : allFiles) {
-                if (currentTotalSize > maxSpaceBytes) {
-                    filesToDelete.add(file.path);
-                    currentTotalSize -= file.size;
-                } else {
-                    break;
-                }
+                filesToDelete.add(file.path);
             }
+        } else {
+            LOGGER.info("No files to delete.");
         }
     }
 

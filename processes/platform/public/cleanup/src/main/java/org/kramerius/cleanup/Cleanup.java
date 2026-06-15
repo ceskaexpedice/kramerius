@@ -65,15 +65,14 @@ public class Cleanup {
         return switch (strategyType) {
             case SIZE_LIMIT -> {
                 Path rootPath = space.getRootPath();
-                int maxGb = KConfiguration.getInstance().getConfiguration().getInt("dochub.permanent.max.size.gb", 10);
-                // Convert GB to Bytes: GB * 1024^3
-                // Use 'L' suffix to ensure the calculation is done in 64-bit precision
-                long limitInBytes = (long) maxGb * 1024 * 1024 * 1024;
+                double maxGb = space.getConfiguredMaxLimit();
+                long limitInBytes = Math.round(maxGb * 1024 * 1024 * 1024);;
+                LOGGER.info("Size  limit set to " + limitInBytes + " bytes ("+maxGb+" Gb)");
                 yield new SizeLimitCleanupStrategy(limitInBytes, rootPath);
             }
             case EXPIRATION -> {
                 // TODO we use now only one config property for both spaces
-                int expirationHours = KConfiguration.getInstance().getConfiguration().getInt("dochub.user.expiration.hours", 48);
+                int expirationHours = space.getConfiguredMaxAge();
                 yield new ExpirationCleanupStrategy(expirationHours);
             }
             case FORCE_EMPTY -> {
