@@ -14,11 +14,11 @@ import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
 import cz.incad.kramerius.rest.apiNew.cdk.v70.resources.*;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.UsersRequestsResource;
+import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.client.v70.pdf.PDFResource;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
-
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import jakarta.inject.Provider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +26,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import cz.inovatika.dochub.UserContentSpace;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -97,8 +98,18 @@ public class CDKForwardResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response requests(@PathParam("processId") String processId) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
-            Response response = usersRequestsResource.requests(processId);
-            return response;
+            return usersRequestsResource.requests(processId);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    @GET
+    @Path("userspace")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response userspace() {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return usersRequestsResource.userspace();
         } else {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
@@ -108,12 +119,12 @@ public class CDKForwardResource {
     @Path("userspace/{spacetoken}/{docType}")
     public Response userspace(@PathParam("spacetoken") String token, @PathParam("docType") String docTypeStr) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
-            Response response = usersRequestsResource.userspace(token, docTypeStr);
-            return response;
+            return usersRequestsResource.userspace(token, docTypeStr);
         } else {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
     }
+
 
     @POST
     @Path("{pid}/requests/{reqid}")
@@ -122,10 +133,57 @@ public class CDKForwardResource {
     public Response requests(@PathParam("pid") String pid,
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
-                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
+                             @HeaderParam("Accept-Language") Locale locale, String reqDefinition) {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
-            Response response = itemsResource.requests(pid, reqid, lang, locale, reqDefinition);
-            return response;
+            JSONObject safeReqDefinition = parseRequestDefinition(pid, reqid, reqDefinition);
+            LOGGER.log(Level.FINE, "requests: " + pid + " " + reqid + " " + safeReqDefinition.toString());
+            return itemsResource.requests(pid, reqid, lang, locale, safeReqDefinition);
+        } else {
+            HttpServletRequest request = this.requestProvider.get();
+            LOGGER.log(Level.WARNING, String.format(
+                    "CDK forward request denied: pid=%s, reqid=%s, xApiKeyPresent=%s, securedChannel=%s",
+                    pid,
+                    reqid,
+                    request.getHeader(X_API_KEY) != null,
+                    KConfiguration.getInstance().getConfiguration().getBoolean("cdk.secured.channel", false)
+            ));
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    private JSONObject parseRequestDefinition(String pid, String reqid, String reqDefinition) {
+        if (reqDefinition == null || reqDefinition.trim().isEmpty()) {
+            return new JSONObject();
+        }
+        try {
+            return new JSONObject(reqDefinition);
+        } catch (JSONException e) {
+            LOGGER.log(Level.WARNING, String.format(
+                    "Invalid CDK forward request JSON: pid=%s, reqid=%s, body=%s",
+                    pid, reqid, reqDefinition
+            ), e);
+            throw new BadRequestException("Invalid JSON request definition");
+        }
+    }
+
+    // =========== Collection specific endpoints
+
+    @GET
+    @Path("{pid}/collection/cuttings")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response getCollectionClips(@PathParam("pid") String pid) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemsResource.getCollectionClips(pid);
+        } else {
+            throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
+        }
+    }
+
+    @GET
+    @Path("{pid}/collection/cuttings/image/{thumb_id}")
+    public Response getCollectionThumb(@PathParam("pid") String pid, @PathParam("thumb_id") String thumbId) {
+        if (isAllowedByApiKey() || isAllowedByChannel()) {
+            return itemsResource.getCollectionThumb(pid, thumbId);
         } else {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }
@@ -139,8 +197,8 @@ public class CDKForwardResource {
                               @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
                               @QueryParam("format") String format) throws OutOfRangeException {
         if (isAllowedByApiKey() || isAllowedByChannel()) {
-            Response response = pdfResource.selection(pidsParam, firstPageType, format);
-            return response;
+
+            return pdfResource.selection(pidsParam, firstPageType, format);
         } else {
             throw new ForbiddenException("Access denied: Valid API key or secured channel required.");
         }

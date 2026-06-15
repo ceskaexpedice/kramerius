@@ -102,6 +102,13 @@ public class TestProcessManagerClient {
     }
 
     @Test
+    public void testGetOwnersFilteredByWorkers() {
+        JSONObject owners = processManagerClient.getOwners("worker1,worker2");
+        Assertions.assertEquals(1, owners.getJSONArray("owners").length());
+        Assertions.assertEquals("PePo", owners.getJSONArray("owners").getJSONObject(0).getString("owner"));
+    }
+
+    @Test
     public void testGetProcess() {
         JSONObject process = processManagerClient.getProcess(SCHEDULED_PROCESS_ID);
         Assertions.assertEquals(SCHEDULED_PROCESS_ID, process.getString("processId"));

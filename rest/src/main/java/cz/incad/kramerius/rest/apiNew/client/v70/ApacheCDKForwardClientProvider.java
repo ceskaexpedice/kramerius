@@ -18,10 +18,12 @@
 
 
  import cz.incad.kramerius.utils.conf.KConfiguration;
+ import org.apache.hc.client5.http.config.ConnectionConfig;
  import org.apache.hc.client5.http.config.RequestConfig;
  import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
  import org.apache.hc.client5.http.impl.classic.HttpClients;
  import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+ import org.apache.hc.core5.util.TimeValue;
  import org.apache.hc.core5.util.Timeout;
  import org.apache.http.client.config.CookieSpecs;
 
@@ -41,6 +43,12 @@ public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpCli
     /** Timeout for receiving a response (in seconds). */
     public static final int RESPONSE_TIMEOUT = 30;
 
+    /** Timeout for evicting idle connections (in seconds). */
+    public static final int EVICT_TIMEOUT = 10;
+    /** Time after which an inactive connection must be validated (in seconds). */
+    public static final int VALIDATE_AFTER_INACTIVITY_TIMEOUT = 2;
+
+
     private CloseableHttpClient closeableHttpClient = null;
 
     /**
@@ -52,9 +60,18 @@ public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpCli
 
         int connectTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.connect_timeout", CONNECT_TIMEOUT);
         int responseTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.response_timeout", RESPONSE_TIMEOUT);
+        int evictConnection = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.evic_connection_timeout", EVICT_TIMEOUT);
+        int validateTimeout = KConfiguration.getInstance().getConfiguration().getInt("cdk.forward.apache.client.validate_after_inactivity_timeout", VALIDATE_AFTER_INACTIVITY_TIMEOUT);
+
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
+                .setValidateAfterInactivity(TimeValue.ofSeconds(validateTimeout))
+                .build();
+
+        poolManager.setDefaultConnectionConfig(connectionConfig);
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .setCookieSpec(org.apache.hc.client5.http.cookie.StandardCookieSpec.IGNORE)
                 .setConnectTimeout(Timeout.ofSeconds(connectTimeout))
                 .setResponseTimeout(Timeout.ofSeconds(responseTimeout))
                 .build();
@@ -64,7 +81,7 @@ public class ApacheCDKForwardClientProvider implements Provider<CloseableHttpCli
                 .disableAuthCaching()
                 .disableCookieManagement()
                 .setDefaultRequestConfig(requestConfig)
-                .evictIdleConnections(org.apache.hc.core5.util.TimeValue.ofMinutes(1))
+                .evictIdleConnections(org.apache.hc.core5.util.TimeValue.ofSeconds(evictConnection))
                 .build();
     }
 

@@ -54,11 +54,11 @@ public class ProcessResource extends AdminApiResource {
     @GET
     @Path("owners")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response getOwners() {
+    public Response getOwners(@QueryParam("workers") String workers) {
         try {
             ForbiddenCheck.checkGeneral(userProvider.get(), rightsResolver);
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-            JSONObject pcpOwners = processManagerClient.getOwners();
+            JSONObject pcpOwners = processManagerClient.getOwners(workers);
             JSONObject result = ProcessManagerMapper.mapOwners(pcpOwners);
             return Response.ok().entity(result.toString()).build();
         } catch (Exception e) {

@@ -72,7 +72,7 @@ public class DefaultPropertiesInstances implements Instances {
         this.executor = Executors.newFixedThreadPool(executors);
 
         LOGGER.info("Refreshing configuration with reharvestManager "+this.reharvestManager);
-        //refresh();
+        refresh();
     }
 
     @Override
@@ -137,14 +137,12 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public List<OneInstance> allInstances() {
-        this.refresh();
         List<OneInstance> snapshot = new ArrayList<>(this.instances);
         return snapshot;
     }
 
     @Override
     public List<OneInstance> enabledInstances() {
-        this.refresh();
         List<OneInstance> snapshot = new ArrayList<>(this.instances);
         return snapshot.stream().filter(it-> {
             return it.isConnected();
@@ -153,7 +151,6 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public List<OneInstance> disabledInstances() {
-        this.refresh();
         List<OneInstance> snapshot = new ArrayList<>(this.instances);
         return snapshot.stream().filter(it -> {
             return !it.isConnected();
@@ -162,14 +159,12 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public boolean isAnyDisabled() {
-        this.refresh();
         List<OneInstance> eInsts = this.enabledInstances();
         return this.allInstances().size() != eInsts.size();
     }
 
     @Override
     public OneInstance find(String acronym) {
-        this.refresh();
         List<OneInstance> snapshot = new ArrayList<>(this.instances);
         List<OneInstance> collect = snapshot.stream().filter(it -> {
             return it.getName().equals(acronym);
@@ -184,7 +179,6 @@ public class DefaultPropertiesInstances implements Instances {
 
     @Override
     public boolean isEnabledInstance(String acronym) {
-        this.refresh();
         List<OneInstance> snapshot = new ArrayList<>(this.instances);
         Optional<OneInstance> found = snapshot.stream().filter(inst -> {
             boolean retval = inst.getName() != null;

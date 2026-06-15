@@ -42,6 +42,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
@@ -52,6 +53,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -908,17 +911,19 @@ public class ItemsResource extends ClientApiResource {
     }
 
 
-    public ProxyItemHandler findRedirectHandler(String pid, String source) throws IOException {
+
+    public ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
         if (source == null) {
         	//source = defaultDocumentSource(pid);
             source = documentSourceProvider.getDocumentSource(pid);
         }
-        OneInstance found = instances.find(source);
+        OneInstance found = source != null ? instances.find(source) : null;
         if (found!= null) {
         	String remoteAddress = IPAddressUtils.getRemoteAddress(this.requestProvider.get(), KConfiguration.getInstance().getConfiguration());
         	ProxyItemHandler proxyHandler = found.createProxyItemHandler(this.userProvider.get(), this.apacheClient.get(), this.deleteTriggerSupport, this.solrAccess, source, pid, remoteAddress);
         	return proxyHandler;
         } else {
+            LOGGER.log(Level.WARNING, String.format("No CDK source handler found for PID %s and source '%s'", pid, source));
         	return null;
         }
     }
@@ -1571,7 +1576,7 @@ public class ItemsResource extends ClientApiResource {
     public Response iiiFManifest(@PathParam("pid") String pid,@PathParam("source") String source) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/image/iiif/info.json", source,   pid), "", "GET", pid);
         try {
-            LOGGER.info(String.format("Rendering  iiif info.json (%s,%s)", pid,source));
+            LOGGER.fine(String.format("Rendering  iiif info.json (%s,%s)", pid,source));
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
@@ -1664,13 +1669,36 @@ public class ItemsResource extends ClientApiResource {
     public Response requests(@PathParam("pid") String pid,
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
-                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
-        // TODO Pepo jeste jednu metodu pro zdroj
+                             @HeaderParam("Accept-Language") Locale locale, String reqDefinition) {
         try {
+            JSONObject safeReqDefinition = parseRequestDefinition(pid, reqid, reqDefinition);
             checkSupportedObjectPid(pid);
+            // option
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
-                return redirectHandler.requests(reqid, lang, reqDefinition);
+                boolean req = KConfiguration.getInstance().getConfiguration()
+                        .getBoolean("cdk.collections.sources." + redirectHandler.getSource() + ".requests.enabled", false);
+                if (req) {
+                    LOGGER.fine(String.format("Redirecting requests to %s", redirectHandler.getSource()));
+                    return redirectHandler.requests(reqid, lang, safeReqDefinition);
+                } else {
+                    LOGGER.fine(String.format("Requests to %s are disabled", redirectHandler.getSource()));
+                    List<String> sources = documentSourceProvider.getDocumentSources(pid);
+                    if (sources != null) {
+                        for (String source : sources) {
+                            ProxyItemHandler sourceHandler = findRedirectHandler(pid, source);
+                            if (sourceHandler != null) {
+                                boolean sourceReqEnabled = KConfiguration.getInstance().getConfiguration()
+                                        .getBoolean("cdk.collections.sources." + sourceHandler.getSource() + ".requests.enabled", false);
+                                if (sourceReqEnabled) {
+                                    LOGGER.fine(String.format("Redirecting requests to %s", sourceHandler.getSource()));
+                                    return sourceHandler.requests(reqid, lang, safeReqDefinition);
+                                }
+                            }
+                        }
+                    }
+                    return Response.status(Response.Status.FORBIDDEN).entity("Requests are not enabled for any source").build();
+                }
             } else {
                 return Response.ok().build();
             }
@@ -1682,5 +1710,115 @@ public class ItemsResource extends ClientApiResource {
         }
 
     }
+
+    @POST
+    @Path("{source}/{pid}/requests/{reqid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response requests(@PathParam("source") String source,@PathParam("pid") String pid,
+                             @PathParam("reqid") String reqid,
+                             @QueryParam("lang") String lang,
+                             @HeaderParam("Accept-Language") Locale locale, String reqDefinition) {
+        try {
+            JSONObject safeReqDefinition = parseRequestDefinition(pid, reqid, reqDefinition);
+            checkSupportedObjectPid(pid);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
+            if (redirectHandler != null) {
+                return redirectHandler.requests(reqid, lang, safeReqDefinition);
+            } else {
+                return Response.status(Response.Status.FORBIDDEN).entity("Requests are not enabled for given source").build();
+            }
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+
+    }
+
+    @GET
+    @Path("{pid}/requests/{reqid}/availability")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response requestAvailability(@PathParam("pid") String pid,
+                                        @PathParam("reqid") String reqid) {
+        try {
+            checkSupportedObjectPid(pid);
+            JSONArray array = new JSONArray();
+
+            List<String> sources = documentSourceProvider.getDocumentSources(pid);
+            if (sources != null) {
+                for (String source : sources) {
+                    ProxyItemHandler sourceHandler = findRedirectHandler(pid, source);
+                    if (sourceHandler != null) {
+                        boolean available =  isRequestAvailable(sourceHandler.getSource(), reqid);
+                        JSONObject retobject = new JSONObject();
+                        retobject.put("source", source); // cdk navic
+                        retobject.put("reqid", reqid);
+                        retobject.put("available", available);
+                        array.put(retobject);
+                    }
+                }
+            }
+
+            return Response.ok(array.toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+
+    private JSONObject parseRequestDefinition(String pid, String reqid, String reqDefinition) {
+        if (reqDefinition == null || reqDefinition.trim().isEmpty()) {
+            return new JSONObject();
+        }
+        try {
+            return new JSONObject(reqDefinition);
+        } catch (JSONException e) {
+            LOGGER.log(Level.WARNING, String.format(
+                    "Invalid CDK item request JSON: pid=%s, reqid=%s, body=%s",
+                    pid, reqid, reqDefinition
+            ), e);
+            throw new BadRequestException("Invalid JSON request definition");
+        }
+    }
+
+    private boolean isRequestAvailable(String source, String reqid) {
+        return isSourceRequestsEnabled(source) && isRequestSupportedByConfiguration(source, reqid);
+    }
+
+    private boolean isSourceRequestsEnabled(String source) {
+        return KConfiguration.getInstance().getConfiguration()
+                .getBoolean("cdk.collections.sources." + source + ".requests.enabled", false);
+    }
+
+    private boolean isRequestSupportedByConfiguration(String source, String reqid) {
+        String sourceRequests = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + source + ".requests");
+        if (StringUtils.isAnyString(sourceRequests)) {
+            boolean f = Arrays.stream(sourceRequests.split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::isAnyString)
+                    .anyMatch(reqid::equals);
+            if (f) return true;
+        }
+        String clientRequests = KConfiguration.getInstance().getConfiguration().getString("api.client.requests");
+        if (StringUtils.isAnyString(sourceRequests)) {
+            return containsRequest(clientRequests, reqid);
+        } else return false;
+    }
+
+    private boolean containsRequest(String requests, String reqid) {
+        return Arrays.stream(requests.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isAnyString)
+                .anyMatch(reqid::equals);
+    }
+
 
 }

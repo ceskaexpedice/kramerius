@@ -236,7 +236,17 @@ public class ProcessManagerProcessEndpoint {
     @GET
     @Path("owner")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getOwners() {
+    public Response getOwners(@QueryParam("workers") String workers) {
+        if (workers != null && !workers.trim().isEmpty()) {
+            String json = "{" +
+                    "                \"owners\": [" +
+                    "                  {" +
+                    "                    \"owner\": \"PePo\"" +
+                    "                  }" +
+                    "                ]" +
+                    "              }";
+            return jsonPayload(json);
+        }
         String json = "{" +
                 "                \"owners\": [" +
                 "                  {" +

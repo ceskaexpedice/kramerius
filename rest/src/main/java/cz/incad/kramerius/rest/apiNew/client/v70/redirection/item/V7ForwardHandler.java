@@ -8,12 +8,20 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.StreamingOutput;
+
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
+import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
@@ -85,36 +93,62 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/client/v7.0/items/" + this.pid + "/image/thumb";
 
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, true, true);
+            return buildForwardApacheResponseHEAD(apiKey(), url, null, this.pid, true, true);
         }
 
         CDKRequestItem cdkRequestItem = cacheItemHit_PID_USER(url, pid, false, "thumb", event);
         if (cdkRequestItem != null) {
-            ByteBuffer buffer = (ByteBuffer) cdkRequestItem.getData();
+            final ByteBuffer buffer = ((ByteBuffer) cdkRequestItem.getData()).duplicate();
             final int contentLength = buffer.remaining();
-            StreamingOutput stream = output -> {
-                if (buffer.hasArray()) {
-                    output.write(buffer.array(), buffer.arrayOffset() + buffer.position(), contentLength);
-                } else {
-                    byte[] bytes = new byte[contentLength];
-                    buffer.get(bytes);
-                    output.write(bytes);
-                }
-                output.flush();
-            };
+
+            String cacheMimeType = cdkRequestItem.getMimeType();
+            LOGGER.log(Level.FINE, String.format("[THUMB-CACHE-HIT] PID: %s | Mime-Type z DB: %s | Vypocitana delka (contentLength): %d",
+                    this.pid, (cacheMimeType != null ? cacheMimeType : "NULL!"), contentLength));
+
+            final byte[] safeBytes = new byte[contentLength];
+            buffer.get(safeBytes);
+            LOGGER.log(Level.FINE, String.format("[THUMB-CACHE-HIT] PID: %s, Skutecne vycteno do safeBytes: %d", this.pid, safeBytes.length));
+
+
+            ResponseBuilder respEntity = Response.ok(safeBytes);
+            if (cdkRequestItem.getMimeType() != null && !cdkRequestItem.getMimeType().isEmpty()) {
+                respEntity.type(cdkRequestItem.getMimeType());
+            } else {
+                respEntity.type("image/jpeg");
+            }
+
+            if (cacheMimeType != null && !cacheMimeType.isEmpty()) {
+                respEntity.type(cacheMimeType);
+            } else {
+                LOGGER.log(Level.WARNING, String.format("[THUMB-WARN] PID: %s nema v cache Mime-Type! Nastavuji image/jpeg jako fallback.", this.pid));
+                respEntity.type("image/jpeg");
+            }
 
             Response.ResponseBuilder respEntity = Response.ok(stream);
             if (cdkRequestItem.getMimeType() != null) {
                 respEntity.type(cdkRequestItem.getMimeType());
             }
-            respEntity.header("Content-Length", contentLength);
-            return respEntity.build();
+
+            respEntity.header("Content-Length", String.valueOf(contentLength));
+
+            Response responseToReturn = respEntity.build();
+            Object finalContentType = responseToReturn.getMetadata().getFirst("Content-Type");
+            Object finalContentLength = responseToReturn.getMetadata().getFirst("Content-Length");
+
+            LOGGER.log(Level.FINE, String.format("[THUMB-RESPONSE-OUT] PID: %s | Odesilam do JAX-RS -> Content-Type: %s | Content-Length: %s",
+                    this.pid, finalContentType, finalContentLength));
+
+            return responseToReturn;
+
         } else {
-            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, (data, mimetype) -> {
+            LOGGER.log(Level.FINE, String.format("[THUMB-CACHE-MISS] Data nejsou v cache, jdu na Apache pro PID: %s", this.pid));
+            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, (data, mimetype) -> {
                 CompletableFuture.runAsync(() -> {
                     try {
+                        LOGGER.log(Level.FINE, String.format("[THUMB-ASYNC-SAVE] Ukladam do cache pro PID: %s, velikost dat: %d", this.pid, data.length));
+
                         CDKRequestItem<ByteBuffer> cacheItem = (CDKRequestItem<ByteBuffer>) CDKRequestItemFactory.createCacheItem(
-                                ByteBuffer.wrap(data),
+                                ByteBuffer.wrap(Arrays.copyOf(data, data.length)),
                                 mimetype,
                                 url,
                                 this.pid,
@@ -137,7 +171,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_FULL";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, false, true);
+            return buildForwardApacheResponseHEAD(apiKey(), url, null, this.pid, false, true);
         } else {
             return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, null);
         }
@@ -149,7 +183,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/IMG_PREVIEW";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, false, true);
+            return buildForwardApacheResponseHEAD(apiKey(), url, null, this.pid, false, true);
         } else {
             return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, null);
         }
@@ -226,19 +260,49 @@ public class V7ForwardHandler extends V7RedirectHandler {
     }
 
     @Override
-    public Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException {
+    public Response requestsUserSpace() throws ProxyHandlerException {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/userspace";
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+    }
+
+    @Override
+    public Response pdfSelection(String pidsParam, String firstPageType, String format, String language) throws ProxyHandlerException {
+
         try {
             String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/pdf/selection";
             URIBuilder builder = new URIBuilder(url);
-            builder.setParameter("pidsParam", pidsParam);
-            builder.setParameter("firstPageType", firstPageType);
-            builder.setParameter("format", format);
-            return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, null, null);
+            builder.setParameter("pids", pidsParam);
+            if (StringUtils.isAnyString(firstPageType)) {
+                builder.setParameter("firstPageType", firstPageType);
+            }
+            if (StringUtils.isAnyString(format)) {
+                builder.setParameter("format", format);
+            }
+            if (StringUtils.isAnyString(language)) {
+                builder.setParameter("language", language);
+
+            }
+            return buildForwardApacheResponseGET(builder.toString(), apiKey(), null, this.pid, true, true, null, null);
         } catch (URISyntaxException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @Override
+    public Response  collectionClips(ApiCallEvent event) {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + pid + "collection/cuttings";
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
+    }
+
+    @Override
+    public Response  collectionThumb(ApiCallEvent event, String thumbId) {
+        String baseurl = this.forwardUrl();
+        String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + pid + "collection/cuttings/image/" + thumbId;
+        return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, true, event, null);
     }
 
     @Override
@@ -247,16 +311,34 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/" + this.pid
                     + "/requests/" + reqType;
+            JSONObject forwardedReqDefinition = reqDefinition != null ? new JSONObject(reqDefinition.toString()) : new JSONObject();
+            forwardedReqDefinition.put("notificationMode", "cdk");
+            forwardedReqDefinition.put("notificationCallbackUrl", notificationCallbackUrl());
+            forwardedReqDefinition.put("notificationSource", this.source);
             URIBuilder builder = new URIBuilder(url);
             if (lang != null) {
                 builder.setParameter("lang", lang);
             }
-            Response response = buildForwardApacheResponsePOST(builder.toString(), reqDefinition, apiKey(), this.pid, false, null);
-            InputStream is = (InputStream) response.getEntity();
-            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-            String entity = s.hasNext() ? s.next() : "";
+            AtomicReference<byte[]> responseBytes = new AtomicReference<>();
+            AtomicReference<String> responseMimeType = new AtomicReference<>();
+            Response response = buildForwardApacheResponsePOST(builder.toString(), forwardedReqDefinition, apiKey(), this.pid, true, (data, mimeType) -> {
+                responseBytes.set(data);
+                responseMimeType.set(mimeType);
+            });
+            int status = response.getStatus();
+            LOGGER.log(Level.FINE, "requests response status: " + status);
+            if (status != Response.Status.OK.getStatusCode()) {
+                LOGGER.log(Level.WARNING, String.format(
+                        "Forwarded item request failed: source=%s, pid=%s, reqType=%s, status=%d, url=%s",
+                        source, this.pid, reqType, status, builder.toString()
+                ));
+                return response;
+            }
+
+            byte[] bytes = responseBytes.get();
+            String entity = bytes != null ? new String(bytes, StandardCharsets.UTF_8) : "";
             JSONObject jsonObject = new JSONObject(entity);
-            String prefix = source + "/";
+            String prefix = source + UsersRequestsResource.DELIMITER;
             if (jsonObject.has(ProcessManagerMapper.PCP_PROCESS_ID)) {
                 String originalPid = jsonObject.getString(ProcessManagerMapper.PCP_PROCESS_ID);
                 jsonObject.put(ProcessManagerMapper.PCP_PROCESS_ID, prefix + originalPid);
@@ -265,11 +347,26 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 String originalToken = jsonObject.getString("token");
                 jsonObject.put("token", prefix + originalToken);
             }
-            return response;
+            String mimeType = responseMimeType.get();
+            return Response.status(status)
+                    .entity(jsonObject.toString())
+                    .type(mimeType != null ? mimeType : MediaType.APPLICATION_JSON)
+                    .build();
         } catch (URISyntaxException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private String notificationCallbackUrl() {
+        String configured = KConfiguration.getInstance().getConfiguration()
+                .getString("generate.notification.cdk.callback_url", null);
+        if (StringUtils.isAnyString(configured)) {
+            return configured;
+        }
+        String clientPoint = KConfiguration.getInstance().getConfiguration()
+                .getString("api.client.point");
+        return clientPoint + (clientPoint.endsWith("/") ? "" : "/") + "userrequests/notifications";
     }
 
     @Override
@@ -279,7 +376,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 + "/streams/TEXT_OCR";
 
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, apiKey(), null, this.pid, false, true);
+            return buildForwardApacheResponseHEAD(apiKey(), url, null, this.pid, false, true);
         } else {
             return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, false, true, event, null);
         }
@@ -291,7 +388,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
         String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                 + "/streams/ALTO";
         if (method == RequestMethodName.head) {
-            return buildForwardApacheResponseHEAD(url, apiKey(), "application/xml;charset=utf-8", this.pid, false, true);
+            return buildForwardApacheResponseHEAD(apiKey(), url, "application/xml;charset=utf-8", this.pid, false, true);
         } else {
             return buildForwardApacheResponseGET(url, apiKey(), "application/xml;charset=utf-8", this.pid, false, true, event, null);
         }

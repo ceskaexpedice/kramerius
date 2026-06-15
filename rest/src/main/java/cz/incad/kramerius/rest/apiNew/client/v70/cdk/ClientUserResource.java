@@ -139,13 +139,17 @@ public class ClientUserResource {
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info(@QueryParam("sessionAttributes") String sessionAttributes) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user", String.format("sessionAttributes=%s",sessionAttributes), "GET");
+        String userLogin = null;
         try {
         	Boolean flag  = Boolean.valueOf(sessionAttributes);
         	if (flag == null) {
         		flag = false;
         	}
         	User user = this.userProvider.get();
-    		LOGGER.fine(String.format("Returning principal %s (%s)", user.getLoginname(), user.getGroups() != null ? Arrays.asList(user.getGroups()).stream().map(Role::getName).collect(Collectors.joining(",")): ""));
+            if (user != null) {
+                userLogin = user.getLoginname();
+            }
+    		LOGGER.fine(String.format("Returning principal %s (%s)", user != null ? user.getLoginname() : null, user != null && user.getGroups() != null ? Arrays.asList(user.getGroups()).stream().map(Role::getName).collect(Collectors.joining(",")): ""));
             if (user != null) {
             	if (user.getId() > -1) {
                 	List<String> labels = findLabels(user,event);
@@ -163,7 +167,7 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         } finally {
             if (event != null) {
-                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+                this.apiCallMonitor.stop(event, userLogin);
             }
         }
     }
@@ -214,8 +218,12 @@ public class ClientUserResource {
     public Response allowedActions(@QueryParam("pid") String pid) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/user", "/client/v7.0/user/actions", String.format("pid=%s",pid), "GET");
         User user;
+        String userLogin = null;
         try {
             user = this.userProvider.get();
+            if (user != null) {
+                userLogin = user.getLoginname();
+            }
             if (pid == null || !StringUtils.isAnyString(pid)) {
                 pid = SpecialObjects.REPOSITORY.getPid();
             }
@@ -251,7 +259,7 @@ public class ClientUserResource {
             throw new GenericApplicationException(e.getMessage());
         } finally {
             if (event != null) {
-                this.apiCallMonitor.stop(event, userProvider.get().getLoginname());
+                this.apiCallMonitor.stop(event, userLogin);
             }
         }
     }

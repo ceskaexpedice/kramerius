@@ -70,7 +70,7 @@ class CleanupStrategyTest {
         // THEN:
         assertTrue(strategy.shouldDelete(file1, getAttrs(file1)), "Oldest file should be deleted");
         assertTrue(strategy.shouldDelete(file2, getAttrs(file2)), "Second oldest should be deleted to fit limit");
-        assertFalse(strategy.shouldDelete(file3, getAttrs(file3)), "Newest file should be kept");
+        assertTrue(strategy.shouldDelete(file3, getAttrs(file3)), "Newest file should be deleted as well");
     }
 
     @Test

@@ -11,7 +11,7 @@
 
         <field name="pid" type="string" indexed="true" stored="true" required="true"  docValues="true"/>
         <field name="model" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
-		<field name="subtype" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="subtype" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
         <field name="created" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <field name="modified" type="date" indexed="true" stored="true" multiValued="false" docValues="true"/>
@@ -24,14 +24,14 @@
         <!--geographic names-->
         <field name="geographic_names.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="geographic_names.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-		
-		 <!--subject names (personal/corporate)-->
+
+        <!--subject names (personal/corporate)-->
         <field name="subject_names_personal.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="subject_names_personal.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
         <field name="subject_names_corporate.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="subject_names_corporate.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-		
-		<!--subject temporals-->
+
+        <!--subject temporals-->
         <field name="subject_temporals.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="subject_temporals.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
@@ -50,37 +50,37 @@
         <!--vsichni autori (vcetne hlavnich, ti se nerozlisuji), 'authors' muze obsahovat datum-->
         <field name="authors" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="authors.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
-		<!-- Authors search exact -->
+        <!-- Authors search exact -->
         <field name="authors.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
         <field name="authors.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-				
+
         <field name="authors.aut.identifiers" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-			
-		<!-- Vsichni autori a infix aut znamena, ze se bere primarne autoritni zaznam -->
+
+        <!-- Vsichni autori a infix aut znamena, ze se bere primarne autoritni zaznam -->
         <field name="authors.aut.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
 
 
-		<dynamicField name="author.aut.search.role_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>		
-		<dynamicField name="author.aut.facet.role_*" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>		
+        <dynamicField name="author.aut.search.role_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <dynamicField name="author.aut.facet.role_*" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
         <field name="authors.aut.roles" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
 
         <!--hlavni nazev-->
         <field name="title.search" type="text_fgs" indexed="true" stored="true" multiValued="false" docValues="false"/>
-		<!-- localized collection titles -->
+        <!-- localized collection titles -->
         <dynamicField name="title.search_*" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
 
         <!--hlavni nazev (bez hodnoty nonSort)-->
         <field name="title.sort" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
         <!--vsechny nazvy (vcetne hlavniho)-->
         <field name="titles.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
-		<!-- Titles search exact -->
+        <!-- Titles search exact -->
         <field name="titles.search.exact" type="text_exact_match" indexed="true" stored="false" multiValued="true" docValues="false"/>
 
-		<!-- localized collection desc -->
-		<dynamicField name="collection.desc_*" type="text_general" indexed="true" stored="true" multiValued="true" docValues="false"/>
+        <!-- localized collection desc -->
+        <dynamicField name="collection.desc_*" type="text_general" indexed="true" stored="true" multiValued="true" docValues="false"/>
 
         <!--root, parent, paths-->
         <!--root-->
@@ -99,11 +99,11 @@
         <field name="own_pid_path.children" type="children_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
         <field name="own_pid_path.parents" type="parents_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
 
-		<field name="own_model_path" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
-		<field name="own_model_path.children" type="children_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
+        <field name="own_model_path" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+        <field name="own_model_path.children" type="children_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
         <field name="own_model_path.parents" type="parents_path_hierarchy" indexed="true" stored="false" multiValued="false"  docValues="false"/>
 
- 		
+
 
         <!--position of this object within it's own parent's children-->
         <field name="rels_ext_index.sort" type="int" indexed="true" stored="true" docValues="true"/>
@@ -205,33 +205,33 @@
         <!--value in id_other is prefixed with type (if found in mods:identifier/@type) and colon, e.g. "sici:84987580"-->
         <field name="id_other" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <!--possible other identifiers for special field: sici, coden-->
-		
-		<!-- all identifiers in one field -->
-        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-		
 
-		<copyField source="id_urnnbn" dest="id_all"/>
-		<copyField source="id_ccnb" dest="id_all"/>
-		<copyField source="id_uuid" dest="id_all"/>
-		<copyField source="id_oclc" dest="id_all"/>
-		<copyField source="id_sysno" dest="id_all"/>
-		<copyField source="id_barcode" dest="id_all"/>
-		<copyField source="id_isbn" dest="id_all"/>
-		<copyField source="id_issn" dest="id_all"/>
-		<copyField source="id_ismn" dest="id_all"/>
-		<copyField source="id_other" dest="id_all"/>
+        <!-- all identifiers in one field -->
+        <field name="id_all" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
+
+
+        <copyField source="id_urnnbn" dest="id_all"/>
+        <copyField source="id_ccnb" dest="id_all"/>
+        <copyField source="id_uuid" dest="id_all"/>
+        <copyField source="id_oclc" dest="id_all"/>
+        <copyField source="id_sysno" dest="id_all"/>
+        <copyField source="id_barcode" dest="id_all"/>
+        <copyField source="id_isbn" dest="id_all"/>
+        <copyField source="id_issn" dest="id_all"/>
+        <copyField source="id_ismn" dest="id_all"/>
+        <copyField source="id_other" dest="id_all"/>
 
         <!--pocty potomku (pro zobrazeni)-->
         <field name="count_page" type="int" indexed="true" stored="true" docValues="true"/>
         <field name="count_track" type="int" indexed="true" stored="true" docValues="true"/>
-	    <field name="count_monograph_unit" type="int" indexed="true" stored="true" docValues="true"/>
+        <field name="count_monograph_unit" type="int" indexed="true" stored="true" docValues="true"/>
         <field name="count_sound_unit" type="int" indexed="true" stored="true" docValues="true"/>
         <field name="count_issue" type="int" indexed="true" stored="true" docValues="true"/>
         <field name="count_volume" type="int" indexed="true" stored="true" docValues="true"/>
         <field name="count_internal_part" type="int" indexed="true" stored="true" docValues="true"/>
 
 
-		<!-- geo coordinates -->
+        <!-- geo coordinates -->
         <!-- bounding box -->
         <field name="coords.bbox" type="bbox" multiValued="false"/>
         <!-- center of the bounding box -->
@@ -243,6 +243,12 @@
         <!-- if the coordinates represent a single point -->
         <field name="coords.is_point" type="boolean" indexed="true" stored="true"/>
 
+        <!-- Issue 1245 - overlaping in map -->
+        <field name="coords.bbox_overlap" type="bbox" indexed="true" stored="false" uninvertible="true"/>
+
+        <field name="coords.point" type="location" indexed="true" stored="true" docValues="true"/>
+        <copyField source="coords.bbox.center" dest="coords.point"/>
+
 
         <!--languages
         facetové pole, ale bude se užívat i pro vyhledávání, jelikož je to jednoslovný kód, neměl by být problém s rozsekáním na slova,
@@ -251,7 +257,7 @@
 
         <!--physical locations-->
         <field name="physical_locations.facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
-		<!-- Issue #865 -->		
+        <!-- Issue #865 -->
         <field name="physical_locations.search" type="text_fgs" indexed="true" stored="true" multiValued="true" docValues="false"/>
 
         <!--shelf locators-->
@@ -275,18 +281,18 @@
         <field name="mdt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="ddt" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
         <field name="donator" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
-		
+
 
         <!-- text ocr -->
         <field name="text_ocr" type="text_general" indexed="true" stored="true" storeOffsetsWithPositions="true"/>
-		
-		<!-- exact match field -->
-		<field name="text_ocr.exact" type="text_exact_match" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
 
-		<!-- has text_ocr content; for monograph, issues, etc.. -->
+        <!-- exact match field -->
+        <field name="text_ocr.exact" type="text_exact_match" indexed="true" stored="false" storeOffsetsWithPositions="true"/>
+
+        <!-- has text_ocr content; for monograph, issues, etc.. -->
         <field name="has_text_ocr_content" type="boolean" indexed="true" stored="true"  docValues="true"/>
 
-		<!-- has text_alto content; for monograph, issues, etc.. -->
+        <!-- has text_alto content; for monograph, issues, etc.. -->
         <field name="has_alto_content" type="boolean" indexed="true" stored="true"  docValues="true"/>
 
         <!-- licenses (formerly dnnt labels)-->
@@ -301,29 +307,29 @@
         <!-- licenses facet field; contains data from licenenses, contains_licenses, licenses_of_ancestors -->
         <field name="licenses.facet" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
         <!-- copy authors -->
-		<copyField source="authors" dest="authors.search.exact" />
+        <copyField source="authors" dest="authors.search.exact" />
 
-		<!-- copy titles -->
-		<copyField source="titles.search" dest="titles.search.exact" />
+        <!-- copy titles -->
+        <copyField source="titles.search" dest="titles.search.exact" />
 
         <copyField source="licenses_of_ancestors" dest="licenses.facet"/>
         <copyField source="contains_licenses" dest="licenses.facet"/>
 
         <copyField source="licenses" dest="licenses.facet"/>
- 		<!-- copy to text_ocr -->
+        <!-- copy to text_ocr -->
         <copyField source="text_ocr" dest="text_ocr.exact"/>
-		
-		<copyField source="physical_locations.facet" dest="physical_locations.search" />
 
-		<!-- paths -->
-		<copyField source="own_pid_path" dest="own_pid_path.children" />
-		<copyField source="own_pid_path" dest="own_pid_path.parents" />
-		<copyField source="own_model_path" dest="own_model_path.children" />
-		<copyField source="own_model_path" dest="own_model_path.parents" />
-		<copyField source="pid_paths" dest="pid_paths.children" />
-		<copyField source="pid_paths" dest="pid_paths.parents" />
+        <copyField source="physical_locations.facet" dest="physical_locations.search" />
 
-		<copyField source="physical_locations.facet" dest="physical_locations.search" />
+        <!-- paths -->
+        <copyField source="own_pid_path" dest="own_pid_path.children" />
+        <copyField source="own_pid_path" dest="own_pid_path.parents" />
+        <copyField source="own_model_path" dest="own_model_path.children" />
+        <copyField source="own_model_path" dest="own_model_path.parents" />
+        <copyField source="pid_paths" dest="pid_paths.children" />
+        <copyField source="pid_paths" dest="pid_paths.parents" />
+
+        <copyField source="physical_locations.facet" dest="physical_locations.search" />
 
 </fields>
 

@@ -262,6 +262,7 @@ public class HTTPSolrUtils {
             String content = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
             return content;
         } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
     }
