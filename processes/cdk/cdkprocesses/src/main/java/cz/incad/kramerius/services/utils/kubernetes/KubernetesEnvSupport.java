@@ -8,6 +8,7 @@ public class KubernetesEnvSupport {
     public static final String TMSP_URL = "TIMESTAMP_URL";
     public static final String ITERATION_URL = "ITERATION_URL";
     public static final String ITERATION_API_KEY = "ITERATION_API_KEY";
+    public static final String ITERATION_APIKEY = "ITERATION_APIKEY";
     public static final String CHECK_URL = "CHECK_URL";
     public static final String DESTINATION_URL = "DESTINATION_URL";
     public static final String CONFIG_SOURCE = "CONFIG_SOURCE";
@@ -35,13 +36,25 @@ public class KubernetesEnvSupport {
         });
     }
 
-    public static Map<String, String> timestampMap(Map<String, String> env, Map<String, String> destination) {
+    public static Map<String, String> timestampMap(Map<String, String> env, Map<String, String> iteration) {
         Map<String, String> timestamps = new HashMap<>();
         prefixVariables(env, timestamps, TMSP_PREFIX);
-        if (env.containsKey(TMSP_PREFIX)) {
-            destination.put("url", env.get(DESTINATION_URL));
+        if (env.containsKey(TMSP_URL)) {
+            timestamps.put("url", normalizeTimestampUrl(env.get(TMSP_URL), iteration.get("dl")));
         }
         return timestamps;
+    }
+
+    public static String normalizeTimestampUrl(String timestampUrl, String sourceName) {
+        if (timestampUrl == null || timestampUrl.trim().isEmpty()) {
+            return timestampUrl;
+        }
+        String normalized = timestampUrl.trim();
+        if ((normalized.endsWith("connected") || normalized.endsWith("connected/"))
+                && sourceName != null && !sourceName.trim().isEmpty()) {
+            return normalized + (normalized.endsWith("/") ? "" : "/") + sourceName.trim() + "/timestamp";
+        }
+        return normalized;
     }
 
     public static Map<String, String> destinationMap(Map<String, String> env) {
@@ -71,6 +84,9 @@ public class KubernetesEnvSupport {
         if (env.containsKey(ITERATION_API_KEY)) {
             iteration.put("apikey", env.get(ITERATION_API_KEY));
         }
+        if (env.containsKey(ITERATION_APIKEY)) {
+            iteration.put("apikey", env.get(ITERATION_APIKEY));
+        }
 
         return iteration;
     }
@@ -78,6 +94,7 @@ public class KubernetesEnvSupport {
     public static Map<String, String> comparingMap(Map<String, String> env) {
         Map<String, String> comparing = new HashMap<>();
         prefixVariables(env, comparing, COMPARING_PREFIX);
+        comparing.putIfAbsent("identifier", "pid");
         return comparing;
     }
 
