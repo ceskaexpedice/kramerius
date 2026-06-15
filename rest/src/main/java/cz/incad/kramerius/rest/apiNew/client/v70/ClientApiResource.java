@@ -13,8 +13,8 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import java.io.IOException;
 
 public abstract class ClientApiResource extends ApiResource {

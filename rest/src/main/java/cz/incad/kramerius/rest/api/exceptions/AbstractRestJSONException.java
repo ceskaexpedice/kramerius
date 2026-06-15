@@ -19,18 +19,17 @@
  */
 package cz.incad.kramerius.rest.api.exceptions;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import cz.incad.kramerius.rest.api.utils.ExceptionJSONObjectUtils;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 
 /**
  * Abstract API exception
  * @author pavels
  */
-public class AbstractRestJSONException extends WebApplicationException{
+public class AbstractRestJSONException extends WebApplicationException {
 
     public AbstractRestJSONException(String message, int status) {
         super(Response.status(status).entity(ExceptionJSONObjectUtils.fromMessage(message, status).toString()).type(MediaType.APPLICATION_JSON).build());

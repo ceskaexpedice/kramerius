@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import cz.incad.kramerius.auth.thirdparty.impl.AbstractThirdPartyUser;
-import cz.incad.kramerius.auth.thirdparty.keycloack.Keycloak3rdUser;
-import cz.incad.kramerius.auth.thirdparty.keycloack.KeycloakUserSupport;
 import cz.incad.kramerius.auth.utils.GeneratePasswordUtils;
 import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.User;
@@ -19,11 +18,10 @@ import cz.incad.kramerius.security.impl.UserImpl;
 import cz.incad.kramerius.security.utils.UserUtils;
 
 public class BaseUsersFunctions {
+    public static final Logger LOGGER = Logger.getLogger(BaseUsersFunctions.class.getName());
 
     private BaseUsersFunctions() {}
 
-
-    
     public static String createNewUser(UserManager usersManager, AbstractThirdPartyUser w) throws SQLException {
         User u = new UserImpl(-1,
                 w.getProperty(UserUtils.FIRST_NAME_KEY) !=  null ? w.getProperty(UserUtils.FIRST_NAME_KEY) : "" ,
@@ -57,7 +55,7 @@ public class BaseUsersFunctions {
                     Role nCreated = usersManager.findRoleByName(r);
                     if (nCreated != null) { roles.add(nCreated); }
                 } catch (SQLException e) {
-                    KeycloakUserSupport.LOGGER.log(Level.SEVERE, e.getMessage(),e);
+                    LOGGER.log(Level.SEVERE, e.getMessage(),e);
                 }
             }
         });

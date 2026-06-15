@@ -16,7 +16,7 @@
  */
 package cz.incad.kramerius.auth.thirdparty.shibb.rules.objects;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Represents string literal

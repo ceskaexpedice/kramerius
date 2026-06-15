@@ -6,10 +6,7 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class CDKIIIFServletUtils {
 

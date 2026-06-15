@@ -23,8 +23,8 @@ import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 public class ProcessSchedulerImpl implements ProcessScheduler {
 

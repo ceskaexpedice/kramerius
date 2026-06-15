@@ -1,6 +1,6 @@
 package cz.incad.kramerius.auth.thirdparty.shibb.utils;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.auth.thirdparty.shibb.rules.objects.ShibbolethContext;
 

@@ -16,16 +16,6 @@
  */
 package cz.incad.kramerius.auth.thirdparty.shibb.rules.objects;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import cz.incad.kramerius.security.Role;
-import cz.incad.kramerius.security.User;
-import cz.incad.kramerius.security.impl.UserImpl;
-
 /**
  * Expression perform assiciation logged user with declared role
  * @author pavels

@@ -1,6 +1,6 @@
 package cz.incad.kramerius.rest.api.exceptions;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class BadRequestException extends AbstractRestJSONException {
 

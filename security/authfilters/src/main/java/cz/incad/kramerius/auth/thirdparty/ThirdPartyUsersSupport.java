@@ -1,6 +1,6 @@
 package cz.incad.kramerius.auth.thirdparty;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface ThirdPartyUsersSupport {
 

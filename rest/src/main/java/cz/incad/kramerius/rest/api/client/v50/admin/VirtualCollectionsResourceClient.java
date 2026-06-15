@@ -16,63 +16,68 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.admin;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 /**
- * Virtualni sbirky 
- * @author pavels
+ * Virtual collections management - Jersey 3 / Jakarta
  */
 public class VirtualCollectionsResourceClient {
 
     private static final String DEFAULT_NAME = "krameriusAdmin";
-	private static final String DEFAULT_PSWD = "krameriusAdmin";
-	
-	/**
-	 * Vytvoreni nove
-	 * @return
-	 * @throws JSONException 
-	 */
-	public static String createVirtualCollection() throws JSONException {
-    	Client c = Client.create();
+    private static final String DEFAULT_PSWD = "krameriusAdmin";
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/vc");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+    private static Client createClient() {
+        return ClientBuilder.newBuilder()
+                .register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD))
+                .build();
+    }
+
+    /**
+     * Create a new virtual collection
+     */
+    public static String createVirtualCollection() throws JSONException {
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/vc");
+
         JSONObject object = new JSONObject();
-
         object.put("label", "nejnovejsi");
         object.put("canLeave", true);
-        
+
         JSONObject descs = new JSONObject();
         descs.put("cs", "Pokus o neco");
         descs.put("en", "attempt to something");
         object.put("descs", descs);
-        
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(object.toString(), MediaType.APPLICATION_JSON).post(String.class);
-        return t;
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(object.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
-	
-	/**
-	 * Smazani stare
-	 * @param vc
-	 * @return
-	 */
-	public static String deleteVirtualCollection(String vc) {
-    	Client c = Client.create();
 
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/vc/"+vc);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+    /**
+     * Delete an existing virtual collection
+     */
+    public static String deleteVirtualCollection(String vc) {
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/vc/" + vc);
 
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).delete(String.class);
-        return t;
-	}
-
-
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .delete()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
+    }
 }

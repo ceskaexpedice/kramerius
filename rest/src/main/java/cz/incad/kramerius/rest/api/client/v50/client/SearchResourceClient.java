@@ -16,56 +16,54 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.client;
 
-import javax.ws.rs.core.MediaType;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Ziskava informace z indexu
- * 
  * @author pavels
- * 
  */
 public class SearchResourceClient {
 
+    private static final String BASE_URL = "http://localhost:8080/search/api/v5.0/search";
+
     /**
-     * Vyhledavani v SOLRu
-     * 
-     * @param query
-     * @return
+     * Vyhledavani v SOLRu, JSON format
      */
     public static String search(String query) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/search?"
-                        + query);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "?" + query);
+            try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
+    /**
+     * Vyhledavani v SOLRu, XML format
+     */
     public static String searchXML(String query) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/search?"
-                        + query);
-        String t = r.accept(MediaType.APPLICATION_XML).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "?" + query);
+            try (Response response = target.request(MediaType.APPLICATION_XML).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
     /**
      * Komponenta terms
-     * 
-     * @param query
-     * @return
      */
     public static String terms(String query) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/search/terms?"
-                        + query);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "/terms?" + query);
+            try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -75,11 +73,8 @@ public class SearchResourceClient {
         all = searchXML("q=*:*");
         System.out.println(all);
 
-//        String monographs = search("q=fedora.model:monograph");
-//        System.out.println(monographs);
-//
-//        String terms = terms("terms.fl=language");
-//        System.out.println(terms);
+        // Example of using terms component
+        String terms = terms("terms.fl=language");
+        System.out.println(terms);
     }
-
 }

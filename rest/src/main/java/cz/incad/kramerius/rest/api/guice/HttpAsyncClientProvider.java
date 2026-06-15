@@ -19,7 +19,7 @@ import org.apache.hc.core5.util.Timeout;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.client5.http.config.RequestConfig;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 /**
  * HttpAsyncClientProvider

@@ -30,9 +30,9 @@ import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -76,7 +76,7 @@ public class IiifServlet extends AbstractImageServlet {
     Instances instances;
 
     @Inject
-    @javax.inject.Named("forward-client")
+    @jakarta.inject.Named("forward-client")
     Provider<CloseableHttpClient> apacheClient;
 
 

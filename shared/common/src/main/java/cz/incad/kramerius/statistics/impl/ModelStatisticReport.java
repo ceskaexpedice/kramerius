@@ -78,9 +78,9 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
     public static final String REPORT_ID = "model";
 
 
-    @javax.inject.Inject
-    @javax.inject.Named("solr-client")
-    private javax.inject.Provider<CloseableHttpClient> provider;
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("solr-client")
+    private jakarta.inject.Provider<CloseableHttpClient> provider;
 
     @Inject
     @Named("new-index")

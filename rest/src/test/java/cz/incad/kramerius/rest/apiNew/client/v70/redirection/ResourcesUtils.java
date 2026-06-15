@@ -20,8 +20,8 @@ import cz.incad.kramerius.rest.apiNew.client.v70.redirection.impl.DeleteTriggerS
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.impl.DeleteTriggerSupportImplTest;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;

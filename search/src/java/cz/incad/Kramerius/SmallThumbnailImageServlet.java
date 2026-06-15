@@ -9,9 +9,9 @@ import cz.incad.kramerius.utils.imgs.KrameriusImageSupport.ScalingMethod;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 import java.awt.*;
 import java.awt.image.BufferedImage;

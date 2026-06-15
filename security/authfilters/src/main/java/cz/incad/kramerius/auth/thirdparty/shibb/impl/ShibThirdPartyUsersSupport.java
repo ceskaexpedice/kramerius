@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

@@ -13,16 +13,16 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +37,7 @@ public class ProcessResource extends AdminApiResource {
     @Inject
     ProcessDefinitionManager definitionManager;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
     @Inject
@@ -48,7 +48,7 @@ public class ProcessResource extends AdminApiResource {
     RightsResolver rightsResolver;
 
     @Inject
-    @javax.inject.Named("forward-client")
+    @jakarta.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
 
     @GET
@@ -321,11 +321,10 @@ public class ProcessResource extends AdminApiResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response scheduleProcess(JSONObject processDefinition) {
+    public Response scheduleProcess(String processDefinitionSt) {
         try {
-
+            JSONObject processDefinition = new JSONObject(processDefinitionSt);
             LOGGER.info(String.format("Requesting %s", processDefinition.toString()));
-
             ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
 
             JSONObject pcpSchedule = ProcessManagerMapper.mapScheduleMainProcess(processDefinition, userProvider.get().getLoginname());

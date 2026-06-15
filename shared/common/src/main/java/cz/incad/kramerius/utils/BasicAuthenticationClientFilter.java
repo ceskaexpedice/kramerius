@@ -1,34 +1,31 @@
 package cz.incad.kramerius.utils;
 
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientRequest;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.filter.ClientFilter;
-import com.sun.jersey.core.util.Base64;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.ext.Provider;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-public class BasicAuthenticationClientFilter extends ClientFilter {
+@Provider
+public class BasicAuthenticationClientFilter implements ClientRequestFilter {
+
+    private final String username;
+    private final String password;
 
     public BasicAuthenticationClientFilter(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
 
-    public ClientResponse handle(ClientRequest clientRequest) throws ClientHandlerException {
+    @Override
+    public void filter(ClientRequestContext request) throws IOException {
+        String token = Base64.getEncoder()
+                .encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
 
-        // encode the password
-        byte[] encoded =  Base64.encode((username + ":" + password).getBytes());
-
-        // add the header
-        List<Object> headerValue = new ArrayList<Object>();
-        headerValue.add("Basic " + new String(encoded));
-        clientRequest.getMetadata().put("Authorization", headerValue);
-
-        return getNext().handle(clientRequest);
+        request.getHeaders().putSingle(HttpHeaders.AUTHORIZATION, "Basic " + token);
     }
 
-    private String username;
-    private String password;
 }

@@ -4,20 +4,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.qbizm.kramerius.imptool.poc.convertor.BaseConvertor;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.service.FOXMLAppendLicenseService;
 import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.FedoraUtils;
-import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.*;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -34,8 +27,6 @@ import org.ceskaexpedice.akubra.RepositoryNamespaces;
 import org.ceskaexpedice.akubra.pid.LexerException;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.fedoramodel.*;
-import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
-import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.ceskaexpedice.processplatform.api.context.PluginContext;
 import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.ceskaexpedice.processplatform.common.model.ScheduleSubProcess;
@@ -53,10 +44,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -65,7 +53,6 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
-
 import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -75,10 +62,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.utils.*;
-
-
-import static cz.incad.kramerius.utils.XMLUtils.*;
+import static cz.incad.kramerius.utils.XMLUtils.LOGGER;
+import static cz.incad.kramerius.utils.XMLUtils.findElement;
 import static org.ceskaexpedice.akubra.RepositoryNamespaces.DC_NAMESPACE_URI;
 
 

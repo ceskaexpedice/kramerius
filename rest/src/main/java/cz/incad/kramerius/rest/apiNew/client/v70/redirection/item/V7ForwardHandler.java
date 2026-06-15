@@ -15,19 +15,20 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
 import cz.incad.kramerius.processes.client.ProcessManagerMapper;
-import cz.incad.kramerius.rest.apiNew.client.v70.cdk.UsersRequestsResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
 import cz.inovatika.cdk.cache.CDKRequestItem;
 import cz.inovatika.cdk.cache.impl.CDKRequestItemFactory;
 import cz.inovatika.monitoring.ApiCallEvent;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -123,6 +124,7 @@ public class V7ForwardHandler extends V7RedirectHandler {
                 respEntity.type("image/jpeg");
             }
 
+            Response.ResponseBuilder respEntity = Response.ok(stream);
             if (cdkRequestItem.getMimeType() != null) {
                 respEntity.type(cdkRequestItem.getMimeType());
             }
@@ -162,7 +164,6 @@ public class V7ForwardHandler extends V7RedirectHandler {
             });
         }
     }
-
 
     @Override
     public Response image(RequestMethodName method, ApiCallEvent event) throws ProxyHandlerException {

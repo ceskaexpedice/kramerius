@@ -1,13 +1,12 @@
 package cz.incad.kramerius.auth.thirdparty.shibb.utils;
 
+import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import javax.servlet.http.HttpServletRequest;
-
-import cz.incad.kramerius.security.impl.http.AbstractLoggedUserProvider;
 
 public class CDKShibbolethForwardUtils {
 

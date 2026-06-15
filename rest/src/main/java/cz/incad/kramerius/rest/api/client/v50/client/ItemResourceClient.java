@@ -21,134 +21,112 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.ws.rs.core.MediaType;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 
 /**
- * Ziskava informace o titulu
+ * Access item info - Jersey 3 / Jakarta
  * @author pavels
  */
 public class ItemResourceClient {
 
-	/**
-	 * Ziska informace o titulu
-	 * @param pid
-	 * @return
-	 */
+	private static Client createClient() {
+		// enable automatic redirects
+		Client client = ClientBuilder.newBuilder()
+				.build();
+		client.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+		return client;
+	}
+
 	public static String item(String pid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid );
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+		try (Client client = createClient()) {
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/item/" + pid);
+			try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+				return response.readEntity(String.class);
+			}
+		}
 	}
-	
-	/**
-	 * Ziska seznam deti titulu
-	 * @param pid
-	 * @return
-	 */
+
 	public static String children(String pid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid +"/children");
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+		try (Client client = createClient()) {
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/item/" + pid + "/children");
+			try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+				return response.readEntity(String.class);
+			}
+		}
 	}
-	
-	/**
-	 * Ziska seznam sourozencu
-	 * @param pid
-	 * @return
-	 */
+
 	public static String siblings(String pid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid +"/siblings");
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+		try (Client client = createClient()) {
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/item/" + pid + "/siblings");
+			try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+				return response.readEntity(String.class);
+			}
+		}
 	}
 
-	/**
-	 * Ziska seznam vsech streamu
-	 * @param pid
-	 * @return
-	 */
 	public static String streams(String pid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid +"/streams");
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+		try (Client client = createClient()) {
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/item/" + pid + "/streams");
+			try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+				return response.readEntity(String.class);
+			}
+		}
 	}
-	
-	/**
-	 * Ziska data streamu
-	 * @param pid
-	 * @param stream
-	 * @return
-	 */
+
 	public static String stream(String pid, String stream) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid +"/streams/"+stream);
-        String t = r.accept(MediaType.MEDIA_TYPE_WILDCARD).get(String.class);
-        return t;
+		try (Client client = createClient()) {
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/item/" + pid + "/streams/" + stream);
+			try (Response response = target.request(MediaType.WILDCARD).get()) {
+				return response.readEntity(String.class);
+			}
+		}
 	}
 
-	/**
-	 * Ziska obrazek IMG_FULL 
-	 * @param pid
-	 * @return
-	 */
 	public static byte[] full(String pid) {
-        Client c = Client.create();
-        c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);        
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid +"/full");
-        byte[] t = r.accept(MediaType.MEDIA_TYPE_WILDCARD).get(new byte[0].getClass());
-        return t;
+		return fetchImage(pid, "full");
 	}
 
-	/**
-	 * Ziska obrazek IMG_PREVIEW 
-	 * @param pid
-	 * @return
-	 */
 	public static byte[] preview(String pid) {
-        Client c = Client.create();
-        c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);        
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid +"/preview");
-        byte[] t = r.accept(MediaType.MEDIA_TYPE_WILDCARD).get(new byte[0].getClass());
-        return t;
+		return fetchImage(pid, "preview");
 	}
 
-	/**
-	 * Ziska obrazek IMG_THUMB 
-	 * @param pid
-	 * @return
-	 */
 	public static byte[] thumb(String pid) {
-        Client c = Client.create();
-        c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);        
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/item/" + pid +"/thumb");
-        byte[] t = r.accept(MediaType.MEDIA_TYPE_WILDCARD).get(new byte[0].getClass());
-        return t;
+		return fetchImage(pid, "thumb");
+	}
+
+	private static byte[] fetchImage(String pid, String type) {
+		try (Client client = createClient()) {
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/item/" + pid + "/" + type);
+			try (Response response = target.request(MediaType.WILDCARD).get()) {
+				return response.readEntity(byte[].class);
+			}
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
-		String item = item("uuid:045b1250-7e47-11e0-add1-000d606f5dc6");
+		String pid = "uuid:045b1250-7e47-11e0-add1-000d606f5dc6";
+
+		String item = item(pid);
 		System.out.println(item);
 
-		String chilren = children("uuid:045b1250-7e47-11e0-add1-000d606f5dc6");
-		System.out.println(chilren);
-		
-		String streams = streams("uuid:045b1250-7e47-11e0-add1-000d606f5dc6");
+		String children = children(pid);
+		System.out.println(children);
+
+		String streams = streams(pid);
 		System.out.println(streams);
-		
-		String dcStream = stream("uuid:045b1250-7e47-11e0-add1-000d606f5dc6", "DC");
+
+		String dcStream = stream(pid, "DC");
 		System.out.println(dcStream);
-		
-		byte[] full = full("uuid:045b1250-7e47-11e0-add1-000d606f5dc6");
-		BufferedImage readImage = ImageIO.read(new ByteArrayInputStream(full));
-		System.out.println("image size "+readImage.getHeight()+"x"+readImage.getWidth());
-		
+
+		byte[] fullImg = full(pid);
+		BufferedImage img = ImageIO.read(new ByteArrayInputStream(fullImg));
+		System.out.println("Image size: " + img.getHeight() + "x" + img.getWidth());
 	}
 }

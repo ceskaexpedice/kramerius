@@ -16,55 +16,65 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.client;
 
-import javax.ws.rs.core.MediaType;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
- * Ziskani nejnovejsich a neojblibenejsich
- * 
- * @author pavels
- * 
+ * Access newest and most desirable feeds - Jersey 3 / Jakarta
+ *
+ * Author: pavels
  */
 public class FeederResourceClient {
 
+    private static Client createClient() {
+        return ClientBuilder.newClient();
+    }
+
     /**
-     * Nejoblibenejsi
-     * 
-     * @return
+     * Most desirable items
      */
     public static String mostdesirable(String type, String limit, String offset) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/feed/mostdesirable");
-        r = params(type, limit, offset, r);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/feed/mostdesirable");
+        target = applyParams(target, type, limit, offset);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
     /**
-     * Nejnovejsi
-     * 
-     * @return
+     * Newest items
      */
     public static String newest(String type, String limit, String offset) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/feed/newest");
-        r = params(type, limit, offset, r);
-        System.out.println(r.getURI());
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/feed/newest");
+        target = applyParams(target, type, limit, offset);
+
+        System.out.println(target.getUri());
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    public static WebResource params(String type, String limit, String offset,
-            WebResource r) {
+    private static WebTarget applyParams(WebTarget target, String type, String limit, String offset) {
         if (type != null) {
-            r = r.queryParam("type", type);
+            target = target.queryParam("type", type);
         }
-        r = r.queryParam("limit", limit);
-        r = r.queryParam("offset", offset);
-        return r;
+        if (limit != null) {
+            target = target.queryParam("limit", limit);
+        }
+        if (offset != null) {
+            target = target.queryParam("offset", offset);
+        }
+        return target;
     }
 }

@@ -1,25 +1,5 @@
 package cz.incad.kramerius.rest.apiNew.client.v60.redirection;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.io.IOUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.sun.jersey.api.client.Client;
-
-import cz.incad.kramerius.impl.SolrAccessImplNewIndex;
-import cz.incad.kramerius.utils.pid.LexerException;
-import junit.framework.TestCase;
-
-
 public class V5RedirectHandlerTest {
 	
 	

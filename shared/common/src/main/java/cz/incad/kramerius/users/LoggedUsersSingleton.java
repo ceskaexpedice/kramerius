@@ -16,13 +16,10 @@
  */
 package cz.incad.kramerius.users;
 
-import java.sql.SQLException;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.inject.Provider;
-
 import cz.incad.kramerius.security.User;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Manages logged users 

@@ -29,14 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -56,11 +55,8 @@ import org.xml.sax.SAXException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.service.SortingService;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.IterationUtils;
@@ -70,132 +66,281 @@ import cz.incad.kramerius.utils.IterationUtils.IterationEndCallback;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.collections.Restore;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 public class FromK5Instance {
 
+    private static final String ALLOWED_CHARACTERS =
+            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-    private static final String ALLOWED_CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final Client CLIENT = ClientBuilder.newClient();
+
+    public static Logger LOGGER =
+            Logger.getLogger(FromK5Instance.class.getName());
 
     public static String generateRandomString(int length) {
         SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            int randomIndex = random.nextInt(ALLOWED_CHARACTERS.length());
-            char randomChar = ALLOWED_CHARACTERS.charAt(randomIndex);
-            sb.append(randomChar);
+            sb.append(ALLOWED_CHARACTERS.charAt(
+                    random.nextInt(ALLOWED_CHARACTERS.length())));
         }
-
         return sb.toString();
     }
 
-    public static Logger LOGGER = Logger.getLogger(FromK5Instance.class.getName());
-
     public static void migrateMain(String url) throws Exception {
-        Client client = Client.create();
 
-        LOGGER.info("Reloading cloection");
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
 
         String tmpDirPath = System.getProperty("java.io.tmpdir");
+        String subdirectoryPath =
+                tmpDirPath + File.separator + generateRandomString(5);
 
-        String subdirectoryPath = tmpDirPath + File.separator + generateRandomString(5);
         FileUtils.forceMkdir(new File(subdirectoryPath));
+        LOGGER.info("Generating temp folder " + subdirectoryPath);
 
-        LOGGER.info(String.format("Generating temp folder %s", subdirectoryPath));
+        JSONArray collections = collections(CLIENT, url);
 
-
-        JSONArray collections = collections(client, url);
         for (int i = 0; i < collections.length(); i++) {
+
             JSONObject col = collections.getJSONObject(i);
             String pid = col.getString("pid");
             JSONObject desc = col.getJSONObject("descs");
 
-            List<String> pids = pids(client, pid, url);
-            LOGGER.info(String.format("Found root pids %d", pids.size()));
+            List<String> pids = pids(CLIENT, pid, url);
 
-            Document foxml = foxml(client, pid, url);
+            Document foxml = foxml(CLIENT, pid, url);
+
             createBiblioMods(foxml, desc);
-
-            // remove dc
             removeStream(foxml, "DC");
             removeStream(foxml, "AUDIT");
             removeStream(foxml, "TEXT");
             removeStream(foxml, "TEXT_cs");
             removeStream(foxml, "TEXT_en");
+
             addContainsRelations(foxml, pids);
             setStandalone(foxml);
 
-            File vcFile = new File(subdirectoryPath, pid.replace(':', '_') + ".xml");
+            File vcFile =
+                    new File(subdirectoryPath, pid.replace(':', '_') + ".xml");
+
             try (FileOutputStream fos = new FileOutputStream(vcFile)) {
-                XMLUtils.print(foxml, new FileOutputStream(vcFile));
+                XMLUtils.print(foxml, fos);
             }
         }
 
         LOGGER.info("Scheduling import " + subdirectoryPath);
-        FromK5Instance.importTmpDir(subdirectoryPath, true);
+        importTmpDir(subdirectoryPath, true);
     }
 
-    public static void setStandalone(Document foxml) {
-        Element relsExt = XMLUtils.findElement(foxml.getDocumentElement(), new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String localName = element.getLocalName();
-                String attribute = element.getAttribute("ID");
-                return localName != null && localName.equals("datastream") && attribute != null && attribute.equals("RELS-EXT");
-            }
-        });
+    /* ================================
+       ========== HTTP PART ===========
+       ================================ */
 
-        if (relsExt != null) {
-            Element rdfDecription = XMLUtils.findElement(relsExt, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String localName = element.getLocalName();
-                    String nameSpace = element.getNamespaceURI();
-                    return localName != null && localName.equals("Description") && nameSpace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI);
-                }
-            });
+    private static JSONArray collections(Client client, String api)
+            throws IOException {
 
-            if (rdfDecription != null) {
-                Element contains = foxml.createElementNS(RepositoryNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:standalone");
-                contains.setPrefix("rel");
-                contains.setTextContent("true");
-                rdfDecription.appendChild(contains);
-            }
+        String url = api + "/search/api/v5.0/vc";
+        LOGGER.info("Requesting url " + url);
+
+        WebTarget target = client.target(url);
+
+        try (InputStream is =
+                     target.request(MediaType.APPLICATION_JSON)
+                             .get(InputStream.class)) {
+
+            String string = IOUtils.toString(is, "UTF-8");
+            return new JSONArray(string);
         }
-
     }
 
-    private static void addContainsRelations(Document foxml, List<String> pids) {
-        //<rel:contains xmlns:rel="http://www.nsdl.org/ontologies/relationships#" rdf:resource="info:fedora/uuid:fe91d1d0-fc5c-4ea7-9300-3504922a08d4"/>
-        Element relsExt = XMLUtils.findElement(foxml.getDocumentElement(), new XMLUtils.ElementsFilter() {
-            @Override
-            public boolean acceptElement(Element element) {
-                String localName = element.getLocalName();
-                String attribute = element.getAttribute("ID");
-                return localName != null && localName.equals("datastream") && attribute != null && attribute.equals("RELS-EXT");
-            }
-        });
+    private static Document foxml(Client client, String vcPid, String api)
+            throws IOException, SAXException, ParserConfigurationException {
 
-        if (relsExt != null) {
-            Element rdfDecription = XMLUtils.findElement(relsExt, new XMLUtils.ElementsFilter() {
-                @Override
-                public boolean acceptElement(Element element) {
-                    String localName = element.getLocalName();
-                    String nameSpace = element.getNamespaceURI();
-                    return localName != null && localName.equals("Description") && nameSpace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI);
-                }
-            });
+        String url =
+                String.format("%s/search/api/v5.0/item/%s/foxml", api, vcPid);
 
-            if (rdfDecription != null) {
-                for (String pid : pids) {
-                    Element contains = foxml.createElementNS(RepositoryNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:contains");
-                    contains.setPrefix("rel");
-                    contains.setAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "rdf:resource", String.format("info:fedora/%s", pid));
-                    rdfDecription.appendChild(contains);
-                }
-            }
+        LOGGER.info("Requesting url " + url);
+
+        WebTarget target = client.target(url);
+
+        try (InputStream is =
+                     target.request(MediaType.APPLICATION_XML)
+                             .get(InputStream.class)) {
+
+            String document = IOUtils.toString(is, "UTF-8");
+            String replaced = document.replaceAll("vc\\:", "uuid:");
+            return XMLUtils.parseDocument(
+                    new StringReader(replaced), true);
         }
+    }
+
+    /* ================================
+       ========= QUERY PART ==========
+       ================================ */
+
+    static Element pidsCursorQuery(Client client,
+                                   String url,
+                                   String mq,
+                                   String cursor)
+            throws Exception {
+
+        int rows = 1000;
+
+        String query =
+                "search?q=" + mq +
+                        (cursor != null
+                                ? "&rows=" + rows + "&cursorMark=" + cursor
+                                : "&rows=" + rows + "&cursorMark=*")
+                        + "&sort=" + URLEncoder.encode("PID desc", "UTF-8")
+                        + "&fl=PID";
+
+        return IterationUtils.executeQuery(client, url, query);
+    }
+
+    public static void collectionIterations(Client client,
+                                            String address,
+                                            String masterQuery,
+                                            IterationCallback callback,
+                                            IterationEndCallback endCallback)
+            throws Exception {
+
+        String cursorMark = null;
+        String queryCursorMark;
+
+        do {
+            Element element =
+                    pidsCursorQuery(client, address, masterQuery, cursorMark);
+
+            cursorMark = IterationUtils.findCursorMark(element);
+            queryCursorMark =
+                    IterationUtils.findQueryCursorMark(element);
+
+            callback.call(element, cursorMark);
+
+        } while (cursorMark != null &&
+                queryCursorMark != null &&
+                !cursorMark.equals(queryCursorMark));
+
+        endCallback.end();
+    }
+
+    private static List<String> pids(Client client,
+                                     String vcPid,
+                                     String api)
+            throws Exception {
+
+        final List<String> returnPids = new ArrayList<>();
+
+        String url = api.endsWith("/") ?
+                api + "search/api/v5.0/" :
+                api + "/search/api/v5.0/";
+
+        List<String> models =
+                KConfiguration.getInstance()
+                        .getConfiguration()
+                        .getList("collections.migrate.models",
+                                Arrays.asList("monograph",
+                                        "periodical",
+                                        "sheetmusic",
+                                        "monographunit"))
+                        .stream()
+                        .map(Object::toString)
+                        .toList();
+
+        String fqModel =
+                "fedora.model:(" +
+                        String.join(" OR ", models) +
+                        ") AND ";
+
+        String collectionPid =
+                "(collection:\"" + vcPid + "\")";
+
+        String masterQuery =
+                URLEncoder.encode(fqModel + collectionPid, "UTF-8");
+
+        collectionIterations(client, url, masterQuery,
+                (elm, i) -> {
+
+                    Element result =
+                            XMLUtils.findElement(elm,
+                                    e -> e.getNodeName().equals("result"));
+
+                    if (result != null) {
+                        List<Element> elements =
+                                XMLUtils.getElements(result,
+                                        e -> e.getNodeName().equals("doc"));
+
+                        List<String> idents =
+                                elements.stream()
+                                        .map(item ->
+                                                XMLUtils.findElement(item,
+                                                                e -> e.getNodeName()
+                                                                        .equals("str"))
+                                                        .getTextContent())
+                                        .collect(Collectors.toList());
+
+                        returnPids.addAll(idents);
+                    }
+
+                }, () -> {
+                });
+
+        return returnPids;
+    }
+
+    /* ================================
+       ========= IMPORT PART =========
+       ================================ */
+
+    public static void importTmpDir(String exportRoot,
+                                    boolean startIndexer)
+            throws IOException, SolrServerException {
+
+        Injector injector =
+                Guice.createInjector(
+                        new SolrModule(),
+                        new RepoModule(),
+                        new NullStatisticsModule(),
+                        new ImportModule());
+
+        AkubraRepository akubraRepository =
+                injector.getInstance(Key.get(AkubraRepository.class));
+
+        try {
+
+            Import.run(
+                    akubraRepository,
+                    akubraRepository.pi(),
+                    null,
+                    KConfiguration.getInstance().getProperty("ingest.url"),
+                    KConfiguration.getInstance().getProperty("ingest.user"),
+                    KConfiguration.getInstance().getProperty("ingest.password"),
+                    exportRoot,
+                    startIndexer,
+                    null,
+                    ScheduleStrategy.indexRoots
+            );
+
+            FileUtils.deleteDirectory(new File(exportRoot));
+
+        } finally {
+            akubraRepository.shutdown();
+        }
+    }
+
+    /* ================================
+       ======= XML HELPERS ===========
+       ================================ */
+
+    private static void removeStream(Document foxml, String id) {
+        Element elm = XMLUtils.findElement(
+                foxml.getDocumentElement(),
+                e -> id.equals(e.getAttribute("ID")));
+        if (elm != null)
+            elm.getParentNode().removeChild(elm);
     }
 
     private static void createBiblioMods(Document foxml, JSONObject desc) {
@@ -309,155 +454,66 @@ public class FromK5Instance {
         }
     }
 
-    private static void removeStream(Document foxml, String id) {
-        Element elm = XMLUtils.findElement(foxml.getDocumentElement(), new XMLUtils.ElementsFilter() {
+    private static void addContainsRelations(Document foxml, List<String> pids) {
+        //<rel:contains xmlns:rel="http://www.nsdl.org/ontologies/relationships#" rdf:resource="info:fedora/uuid:fe91d1d0-fc5c-4ea7-9300-3504922a08d4"/>
+        Element relsExt = XMLUtils.findElement(foxml.getDocumentElement(), new XMLUtils.ElementsFilter() {
             @Override
             public boolean acceptElement(Element element) {
-                String idAttrVal = element.getAttribute("ID");
-                return idAttrVal != null && idAttrVal.equals(id);
+                String localName = element.getLocalName();
+                String attribute = element.getAttribute("ID");
+                return localName != null && localName.equals("datastream") && attribute != null && attribute.equals("RELS-EXT");
             }
         });
-        if (elm != null) elm.getParentNode().removeChild(elm);
-    }
 
-    //https://kramerius.lib.cas.cz/search/api/v5.0/vc
-    private static JSONArray collections(Client client, String api) throws IOException {
-        String url = String.format("%s/search/api/v5.0/vc", api);
-        LOGGER.info(String.format("Requesting url is %s", url));
-        WebResource r = client.resource(url);
-
-        WebResource.Builder builder = r.accept(MediaType.APPLICATION_JSON);
-        InputStream clientResponse = builder.get(InputStream.class);
-        String string = IOUtils.toString(clientResponse, "UTF-8");
-        return new JSONArray(string);
-
-    }
-
-    private static Document foxml(Client client, String vcPid, String api)
-            throws ParserConfigurationException, SAXException, IOException {
-        String url = String.format("%s/search/api/v5.0/item/%s/foxml", api, vcPid);
-        LOGGER.info(String.format("Requesting url is %s", url));
-        WebResource r = client.resource(url);
-
-        WebResource.Builder builder = r.accept(MediaType.APPLICATION_XML);
-        InputStream clientResponse = builder.get(InputStream.class);
-        String document = IOUtils.toString(clientResponse, "UTF-8");
-        String replaced = document.replaceAll("vc\\:", "uuid:");
-        Document parsed = XMLUtils.parseDocument(new StringReader(replaced), true);
-        return parsed;
-    }
-
-    //https://kramerius.lib.cas.cz/search/api/v5.0/search?q=*:*&fq=(fedora.model:monograph%20OR%20fedora.model:periodical%20OR%20fedora.model:sheetmusic%20OR%20fedora.model:monographunit)%20AND%20(collection:%22vc:5c2321df-2d8d-4a87-a262-15ffff990d81%22)&fl=PID,dostupnost,fedora.model,dc.creator,dc.title,dc.title,root_title,datum_str,dnnt-labels&facet=true&facet.mincount=1&facet.field=keywords&facet.field=language&facet.field=dnnt-labels&facet.field=mods.physicalLocation&facet.field=geographic_names&facet.field=facet_autor&facet.field=model_path&sort=created_date%20desc&rows=60&start=0
-
-    public static void collectionIterations(Client client, String address, String masterQuery, IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException, SAXException, IOException, InterruptedException, BrokenBarrierException {
-        String cursorMark = null;
-        String queryCursorMark = null;
-        do {
-            Element element = pidsCursorQuery(client, address, masterQuery, cursorMark);
-            cursorMark = IterationUtils.findCursorMark(element);
-            queryCursorMark = IterationUtils.findQueryCursorMark(element);
-            callback.call(element, cursorMark);
-        } while ((cursorMark != null && queryCursorMark != null) && !cursorMark.equals(queryCursorMark));
-        endCallback.end();
-    }
-
-    static Element pidsCursorQuery(Client client, String url, String mq, String cursor) throws ParserConfigurationException, SAXException, IOException {
-        int rows = 1000;
-        String query = "search" + "?q=" + mq + (cursor != null ? String.format("&rows=%d&cursorMark=%s", rows, cursor) : String.format("&rows=%d&cursorMark=*", rows)) + "&sort=" + URLEncoder.encode("PID desc", "UTF-8") + "&fl=PID";
-        return IterationUtils.executeQuery(client, url, query);
-    }
-
-
-    private static List<String> pids(Client client, String vcPid, String api)
-            throws ParserConfigurationException, SAXException, IOException, InterruptedException, BrokenBarrierException {
-
-        final List<String> returnPids = new ArrayList<>();
-
-        String url = null;
-        if (api.endsWith("/")) {
-            url = String.format("%ssearch/api/v5.0/", api);
-
-        } else {
-            url = String.format("%s/search/api/v5.0/", api);
-        }
-
-        List<String> models = KConfiguration.getInstance().getConfiguration().getList("collections.migrate.models", Arrays.asList(
-                "monograph",
-                "periodical",
-                "sheetmusic",
-                "monographunit",
-                "graphic",
-                "map",
-                "soundrecording",
-                "manuscript",
-                "archive",
-                "convolute",
-                "museumExhibit"
-        )).stream().map(Object::toString).toList();
-
-
-        String fqModel = "fedora.model:(" + models.stream().collect(Collectors.joining(" OR ")) + ") AND ";
-        String collectionPid = "(collection:\"" + vcPid + "\")";
-        String masterQuery = URLEncoder.encode(fqModel + collectionPid, "UTF-8");
-
-        collectionIterations(client, url, masterQuery, (elm, i) -> {
-
-            Element result = XMLUtils.findElement(elm, new XMLUtils.ElementsFilter() {
+        if (relsExt != null) {
+            Element rdfDecription = XMLUtils.findElement(relsExt, new XMLUtils.ElementsFilter() {
                 @Override
                 public boolean acceptElement(Element element) {
-                    String nodeName = element.getNodeName();
-                    return nodeName.equals("result");
+                    String localName = element.getLocalName();
+                    String nameSpace = element.getNamespaceURI();
+                    return localName != null && localName.equals("Description") && nameSpace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI);
                 }
             });
-            if (result != null) {
-                List<Element> elements = XMLUtils.getElements(result, new XMLUtils.ElementsFilter() {
-                    @Override
-                    public boolean acceptElement(Element element) {
-                        String nodeName = element.getNodeName();
-                        return nodeName.equals("doc");
-                    }
-                });
 
-                List<String> idents = elements.stream().map(item -> {
-                            Element str = XMLUtils.findElement(item, new XMLUtils.ElementsFilter() {
-                                        @Override
-                                        public boolean acceptElement(Element element) {
-                                            return element.getNodeName().equals("str");
-                                        }
-                                    }
-                            );
-                            return str.getTextContent();
-                        }
-                ).collect(Collectors.toList());
-
-                returnPids.addAll(idents);
-
+            if (rdfDecription != null) {
+                for (String pid : pids) {
+                    Element contains = foxml.createElementNS(RepositoryNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:contains");
+                    contains.setPrefix("rel");
+                    contains.setAttributeNS(RepositoryNamespaces.RDF_NAMESPACE_URI, "rdf:resource", String.format("info:fedora/%s", pid));
+                    rdfDecription.appendChild(contains);
+                }
             }
-        }, () -> {
-        });
-        return returnPids;
+        }
     }
 
+    public static void setStandalone(Document foxml) {
+        Element relsExt = XMLUtils.findElement(foxml.getDocumentElement(), new XMLUtils.ElementsFilter() {
+            @Override
+            public boolean acceptElement(Element element) {
+                String localName = element.getLocalName();
+                String attribute = element.getAttribute("ID");
+                return localName != null && localName.equals("datastream") && attribute != null && attribute.equals("RELS-EXT");
+            }
+        });
 
-    public static void importTmpDir(String exportRoot, boolean startIndexer) throws IOException, SolrServerException {
-        Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule(), new ImportModule());
-        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
-        //SortingService sortingServiceLocal = injector.getInstance(SortingService.class);
+        if (relsExt != null) {
+            Element rdfDecription = XMLUtils.findElement(relsExt, new XMLUtils.ElementsFilter() {
+                @Override
+                public boolean acceptElement(Element element) {
+                    String localName = element.getLocalName();
+                    String nameSpace = element.getNamespaceURI();
+                    return localName != null && localName.equals("Description") && nameSpace.equals(RepositoryNamespaces.RDF_NAMESPACE_URI);
+                }
+            });
 
-        try {
-            Import.run(akubraRepository, akubraRepository.pi(), null,
-                    KConfiguration.getInstance().getProperty("ingest.url"),
-                    KConfiguration.getInstance().getProperty("ingest.user"),
-                    KConfiguration.getInstance().getProperty("ingest.password"),
-                    exportRoot, startIndexer, null, ScheduleStrategy.indexRoots);
-            Restore.LOGGER.info(String.format("Deleting directory %s", exportRoot));
-            File exportFolder = new File(exportRoot);
-            FileUtils.deleteDirectory(exportFolder);
-        } finally {
-            akubraRepository.shutdown();
+            if (rdfDecription != null) {
+                Element contains = foxml.createElementNS(RepositoryNamespaces.ONTOLOGY_RELATIONSHIP_NAMESPACE_URI, "rel:standalone");
+                contains.setPrefix("rel");
+                contains.setTextContent("true");
+                rdfDecription.appendChild(contains);
+            }
         }
+
     }
 
 }
-
-

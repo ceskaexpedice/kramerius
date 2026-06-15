@@ -1,7 +1,7 @@
 package cz.incad.kramerius.auth.thirdparty.shibb.external;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
 
 import com.google.inject.Inject;
 import cz.incad.kramerius.auth.thirdparty.ThirdPartyUsersSupport;

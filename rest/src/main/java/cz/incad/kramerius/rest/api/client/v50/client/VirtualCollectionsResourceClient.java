@@ -16,88 +16,78 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.client;
 
-import javax.ws.rs.core.MediaType;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
- * Inforace o virtualni sbirce
- * 
+ * Informace o virtualnich sbirkach
  * @author pavels
- *
  */
 public class VirtualCollectionsResourceClient {
 
+    private static final String BASE_URL = "http://localhost:8080/search/api/v5.0";
+
     /**
      * Seznam vsech virtualnich sbirek
-     * 
-     * @return
      */
     public static String vcs() {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/vc");
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "/vc");
+            try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
     /**
      * Konkretni virtualni sbirka
-     * 
-     * @param vcpid
-     * @return
      */
     public static String vc(String vcpid) {
-        Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/vc/"
-                + vcpid);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "/vc/" + vcpid);
+            try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
     /**
      * Info o objektu
-     * 
-     * @param vcpid
-     * @return
      */
     public static String vcAsFedoraObject(String vcpid) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/item/" + vcpid);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "/item/" + vcpid);
+            try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
     /**
      * Seznam vsech streamu objektu reprezentujici virtualni sbirku
-     * 
-     * @param vcpid
-     * @return
      */
     public static String vcAsStreamsObject(String vcpid) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/item/" + vcpid
-                        + "/streams");
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "/item/" + vcpid + "/streams");
+            try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
     /**
      * Ziskani streamu z objektu virtualni sbirky
-     * 
-     * @param vcpid
-     * @param str
-     * @return
      */
     public static String vcAsStreamObject(String vcpid, String str) {
-        Client c = Client.create();
-        WebResource r = c
-                .resource("http://localhost:8080/search/api/v5.0/item/" + vcpid
-                        + "/streams/" + str);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        try (Client client = ClientBuilder.newBuilder().build()) {
+            WebTarget target = client.target(BASE_URL + "/item/" + vcpid + "/streams/" + str);
+            try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+                return response.readEntity(String.class);
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -107,16 +97,13 @@ public class VirtualCollectionsResourceClient {
         String vc = vc("vc:f73dee31-ae76-4dbc-b7b9-d986df497596");
         System.out.println(vc);
 
-        String vcaf = vcAsFedoraObject("vc:f73dee31-ae76-4dbc-b7b9-d986df497596");
-        System.out.println(vcaf);
+        String vcFedora = vcAsFedoraObject("vc:f73dee31-ae76-4dbc-b7b9-d986df497596");
+        System.out.println(vcFedora);
 
         String vcStreams = vcAsStreamsObject("vc:f73dee31-ae76-4dbc-b7b9-d986df497596");
         System.out.println(vcStreams);
 
-        String vcDCSteram = vcAsStreamObject(
-                "vc:f73dee31-ae76-4dbc-b7b9-d986df497596", "DC");
-        System.out.println(vcDCSteram);
-
+        String vcDCStream = vcAsStreamObject("vc:f73dee31-ae76-4dbc-b7b9-d986df497596", "DC");
+        System.out.println(vcDCStream);
     }
-
 }

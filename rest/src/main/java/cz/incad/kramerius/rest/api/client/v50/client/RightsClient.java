@@ -20,19 +20,19 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 /**
  * Informace o pravech pro prave komunikujiciho uzivatele
- * @author pavels
  */
 public class RightsClient {
 
@@ -41,57 +41,56 @@ public class RightsClient {
 
 	/**
 	 * Globalni prava - prava na urovni repozitare
-	 * @return
 	 */
 	public static String globalRights() {
-		Client c = Client.create();
+		try (Client client = ClientBuilder.newBuilder().build()) {
+			client.register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/rights");
 
-		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/rights");
-		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-
-		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-		return t;
+			try (Response response = target.request(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON)
+					.get()) {
+				return response.readEntity(String.class);
+			}
+		}
 	}
-	
-	
+
 	/**
 	 * Konkretni prava pro vybrane akce a vybrany pid
-	 * @param actions
-	 * @param pid
-	 * @return
 	 */
 	public static String concreteObjects(List<String> actions, String pid) {
-		Client c = Client.create();
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0,ll=actions.size(); i < ll; i++) {
-			if (i>0) builder.append(",");
-			builder.append(actions.get(i));
+		try (Client client = ClientBuilder.newBuilder().build()) {
+			client.register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
+
+			String actionParam = String.join(",", actions);
+			WebTarget target = client.target("http://localhost:8080/search/api/v5.0/rights")
+					.queryParam("actions", actionParam)
+					.queryParam("pid", pid);
+
+			try (Response response = target.request(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON)
+					.get()) {
+				return response.readEntity(String.class);
+			}
 		}
-		WebResource r = c.resource("http://localhost:8080/search/api/v5.0/rights?actions="+builder.toString()+"&pid="+pid);
-		r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-		String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-		return t;
 	}
 
-	
 	public static void main(String[] args) throws JSONException {
 		JSONObject jsonObj = new JSONObject(globalRights());
-		Iterator actions = jsonObj.keys();
-		System.out.println("Right for user "+DEFAULT_NAME);
-		while(actions.hasNext()) {
-			String act = (String) actions.next();
-			System.out.println("\t'"+act+"' = "+jsonObj.getBoolean(act));
+		Iterator<String> actions = jsonObj.keys();
+		System.out.println("Right for user " + DEFAULT_NAME);
+		while (actions.hasNext()) {
+			String act = actions.next();
+			System.out.println("\t'" + act + "' = " + jsonObj.getBoolean(act));
 		}
-		
+
 		String pid = "uuid:045b1250-7e47-11e0-add1-000d606f5dc6";
-		System.out.println("Right for user "+DEFAULT_NAME+" and for object pid "+pid);
+		System.out.println("Right for user " + DEFAULT_NAME + " and for object pid " + pid);
 		jsonObj = new JSONObject(concreteObjects(Arrays.asList("read","administrate"), pid));
 		actions = jsonObj.keys();
-		while(actions.hasNext()) {
-			String act = (String) actions.next();
-			System.out.println("\t'"+act+"' = "+jsonObj.getBoolean(act));
+		while (actions.hasNext()) {
+			String act = actions.next();
+			System.out.println("\t'" + act + "' = " + jsonObj.getBoolean(act));
 		}
-		
-		
 	}
 }

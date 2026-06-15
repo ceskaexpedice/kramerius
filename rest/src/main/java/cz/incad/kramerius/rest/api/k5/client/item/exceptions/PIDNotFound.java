@@ -1,6 +1,6 @@
 package cz.incad.kramerius.rest.api.k5.client.item.exceptions;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import cz.incad.kramerius.rest.api.exceptions.AbstractRestJSONException;
 

@@ -2,111 +2,150 @@ package cz.incad.kramerius.auth.thirdparty.utils;
 
 import java.util.logging.Level;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 
-import cz.incad.kramerius.auth.thirdparty.shibb.external.ExternalThirdPartyUsersSupportImpl;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-
+import cz.incad.kramerius.auth.thirdparty.shibb.external.ExternalThirdPartyUsersSupportImpl;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 public class RemoteUsersUtils {
 
-    public static JSONArray getUser(String userName)
-            throws JSONException {
-        Client c = Client.create();
-        String url = KConfiguration.getInstance().getConfiguration()
-                .getString("api.point")
-                + "/admin/users?lname="
-                + userName;
-    
-        WebResource r = c.resource(url);
-        r.addFilter(new BasicAuthenticationFilter(RemoteUsersUtils.adminUser(),
-                RemoteUsersUtils.adminPass()));
-        String t = r.accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON).get(String.class);
-        JSONArray jsonArr = new JSONArray(t);
-        return jsonArr;
+    public static JSONArray getUser(String userName) throws JSONException {
+
+        Client client = ClientBuilder.newClient();
+        try {
+
+            String url = KConfiguration.getInstance()
+                    .getConfiguration()
+                    .getString("api.point")
+                    + "/admin/users?lname=" + userName;
+
+            HttpAuthenticationFeature authFeature =
+                    HttpAuthenticationFeature.basic(adminUser(), adminPass());
+
+            client.register(authFeature);
+
+            WebTarget target = client.target(url);
+
+            String response = target
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+
+            return new JSONArray(response);
+
+        } finally {
+            client.close();
+        }
     }
 
     public static String adminPass() {
-        String adminPass = KConfiguration.getInstance().getConfiguration()
-                .getString("k4.admin.pswd") ;
-        return adminPass;
+        return KConfiguration.getInstance()
+                .getConfiguration()
+                .getString("k4.admin.pswd");
     }
 
     public static String adminUser() {
-        String adminUser = KConfiguration.getInstance().getConfiguration()
-                .getString("k4.admin.user") ;
-        return adminUser;
+        return KConfiguration.getInstance()
+                .getConfiguration()
+                .getString("k4.admin.user");
     }
 
-    public static void newPasswordUser( String userId,
-            String pswd) {
+    public static void newPasswordUser(String userId, String pswd) {
+
+        Client client = ClientBuilder.newClient();
+
         try {
-            Client c = Client.create();
-            String url = KConfiguration.getInstance().getConfiguration()
+
+            String url = KConfiguration.getInstance()
+                    .getConfiguration()
                     .getString("api.point")
                     + "/admin/users/"
                     + userId
                     + "/password";
-    
-            WebResource r = c.resource(url);
-            r.addFilter(new BasicAuthenticationFilter(
-                    adminUser(), adminPass()));
+
+            HttpAuthenticationFeature authFeature =
+                    HttpAuthenticationFeature.basic(adminUser(), adminPass());
+
+            client.register(authFeature);
+
+            WebTarget target = client.target(url);
+
             JSONObject object = new JSONObject();
             object.put("password", pswd);
-    
-            String t = r.accept(MediaType.APPLICATION_JSON)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(object.toString(), MediaType.APPLICATION_JSON)
-                    .put(String.class);
-        } catch (UniformInterfaceException e) {
-            ExternalThirdPartyUsersSupportImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (ClientHandlerException  e) {
-            ExternalThirdPartyUsersSupportImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (JSONException e) {
-            ExternalThirdPartyUsersSupportImpl.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
+            target.request(MediaType.APPLICATION_JSON)
+                    .put(Entity.entity(
+                            object.toString(),
+                            MediaType.APPLICATION_JSON));
+
+        } catch (Exception e) {
+            ExternalThirdPartyUsersSupportImpl.LOGGER
+                    .log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            client.close();
         }
     }
 
     public static String createUser(JSONObject jsonObject) {
-        String url = KConfiguration.getInstance().getConfiguration()
-                .getString("api.point") + "/admin/users";
-        Client c = Client.create();
-        
-        WebResource r = c.resource(url);
-    
-        r.addFilter(new BasicAuthenticationFilter(adminUser(),
-                adminPass()));
-        String t = r.accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(jsonObject.toString(), MediaType.APPLICATION_JSON)
-                .post(String.class);
-        return t;
+
+        Client client = ClientBuilder.newClient();
+
+        try {
+
+            String url = KConfiguration.getInstance()
+                    .getConfiguration()
+                    .getString("api.point")
+                    + "/admin/users";
+
+            HttpAuthenticationFeature authFeature =
+                    HttpAuthenticationFeature.basic(adminUser(), adminPass());
+
+            client.register(authFeature);
+
+            WebTarget target = client.target(url);
+
+            return target.request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(
+                                    jsonObject.toString(),
+                                    MediaType.APPLICATION_JSON),
+                            String.class);
+
+        } finally {
+            client.close();
+        }
     }
 
     public static String deleteUser(String usr) {
-        String url = KConfiguration.getInstance().getConfiguration()
-                .getString("api.point") + "/admin/users/"+usr;
-        Client c = Client.create();
-        
-        WebResource r = c.resource(url);
-    
-        r.addFilter(new BasicAuthenticationFilter(adminUser(),
-                adminPass()));
-        String t = r.accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON)
-                .delete(String.class);
-        return t;
+
+        Client client = ClientBuilder.newClient();
+
+        try {
+
+            String url = KConfiguration.getInstance()
+                    .getConfiguration()
+                    .getString("api.point")
+                    + "/admin/users/" + usr;
+
+            HttpAuthenticationFeature authFeature =
+                    HttpAuthenticationFeature.basic(adminUser(), adminPass());
+
+            client.register(authFeature);
+
+            WebTarget target = client.target(url);
+
+            return target.request(MediaType.APPLICATION_JSON)
+                    .delete(String.class);
+
+        } finally {
+            client.close();
+        }
     }
-
-
 }

@@ -8,12 +8,11 @@ import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.StringTokenizer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
+import jakarta.ws.rs.core.Response;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.json.JSONException;
 
@@ -124,7 +123,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
     	if (permited(actionAllowed, solrAccess, pid)) {
         	String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
             if (relsExtUrl != null) {
-                ResponseBuilder builder = Response.ok();
+                Response.ResponseBuilder builder = Response.ok();
                 String formatted = String.format("%s/TileGroup0/%s-%s-%s.%s", relsExtUrl,slevel,x,y,ext);
                 // forward; 
                 IIPImagesSupport.blockingCopyFromImageServer(getClient(), formatted, new ByteArrayOutputStream(), builder);
@@ -146,7 +145,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
         	String relsExtUrl = akubraRepository.re().getTilesUrl(pid);
             if (relsExtUrl != null) {
                 if (relsExtUrl.endsWith("/")) relsExtUrl = relsExtUrl.substring(0, relsExtUrl.length()-1);
-                ResponseBuilder builder = Response.ok();
+                Response.ResponseBuilder builder = Response.ok();
                 IIPImagesSupport.blockingCopyFromImageServer(getClient(), relsExtUrl.toString()+"/ImageProperties.xml",new ByteArrayOutputStream() , builder);
                 return builder.build();
             } else {

@@ -19,11 +19,13 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
-import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+//import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -42,14 +44,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -104,20 +102,21 @@ public class CollectionsResource extends AdminApiResource {
     Provider<HttpServletRequest> requestProvider;
 
     @Inject
-    @javax.inject.Named("forward-client")
+    @jakarta.inject.Named("forward-client")
     private CloseableHttpClient apacheClient;
 
     /**
      * Creates new collection and assigns a pid to it.
      *
-     * @param collectionDefinition collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
+     * @param collectionDefinitionSt collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
      * @return collection object in JSON with pid assign
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createCollection(JSONObject collectionDefinition) {
+    public Response createCollection(String collectionDefinitionSt) {
         try {
+            JSONObject collectionDefinition = new JSONObject(collectionDefinitionSt);
             checkReadOnlyWorkMode();
             User user1 = this.userProvider.get();
             if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
@@ -305,10 +304,10 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkReadOnlyWorkMode();
             HttpServletRequest req = this.requestProvider.get();
-
-            DiskFileItemFactory factory = new DiskFileItemFactory();
-            ServletFileUpload upload = new ServletFileUpload(factory);
+            DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+            JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
             List<FileItem> fileItems = upload.parseRequest(req);
+
             if (fileItems.size() == 1) {
                 FileItem fileItem = fileItems.get(0);
 
@@ -347,7 +346,7 @@ public class CollectionsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             handleWorkMode(e);
             throw e;
-        } catch (RepositoryException | SolrServerException | IOException | FileUploadException e) {
+        } catch (RepositoryException | SolrServerException | IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
@@ -357,15 +356,16 @@ public class CollectionsResource extends AdminApiResource {
      * Updates collections metadata, but not items that collection directly contains.
      *
      * @param pid
-     * @param collectionDefinition collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
+     * @param collectionDefinitionSt collection object (JSON) with attributes name:string, description:string, content:string, standalone: boolean
      * @return
      */
     @PUT
     @Path("{pid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateCollection(@PathParam("pid") String pid, JSONObject collectionDefinition) {
+    public Response updateCollection(@PathParam("pid") String pid, String collectionDefinitionSt) {
         try {
+            JSONObject collectionDefinition = new JSONObject(collectionDefinitionSt);
             checkReadOnlyWorkMode();
             checkSupportedObjectPid(pid);
             //authentication
@@ -416,7 +416,7 @@ public class CollectionsResource extends AdminApiResource {
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar[0]);
             result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduled);
 
-            return Response.status(Status.OK).entity(result.toString()).build();
+            return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -523,7 +523,7 @@ public class CollectionsResource extends AdminApiResource {
                 result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcess( scheduleReindexationPar));
             }
 
-            return Response.status(Status.OK).entity(result.toString()).build();
+            return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (DistributedLocksException e) {
@@ -573,7 +573,7 @@ public class CollectionsResource extends AdminApiResource {
 
             //check each item pid
             List<String> pidsToBeAdded = new ArrayList<>();
-            Map<String, String> errorsByPid = new HashedMap<>();
+            Map<String, String> errorsByPid = new HashMap<>();
             for (int i = 0; i < itemsPid.length(); i++) {
                 System.out.println(itemsPid);
                 String itemPid = itemsPid.getString(i);
@@ -698,7 +698,8 @@ public class CollectionsResource extends AdminApiResource {
     @PUT
     @Path("{collectionPid}/items/delete_batch_items")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, JSONObject batch) {
+    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, String batchSt) {
+        JSONObject batch = new JSONObject(batchSt);
         List<String> reindexCollection = new ArrayList<>();
         checkSupportedObjectPid(collectionPid);
         JSONArray scheduleMainProcesses = new JSONArray();
@@ -780,7 +781,7 @@ public class CollectionsResource extends AdminApiResource {
      */
     @DELETE
     @Path("{collectionPid}/items/{itemPid}")
-    public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid,
+    public Response removeItemFromCollection1(@PathParam("collectionPid") String collectionPid,
                                              @PathParam("itemPid") String itemPid) {
         try {
             checkSupportedObjectPid(collectionPid);
@@ -977,7 +978,7 @@ public class CollectionsResource extends AdminApiResource {
                         return Response.ok(collection.toJson()).build();
 
                     } else {
-                        return Response.status(Status.BAD_REQUEST).build();
+                        return Response.status(Response.Status.BAD_REQUEST).build();
                     }
                 } catch (IOException | SolrServerException | NoSuchAlgorithmException e) {
                     throw new RuntimeException(e);
@@ -1050,7 +1051,7 @@ public class CollectionsResource extends AdminApiResource {
                                 fetchedJSONArray.remove(index);
 
                             } else {
-                                return Response.status(Status.BAD_REQUEST).build();
+                                return Response.status(Response.Status.BAD_REQUEST).build();
                             }
                         }
                         if (cuttingsModified) {

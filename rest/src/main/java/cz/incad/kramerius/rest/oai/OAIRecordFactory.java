@@ -23,7 +23,7 @@ import cz.incad.kramerius.rest.oai.representativepage.RepresentativePageFinderFa
 import cz.incad.kramerius.rest.oai.strategies.MetadataExportStrategy;
 import cz.incad.kramerius.rest.oai.utils.OAITools;
 import cz.incad.kramerius.utils.XMLUtils;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;

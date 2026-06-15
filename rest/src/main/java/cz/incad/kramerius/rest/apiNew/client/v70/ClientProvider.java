@@ -1,20 +1,18 @@
 package cz.incad.kramerius.rest.apiNew.client.v70;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 
-import com.sun.jersey.api.client.Client;
-
-public class ClientProvider implements Provider<Client>{
+public class ClientProvider implements Provider<Client> {
 
 	private Client client;
-	
+
 	@Override
 	public Client get() {
 		if (client == null) {
-			client = Client.create();
+			client = ClientBuilder.newClient();
 		}
 		return client;
 	}
-	
-	
 }

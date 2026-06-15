@@ -33,6 +33,11 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.solr.SolrKeys;
 import cz.incad.kramerius.utils.XMLUtils;
 
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -45,13 +50,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.*;
+import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.*;
@@ -89,7 +89,7 @@ public class SearchResource {
     @Inject
     ProxyFilter proxyFilter;
     
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
 
     @Inject
@@ -172,7 +172,7 @@ public class SearchResource {
             return jsonObject.toString();
         } catch (HttpResponseException e) {
             if (e.getStatusCode() == SC_BAD_REQUEST) {
-                String reasonPhrase = e.getReasonPhrase();
+                String reasonPhrase = e.getMessage();
                 
                 String message = String.format("Bad Request (api request = %s,\n solr request %s)", uriInfo.getRequestUri(), queryRef.get());
                 LOGGER.log(Level.SEVERE, message);

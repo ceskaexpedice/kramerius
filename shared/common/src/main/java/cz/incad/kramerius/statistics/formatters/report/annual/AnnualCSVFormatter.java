@@ -3,7 +3,6 @@ package cz.incad.kramerius.statistics.formatters.report.annual;
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.statistics.impl.AnnualStatisticsReport;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;

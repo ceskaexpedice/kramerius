@@ -1,5 +1,12 @@
 package cz.incad.kramerius.rest.apiNew.cdk.v70;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.util.logging.Level;
+
+import javax.xml.xpath.XPathExpressionException;
+
 import com.google.inject.Inject;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.processes.cdk.CDKAPIKeySupport;
@@ -13,21 +20,14 @@ import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.service.ReplicateException;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import jakarta.inject.Provider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
+import cz.inovatika.dochub.UserContentSpace;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.inject.Provider;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * CDK Forward resource
@@ -72,8 +72,8 @@ public class CDKForwardResource {
     @Inject
     UsersRequestsResource usersRequestsResource;
 
-    @javax.inject.Inject
-    @javax.inject.Named("forward-client")
+    @Inject
+    @Named("forward-client")
     private CloseableHttpClient apacheClient;
 
     @javax.inject.Inject

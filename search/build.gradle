@@ -30,11 +30,10 @@ sourceSets {
 }
 
 dependencies {
-
-    providedCompile 'javax.servlet:servlet-api:2.5'
-    providedCompile 'javax.servlet:jsp-api:2.0'
-    providedCompile 'javax.portlet:portlet-api:2.0'
-	
+    compileOnly "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
+    compileOnly "jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1"
+    implementation "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2"
+    implementation "org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1"
 	// bridge
 	if (buildProfile == 'cdk') {
 		api project(':bridge')
@@ -44,25 +43,23 @@ dependencies {
     api project(':rest')
 
     api project(':security:authfilters')
-    api project(':security:oauth')
 
     //api project(':processes:mw-process')
     //api project(':processes:indexer')
-    api project(':processes:import')
-    api project(':processes:imaging')
+    //api project(':processes:import')
+    //api project(':processes:imaging')
 
-    api project(':processes:import-mets')
-    api project(':processes:solr-migration')     //TODO: Delete
+    //api project(':processes:import-mets')
+    //api project(':processes:solr-migration')     //TODO: Delete
     //api project(':processes:data-migration')     //TODO: Delete
 
-    api project(':processes:dnntflag')           //TODO: Move licenses and dnnt delete
-    api project(':processes:nkp-logs')           //TODO: Move
-    api project(':processes:sdnnt')              //TODO: Move
+    //api project(':processes:dnntflag')           //TODO: Move licenses and dnnt delete
+    //api project(':processes:nkp-logs')           //TODO: Move
+    //api project(':processes:sdnnt')              //TODO: Move
 
-    api project(':processes:licenses')
-    api project(':processes:collections-backup')
+    //api project(':processes:licenses')
+    //api project(':processes:collections-backup')
 
-    api 'javax.servlet:jstl:1.2'
     api 'taglibs:standard:1.1.2'
     api 'xalan:xalan:2.7.2'
 
@@ -71,14 +68,14 @@ dependencies {
     //api 'com.foxtrottechnologies:djvuframe:0.8.09'
 
     //api project(':bridge')
-    api project(':shared:common')
-    api project(':rest')
+    //api project(':shared:common')
+    //api project(':rest')
 
     //api project(':security:security-core')
-    api project(':security:authfilters')
+    //api project(':security:authfilters')
 
-    api project(':processes:import')
-    api project(':processes:import-mets')
+    //api project(':processes:import')
+    //api project(':processes:import-mets')
 	
 	// neni potreba 
 	//api project(':processes:solr-migration')
@@ -91,8 +88,7 @@ dependencies {
     //api project(':processes:cdkreharvest')
 
 
-    api 'javax.servlet:jstl:1.1.2'   
-    //api 'taglibs:standard:1.2.3'   
+    //api 'taglibs:standard:1.2.3'
     api 'xalan:xalan:2.7.1'   
 
 
@@ -100,8 +96,8 @@ dependencies {
 
     api group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.3'
 
-    api 'org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}'
-    api 'org.keycloak:keycloak-authz-client:${keycloakversion}'
+   // api 'org.keycloak:keycloak-servlet-filter-adapter:${keycloakversion}'
+   // api 'org.keycloak:keycloak-authz-client:${keycloakversion}'
 
     //api 'xerces:xercesImpl:2.9.1'
     api 'xerces:xercesImpl:2.12.2'
@@ -116,7 +112,8 @@ dependencies {
     api "org.slf4j:log4j-over-slf4j:${slf4jversion}"
     api "org.slf4j:slf4j-jdk14:${slf4jversion}"
 
-    
+    testImplementation "jakarta.servlet:jakarta.servlet-api:${servletapiversion}"
+
 }
 
 

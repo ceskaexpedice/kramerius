@@ -19,8 +19,8 @@ package cz.incad.Kramerius;
 import java.sql.Connection;
 import java.util.logging.Level;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

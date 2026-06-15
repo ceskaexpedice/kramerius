@@ -16,26 +16,35 @@
  */
 package cz.incad.kramerius.workmode;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.json.JSONObject;
 
-import javax.ws.rs.core.MediaType;
-
 /**
- * ApiWorkModeServiceImpl
- * @author ppodsednik
+ * ApiWorkModeServiceImpl for Jersey 3 / Jakarta
  */
 public class ApiWorkModeServiceImpl implements WorkModeService {
+
     private final String workModeUrl;
-    private String authToken;
+    private final String authToken;
 
     public ApiWorkModeServiceImpl(String authToken) {
         this.authToken = authToken;
-        String adminPoint = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point");
-        if (!adminPoint.endsWith("/")) adminPoint = adminPoint + "/";
+
+        String adminPoint = KConfiguration.getInstance()
+                .getConfiguration()
+                .getString("api.admin.v7.point");
+
+        if (!adminPoint.endsWith("/")) {
+            adminPoint = adminPoint + "/";
+        }
+
         workModeUrl = adminPoint + "workmode";
     }
 
@@ -45,33 +54,44 @@ public class ApiWorkModeServiceImpl implements WorkModeService {
         requestJson.put("readOnly", workMode.isReadOnly());
         requestJson.put("reason", workMode.getReason().name());
 
-        Client client = Client.create();
-        WebResource resource = client.resource(workModeUrl);
-        ClientResponse response = resource
-                .header("parent-process-auth-token", authToken)
-                .type(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .put(ClientResponse.class, requestJson.toString());
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(workModeUrl);
 
-        if (response.getStatus() != 200) {
-            throw new RuntimeException("Failed to update readOnly mode: HTTP error code " + response.getStatus());
+        try (Response response = target
+                .request(MediaType.APPLICATION_JSON)
+                .header("parent-process-auth-token", authToken)
+                .put(Entity.json(requestJson.toString()))) {
+
+            if (response.getStatus() != 200) {
+                throw new RuntimeException(
+                        "Failed to update readOnly mode: HTTP error code " + response.getStatus()
+                );
+            }
+        } finally {
+            client.close();
         }
     }
 
     @Override
     public WorkMode getWorkMode() {
-        Client c = Client.create();
-        WebResource resource = c.resource(workModeUrl);
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(workModeUrl);
 
-        String collectionJSON = resource
+        String collectionJSON;
+        try (Response response = target
+                .request(MediaType.APPLICATION_JSON)
                 .header("parent-process-auth-token", authToken)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(String.class);
+                .get()) {
+
+            collectionJSON = response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
 
         JSONObject collectionObject = new JSONObject(collectionJSON);
         boolean readOnly = collectionObject.optBoolean("readOnly", false);
         String reason = collectionObject.optString("reason");
+
         return new WorkMode(readOnly, WorkModeReason.valueOf(reason));
     }
-
 }

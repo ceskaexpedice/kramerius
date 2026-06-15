@@ -11,15 +11,15 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Provider;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.inject.Provider;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -46,16 +46,16 @@ public class ServerFilesResource extends AdminApiResource {
     //private static final String ROLE_LIST_DIRS_ON_SERVER = "kramerius_admin";
 
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     Provider<User> userProvider;
     
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     GenerateDownloadLinks genDownloadLinks;
 
     @GET
     @Path("/output-data-dir-for_collectionsbackup{path: (.+)?}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listFilesInOutputDataDirFor_collections_backup(@PathParam("path") String path,@QueryParam("generatedownloads") Boolean downloadLinks) {
+    public Response listFilesInOutputDataDirFor_collections_backup(@PathParam("path") String path, @QueryParam("generatedownloads") Boolean downloadLinks) {
         try {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
@@ -249,7 +249,7 @@ public class ServerFilesResource extends AdminApiResource {
             JSONObject json = new JSONObject();
             json.put("rootDir", dir.getAbsolutePath());
             json.put("files", filesJson);
-            return Response.ok(json).build();
+            return Response.ok(json.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {

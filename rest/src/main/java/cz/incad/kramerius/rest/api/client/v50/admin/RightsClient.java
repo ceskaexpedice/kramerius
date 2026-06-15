@@ -16,174 +16,159 @@
  */
 package cz.incad.kramerius.rest.api.client.v50.admin;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import cz.incad.kramerius.utils.BasicAuthenticationFilter;
+import cz.incad.kramerius.utils.jersey.BasicAuthenticationFilter;
 
 /**
- * Manipulace s pravy
- * @author pavels
- *
+ * Manipulation with rights - Jersey 3 version
  */
 public class RightsClient {
-	
-	public static final String DEFAULT_NAME="krameriusAdmin";
-	public static final String DEFAULT_PSWD="krameriusAdmin";
-	
-	/**
-	 * Smazani prava
-	 * @param delId
-	 * @return
-	 */
+
+    public static final String DEFAULT_NAME = "krameriusAdmin";
+    public static final String DEFAULT_PSWD = "krameriusAdmin";
+
+    private static Client createClient() {
+        return ClientBuilder.newBuilder()
+                .register(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD))
+                .build();
+    }
+
     public static String deleteRight(String delId) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights/"+delId);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).delete(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights/" + delId);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).delete()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
-    
-    /**
-     * Vytvoreni prava
-     * @param jsonObj
-     * @return
-     */
+
     public static String createRight(JSONObject jsonObj) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObj.toString()).post(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(jsonObj.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
-    
-    /**
-     * Vypis vsech prav
-     * @return
-     */
+
     public static String rights() {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Jedno pravo
-     * @param id
-     * @return
-     */
     public static String right(String id) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights/"+id);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights/" + id);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Vypis vsech parametru
-     * @return
-     */
     public static String params() {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights/params");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights/params");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Jeden parameter
-     * @param paramId
-     * @return
-     */
     public static String param(String paramId) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights/params/"+paramId);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).get(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights/params/" + paramId);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).get()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Vytvoreni jednoho parametru
-     * @param json
-     * @return
-     */
     public static String createParam(JSONObject json) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights/params");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(json.toString()).post(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights/params");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(json.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Smazani parametru
-     * @param paramId
-     * @return
-     */
     public static String deleteParam(String paramId) {
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights/params/"+paramId);
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).delete(String.class);
-        return t;
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights/params/" + paramId);
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON).delete()) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
-    /**
-     * Vytvoreni prava - 1
-     * @return
-     * @throws JSONException 
-     */
     private static String createSampleRight() throws JSONException {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("action", "read");
-		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
-		
-		System.out.println(jsonObj);
-		
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObj.toString()).post(String.class);
-        return t;
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("action", "read");
+        jsonObj.put("pid", "uuid:1");
+        jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
+
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(jsonObj.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
 
+    private static String createSampleRight2(String critqname, JSONObject param) throws JSONException {
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("action", "read");
+        jsonObj.put("pid", "uuid:1");
+        jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
 
-    /**
-     * Vytvoreni prava - 2
-     * @param critqname
-     * @param param
-     * @return
-     * @throws JSONException 
-     */
-    private static String createSampleRight2(String critqname,JSONObject param) throws JSONException {
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("action", "read");
-		jsonObj.put("pid", "uuid:1");
-		jsonObj.put("role", new JSONObject(UsersAndRolesClient.role(3)));
-		
-		JSONObject critJSON = new JSONObject();
-		critJSON.put("qname", critqname);
-		critJSON.put("params", param);
-		
-		jsonObj.put("criterium", critJSON);
-		
-    	Client c = Client.create();
-        WebResource r = c.resource("http://localhost:8080/search/api/v5.0/admin/rights");
-        r.addFilter(new BasicAuthenticationFilter(DEFAULT_NAME, DEFAULT_PSWD));
-        String t = r.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).entity(jsonObj.toString()).post(String.class);
-        return t;
+        JSONObject critJSON = new JSONObject();
+        critJSON.put("qname", critqname);
+        critJSON.put("params", param);
+
+        jsonObj.put("criterium", critJSON);
+
+        Client client = createClient();
+        WebTarget target = client.target("http://localhost:8080/search/api/v5.0/admin/rights");
+
+        try (Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(jsonObj.toString(), MediaType.APPLICATION_JSON))) {
+            return response.readEntity(String.class);
+        } finally {
+            client.close();
+        }
     }
-
-
 }

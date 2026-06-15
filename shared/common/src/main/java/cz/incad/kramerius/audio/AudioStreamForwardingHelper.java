@@ -2,6 +2,8 @@ package cz.incad.kramerius.audio;
 
 import com.google.inject.Inject;
 import cz.incad.kramerius.audio.urlMapping.RepositoryUrlManager;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -11,9 +13,7 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +46,7 @@ public class AudioStreamForwardingHelper {
 
     HttpClient httpClient = HttpClientBuilder.create().build();
 
-    public void forwardHttpHEAD(AudioStreamId id, HttpServletRequest clientToProxyRequest, ResponseBuilder responseBuilder) throws IOException {
+    public void forwardHttpHEAD(AudioStreamId id, HttpServletRequest clientToProxyRequest, Response.ResponseBuilder responseBuilder) throws IOException {
         //LOGGER.fine(id.toString());
         try {
             URL url = urlManager.getAudiostreamRepositoryUrl(id);
@@ -67,7 +67,7 @@ public class AudioStreamForwardingHelper {
         }
     }
 
-    public void forwardHttpGET(AudioStreamId id, HttpServletRequest clientToProxyRequest, ResponseBuilder responseBuilder) throws IOException {
+    public void forwardHttpGET(AudioStreamId id, HttpServletRequest clientToProxyRequest, Response.ResponseBuilder responseBuilder) throws IOException {
         //LOGGER.fine(id.toString());
         try {
             URL url = urlManager.getAudiostreamRepositoryUrl(id);
@@ -92,7 +92,7 @@ public class AudioStreamForwardingHelper {
         }
     }
 
-    private void forwardSelectedResponseHeaders(HttpResponse repositoryResponse, ResponseBuilder builder) {
+    private void forwardSelectedResponseHeaders(HttpResponse repositoryResponse, Response.ResponseBuilder builder) {
         ResponseHeaderForwarder forwarder = new ResponseHeaderForwarder(repositoryResponse, builder);
         forwarder.forwardHeaderIfPresent("Content-Range");
         forwarder.forwardHeaderIfPresent("Content-Type");
@@ -115,7 +115,7 @@ public class AudioStreamForwardingHelper {
         forwarder.forwardHeaderIfPresent("Accept");
     }
 
-    private void forwardData(final InputStream input, ResponseBuilder responseBuilder) {
+    private void forwardData(final InputStream input, Response.ResponseBuilder responseBuilder) {
         ByteArrayOutputStream responseData = new ByteArrayOutputStream();
         try {
             IOUtils.copy(input, responseData);
@@ -136,7 +136,7 @@ public class AudioStreamForwardingHelper {
         }
     }
 
-    private void forwardResponseCode(HttpResponse repositoryResponse, ResponseBuilder builder) {
+    private void forwardResponseCode(HttpResponse repositoryResponse, Response.ResponseBuilder builder) {
         int repositoryResponseCode = repositoryResponse.getStatusLine().getStatusCode();
         builder.status(repositoryResponseCode);
     }
@@ -174,7 +174,7 @@ public class AudioStreamForwardingHelper {
     public class ResponseHeaderForwarder {
 
         private final HttpResponse repositoryResponse;
-        private final ResponseBuilder proxyResponse;
+        private final Response.ResponseBuilder proxyResponse;
 
         /**
          * Initializes Forwarder.
@@ -182,7 +182,7 @@ public class AudioStreamForwardingHelper {
          * @param repositoryResponse response from repository to proxy
          * @param proxyResponse      response from proxy to client
          */
-        public ResponseHeaderForwarder(HttpResponse repositoryResponse, ResponseBuilder proxyResponse) {
+        public ResponseHeaderForwarder(HttpResponse repositoryResponse, Response.ResponseBuilder proxyResponse) {
             this.repositoryResponse = repositoryResponse;
             this.proxyResponse = proxyResponse;
         }

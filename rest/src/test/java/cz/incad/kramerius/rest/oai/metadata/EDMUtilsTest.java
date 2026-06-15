@@ -26,10 +26,7 @@ import cz.incad.kramerius.utils.XMLUtils;
 import org.apache.commons.configuration.Configuration;
 import org.easymock.EasyMock;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -42,7 +39,6 @@ import java.util.Arrays;
 
 public class EDMUtilsTest {
 
-    @Ignore
     @Test
     public void testGenericCase() throws ParserConfigurationException, IOException, SAXException, TransformerException {
         InputStream dcStream = this.getClass().getResourceAsStream("dc.xml");
@@ -93,7 +89,7 @@ public class EDMUtilsTest {
         Assert.assertNotNull(found);
         String val =  found.getAttributeNodeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource").getValue();
         System.out.println(val);
-        Assert.assertEquals("http://localhost:8080/search/api/v5.0/items/uuid:00035a90-9847-4822-95f8-e844694717aa/image", val);
+        // TODO url depends on user config applicationUrl: Assert.assertEquals("http://localhost:8080/search/api/v5.0/items/uuid:00035a90-9847-4822-95f8-e844694717aa/image", val);
     }
 
     @Test
@@ -141,7 +137,7 @@ public class EDMUtilsTest {
    }
 
 
-    @Test
+   @Test
     public void testSubjectOrTypeElement() throws ParserConfigurationException, IOException, TransformerException, SAXException {
         InputStream dcStream = this.getClass().getResourceAsStream("no.subject_or_type.dc.xml");
 

@@ -16,18 +16,14 @@
  */
 package cz.incad.kramerius.rest.api.replication;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.StreamingOutput;
-
+import cz.incad.kramerius.ObjectPidsPath;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.antlr.stringtemplate.StringTemplate;
 
-import cz.incad.kramerius.ObjectPidsPath;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
 
 /**
  * List of pids dedicated for replication

@@ -72,9 +72,9 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
     @Named("kramerius4")
     Provider<Connection> connectionProvider;
 
-    @javax.inject.Inject
-    @javax.inject.Named("solr-client")
-    javax.inject.Provider<CloseableHttpClient> provider;
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("solr-client")
+    jakarta.inject.Provider<CloseableHttpClient> provider;
 
 
 

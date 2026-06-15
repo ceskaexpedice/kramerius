@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2013 Pavel Stastny
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
@@ -27,11 +28,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import cz.incad.kramerius.auth.ClientKeycloakConfig;
+import jakarta.inject.Named;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -43,6 +43,14 @@ import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -53,9 +61,6 @@ import org.json.JSONObject;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.api.exceptions.GenericApplicationException;
@@ -65,15 +70,11 @@ import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.ProxyHandlerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.user.ProxyUserHandler;
-import cz.incad.kramerius.rest.apiNew.client.v70.ClientKeycloakConfig;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.PasswordDigest;
 import cz.incad.kramerius.users.UserProfileManager;
-
-import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
-
 
 import static cz.incad.kramerius.Constants.WORKING_DIR;
 
@@ -286,6 +287,7 @@ public class ClientUserResource {
         //@QueryParam("pids") String pids
         User user;
         try {
+            JSONObject rawdata = new JSONObject(rawdataSt);
             if (rawdata.has("pids") && (rawdata.get("pids") instanceof JSONArray)) {
                 JSONArray jsonArray = rawdata.getJSONArray("pids");
                 user = this.userProvider.get();
@@ -354,6 +356,7 @@ public class ClientUserResource {
     public Response changePassword(JSONObject rawdata) {
         User user;
         try {
+            JSONObject rawdata = new JSONObject(rawdataSt);
             user = this.userProvider.get();
             if (user != null && user.getId() != -1) {
                 if (rawdata.has("pswd")) {
@@ -401,37 +404,46 @@ public class ClientUserResource {
 
     @GET
     @Path("auth/token")
-    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
-    public Response token(@QueryParam("code") String code, @QueryParam("redirect_uri") String redirectUri) {
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response token(@QueryParam("code") String code,
+                          @QueryParam("redirect_uri") String redirectUri) {
         try {
+            // Load Keycloak configuration
             String path = WORKING_DIR + "/keycloak.json";
-            String str = IOUtils.toString(new FileInputStream(path),"UTF-8");
-            ClientKeycloakConfig cnf = ClientKeycloakConfig.load(new JSONObject(str));
+            String json = IOUtils.toString(
+                    new FileInputStream(path),
+                    StandardCharsets.UTF_8
+            );
+            ClientKeycloakConfig cnf =
+                    ClientKeycloakConfig.load(new JSONObject(json));
 
-            String type = "application/x-www-form-urlencoded; charset=UTF-8";
-            
-            Client client = Client.create();
-            WebResource webResource = client.resource(cnf.token(code));
-            MultivaluedMapImpl<String, String> values = new MultivaluedMapImpl();
-            values.add("grant_type", "authorization_code");
-            values.add("code", code);
-            values.add("client_id", cnf.getResource());
-            values.add("client_secret", cnf.getSecret());
-            values.add("redirect_uri", redirectUri);
-            // TODO: Dat to do konfigurace
-            //values.add("scope", "openid");
-            ClientResponse post = webResource.type(type).post(ClientResponse.class, values);
-            String entity = (String) post.getEntity(String.class);
-            return Response.ok().entity(entity.toString()).build();
+            // Build form data
+            MultivaluedHashMap<String, String> form =
+                    new MultivaluedHashMap<>();
+            form.add("grant_type", "authorization_code");
+            form.add("code", code);
+            form.add("client_id", cnf.getResource());
+            form.add("client_secret", cnf.getSecret());
+            form.add("redirect_uri", redirectUri);
+
+            Client client = ClientBuilder.newClient();
+            WebTarget target = client.target(cnf.token(code));
+
+            jakarta.ws.rs.core.Response kcResponse = target.request(MediaType.APPLICATION_JSON).post(Entity.form(form));
+
+            String entity = kcResponse.readEntity(String.class);
+
+            return Response
+                    .status(kcResponse.getStatus())
+                    .entity(entity)
+                    .build();
 
         } catch (Exception e) {
-            throw new GenericApplicationException(e.getMessage());
+            throw new GenericApplicationException(e.getMessage(), e);
         }
     }
 
 
-    
-    
     @GET
     @Path("auth/logout")
     public Response logout(@QueryParam("redirect_uri") String redirectUri) {
@@ -455,7 +467,6 @@ public class ClientUserResource {
         httpServletRequest.getSession().invalidate();
         return Response.ok().entity("{}").build();
     }
-    
 
 
 }

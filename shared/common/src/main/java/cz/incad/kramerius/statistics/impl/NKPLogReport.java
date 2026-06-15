@@ -13,9 +13,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -28,8 +32,6 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.database.VersionService;
@@ -71,9 +73,9 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
     @Inject
     VersionService versionService;
 
-    @javax.inject.Inject
-    @javax.inject.Named("solr-client")
-    javax.inject.Provider<CloseableHttpClient> provider;
+    @jakarta.inject.Inject
+    @jakarta.inject.Named("solr-client")
+    jakarta.inject.Provider<CloseableHttpClient> provider;
 
     @Override
     public List<Map<String, Object>> getReportPage(ReportedAction reportedAction, StatisticsFiltersContainer filters,
@@ -107,7 +109,7 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 ReportUtils.enhanceDateFilter(builder, dateFilter);
                 
                 String selectEndpoint = logsEndpoint();
-                Client client = Client.create();
+                Client client = ClientBuilder.newClient();
                 // commit 
                 commit(client, selectEndpoint);
                 logsCursorIteration(client, selectEndpoint, builder.toString(), (elm, i) -> {
@@ -162,12 +164,21 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
         }
     }
 
-    
-    private static void commit(Client client, String logsindex) {
+
+    private static void commit(Client client, String logsIndex) {
         String updateCommit = "update?commit=true";
-        WebResource r = client.resource(logsindex + (logsindex.endsWith("/") ? "" : "/") + updateCommit);
-        String t = r.accept(MediaType.APPLICATION_JSON).get(String.class);
-        LOGGER.fine(String.format("Committing, %s; response %s ", r.toString(), t));
+        WebTarget target = client.target(logsIndex + (logsIndex.endsWith("/") ? "" : "/") + updateCommit);
+
+        try (Response response = target
+                .request(MediaType.APPLICATION_JSON)
+                .get()) {
+
+            String t = response.readEntity(String.class);
+            LOGGER.fine(String.format("Committing, %s; response %s", target.getUri(), t));
+
+        } catch (jakarta.ws.rs.ProcessingException e) {
+            LOGGER.log(Level.SEVERE, "Failed to commit to Solr index", e);
+        }
     }
 
     public static void logsCursorIteration(Client client,String address, String masterQuery,IterationCallback callback, IterationEndCallback endCallback) throws ParserConfigurationException,  SAXException, IOException, InterruptedException, BrokenBarrierException {

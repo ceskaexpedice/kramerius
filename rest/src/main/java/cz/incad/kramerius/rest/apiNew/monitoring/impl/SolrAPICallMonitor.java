@@ -2,7 +2,6 @@ package cz.incad.kramerius.rest.apiNew.monitoring.impl;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.sun.jersey.api.client.Client;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.inovatika.monitoring.APICallMonitor;
@@ -10,15 +9,18 @@ import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.glassfish.jersey.client.ClientProperties;
 import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,23 +45,28 @@ public class SolrAPICallMonitor implements APICallMonitor  {
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("solr-client")
-    javax.inject.Provider<CloseableHttpClient> provider;
+    jakarta.inject.Provider<CloseableHttpClient> provider;
 
-    @javax.inject.Inject
+    @jakarta.inject.Inject
     @Named("forward-client")
-    javax.inject.Provider<PoolingHttpClientConnectionManager> apachePoolManager;
+    jakarta.inject.Provider<PoolingHttpClientConnectionManager> apachePoolManager;
 
 
     public SolrAPICallMonitor() {
-        this.client = Client.create();
+        int timeout = Integer.parseInt(
+                KConfiguration.getInstance()
+                        .getProperty("http.timeout", "10000")
+        );
+
+        this.client = ClientBuilder.newBuilder()
+                .property(ClientProperties.CONNECT_TIMEOUT, timeout)
+                .property(ClientProperties.READ_TIMEOUT, timeout)
+                .build();
+
         this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-
-        client.setReadTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
-        client.setConnectTimeout(Integer.parseInt(KConfiguration.getInstance().getProperty("http.timeout", "10000")));
     }
-
 
 
     @Override

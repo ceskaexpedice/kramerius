@@ -1,11 +1,15 @@
 package cz.incad.kramerius.utils.solr;
 
-import com.sun.jersey.api.client.*;
 import cz.incad.kramerius.utils.IOUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.w3c.dom.Document;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,16 +29,22 @@ public class SolrUpdateUtils {
         try {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
-            String shost = updateUrl;//updateUrl();
-            WebResource r = client.resource(shost);
-            ClientResponse resp = r.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML).entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
-            if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                InputStream entityInputStream = resp.getEntityInputStream();
-                IOUtils.copyStreams(entityInputStream, bos);
-                LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
+
+            WebTarget target = client.target(updateUrl);
+
+            try (Response resp = target
+                    .request(MediaType.TEXT_XML)
+                    .post(Entity.entity(writer.toString(), MediaType.TEXT_XML))) {
+
+                if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    InputStream entityInputStream = resp.readEntity(InputStream.class);
+                    IOUtils.copyStreams(entityInputStream, bos);
+                    LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
+                }
             }
-        } catch (UniformInterfaceException | ClientHandlerException | IOException | TransformerException e) {
+
+        } catch (ProcessingException | IOException | TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }

@@ -36,11 +36,13 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import cz.incad.kramerius.processes.utils.ProcessUtils;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -58,10 +60,6 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -217,16 +215,25 @@ public class Backup {
 
     private static Document foxml(Client client, String processingPid)
             throws ParserConfigurationException, SAXException, IOException {
-        String url = KConfiguration.getInstance().getConfiguration().getString("api.client.point") + (KConfiguration.getInstance().getConfiguration().getString("api.client.point").endsWith("/") ? "" : "/") + String.format("items/%s/foxml", processingPid);
+
+        String baseUrl = KConfiguration.getInstance()
+                .getConfiguration()
+                .getString("api.client.point");
+
+        String url = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/")
+                + String.format("items/%s/foxml", processingPid);
+
         LOGGER.info(String.format("Requesting url is %s", url));
-        WebResource r = client.resource(url);
 
-        WebResource.Builder builder = r.accept(MediaType.APPLICATION_XML);
-        InputStream clientResponse = builder.get(InputStream.class);
-        Document parsed = XMLUtils.parseDocument(clientResponse, true);
-        return parsed;
+        WebTarget target = client.target(url);
+
+        try (InputStream is = target
+                .request(MediaType.APPLICATION_XML)
+                .get(InputStream.class)) {
+
+            return XMLUtils.parseDocument(is, true);
+        }
     }
-
 
     private static void addFileToZip(String path, File srcFile, ZipOutputStream zipOut) throws IOException {
         FileInputStream fis = new FileInputStream(srcFile);

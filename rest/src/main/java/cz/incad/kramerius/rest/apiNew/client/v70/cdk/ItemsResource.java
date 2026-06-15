@@ -11,11 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 
 import cz.incad.kramerius.processes.client.ErrorCode;
 import cz.incad.kramerius.processes.client.ProcessManagerClient;
@@ -33,7 +30,6 @@ import cz.inovatika.monitoring.ApiCallEvent;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.sun.jersey.api.client.Client;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.audio.AudioStreamForwardingHelper;
@@ -51,6 +47,10 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
@@ -115,7 +115,6 @@ public class ItemsResource extends ClientApiResource {
      * It would be inefficient to use byte-serving this way. Since Kramerius Repository (Akubra) has to fetch whole audio file again for every byte-serving request
      */
     private static final boolean AUDIO_SERVED_BY_AKUBRA_IGNORE_RANGE = true;
-    //private static final String GENERATE_PDF_PROCESS = "generate_pdf";
 
     //public static final String API_V7 = "v7";
 

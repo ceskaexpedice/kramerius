@@ -24,12 +24,12 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import cz.incad.kramerius.rest.oai.metadata.utils.OAICDKUtils;
 import cz.incad.kramerius.rest.oai.record.OAIRecordSupplement;

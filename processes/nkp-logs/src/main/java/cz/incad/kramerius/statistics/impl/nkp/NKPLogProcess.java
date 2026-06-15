@@ -1,13 +1,15 @@
 package cz.incad.kramerius.statistics.impl.nkp;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.gdpr.AnonymizationSupport;
 import cz.incad.kramerius.service.Mailer;
 import cz.incad.kramerius.service.impl.MailerImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.ceskaexpedice.processplatform.api.context.PluginContext;
@@ -19,8 +21,8 @@ import javax.mail.MessagingException;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.ws.rs.core.MediaType;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -108,92 +110,160 @@ public class NKPLogProcess {
                                @ParameterName("folder") String folder,
                                @ParameterName("institution") String institution,
                                @ParameterName("visibility") String visibility,
-                               List<Object> anonymization
+                               List<Object> anonymization)
 
-    ) throws ParseException, IOException, NoSuchAlgorithmException {
+            throws ParseException, IOException, NoSuchAlgorithmException {
+
         List<String> logs = new ArrayList<>();
         PluginContext pluginContext = PluginContextHolder.getContext();
-        pluginContext.updateProcessName(String.format("Generování NKP logů pro období %s - %s", from, to));
-        // folder, institution, visibility from configuration
-        LOGGER.info(String.format("Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s,visibility=%s,anonymization=%s", from, to, folder, institution, visibility, anonymization));
+        pluginContext.updateProcessName(
+                String.format("Generování NKP logů pro období %s - %s", from, to));
 
-        List<String> annonymizationKeys = anonymization != null ? anonymization.stream().map(Objects::toString).collect(Collectors.toList()) : new ArrayList<>();
+        LOGGER.info(String.format(
+                "Process parameters dateFrom=%s, dateTo=%s, folder=%s, institution=%s, visibility=%s, anonymization=%s",
+                from, to, folder, institution, visibility, anonymization));
 
-        Client client = Client.create();
+        List<String> anonymizationKeys = anonymization != null
+                ? anonymization.stream().map(Objects::toString).collect(Collectors.toList())
+                : new ArrayList<>();
 
-        Date start = StringUtils.isAnyString(to) ? StatisticReport.DATE_FORMAT.parse(from) : new Date();
-        Date end = StringUtils.isAnyString(to) ? StatisticReport.DATE_FORMAT.parse(to) : new Date();
-
-        Date processingDate = start;
-        while (processingDate.before(end)) {
-
-            LocalDateTime localDateTime = processingDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            localDateTime = localDateTime.plusDays(1);
-            Date nextDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-
-            String url = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point") + (KConfiguration.getInstance().getConfiguration().getString("api.point").endsWith("/") ? "" : "/") + String.format("statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s", StatisticReport.DATE_FORMAT.format(processingDate), StatisticReport.DATE_FORMAT.format(nextDate), visibility);
-            WebResource r = client.resource(url);
-
-            WebResource.Builder builder = r.accept(MediaType.APPLICATION_JSON);
-            InputStream clientResponse = builder.get(InputStream.class);
-
-
-            File outputFolder = new File(folder);
-            if (!outputFolder.exists()) outputFolder.mkdirs();
-            if (outputFolder.exists()) {
-
-                File outputFile = new File(outputFolder, String.format("statistics-%s-%s.log", institution, StatisticReport.DATE_FORMAT.format(processingDate)));
-                logs.add(outputFile.getAbsolutePath());
-                FileOutputStream fos = new FileOutputStream(outputFile);
-                try (OutputStreamWriter fileWriter = new OutputStreamWriter(fos, "UTF-8")) {
-
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientResponse, "UTF-8"));
-                    String line = null;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        JSONObject lineJSONObject = AnonymizationSupport.annonymizeObject(annonymizationKeys, line);
-
-                        fileWriter.write(lineJSONObject.toString() + "\n");
-
-                        // memory dump
-                        boolean nkpLogMemoryDump = KConfiguration.getInstance().getConfiguration().getBoolean("nkp.logs.memorydump", false);
-                        if (nkpLogMemoryDump) {
-                            Runtime runtime = Runtime.getRuntime();
-                            long freeMemory = runtime.freeMemory();
-                            long totalMemory = runtime.totalMemory();
-
-                            long usedMemory = totalMemory - freeMemory;
-
-                            long maxMemory = runtime.maxMemory();
-                            double ratioA = (double) usedMemory / (double) totalMemory;
-                            double ratioB = (double) usedMemory / (double) maxMemory;
-
-                            LOGGER.fine(String.format("Free memory (bytes) %d,Used memory (bytes) %d, Total memory(bytes) %d, Max memory (bytes) %d, ratio (used/totalmemory)  %f,ratio (used/maxmemory)  %f", freeMemory, usedMemory, totalMemory, maxMemory, ratioA, ratioB));
-                        }
-                    }
-                }
-                LOGGER.info(String.format("Storing log to file %s", outputFile.getAbsolutePath()));
-            }
-            processingDate = nextDate;
-        }
-
+        Client client = ClientBuilder.newClient();
 
         try {
-            File zipFile = new File(new File(folder), String.format("statistics-%s-%s.zip", StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)));
-            FileOutputStream fos = new FileOutputStream(zipFile);
-            ZipOutputStream zos = new ZipOutputStream(fos);
 
-            for (String lF : logs) {
-                addFileToZip(String.format("statistics-%s-%s", StatisticReport.DATE_FORMAT.format(start), StatisticReport.DATE_FORMAT.format(end)), lF, zos);
+            Date start = StringUtils.isAnyString(to)
+                    ? StatisticReport.DATE_FORMAT.parse(from)
+                    : new Date();
+
+            Date end = StringUtils.isAnyString(to)
+                    ? StatisticReport.DATE_FORMAT.parse(to)
+                    : new Date();
+
+            Date processingDate = start;
+
+            while (processingDate.before(end)) {
+
+                LocalDateTime localDateTime = processingDate.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime()
+                        .plusDays(1);
+
+                Date nextDate = Date.from(
+                        localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+                String baseAdminPoint = KConfiguration.getInstance()
+                        .getConfiguration()
+                        .getString("api.admin.v7.point");
+
+                String apiPoint = KConfiguration.getInstance()
+                        .getConfiguration()
+                        .getString("api.point");
+
+                String url = baseAdminPoint
+                        + (apiPoint.endsWith("/") ? "" : "/")
+                        + String.format(
+                        "statistics/nkp/export?action=READ&dateFrom=%s&dateTo=%s&visibility=%s",
+                        StatisticReport.DATE_FORMAT.format(processingDate),
+                        StatisticReport.DATE_FORMAT.format(nextDate),
+                        visibility
+                );
+
+                WebTarget target = client.target(url);
+
+                try (InputStream clientResponse =
+                             target.request(MediaType.APPLICATION_JSON)
+                                     .get(InputStream.class)) {
+
+                    File outputFolder = new File(folder);
+                    if (!outputFolder.exists()) {
+                        outputFolder.mkdirs();
+                    }
+
+                    if (outputFolder.exists()) {
+
+                        File outputFile = new File(outputFolder,
+                                String.format("statistics-%s-%s.log",
+                                        institution,
+                                        StatisticReport.DATE_FORMAT.format(processingDate)));
+
+                        logs.add(outputFile.getAbsolutePath());
+
+                        try (FileOutputStream fos = new FileOutputStream(outputFile);
+                             OutputStreamWriter fileWriter =
+                                     new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                             BufferedReader bufferedReader =
+                                     new BufferedReader(
+                                             new InputStreamReader(clientResponse, StandardCharsets.UTF_8))) {
+
+                            String line;
+                            while ((line = bufferedReader.readLine()) != null) {
+
+                                JSONObject lineJSONObject =
+                                        AnonymizationSupport.annonymizeObject(
+                                                anonymizationKeys, line);
+
+                                fileWriter.write(lineJSONObject.toString());
+                                fileWriter.write("\n");
+
+                                boolean nkpLogMemoryDump =
+                                        KConfiguration.getInstance()
+                                                .getConfiguration()
+                                                .getBoolean("nkp.logs.memorydump", false);
+
+                                if (nkpLogMemoryDump) {
+
+                                    Runtime runtime = Runtime.getRuntime();
+
+                                    long freeMemory = runtime.freeMemory();
+                                    long totalMemory = runtime.totalMemory();
+                                    long usedMemory = totalMemory - freeMemory;
+                                    long maxMemory = runtime.maxMemory();
+
+                                    double ratioA =
+                                            (double) usedMemory / (double) totalMemory;
+                                    double ratioB =
+                                            (double) usedMemory / (double) maxMemory;
+
+                                    LOGGER.fine(String.format(
+                                            "Free memory (bytes) %d, Used memory (bytes) %d, Total memory(bytes) %d, Max memory (bytes) %d, ratio (used/totalmemory) %f, ratio (used/maxmemory) %f",
+                                            freeMemory, usedMemory, totalMemory,
+                                            maxMemory, ratioA, ratioB));
+                                }
+                            }
+                        }
+
+                        LOGGER.info(String.format(
+                                "Storing log to file %s",
+                                outputFile.getAbsolutePath()));
+                    }
+                }
+
+                processingDate = nextDate;
             }
 
-            zos.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            // ZIP creation
+            File zipFile = new File(folder,
+                    String.format("statistics-%s-%s.zip",
+                            StatisticReport.DATE_FORMAT.format(start),
+                            StatisticReport.DATE_FORMAT.format(end)));
+
+            try (FileOutputStream fos = new FileOutputStream(zipFile);
+                 ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+                for (String logFile : logs) {
+                    addFileToZip(
+                            String.format("statistics-%s-%s",
+                                    StatisticReport.DATE_FORMAT.format(start),
+                                    StatisticReport.DATE_FORMAT.format(end)),
+                            logFile,
+                            zos);
+                }
+            }
+
+        } finally {
+            client.close();   // IMPORTANT in Jersey 3
         }
-
     }
-
     private static void addFileToZip(String path, String srcFile, ZipOutputStream zipOut) throws IOException {
         File file = new File(srcFile);
         FileInputStream fis = new FileInputStream(file);
