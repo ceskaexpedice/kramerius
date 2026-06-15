@@ -50,7 +50,7 @@ public class RightRuntimeInformations {
         JSONArray docs = solrResponseJson.getJSONObject("response").getJSONArray("docs");
         if (docs.length() > 0) {
             LOGGER.fine("-> r docs.length: " + docs.length());
-            JSONArray pidPaths = docs.getJSONObject(0).getJSONArray("pid_paths");
+             JSONArray pidPaths = docs.getJSONObject(0).getJSONArray("pid_paths");
             List<ObjectPidsPath> pidsPathList = new ArrayList<>();
             for (int i = 0; i < pidPaths.length(); i++) {
                 pidsPathList.add(new ObjectPidsPath(pidPaths.getString(i)));

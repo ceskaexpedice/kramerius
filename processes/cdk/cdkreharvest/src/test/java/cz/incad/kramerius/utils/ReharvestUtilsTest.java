@@ -192,4 +192,42 @@ public class ReharvestUtilsTest {
 
     }
 
+    @Test
+    public void testReharvestV7ConfigurationShowsSolrAddFields() throws IOException {
+        Map<String, String> iteration = new HashMap<>();
+        iteration.put("dl", "vkol");
+        iteration.put("url", "http://source.example/solr/search");
+        iteration.put("id", "compositeId");
+        iteration.put("batch", "45");
+        iteration.put("fquery", "cdk.collection:vkol");
+
+        Map<String, String> destination = new HashMap<>();
+        destination.put("url", "http://destination.example/solr/search");
+
+        String configuration = compact(ReharvestUtils.renderTemplate("v7", iteration, destination));
+
+        Assert.assertTrue(configuration.contains(
+                "<onindex>"
+                        + "<remove.dest.field><field name=\"collection\"></field></remove.dest.field>"
+                        + "<update.dest.field>"
+                        + "<field name=\"cdk.collection\">vkol</field>"
+                        + "<field name=\"cdk.leader\">vkol</field>"
+                        + "</update.dest.field>"
+                        + "</onindex>"));
+
+        Assert.assertTrue(configuration.contains(
+                "<onupdate>"
+                        + "<fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr</fieldlist>"
+                        + "<update.dest.field>"
+                        + "<field name=\"cdk.collection\" update=\"add-distinct\">vkol</field>"
+                        + "</update.dest.field>"
+                        + "</onupdate>"));
+    }
+
+    private static String compact(String xml) {
+        return xml.replaceAll("(?s)<!--.*?-->", "")
+                .replaceAll(">\\s+<", "><")
+                .trim();
+    }
+
 }

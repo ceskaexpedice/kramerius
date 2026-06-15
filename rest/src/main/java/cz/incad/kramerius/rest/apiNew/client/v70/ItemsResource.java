@@ -738,8 +738,29 @@ public class ItemsResource extends ClientApiResource {
     public Response requests(@PathParam("pid") String pid,
                              @PathParam("reqid") String reqid,
                              @QueryParam("lang") String lang,
-                             @HeaderParam("Accept-Language") Locale locale, JSONObject reqDefinition) {
+                             @HeaderParam("Accept-Language") Locale locale, String reqDefinition) {
+        return requests(pid, reqid, lang, locale, parseRequestDefinition(pid, reqid, reqDefinition));
+    }
 
+    @GET
+    @Path("{pid}/requests/{reqid}/availability")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response requestAvailability(@PathParam("pid") String pid,
+                                        @PathParam("reqid") String reqid) {
+        try {
+            checkSupportedObjectPid(pid);
+            return requestAvailabilityResponse(pid, reqid);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    public Response requests(String pid, String reqid, String lang, Locale locale, JSONObject reqDefinition) {
+
+        final JSONObject safeReqDefinition = reqDefinition != null ? reqDefinition : new JSONObject();
 
         User user = this.userProvider.get();
         String username = user.getLoginname();
@@ -759,24 +780,39 @@ public class ItemsResource extends ClientApiResource {
                         if (limitConf != null) {
                             boolean allowGenerate = lic.checkUsageLimit(user, pid, this.userContentSpace);
                             if (!allowGenerate) {
+                                LOGGER.log(Level.WARNING, String.format(
+                                        "PDF generation denied by usage limit: pid=%s, user=%s, license=%s",
+                                        pid, user.getLoginname(), lic.getName()
+                                ));
                                 throw new ForbiddenException("Generation limit reached for user '%s'", user.getLoginname());
                             }
                         }
+
                         lic.checkUsageLimit(user, pid, this.userContentSpace);
                         JSONObject process = new JSONObject();
                         process.put(ProcessManagerMapper.PCP_PROFILE_ID, GENERATE_PDF_PROCESS);
                         process.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user.getLoginname());
-
+                        LOGGER.info("Safe definition: " + safeReqDefinition);
                         JSONObject payload = new JSONObject();
                         payload.put("pid", pid);
-                        if (reqDefinition.has("email")) {
-                            payload.put("email", reqDefinition.getString("email"));
+                        if (safeReqDefinition.has("email")) {
+                            payload.put("email", safeReqDefinition.getString("email"));
+                        }
+
+                        if (safeReqDefinition.has("notificationMode")) {
+                            payload.put("notificationMode", safeReqDefinition.getString("notificationMode"));
+                        }
+                        if (safeReqDefinition.has("notificationCallbackUrl")) {
+                            payload.put("notificationCallbackUrl", safeReqDefinition.getString("notificationCallbackUrl"));
+                        }
+                        if (safeReqDefinition.has("notificationSource")) {
+                            payload.put("notificationSource", safeReqDefinition.getString("notificationSource"));
                         }
                         payload.put("user", user.getLoginname());
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 
                         Locale finalLocale = detectFinalLocale(lang, locale);
-
+                        LOGGER.info("Payload: " + payload);
                         payload.put("locale", finalLocale);
                         payload.put("providedByLicense", lic.getName());
                         process.put("payload", payload);
@@ -800,6 +836,10 @@ public class ItemsResource extends ClientApiResource {
 
                         return Response.ok().entity(result.toString()).build();
                     } else {
+                        LOGGER.log(Level.WARNING, String.format(
+                                "PDF generation denied by license: pid=%s, user=%s, licenseFound=%s",
+                                pid, user.getLoginname(), lic != null
+                        ));
                         return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "PDF generation not allowed by license").toString()).build();
                     }
                 }
@@ -832,14 +872,25 @@ public class ItemsResource extends ClientApiResource {
                         JSONObject payload = new JSONObject();
                         payload.put("pid", pid);
 
-                        reqDefinition.keySet().forEach(k -> {
-                            payload.put(k.toString(), reqDefinition.get(k.toString()));
+                        safeReqDefinition.keySet().forEach(k -> {
+                            payload.put(k.toString(), safeReqDefinition.get(k.toString()));
                         });
 
                         payload.put("user", user.getLoginname());
                         payload.put("roles", Arrays.stream(user.getGroups()).map(Role::getName).collect(Collectors.joining(", ")));
 
                         Locale finalLocale = detectFinalLocale(lang, locale);
+
+                        if (safeReqDefinition.has("notificationMode")) {
+                            payload.put("notificationMode", safeReqDefinition.getString("notificationMode"));
+                        }
+                        if (safeReqDefinition.has("notificationCallbackUrl")) {
+                            payload.put("notificationCallbackUrl", safeReqDefinition.getString("notificationCallbackUrl"));
+                        }
+                        if (safeReqDefinition.has("notificationSource")) {
+                            payload.put("notificationSource", safeReqDefinition.getString("notificationSource"));
+                        }
+
 
                         payload.put("locale", finalLocale);
                         payload.put("providedByLicense", lic.getName());
@@ -849,6 +900,10 @@ public class ItemsResource extends ClientApiResource {
 
                         JSONObject profile = processManagerClient.getProfile(reqid);
                         if (profile == null) {
+                            LOGGER.log(Level.WARNING, String.format(
+                                    "Process profile not found: pid=%s, reqid=%s, user=%s",
+                                    pid, reqid, user.getLoginname()
+                            ));
                             return Response.status(Response.Status.BAD_REQUEST).entity(new JSONObject().put("error", "Process profile not found").toString()).build();
                         }
                         JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
@@ -867,17 +922,29 @@ public class ItemsResource extends ClientApiResource {
 
                         return Response.ok().entity(result.toString()).build();
                     } else {
+                        LOGGER.log(Level.WARNING, String.format(
+                                "Process scheduling denied by license: pid=%s, reqid=%s, user=%s, licenseFound=%s",
+                                pid, reqid, user.getLoginname(), lic != null
+                        ));
                         return Response.status(Response.Status.FORBIDDEN).entity(new JSONObject().put("error", "Process scheduling not allowed by license").toString()).build();
                     }
                 }
             }
         } catch (ProcessManagerClientException e) {
             if (e.getErrorCode() == ErrorCode.NOT_FOUND) {
+                LOGGER.log(Level.WARNING, String.format(
+                        "Process manager returned NOT_FOUND: pid=%s, reqid=%s, user=%s, message=%s",
+                        pid, reqid, username, e.getMessage()
+                ), e);
                 throw new NotFoundException(e.getMessage());
             } else if (e.getErrorCode() == ErrorCode.INVALID_INPUT) {
                 LOGGER.log(Level.SEVERE, "Error message from processManagerClient", e);
                 throw new BadRequestException(e.getMessage());
             } else {
+                LOGGER.log(Level.SEVERE, String.format(
+                        "Process manager error: pid=%s, reqid=%s, user=%s, message=%s",
+                        pid, reqid, username, e.getMessage()
+                ), e);
                 throw e;
             }
         } catch (WebApplicationException e) {
@@ -887,6 +954,61 @@ public class ItemsResource extends ClientApiResource {
             throw new InternalErrorException(e.getMessage());
         }
 
+    }
+
+    private JSONObject parseRequestDefinition(String pid, String reqid, String reqDefinition) {
+        if (reqDefinition == null || reqDefinition.trim().isEmpty()) {
+            return new JSONObject();
+        }
+        try {
+            return new JSONObject(reqDefinition);
+        } catch (JSONException e) {
+            LOGGER.log(Level.WARNING, String.format(
+                    "Invalid item request JSON: pid=%s, reqid=%s, body=%s",
+                    pid, reqid, reqDefinition
+            ), e);
+            throw new BadRequestException("Invalid JSON request definition");
+        }
+    }
+
+    private Response requestAvailabilityResponse(String pid, String reqid) {
+        if (isRequestSupportedByConfiguration(reqid)) {
+            return Response.ok(requestAvailability(pid, reqid, true, true, null).toString())
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+
+        return Response.ok(requestAvailability(pid, reqid, false, false, "unsupported_request").toString())
+                .type(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    private boolean isRequestSupportedByConfiguration(String reqid) {
+        if (GENERATE_PDF_PROCESS.equals(reqid)) {
+            return true;
+        }
+
+        String clientRequests = KConfiguration.getInstance().getConfiguration().getString("api.client.requests");
+        if (!StringUtils.isAnyString(clientRequests)) {
+            return true;
+        }
+
+        return Arrays.stream(clientRequests.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isAnyString)
+                .anyMatch(reqid::equals);
+    }
+
+    private JSONObject requestAvailability(String pid, String reqid, boolean supported, boolean available, String reason) {
+        JSONObject result = new JSONObject();
+        result.put("pid", pid);
+        result.put("reqid", reqid);
+        result.put("supported", supported);
+        result.put("available", available);
+        if (reason != null) {
+            result.put("reason", reason);
+        }
+        return result;
     }
 
     private static Locale detectFinalLocale(String lang, Locale locale) {

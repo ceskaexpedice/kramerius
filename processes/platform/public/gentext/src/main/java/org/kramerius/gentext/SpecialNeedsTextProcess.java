@@ -3,14 +3,14 @@ package org.kramerius.gentext;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.processes.notifications.GenerationNotification;
+import cz.incad.kramerius.processes.notifications.GenerationNotificationDispatcher;
 import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.DocumentType;
 import cz.inovatika.dochub.guice.DocHubModule;
-import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.configuration.Configuration;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
@@ -20,9 +20,7 @@ import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.json.JSONObject;
 import org.kramerius.gentext.impl.SpecialNeedsTextServiceImpl;
 
-import javax.mail.MessagingException;
 import java.io.File;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -59,7 +57,10 @@ public class SpecialNeedsTextProcess {
     public static void run(
             @ParameterName("pid") @IsRequired String pid,
             @ParameterName("user") String user,
-            @ParameterName("email") @IsRequired String email
+            @ParameterName("email")  String email,
+            @ParameterName("notificationMode") String notificationMode,
+            @ParameterName("notificationCallbackUrl") String notificationCallbackUrl,
+            @ParameterName("notificationSource") String notificationSource
     ) {
         LOGGER.info("Generating TEXT for special needs");
         LOGGER.info("pid: " + pid);
@@ -140,7 +141,31 @@ public class SpecialNeedsTextProcess {
         LOGGER.info("Saved into tmp file: " + tmpFile.getAbsolutePath());
         String downloadToken = serv.saveFileToUserContentSpace(tmpFile, DocumentType.TEXT, user, pid);
         LOGGER.info("Download token: " + downloadToken);
-        notifyUsersWithEmail(pid, tmpFile.getName(), email, serv, downloadToken);
+        GenerationNotificationDispatcher.notify(
+                new GenerationNotification.Builder()
+                        .pid(pid)
+                        .user(user)
+                        .email(email)
+                        .documentType("text")
+                        .filename(tmpFile.getName())
+                        .downloadToken(downloadToken)
+                        .downloadUrl(buildDownloadUrl(downloadToken))
+                        .title(tmpFile.getName())
+                        .source(notificationSource != null ? notificationSource : "gentext")
+                        .build(),
+                notificationMode,
+                notificationCallbackUrl,
+                new GenerationNotificationDispatcher.LocalMailConfiguration(
+                        GENERATE_TEXT_EMAIL_SENDER,
+                        GENERATE_TEXT_EMAIL_SUBJECT,
+                        GENERATE_TEXT_EMAIL_BODY,
+                        null,
+                        GENERATE_TEXT_EMAIL_BODY_K7_DOC_URL_TEMPLATE,
+                        "Textovy prepis pripraven ke stazeni",
+                        "Dobry den,\npozadali jste o export titulu \"$title$\" ve formatu TEXT pro stazeni do vaseho zarizeni.\nExport byl dokoncen a soubor je nyni pripraven ke stazeni.\nOdkaz ke stazeni: $link$\nPrejeme prijemne cteni!"
+                ),
+                serv::sendEmailNotification
+        );
     }
 
     private static void logProgress(JSONObject progress) {
@@ -164,53 +189,6 @@ public class SpecialNeedsTextProcess {
             url = url.substring(0, url.length() - 1);
         }
         return url;
-    }
-
-    private static void notifyUsersWithEmail(String pid, String filename, String email, SpecialNeedsTextService serv, String downloadToken) {
-        if (StringUtils.isAnyString(email)) {
-            LOGGER.info("Email specified: " + email);
-            String mailPropertiesFile = System.getProperty("user.home") + File.separator + ".kramerius4" + File.separator + "mail.properties";
-            if (new File(mailPropertiesFile).exists()) {
-                try {
-                    Configuration config = KConfiguration.getInstance().getConfiguration();
-                    String senderEmail = config.getString(GENERATE_TEXT_EMAIL_SENDER, null);
-                    if (senderEmail == null) {
-                        senderEmail = config.getString("administrator.email", null); //fallback with general property
-                    }
-                    if (senderEmail == null) {
-                        LOGGER.warning("Sender email is not specified in configuration!" +
-                                " Setup property '" + GENERATE_TEXT_EMAIL_SENDER + "' or 'administrator.email'" +
-                                " to enable sending notification emails");
-                        return;
-                    }
-
-                    String subject = config.getString(GENERATE_TEXT_EMAIL_SUBJECT, "Textový přepis připraven ke stažení");
-                    String text = config.getString(GENERATE_TEXT_EMAIL_BODY, "");
-                    String k7DocUrl = config.getString(GENERATE_TEXT_EMAIL_BODY_K7_DOC_URL_TEMPLATE, "");
-                    if (text.isBlank()) {
-                        text = "Dobrý den,\n";
-                        text += "požádali jste o export titulu „$title$“ ve formátu TEXT pro stažení do vašeho zařízení.\n";
-                        text += "Export byl dokončen a soubor je nyní připraven ke stažení.\n";
-                        text += "Odkaz ke stažení: $link$\n";
-                        if (!k7DocUrl.isBlank()) {
-                            text += "Titul je také dostupný v digitální knihovně zde: " + k7DocUrl + "\n";
-                        }
-                        text += "Přejeme příjemné čtení!";
-                    }
-                    org.antlr.stringtemplate.StringTemplate template = new StringTemplate(text);
-                    template.setAttribute("title", filename);
-                    template.setAttribute("link", buildDownloadUrl(downloadToken));
-                    template.setAttribute("pid", pid);
-                    String body = template.toString();
-                    LOGGER.info(body);
-                    serv.sendEmailNotification(senderEmail, Arrays.asList(email), subject, body);
-                } catch (MessagingException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                throw new IllegalArgumentException("Mail properties file not found");
-            }
-        }
     }
 
     private static String buildDownloadUrl(String token) {

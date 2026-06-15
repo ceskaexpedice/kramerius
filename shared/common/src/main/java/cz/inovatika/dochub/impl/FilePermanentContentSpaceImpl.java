@@ -35,6 +35,21 @@ public class FilePermanentContentSpaceImpl implements PermanentContentSpace, Cle
         }
     }
 
+    @Override
+    public int getConfiguredMaxAge() {
+        int expirationHours = KConfiguration.getInstance().getConfiguration().getInt("dochub.permanent.expiration.hours", 48);
+        return expirationHours;
+    }
+
+    @Override
+    public double getConfiguredMaxLimit() {
+        double maxGb = KConfiguration.getInstance().getConfiguration().getDouble("dochub.permanent.max.size.gb", 10);
+        return maxGb;
+    }
+
+
+
+
     public OutputStream createOutputStream(String pid, DocumentType type) throws IOException {
         Path filePath = ResolvePathUtils.resolvePath(rootPath, pid, type);
         Path parentDir = filePath.getParent();
@@ -54,6 +69,9 @@ public class FilePermanentContentSpaceImpl implements PermanentContentSpace, Cle
         }
     }
 
+
+
+
     @Override
     public InputStream getContent(String pid, DocumentType type) throws IOException {
         return Files.newInputStream(ResolvePathUtils.resolvePath(rootPath, pid, type));
@@ -64,6 +82,10 @@ public class FilePermanentContentSpaceImpl implements PermanentContentSpace, Cle
         return Files.exists(ResolvePathUtils.resolvePath(rootPath, pid, type));
     }
 
+    @Override
+    public Path getRootPath() {
+        return this.rootPath;
+    }
 
     @Override
     public void cleanup(CleanupStrategy strategy) throws IOException {

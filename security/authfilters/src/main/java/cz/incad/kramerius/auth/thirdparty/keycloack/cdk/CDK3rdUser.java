@@ -63,7 +63,10 @@ public class CDK3rdUser extends AbstractThirdPartyUser {
         if (!associatedRoles.contains(DefaultRoles.COMMON_USERS.getName())) {
             associatedRoles.add(DefaultRoles.COMMON_USERS.getName());
         }
-        
+        if (!associatedRoles.contains(DefaultRoles.AUTHENTICATED_USERS.getName())) {
+            associatedRoles.add(DefaultRoles.AUTHENTICATED_USERS.getName());
+        }
+
         LOGGER.fine(String.format("Associted roles %s",associatedRoles.toString()));
         
         

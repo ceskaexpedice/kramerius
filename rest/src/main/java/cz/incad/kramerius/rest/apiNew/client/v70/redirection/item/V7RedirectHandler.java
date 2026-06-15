@@ -85,7 +85,12 @@ public class V7RedirectHandler extends ProxyItemHandler{
     }
 
     @Override
-    public Response pdfSelection(String pidsParam, String firstPageType, String format) throws ProxyHandlerException {
+    public Response requestsUserSpace() throws ProxyHandlerException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Response pdfSelection(String pidsParam, String firstPageType, String format, String language) throws ProxyHandlerException {
         throw new UnsupportedOperationException();
     }
 
