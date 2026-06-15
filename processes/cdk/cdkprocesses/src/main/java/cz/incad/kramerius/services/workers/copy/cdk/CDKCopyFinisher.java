@@ -4,6 +4,7 @@ package cz.incad.kramerius.services.workers.copy.cdk;
 import cz.inovatika.kramerius.services.config.MigrationConfig;
 import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
+import cz.incad.kramerius.utils.ProcessTokenSupport;
 import cz.incad.kramerius.utils.StringUtils;
 
 import org.apache.hc.client5.http.classic.methods.HttpPut;
@@ -77,6 +78,7 @@ public class CDKCopyFinisher extends MigrationIndexFeederFinisher {
         );
         putRequest.setEntity(entity);
         try {
+            ProcessTokenSupport.setBearerToken(putRequest, this.client);
             return this.client.execute(putRequest, response -> {
                 int status = response.getCode();
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
