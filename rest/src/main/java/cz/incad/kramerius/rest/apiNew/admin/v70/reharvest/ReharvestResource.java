@@ -165,7 +165,8 @@ public class ReharvestResource {
                 try {
                     this.reharvestManager.register(deleteRoot);
                 } catch (AlreadyRegistedPidsException e) {
-                    throw new BadRequestException();
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    //throw new BadRequestException();
                 }
             }
 
@@ -246,8 +247,23 @@ public class ReharvestResource {
                             }
                         });
                     } else {
-                        // live conflict
-                        throw new BadRequestException("Live conflict");
+                        LOGGER.log(Level.SEVERE, String.format("More than one model found for pid %s, models %s, libraries %s", pid, models.toString(), libs.toString()));
+
+                        ReharvestItem deleteRoot = new ReharvestItem(UUID.randomUUID().toString());
+                        deleteRoot.setTypeOfReharvest(TypeOfReharvset.live_conflict);
+                        deleteRoot.setName(String.format( "Conflict - live conflict %s, models: %s, libraries: %s", pid, models.toString(), libs.toString()));
+                        deleteRoot.setRootPid(pid);
+                        deleteRoot.setPid(pid);
+                        deleteRoot.setState("live_conflict");
+                        deleteRoot.setConflictId(conflictId);
+                        try {
+                            this.reharvestManager.register(deleteRoot);
+                        } catch (AlreadyRegistedPidsException e) {
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                            //throw new BadRequestException();
+                        }
+
+                        //throw new BadRequestException("Live conflict");
                     }
 
                 } catch (UnsupportedEncodingException e) {

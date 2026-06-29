@@ -204,11 +204,12 @@ public class HTTPSolrUtils {
 
 
     public static Element executeQueryApache(CloseableHttpClient apacheClient, ApacheHTTPRequestEnricher enricher, String url, String query) {
-        LOGGER.info(String.format("Executing url,query: %s, %s " ,url, query));
+        LOGGER.fine(String.format("Executing url,query: %s, %s " ,url, query));
         try {
             String t = executeSolrRequestApache(apacheClient, url, query, enricher);
             return getElement(t);
         } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }

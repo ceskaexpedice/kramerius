@@ -25,6 +25,11 @@ public class KubernetesEnvSupport {
     public static final String REHARVEST_PREFIX = "REHARVEST_";
 
     public static final String COMPARING_PREFIX = "COMPARING_";
+    public static final String FEEDER_PREFIX = "FEEDER_";
+    public static final String FEEDER_BATCH_SIZE = "FEEDER_BATCH_SIZE";
+    public static final String FEEDER_BATCHSIZE = "FEEDER_BATCHSIZE";
+    public static final String DEFAULT_FEEDER_BATCH_SIZE = "45";
+    public static final int MIN_FEEDER_BATCH_SIZE = 10;
     
     
     public static void prefixVariables(Map<String, String> env, Map<String, String> templateMap, String prefix) {
@@ -96,6 +101,27 @@ public class KubernetesEnvSupport {
         prefixVariables(env, comparing, COMPARING_PREFIX);
         comparing.putIfAbsent("identifier", "pid");
         return comparing;
+    }
+
+    public static Map<String, String> feederMap(Map<String, String> env) {
+        Map<String, String> feeder = new HashMap<>();
+        prefixVariables(env, feeder, FEEDER_PREFIX);
+        String batchSize = feeder.getOrDefault("batch_size", feeder.getOrDefault("batchsize", DEFAULT_FEEDER_BATCH_SIZE));
+        feeder.put("batchsize", validateFeederBatchSize(batchSize));
+        return feeder;
+    }
+
+    private static String validateFeederBatchSize(String value) {
+        try {
+            int batchSize = Integer.parseInt(value);
+            if (batchSize < MIN_FEEDER_BATCH_SIZE) {
+                throw new IllegalArgumentException(String.format(
+                        "%s must be at least %d", FEEDER_BATCH_SIZE, MIN_FEEDER_BATCH_SIZE));
+            }
+            return String.valueOf(batchSize);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(String.format("%s must be a number", FEEDER_BATCH_SIZE), e);
+        }
     }
 
     public static Map<String, String> proxyMap(Map<String, String> env) {

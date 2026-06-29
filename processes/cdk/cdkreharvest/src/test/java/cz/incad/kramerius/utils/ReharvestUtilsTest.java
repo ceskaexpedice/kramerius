@@ -28,6 +28,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.junit.Assert;
 import org.junit.Test;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -279,6 +280,35 @@ public class ReharvestUtilsTest {
                         + "<field name=\"cdk.collection\" update=\"add-distinct\">vkol</field>"
                         + "</update.dest.field>"
                         + "</onupdate>"));
+    }
+
+    @Test
+    public void findRootsAndPidPathsFromLibsUsesOwnPidPathAndRootPidSeparately() throws Exception {
+        Map<String, JSONObject> configurations = new HashMap<>();
+        JSONObject config = new JSONObject();
+        config.put("api", "v7");
+        config.put("forwardurl", "http://solr.example/solr/search");
+        configurations.put("lib1", config);
+
+        CapturingSolrClient client = new CapturingSolrClient(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<response>"
+                        + "<result name=\"response\" numFound=\"1\" start=\"0\">"
+                        + "<doc>"
+                        + "<str name=\"pid\">uuid:child</str>"
+                        + "<str name=\"root.pid\">uuid:root</str>"
+                        + "<str name=\"own_pid_path\">uuid:root/uuid:child</str>"
+                        + "</doc>"
+                        + "</result>"
+                        + "</response>");
+
+        Map<String, Map<String, String>> result = ReharvestUtils.findRootsAndPidPathsFromLibs(
+                client,
+                "uuid:child",
+                configurations);
+
+        Assert.assertEquals("uuid:root/uuid:child", result.get("lib1").get("own_pid_path"));
+        Assert.assertEquals("uuid:root", result.get("lib1").get("root.pid"));
     }
 
     private static String compact(String xml) {

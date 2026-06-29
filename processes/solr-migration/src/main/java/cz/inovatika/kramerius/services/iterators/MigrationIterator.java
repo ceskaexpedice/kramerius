@@ -51,4 +51,12 @@ public interface MigrationIterator {
 	 * @param endCallback callback invoked after the entire iteration process completes
 	 */
 	public void iterate(CloseableHttpClient client, MigrationIterationCallback iterationCallback, MigrationIterationEndCallback endCallback);
+
+	/**
+	 * Optional estimate of total documents to be processed by this iterator.
+	 * Implementations may return a negative value when the total is not known.
+	 */
+	default long estimateTotalDocuments(CloseableHttpClient client) {
+		return -1L;
+	}
 }

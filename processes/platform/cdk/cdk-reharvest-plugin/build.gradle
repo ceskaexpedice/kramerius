@@ -3,7 +3,7 @@ plugins {
     id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
 }
 
-description = 'CDK reharvest and delete processes'
+description = 'CDK reharvest process'
 
 processPlugin {
     spiImplementation='cz.incad.kramerius.plugin.CDKReharvestSPI'
@@ -12,9 +12,6 @@ processPlugin {
             [profileId: "cdk-reharvest",
              description: "CDK reharvest by own_pid_path",
              jvmArgs: ["-Xms1g","-Xmx32g"]],
-            [profileId: "cdk-delete-library",
-             description: "Remove library from cdk.collection or delete CDK documents",
-             jvmArgs: ["-Xms1g","-Xmx32g"]]
     ]
 }
 

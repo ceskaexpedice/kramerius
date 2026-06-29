@@ -21,7 +21,7 @@
         <type>CURSOR</type>
         
         <fquery>$iteration.fquery$</fquery>
-        
+        <fieldlist>pid,root.pid,compositeId</fieldlist>
     </iteration>
 
     <threads>1</threads>
@@ -31,7 +31,7 @@
         <request>
             <url>$iteration.url$</url>
             <endpoint>select</endpoint>
-            <batchsize>45</batchsize>
+            <batchsize>$feeder.batchsize$</batchsize>
 
             <id>$comparing.identifier$</id>
 

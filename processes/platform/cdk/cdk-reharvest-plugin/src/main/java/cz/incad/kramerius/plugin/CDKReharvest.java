@@ -90,31 +90,6 @@ public class CDKReharvest {
         }
     }
 
-    @ProcessMethod
-    public static void deleteLibraryMain(
-            @ParameterName("destinationUrl") @IsRequired String destinationUrl,
-            @ParameterName("library") @IsRequired String library,
-            @ParameterName("filterQuery") String filterQuery,
-            @ParameterName("rows") Integer rows,
-            @ParameterName("idField") String idField,
-            @ParameterName("onlyShowConfiguration") Boolean onlyShowConfiguration
-    ) throws Exception {
-
-        LOGGER.info("--- Starting method: deleteLibraryMain ---");
-        LOGGER.info(String.format("destinationUrl=%s", destinationUrl));
-        LOGGER.info(String.format("library=%s", library));
-        LOGGER.info(String.format("filterQuery=%s", filterQuery));
-        LOGGER.info(String.format("idField=%s", idField));
-
-        CDKDeleteLibrary.deleteLibrary(
-                destinationUrl,
-                library,
-                filterQuery,
-                rows != null ? rows : 300,
-                idField,
-                Boolean.TRUE.equals(onlyShowConfiguration));
-    }
-
     private static ReharvestItem.TypeOfReharvset parseType(String type, ReharvestItem.TypeOfReharvset defaultType) {
         return StringUtils.isBlank(type) ? defaultType : ReharvestItem.TypeOfReharvset.valueOf(type);
     }

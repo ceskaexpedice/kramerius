@@ -43,6 +43,7 @@ public class ReharvestItemTest {
     @Test
     public void testReharvest() throws ParseException {
         ReharvestItem item = ReharvestItem.fromJSON(new JSONObject(MONOGRAPH_DELETE_TREE));
+        System.out.println(item.toJSON());
         Assert.assertTrue(item.getRootPid().equals("uuid:c5e400b0-b1ab-11eb-a22e-5ef3fc9bb22f"));
         Assert.assertTrue(item.getLibraries().equals(Arrays.asList("cbvk")));
         Assert.assertTrue(item.getPid().equals("uuid:c5e400b0-b1ab-11eb-a22e-5ef3fc9bb22f"));
@@ -54,6 +55,7 @@ public class ReharvestItemTest {
         deleteRoot.setRootPid("compositeId");
         deleteRoot.setPid("compositeId");
         deleteRoot.setOwnPidPath("compositeId");
+        System.out.println(deleteRoot.toJSON());
         Assert.assertTrue(deleteRoot.toJSON() != null);
         Assert.assertTrue(deleteRoot.toJSON().getString("root.pid").equals("compositeId"));
         Assert.assertTrue(deleteRoot.toJSON().getString("pid").equals("compositeId"));

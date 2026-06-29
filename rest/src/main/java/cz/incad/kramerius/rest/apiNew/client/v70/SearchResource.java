@@ -72,6 +72,8 @@ public class SearchResource {
 
     private static Logger LOGGER = Logger.getLogger(SearchResource.class.getName());
     private static final String[] FILTERED_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
+    private static final java.util.regex.Pattern FQ_BOOST_PATTERN =
+            java.util.regex.Pattern.compile("(?<!\\\\)\\^(?:\\d+(?:\\.\\d+)?|\\.\\d+)");
     
     private static final String[] CONTROLLED_SIZE_FIELDS = {"text_ocr"}; //see api.solr.filtered for old index
 
@@ -230,6 +232,8 @@ public class SearchResource {
     }
 
     private String buildSearchSolrQueryString(UriInfo uriInfo) throws UnsupportedEncodingException {
+        boolean facetQuery = false;
+        String facetThreads = null;
         boolean cdkServerMode = isOnCDKSide();
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
 
@@ -247,6 +251,7 @@ public class SearchResource {
                     checkFlValueDoesNotContainFilteredField(value);
                 }
                 if (k.equals("fq")) {
+                    value = stripBoostsFromFilterQuery(value);
                     if (cdkServerMode)  value = this.proxyFilter.enhancedFilter(value);
                 }
                 
@@ -263,6 +268,14 @@ public class SearchResource {
                     snippets = Integer.parseInt( value );
                 }
 
+                if (k.equals("facet")) {
+                    facetQuery = value != null && value.equals("true");
+                }
+
+                if (k.equals("facet.threads")) {
+                    facetThreads = value;
+                }
+
                 builder.append(k).append("=").append(URLEncoder.encode(value, "UTF-8"));
                 builder.append("&");
             }
@@ -273,6 +286,7 @@ public class SearchResource {
         
         if (!fqFound) {
             if (cdkServerMode) {
+
                 builder.append("&");
                 builder.append("fq=");
                 String newFilter = proxyFilter.newFilter();
@@ -287,7 +301,19 @@ public class SearchResource {
                 builder.append("&facet.excludeTerms="+eFT);
             }
         }
+
+        if (facetQuery && facetThreads == null) {
+            int threads = KConfiguration.getInstance().getConfiguration().getInt("api.search.facet.threads", 4);
+            builder.append("&facet.threads="+threads);
+        }
         return builder.toString();
+    }
+
+    static String stripBoostsFromFilterQuery(String value) {
+        if (value == null || value.indexOf('^') < 0) {
+            return value;
+        }
+        return FQ_BOOST_PATTERN.matcher(value).replaceAll("");
     }
 
     private static boolean isOnCDKSide() {

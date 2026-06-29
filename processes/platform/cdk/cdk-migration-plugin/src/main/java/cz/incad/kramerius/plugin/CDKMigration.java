@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 /**
@@ -53,6 +54,7 @@ public class CDKMigration {
             @ParameterName("iterationWorkingtime") String iterationWorkingtime,
             @ParameterName("timestampUrl") String timestampUrl,
             @ParameterName("comparingIdentifier") String comparingIdentifier,
+            @ParameterName("feederBatchSize") String feederBatchSize,
 
             @ParameterName("showConfigurationOnly") @IsRequired Boolean showConfigurationOnly,
             @ParameterName("showEffectiveConfigurationOnly") Boolean showEffectiveConfigurationOnly
@@ -60,18 +62,21 @@ public class CDKMigration {
             ClassNotFoundException, IllegalAccessException, InstantiationException,
             SAXException, NoSuchMethodException, TransformerException {
 
-        LOGGER.info("migrateMain called with parameters:");
-        LOGGER.info(String.format("configSource=%s", configSource));
-        LOGGER.info(String.format("destinationUrl=%s", destinationUrl));
-        LOGGER.info(String.format("iterationDl=%s", iterationDl));
-        LOGGER.info(String.format("iterationId=%s", iterationId));
-        LOGGER.info(String.format("iterationUrl=%s", iterationUrl));
-        LOGGER.info(String.format("iterationWorkingtime=%s", iterationWorkingtime));
-        LOGGER.info(String.format("iterationFQuery=%s", iterationFQuery));
-        LOGGER.info(String.format("timestampUrl=%s", timestampUrl));
-        LOGGER.info(String.format("comparingIdentifier=%s", comparingIdentifier));
-        LOGGER.info(String.format("showConfigurationOnly=%s", showConfigurationOnly));
-        LOGGER.info(String.format("showEffectiveConfigurationOnly=%s", showEffectiveConfigurationOnly));
+        long startedAtMillis = System.currentTimeMillis();
+        LOGGER.info(String.format(
+                "CDK migration start: src=%s | dst=%s | dl=%s | id=%s | url=%s | fq=%s | work=%s | ts=%s | cmp=%s | batch=%s | cfgOnly=%s | effOnly=%s",
+                configSource,
+                destinationUrl,
+                iterationDl,
+                iterationId,
+                iterationUrl,
+                emptyToDash(iterationFQuery),
+                emptyToDash(iterationWorkingtime),
+                emptyToDash(timestampUrl),
+                emptyToDash(comparingIdentifier),
+                emptyToDash(feederBatchSize),
+                showConfigurationOnly,
+                showEffectiveConfigurationOnly));
 
         Map<String, String> env = createEnvMapFromPars(destinationUrl,
                 iterationDl,
@@ -81,7 +86,8 @@ public class CDKMigration {
                 iterationWorkingtime,
                 iterationApiKey,
                 timestampUrl,
-                comparingIdentifier);
+                comparingIdentifier,
+                feederBatchSize);
         InputStream stream = CDKMigration.class.getResourceAsStream(configSource);
         if (configSource.trim().startsWith("file:///")) {
             URL fileUrl = new URL(configSource);
@@ -93,6 +99,7 @@ public class CDKMigration {
             Map<String, String> destination = KubernetesEnvSupport.destinationMap(env);
             Map<String, String> timestamps = KubernetesEnvSupport.timestampMap(env, iteration);
             Map<String, String> comparing = KubernetesEnvSupport.comparingMap(env);
+            Map<String, String> feeder = KubernetesEnvSupport.feederMap(env);
             Map<String, String> proxy = KubernetesEnvSupport.proxyMap(env);
             Map<String, String> reharvest = KubernetesEnvSupport.reharvestMap(env);
 
@@ -104,6 +111,7 @@ public class CDKMigration {
             template.setAttribute("destination", destination);
             template.setAttribute("timestamp", timestamps);
             template.setAttribute("comparing", comparing);
+            template.setAttribute("feeder", feeder);
             template.setAttribute("proxy", proxy);
             template.setAttribute("reharvest", reharvest);
 
@@ -113,7 +121,7 @@ public class CDKMigration {
                     configuration = EffectiveMigrationConfigRenderer.render(configuration, client);
                 }
             }
-            LOGGER.info("Loading configuration " + configuration);
+            LOGGER.fine("Loading configuration " + configuration);
 
             File tmpFile = createTempFile();
             FileUtils.write(tmpFile, configuration, "UTF-8");
@@ -122,6 +130,7 @@ public class CDKMigration {
                 Migration migr = createMigration();
                 migr.migrate(tmpFile);
             }
+            LOGGER.info(String.format("CDK migration finished in %s", formatElapsed(System.currentTimeMillis() - startedAtMillis)));
        } else {
             LOGGER.severe(String.format("Cannot find resource %s", configSource));
        }
@@ -149,6 +158,7 @@ public class CDKMigration {
                 iterationFQuery,
                 iterationApiKey,
                 iterationWorkingtime,
+                null,
                 null,
                 null,
                 showConfigurationOnly,
@@ -181,6 +191,7 @@ public class CDKMigration {
                 iterationWorkingtime,
                 timestampUrl,
                 comparingIdentifier,
+                null,
                 showConfigurationOnly,
                 false);
     }
@@ -194,7 +205,8 @@ public class CDKMigration {
             String iterationWorkingtime,
             String iterationApiKey,
             String timestampUrl,
-            String comparingIdentifier
+            String comparingIdentifier,
+            String feederBatchSize
             ) {
         Map<String, String> envMap = new HashMap<>();
         envMap.put("DESTINATION_URL", destinationUrl);
@@ -216,87 +228,22 @@ public class CDKMigration {
         if (StringUtils.isNotEmpty(comparingIdentifier)) {
             envMap.put("COMPARING_IDENTIFIER", comparingIdentifier);
         }
+        if (StringUtils.isNotEmpty(feederBatchSize)) {
+            envMap.put("FEEDER_BATCH_SIZE", feederBatchSize);
+        }
         return envMap;
     }
 
-    public static void main(String[] args) throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException, TransformerException {
-        runUpdateMigrationTest();
-        //runFullMigrationTest();
+    private static String emptyToDash(String value) {
+        return StringUtils.isBlank(value) ? "-" : value;
     }
 
-    private static void runFullMigrationTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException, TransformerException {
-        String configSource = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml";
-        String destinationUrl = "http://localhost:8983/solr/search_cdk_v1";
-        String iterationDl = "tul";
-        String iterationUrl = "https://kramerius.tul.cz/search/api/cdk/v7.0/forward/sync/solr";
-        String iterationId = "pid";
-        String iterationApiKey = "pXspowZ2XoRdG900hf-aSpm4Htd69mjKznx01xSXW-4";
-        String iterationWorkingtime = "";
-        String timestampUrl = "";
-        String comparingIdentifier = "pid";
-        //String iterationFQuery = "indexed:[2006 TO 2007]";
-        //String iterationFQuery = "pid:\"uuid:31121f1c-649f-4deb-8e9e-501ed5780520\"";
-        String iterationFQuery = "";
-        String showConfigurationOnly = "false";
-        String showEffectiveConfigurationOnly = "false";
-
-        /*
-            @ParameterName("configSource") @IsRequired String configSource,
-            @ParameterName("destinationUrl") @IsRequired String destinationUrl,
-            @ParameterName("iterationDl") @IsRequired String iterationDl,
-            @ParameterName("iterationId") @IsRequired String iterationId,
-            @ParameterName("iterationUrl") @IsRequired String iterationUrl,
-            @ParameterName("iterationFQuery") String iterationFQuery,
-            @ParameterName("iterationApiKey") String iterationApiKey,
-            @ParameterName("iterationWorkingtime") String iterationWorkingtime,
-
-            @ParameterName("showConfigurationOnly") @IsRequired Boolean showConfigurationOnly
-
-         */
-
-        CDKMigration.migrateMain(
-                configSource,
-                destinationUrl,
-                iterationDl,
-                iterationId,
-                iterationUrl,
-                iterationFQuery,
-                iterationApiKey,
-                iterationWorkingtime,
-                timestampUrl,
-                comparingIdentifier,
-                Boolean.valueOf(showConfigurationOnly),
-                Boolean.valueOf(showEffectiveConfigurationOnly));
+    private static String formatElapsed(long elapsedMillis) {
+        long totalSeconds = elapsedMillis / 1000L;
+        long hours = totalSeconds / 3600L;
+        long minutes = (totalSeconds % 3600L) / 60L;
+        long seconds = totalSeconds % 60L;
+        return String.format(Locale.ROOT, "%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    private static void runUpdateMigrationTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException, TransformerException {
-        String configSource = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2_update.xml";
-        String destinationUrl = "http://localhost:8983/solr/search_cdk_v1";
-        String iterationDl = "tul";
-        String iterationUrl = "https://kramerius.tul.cz/search/api/cdk/v7.0/forward/sync/solr";
-        String iterationId = "pid";
-        String iterationApiKey = "pXspowZ2XoRdG900hf-aSpm4Htd69mjKznx01xSXW-4";
-        String iterationWorkingtime = "";
-        String timestampUrl = "http://localhost:8080/search/api/admin/v7.0/connected";
-        String comparingIdentifier = "pid";
-        //String iterationFQuery = "pid:\"uuid:31121f1c-649f-4deb-8e9e-501ed5780520\"";
-        String iterationFQuery = "";
-        String showConfigurationOnly = "false";
-        String showEffectiveConfigurationOnly = "false";
-
-
-        CDKMigration.migrateMain(
-                configSource,
-                destinationUrl,
-                iterationDl,
-                iterationId,
-                iterationUrl,
-                iterationFQuery,
-                iterationApiKey,
-                iterationWorkingtime,
-                timestampUrl,
-                comparingIdentifier,
-                Boolean.valueOf(showConfigurationOnly),
-                Boolean.valueOf(showEffectiveConfigurationOnly));
-    }
 }

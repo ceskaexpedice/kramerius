@@ -52,6 +52,7 @@ public class KubernetesProcessImpl {
                 Map<String, String> destination = KubernetesEnvSupport.destinationMap(env);
                 Map<String, String> timestamps = KubernetesEnvSupport.timestampMap(env, iteration);
                 Map<String, String> comparing = KubernetesEnvSupport.comparingMap(env);
+                Map<String, String> feeder = KubernetesEnvSupport.feederMap(env);
                 Map<String, String> proxy = KubernetesEnvSupport.proxyMap(env);
                 Map<String, String> reharvest = KubernetesEnvSupport.reharvestMap(env);
 
@@ -63,6 +64,7 @@ public class KubernetesProcessImpl {
                 template.setAttribute("destination", destination);
                 template.setAttribute("timestamp", timestamps);
                 template.setAttribute("comparing", comparing);
+                template.setAttribute("feeder", feeder);
                 template.setAttribute("proxy", proxy);
                 template.setAttribute("reharvest", reharvest);
 
