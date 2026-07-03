@@ -34,11 +34,17 @@ public class CDKExistingConflictFeederItem implements Conflict {
 
     private final String pid;
     private final List<String> compositeIds;
+    private final boolean conflict;
 
 
     public CDKExistingConflictFeederItem(String pid, List<String> compositeIds) {
+        this(pid, compositeIds, false);
+    }
+
+    public CDKExistingConflictFeederItem(String pid, List<String> compositeIds, boolean conflict) {
         this.pid = pid;
         this.compositeIds = compositeIds;
+        this.conflict = conflict;
     }
 
 
@@ -51,7 +57,7 @@ public class CDKExistingConflictFeederItem implements Conflict {
     }
 
     public boolean isConflict() {
-        return compositeIds != null && compositeIds.size() > 1;
+        return conflict || (compositeIds != null && compositeIds.size() > 1);
     }
 
     @Override

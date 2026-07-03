@@ -462,6 +462,7 @@ public class SolrInputBuilder {
             CoordinatesExtractor.BoundingBox bb = new CoordinatesExtractor().extract(coordinatesEl, solrInput, pid);
             if (bb != null) {
                 Locale locale = new Locale("en", "US");
+                LOGGER.log(Level.FINE, "Bounding box for {0}: {1}", new Object[]{pid, bb});
                 //ENVELOPE(minX, maxX, maxY, minY)
                 solrInput.addField("coords.bbox", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
                 solrInput.addField("coords.bbox.center", String.format(locale, "%.6f,%.6f", (bb.n + bb.s) / 2, (bb.w + bb.e) / 2));
@@ -469,7 +470,6 @@ public class SolrInputBuilder {
                 solrInput.addField("coords.bbox.corner_ne", String.format(locale, "%.6f,%.6f", bb.n, bb.e));
                 solrInput.addField("coords.is_point", bb.isPoint() ? "true" : "false");
 
-                solrInput.addField("coords.bbox_overlap", String.format(locale, "ENVELOPE(%.6f,%.6f,%.6f,%.6f)", bb.w, bb.e, bb.n, bb.s));
 
             }
         }

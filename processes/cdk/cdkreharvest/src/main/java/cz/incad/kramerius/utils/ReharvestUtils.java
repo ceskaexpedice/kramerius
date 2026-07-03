@@ -273,7 +273,7 @@ public class ReharvestUtils {
                     try {
                         final String finalPidIdentifier = pidIdentifier;
                         final String finalRootPid = rootPid;
-                        final String finalPidPath = rootPid;
+                        final String finalPidPath = pidPath;
 
 
                         Document parsed = XMLUtils.parseDocument(new StringReader(str));
@@ -294,7 +294,7 @@ public class ReharvestUtils {
                             @Override
                             public boolean acceptElement(Element element) {
                                 String fieldName = element.getAttribute("name");
-                                return fieldName.equals(finalRootPid);
+                                return fieldName.equals(finalPidPath);
                             }
                         });
                         if (pidPathElement != null) {
@@ -314,7 +314,7 @@ public class ReharvestUtils {
                             @Override
                             public boolean acceptElement(Element element) {
                                 String fieldName = element.getAttribute("name");
-                                return fieldName.equals(finalPidPath);
+                                return fieldName.equals(finalRootPid);
                             }
                         });
                         if (rootPidElm != null) {
@@ -381,7 +381,7 @@ public class ReharvestUtils {
                         
                         final String finalPidIdentifier = pidIdentifier;
                         final String finalRootPid = rootPid;
-                        final String finalPidPath = rootPid;
+                        final String finalPidPath = pidPath;
                         
                         
                         Document parsed = XMLUtils.parseDocument(new StringReader(str));
@@ -402,7 +402,7 @@ public class ReharvestUtils {
                             @Override
                             public boolean acceptElement(Element element) {
                                 String fieldName = element.getAttribute("name");
-                                return fieldName.equals(finalRootPid);
+                                return fieldName.equals(finalPidPath);
                             }
                         });
                         if (pidPathElement != null) {
@@ -422,7 +422,7 @@ public class ReharvestUtils {
                             @Override
                             public boolean acceptElement(Element element) {
                                 String fieldName = element.getAttribute("name");
-                                return fieldName.equals(finalPidPath);
+                                return fieldName.equals(finalRootPid);
                             }
                         });
                         if (rootPidElm != null) {

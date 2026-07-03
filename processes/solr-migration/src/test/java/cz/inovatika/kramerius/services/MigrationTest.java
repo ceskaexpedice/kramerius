@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MigrationTest {
 
@@ -55,13 +57,19 @@ public class MigrationTest {
     }
 
     @Test
-    public void migrateReportsFeederExceptionAndStillFinishes() throws Exception {
+    public void migrateReportsFeederExceptionFinishesAndRethrows() throws Exception {
         File config = writeConfig(true);
 
-        new Migration().migrate(config);
+        try {
+            new Migration().migrate(config);
+            Assert.fail("Expected MigrateSolrIndexException");
+        } catch (MigrateSolrIndexException expected) {
+            Assert.assertTrue(expected.getCause() instanceof RuntimeException);
+            Assert.assertEquals("Feeder processing failed; aborting migration", expected.getCause().getMessage());
+        }
 
-        Assert.assertEquals(2, RecordingFeederFactory.createdFeeders);
-        Assert.assertEquals(2, RecordingFeederFactory.processAttempts);
+        Assert.assertEquals(1, RecordingFeederFactory.createdFeeders);
+        Assert.assertEquals(1, RecordingFeederFactory.processAttempts);
         Assert.assertEquals(2, RecordingFeederFactory.exceptions);
         Assert.assertEquals(1, RecordingFeederFactory.finished);
     }
@@ -103,6 +111,18 @@ public class MigrationTest {
         Assert.assertFalse(migration.isWorkingTimeImpl("22:00", "6:00",
                 java.time.LocalDate.of(2026, 6, 9),
                 java.time.LocalDateTime.of(2026, 6, 9, 12, 0)));
+    }
+
+    @Test
+    public void connectionReuseIsEnabledByDefaultAndCanBeDisabledViaEnv() throws Exception {
+        Migration migration = new Migration();
+
+        Assert.assertTrue(migration.isConnectionReuseEnabled(new HashMap<>()));
+
+        Map<String, String> env = new HashMap<>();
+        env.put(Migration.HTTP_CONNECTION_REUSE, "false");
+
+        Assert.assertFalse(migration.isConnectionReuseEnabled(env));
     }
 
     private File writeConfig(boolean feederThrows) throws IOException {
@@ -177,6 +197,8 @@ public class MigrationTest {
                         new IterationItem("uuid:1", "test-source"),
                         new IterationItem("uuid:2", "test-source")));
                 iterationCallback.call(Arrays.asList(new IterationItem("uuid:3", "test-source")));
+            } catch (RuntimeException e) {
+                throw e;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

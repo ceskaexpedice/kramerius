@@ -6,6 +6,7 @@ plugins {
 dependencies {
     api project(':shared:common')
     api project(":processes:platform:cdk:cdk-migration-plugin")
+    api project(":processes:platform:cdk:cdk-delete-library")
     api project(":processes:platform:cdk:cdk-reharvest-plugin")
 }
 
@@ -15,6 +16,7 @@ processWorker {
 	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
 	plugins = [
         project(":processes:platform:cdk:cdk-migration-plugin"),
+        project(":processes:platform:cdk:cdk-delete-library"),
         project(":processes:platform:cdk:cdk-reharvest-plugin")
     ]
 }

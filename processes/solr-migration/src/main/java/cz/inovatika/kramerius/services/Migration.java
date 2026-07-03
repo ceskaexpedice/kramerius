@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +42,7 @@ import java.util.logging.Logger;
 public class Migration {
 
     public static final Logger LOGGER = Logger.getLogger(Migration.class.getName());
+    public static final String HTTP_CONNECTION_REUSE = "HTTP_CONNECTION_REUSE";
 
     //protected Client client;
     protected CloseableHttpClient client;
@@ -51,26 +53,38 @@ public class Migration {
 
     public Migration() throws MigrateSolrIndexException {
         super();
-        this.client = buildApacheClient();
+        this.client = buildApacheClient(System.getenv());
     }
 
-//    protected Client buildJerseyClient() {
-//        ClientConfig cc = new DefaultClientConfig();
-//        cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);
-//        cc.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
-//        return Client.create(cc);
-//    }
 
     protected CloseableHttpClient buildApacheClient() {
-        // Nastavení timeoutů (v Jersey bylo default, zde je dobré je definovat)
+        return buildApacheClient(System.getenv());
+    }
+
+    protected CloseableHttpClient buildApacheClient(java.util.Map<String, String> env) {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(Timeout.ofSeconds(30))
                 .setResponseTimeout(Timeout.ofSeconds(60))
                 .build();
 
-        return HttpClients.custom()
-                .setDefaultRequestConfig(config)
-                .build();
+        boolean connectionReuseEnabled = isConnectionReuseEnabled(env);
+        LOGGER.info(String.format(
+                "HTTP connection reuse is %s (set %s=false to disable it)",
+                connectionReuseEnabled ? "enabled" : "disabled",
+                HTTP_CONNECTION_REUSE));
+
+        var builder = HttpClients.custom()
+                .setDefaultRequestConfig(config);
+
+        if (!connectionReuseEnabled) {
+            builder.setConnectionReuseStrategy((request, response, context) -> false);
+        }
+
+        return builder.build();
+    }
+
+    protected boolean isConnectionReuseEnabled(java.util.Map<String, String> env) {
+        return !env.containsKey(HTTP_CONNECTION_REUSE) || Boolean.parseBoolean(env.get(HTTP_CONNECTION_REUSE));
     }
 
     public void migrate(File configFile) throws MigrateSolrIndexException, IllegalAccessException, InstantiationException, ClassNotFoundException, IOException, ParserConfigurationException, SAXException, NoSuchMethodException {
@@ -83,13 +97,17 @@ public class Migration {
         this.migrationIndexFeederFactory = MigrationIndexFeederFactory.create(config.getFeederConfig());
 
         this.finisher = this.migrationIndexFeederFactory.createFinisher(config, this.client);
+        ProgressTracker progressTracker = new ProgressTracker(this.iterator.estimateTotalDocuments(this.client));
 
         try {
             this.iterator.iterate(client, (List<IterationItem> items) -> {
                 MigrationIndexFeeder feeder = createFeeder(config, this.iterator, items);
                 processFeederWithWorkingTimeCheck(feeder, config.getWorkingTime());
+                progressTracker.addProcessed(items.size());
+                progressTracker.maybeReport(false);
             }, () -> {
                 //finishRestFeeders(worksWhatHasToBeDone, config.getWorkingTime());
+                progressTracker.maybeReport(true);
             });
 
         } catch (Exception e) {
@@ -149,32 +167,86 @@ public class Migration {
             if (finisher != null) {
                 finisher.exceptionDuringCrawl(e);
             }
+            throw new RuntimeException("Feeder processing failed; aborting migration", e);
         }
     }
 
-//    protected void startWorkers(List<Worker> worksWhasHasToBeDone, String workingtime) throws BrokenBarrierException, InterruptedException {
-//        if (workingtime != null && workingtime.contains("-")) {
-//            LOGGER.info(String.format("Working time for this worker %s", workingtime));
-//            String[] intervalParts = workingtime.split("-");
-//            String startTime = intervalParts[0];
-//            String endTime = intervalParts[1];
-//            while (true) {
-//                if (!isInWorkingTime(startTime, endTime)) {
-//                    waitUntilStartWorkingTime(startTime, endTime);
-//                } else {
-//                    break;
-//                }
-//            }
-//        }
-//
-//        // check if sleep hours
-//        CyclicBarrier barrier = new CyclicBarrier(worksWhasHasToBeDone.size() + 1);
-//        worksWhasHasToBeDone.stream().forEach(th -> {
-//            th.setBarrier(barrier);
-//            new Thread(th).start();
-//        });
-//        barrier.await();
-//    }
+    private static final class ProgressTracker {
+        private final long totalDocuments;
+        private final int reportEvery;
+        private final long startedAtMillis = System.currentTimeMillis();
+        private long processed;
+        private long lastReportedProcessed;
+
+        private ProgressTracker(long totalDocuments) {
+            this.totalDocuments = totalDocuments;
+            this.reportEvery = resolveReportEvery();
+        }
+
+        private void addProcessed(int count) {
+            processed += count;
+        }
+
+        private void maybeReport(boolean force) {
+            boolean shouldReport = force || processed - lastReportedProcessed >= reportEvery;
+            if (!shouldReport) {
+                return;
+            }
+            lastReportedProcessed = processed;
+            long elapsedMillis = System.currentTimeMillis() - startedAtMillis;
+            if (totalDocuments > 0) {
+                double percent = (processed * 100.0d) / totalDocuments;
+                LOGGER.info(String.format(
+                        "Migration progress: %s/%s | %.1f%% | %s",
+                        formatCount(processed),
+                        formatCount(totalDocuments),
+                        percent,
+                        formatElapsed(elapsedMillis)));
+            } else {
+                LOGGER.info(String.format(
+                        "Migration progress: %s | %s",
+                        formatCount(processed),
+                        formatElapsed(elapsedMillis)));
+            }
+        }
+
+        private int resolveReportEvery() {
+            String configured = System.getenv("MIGRATION_REPORT_EVERY");
+            if (StringUtils.isBlank(configured)) {
+                return 5000;
+            }
+            try {
+                int parsed = Integer.parseInt(configured);
+                return parsed > 0 ? parsed : 5000;
+            } catch (NumberFormatException e) {
+                return 5000;
+            }
+        }
+
+        private String formatCount(long value) {
+            String raw = Long.toString(value);
+            StringBuilder builder = new StringBuilder(raw.length() + raw.length() / 3);
+            int firstGroupLength = raw.length() % 3;
+            if (firstGroupLength == 0) {
+                firstGroupLength = 3;
+            }
+            builder.append(raw, 0, firstGroupLength);
+            for (int i = firstGroupLength; i < raw.length(); i += 3) {
+                builder.append(' ');
+                builder.append(raw, i, i + 3);
+            }
+            return builder.toString();
+        }
+
+        private String formatElapsed(long elapsedMillis) {
+            long totalSeconds = elapsedMillis / 1000L;
+            long hours = totalSeconds / 3600L;
+            long minutes = (totalSeconds % 3600L) / 60L;
+            long seconds = totalSeconds % 60L;
+            return String.format(Locale.ROOT, "%02d:%02d:%02d", hours, minutes, seconds);
+        }
+    }
+
 
     public boolean isInWorkingTime(String startTime, String endTime) {
         try {
@@ -285,9 +357,4 @@ public class Migration {
         }
     }
 
-//    protected void finishRestFeeders(List<MigrationIndexFeeder> worksWhatHasToBeDone, String workingtime) {
-//        if (!worksWhatHasToBeDone.isEmpty()) {
-//            processFeederWithWorkingTimeCheck(worksWhatHasToBeDone, workingtime);
-//        }
-//    }
 }

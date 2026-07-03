@@ -19,21 +19,79 @@ package cz.incad.kramerius.utils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.junit.Assert;
 import org.junit.Test;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ReharvestUtilsTest {
+
+    @Test
+    public void testFindPidByTypeUsesCursorIteratorAndReturnsUniqueCompositeIds() throws Exception {
+        ReharvestItem item = new ReharvestItem("id", "reharvest", "open",
+                "uuid:root", "uuid:root/uuid:child");
+        item.setTypeOfReharvest(ReharvestItem.TypeOfReharvset.delete_tree);
+
+        Map<String, String> iteration = new HashMap<>();
+        iteration.put("url", "http://solr.example/solr/search");
+        iteration.put("type", "CURSOR");
+        iteration.put("rows", "2");
+
+        CapturingSolrClient client = new CapturingSolrClient(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<response>"
+                        + "<lst name=\"responseHeader\"><lst name=\"params\"><str name=\"cursorMark\">*</str></lst></lst>"
+                        + "<str name=\"nextCursorMark\">*</str>"
+                        + "<result name=\"response\" numFound=\"3\" start=\"0\">"
+                        + "<doc><str name=\"compositeId\">lib1!uuid:root</str></doc>"
+                        + "<doc><str name=\"compositeId\">lib1!uuid:child</str></doc>"
+                        + "<doc><str name=\"compositeId\">lib1!uuid:child</str></doc>"
+                        + "</result>"
+                        + "</response>");
+
+        List<Pair<String, String>> pairs = ReharvestUtils.findPidByType(iteration, client, item, 10);
+
+        Assert.assertEquals(2, pairs.size());
+        Assert.assertEquals("uuid:root", pairs.get(0).getLeft());
+        Assert.assertEquals("lib1!uuid:root", pairs.get(0).getRight());
+        Assert.assertEquals("uuid:child", pairs.get(1).getLeft());
+        Assert.assertEquals("lib1!uuid:child", pairs.get(1).getRight());
+
+        URI requestedUri = client.getRequestedUris().get(0);
+        Map<String, String> query = splitQuery(requestedUri);
+        Assert.assertEquals("http://solr.example/solr/search/select", requestedUri.getScheme() + "://"
+                + requestedUri.getAuthority() + requestedUri.getPath());
+        Assert.assertEquals("*:*", query.get("q"));
+        Assert.assertEquals("2", query.get("rows"));
+        Assert.assertEquals("*", query.get("cursorMark"));
+        Assert.assertEquals("compositeId asc", query.get("sort"));
+        Assert.assertEquals("compositeId", query.get("fl"));
+        Assert.assertEquals("own_pid_path:uuid\\:root/uuid\\:child*", query.get("fq"));
+        Assert.assertEquals("xml", query.get("wt"));
+    }
 
     @Test
     public void testReharestUtilsFQV5() throws UnsupportedEncodingException {
@@ -224,10 +282,111 @@ public class ReharvestUtilsTest {
                         + "</onupdate>"));
     }
 
+    @Test
+    public void findRootsAndPidPathsFromLibsUsesOwnPidPathAndRootPidSeparately() throws Exception {
+        Map<String, JSONObject> configurations = new HashMap<>();
+        JSONObject config = new JSONObject();
+        config.put("api", "v7");
+        config.put("forwardurl", "http://solr.example/solr/search");
+        configurations.put("lib1", config);
+
+        CapturingSolrClient client = new CapturingSolrClient(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<response>"
+                        + "<result name=\"response\" numFound=\"1\" start=\"0\">"
+                        + "<doc>"
+                        + "<str name=\"pid\">uuid:child</str>"
+                        + "<str name=\"root.pid\">uuid:root</str>"
+                        + "<str name=\"own_pid_path\">uuid:root/uuid:child</str>"
+                        + "</doc>"
+                        + "</result>"
+                        + "</response>");
+
+        Map<String, Map<String, String>> result = ReharvestUtils.findRootsAndPidPathsFromLibs(
+                client,
+                "uuid:child",
+                configurations);
+
+        Assert.assertEquals("uuid:root/uuid:child", result.get("lib1").get("own_pid_path"));
+        Assert.assertEquals("uuid:root", result.get("lib1").get("root.pid"));
+    }
+
     private static String compact(String xml) {
         return xml.replaceAll("(?s)<!--.*?-->", "")
                 .replaceAll(">\\s+<", "><")
                 .trim();
+    }
+
+    private static Map<String, String> splitQuery(URI uri) {
+        Map<String, String> params = new HashMap<>();
+        for (String pair : uri.getRawQuery().split("&")) {
+            int idx = pair.indexOf('=');
+            String key = idx >= 0 ? pair.substring(0, idx) : pair;
+            String value = idx >= 0 ? pair.substring(idx + 1) : "";
+            params.put(
+                    decode(key),
+                    decode(value));
+        }
+        return params;
+    }
+
+    private static String decode(String value) {
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class CapturingSolrClient extends CloseableHttpClient {
+
+        private final String body;
+        private final List<URI> requestedUris = new ArrayList<>();
+
+        private CapturingSolrClient(String body) {
+            this.body = body;
+        }
+
+        private List<URI> getRequestedUris() {
+            return requestedUris;
+        }
+
+        @Override
+        protected CloseableHttpResponse doExecute(HttpHost target, ClassicHttpRequest request, HttpContext context) throws IOException {
+            try {
+                requestedUris.add(request.getUri());
+            } catch (URISyntaxException e) {
+                throw new IOException(e);
+            }
+            BasicClassicHttpResponse response = new BasicClassicHttpResponse(200);
+            response.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
+            return closeableResponse(response);
+        }
+
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public void close(org.apache.hc.core5.io.CloseMode closeMode) {
+        }
+
+        private static CloseableHttpResponse closeableResponse(BasicClassicHttpResponse response) throws IOException {
+            try {
+                Method adapt = CloseableHttpResponse.class.getDeclaredMethod(
+                        "adapt", org.apache.hc.core5.http.ClassicHttpResponse.class);
+                adapt.setAccessible(true);
+                return (CloseableHttpResponse) adapt.invoke(null, response);
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                throw new IOException(e);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof IOException) {
+                    throw (IOException) cause;
+                }
+                throw new IOException(cause);
+            }
+        }
     }
 
 }

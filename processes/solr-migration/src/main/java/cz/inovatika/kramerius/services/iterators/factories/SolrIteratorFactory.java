@@ -1,6 +1,8 @@
 package cz.inovatika.kramerius.services.iterators.factories;
 
 
+import cz.incad.kramerius.utils.ProcessTokenSupport;
+import cz.inovatika.kramerius.services.config.EffectiveMigrationConfigRenderer;
 import cz.inovatika.kramerius.services.config.ResponseHandlingConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.iterators.MigrationIterator;
@@ -33,18 +35,15 @@ public class SolrIteratorFactory extends MigrationIteratorFactory {
     public MigrationIterator createMigrationIterator(SolrIteratorConfig config, CloseableHttpClient client) {
         String masterQuery = config.getMasterQuery();
 
-        String timestampField = config.getTimestampField();
+        String timestampField = StringUtils.isAnyString(config.getTimestampField()) ? config.getTimestampField() : DEFAULT_TIMESTAMP_FIELD;
         String url = config.getUrl();
         String filterQuery = config.getFilterQuery();
         try {
-            if (config.getTimestampUrl() != null) {
+            if (StringUtils.isAnyString(config.getTimestampUrl())) {
                 JSONObject timestamp = timestamp(client, config.getTimestampUrl());
                 if (timestamp != null &&  timestamp.has("date")) {
-                    if (StringUtils.isAnyString(filterQuery)) {
-                        filterQuery = filterQuery + " AND "+ timestampField+":["+timestamp.getString("date") + " TO NOW]";
-                    } else {
-                        filterQuery = timestampField+":["+timestamp.getString("date") + " TO NOW]";
-                    }
+                    filterQuery = EffectiveMigrationConfigRenderer.appendTimestampFilter(
+                            filterQuery, timestampField, timestamp.getString("date"));
                 }
             }
         } catch(Exception ex) {
@@ -163,8 +162,8 @@ public class SolrIteratorFactory extends MigrationIteratorFactory {
         HttpGet request = new HttpGet(timestampUrl);
         request.setHeader("Accept", "application/json");
 
-
         try {
+            ProcessTokenSupport.setBearerToken(request, httpClient);
             return httpClient.execute(request, response -> {
                 int status = response.getCode();
 

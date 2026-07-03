@@ -2,6 +2,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.processes.client.ProcessManagerMapper;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.utils.APIProcessScheduler;
 import cz.incad.kramerius.workmode.ReadOnlyWorkModeException;
 import cz.incad.kramerius.workmode.WorkMode;
 import cz.incad.kramerius.workmode.WorkModeReason;
@@ -120,17 +121,17 @@ public abstract class AdminApiResource extends ApiResource {
         payload.put("title", processName);
         payload.put("type", indexationType);
         payload.put("ignoreInconsistentObjects", Boolean.toString(ignoreInconsistentObjects));
-        JSONObject scheduleMainProcess = createScheduleProcess("new_indexer_index_object", payload, userid);
+        JSONObject scheduleMainProcess = APIProcessScheduler.createScheduleProcess("new_indexer_index_object", payload, userid);
         return scheduleMainProcess;
     }
 
-    private static JSONObject createScheduleProcess(String profileId, Map<String, String> payload, String ownerId) {
-        JSONObject json = new JSONObject();
-        json.put(ProcessManagerMapper.PCP_PROFILE_ID, profileId);
-        json.put(ProcessManagerMapper.PCP_PAYLOAD, new JSONObject(payload));
-        json.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, ownerId);
-        return json;
-    }
+//    private static JSONObject createScheduleProcess(String profileId, Map<String, String> payload, String ownerId) {
+//        JSONObject json = new JSONObject();
+//        json.put(ProcessManagerMapper.PCP_PROFILE_ID, profileId);
+//        json.put(ProcessManagerMapper.PCP_PAYLOAD, new JSONObject(payload));
+//        json.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, ownerId);
+//        return json;
+//    }
 
     protected void deleteFromSearchIndex(String pid) throws IOException {
         this.searchIndexHelper.deleteFromIndex(pid);

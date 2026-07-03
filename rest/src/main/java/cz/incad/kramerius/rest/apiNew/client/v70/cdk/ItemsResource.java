@@ -1678,7 +1678,7 @@ public class ItemsResource extends ClientApiResource {
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, null);
             if (redirectHandler != null) {
                 boolean req = KConfiguration.getInstance().getConfiguration()
-                        .getBoolean("cdk.collections.sources." + redirectHandler.getSource() + ".requests.enabled", false);
+                        .getBoolean("cdk.collections.sources." + redirectHandler.getSource() + ".requests_enabled", false);
                 if (req) {
                     LOGGER.fine(String.format("Redirecting requests to %s", redirectHandler.getSource()));
                     return redirectHandler.requests(reqid, lang, safeReqDefinition);
@@ -1690,7 +1690,7 @@ public class ItemsResource extends ClientApiResource {
                             ProxyItemHandler sourceHandler = findRedirectHandler(pid, source);
                             if (sourceHandler != null) {
                                 boolean sourceReqEnabled = KConfiguration.getInstance().getConfiguration()
-                                        .getBoolean("cdk.collections.sources." + sourceHandler.getSource() + ".requests.enabled", false);
+                                        .getBoolean("cdk.collections.sources." + sourceHandler.getSource() + ".requests_enabled", false);
                                 if (sourceReqEnabled) {
                                     LOGGER.fine(String.format("Redirecting requests to %s", sourceHandler.getSource()));
                                     return sourceHandler.requests(reqid, lang, safeReqDefinition);

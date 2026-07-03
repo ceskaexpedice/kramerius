@@ -94,7 +94,10 @@
 	<!-- Issue https://github.com/ceskaexpedice/kramerius/issues/1009
 	<fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="true" stored="false"/>
 	-->
-	<fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="false" stored="false"/>
+	<!-- Issue https://github.com/ceskaexpedice/kramerius/issues/1245; uninvertible="true"  -->
+
+	<fieldType name="_bbox_coord" class="solr.TrieDoubleField" precisionStep="8" docValues="false" stored="false"  uninvertible="true"/>
+
 
    <fieldType name="children_path_hierarchy" class="solr.TextField" positionIncrementGap="100">
 		<analyzer type="index">
