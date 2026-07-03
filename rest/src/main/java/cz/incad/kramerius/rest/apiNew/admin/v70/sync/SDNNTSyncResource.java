@@ -5,6 +5,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.utils.APIProcessScheduler;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -13,6 +14,7 @@ import cz.inovatika.sdnnt.LicenseAPIFetcher;
 import cz.inovatika.sdnnt.SyncConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,7 +99,12 @@ public class SDNNTSyncResource {
 
     @Inject
     ProcessDefinitionManager definitionManager;
-    
+
+    @Inject
+    @javax.inject.Named("forward-client")
+    private CloseableHttpClient apacheClient;
+
+
     /**
      * Basic inforamtion endpoints
      * @return
@@ -200,7 +207,6 @@ public class SDNNTSyncResource {
                             File pidlistFile = File.createTempFile(String.format("batch_%s_%d_%s",action.name(), j, defid), ".txt");
                             IOUtils.writeLines(pids,"\n", new FileOutputStream(pidlistFile), Charset.forName("UTF-8"));
 
-                            // to file 
                             List<String> paramsList = Arrays.asList(license,
                                     "pidlist_file:"+pidlistFile.getAbsolutePath());
 
@@ -212,13 +218,10 @@ public class SDNNTSyncResource {
                             }
                             
 
-                            /* TODO scheduleSub pavel
-                            LRProcess newProcess = processSchedulingHelper.scheduleProcess(defid, paramsList,
-                                    user.getLoginname(), user.getLoginname(), batchToken, name);
-                            ProcessInBatch batch = this.processManager
-                                    .getProcessInBatchByProcessUUid(newProcess.getUUID());
 
-                             */
+                            JSONObject sdnntSyncPar = getSDNNTSyncProcess(defid, pidlistFile, license, user.getLoginname());
+                            LOGGER.info(String.format("Schedule reindexation of %s and payload %s", name, sdnntSyncPar.toString(2) ));
+                            APIProcessScheduler.scheduleMainProcess(this.apacheClient,sdnntSyncPar);
 
                             String sdnntHost = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
                             
@@ -427,5 +430,15 @@ public class SDNNTSyncResource {
         }
     }
 
-    
+
+
+    protected JSONObject getSDNNTSyncProcess(String defid, File pidlistFile, String license, String userid) {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("pid",  "pidlist_file:"+pidlistFile.getAbsolutePath());
+        payload.put("license", license);
+        JSONObject scheduleMainProcess = APIProcessScheduler.createScheduleProcess(defid, payload, userid);
+        return scheduleMainProcess;
+    }
+
+
 }
