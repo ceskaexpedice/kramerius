@@ -66,6 +66,8 @@ public class SolrInputBuilder {
 
     public SolrInput processPageFromPdf(RepositoryNodeManager nodeManager, RepositoryNode parentNode, int pageNumber, String pageOcrText) {
         SolrInput solrInput = new SolrInput();
+        int pageIndex = pageNumber - 1;
+
         String pid = parentNode.getPid() + "_" + pageNumber;
         String model = "page";
 
@@ -84,7 +86,7 @@ public class SolrInputBuilder {
         addSolrField(solrInput, "own_model_path", parentNode.getModelPath() + "/" + model);
 
 
-        addSolrField(solrInput, "rels_ext_index.sort", pageNumber);
+        addSolrField(solrInput, "rels_ext_index.sort", pageIndex);
         if (parentNode.getTitle() != null) {
             addSolrField(solrInput, "own_parent.title", parentNode.getTitle().toString());
         }
@@ -154,7 +156,7 @@ public class SolrInputBuilder {
 
         //page.*
         addSolrField(solrInput, "page.number", String.valueOf(pageNumber));
-        addSolrField(solrInput, "page.index", String.valueOf(pageNumber - 1));
+        addSolrField(solrInput, "page.index", String.valueOf(pageIndex));
         //addSolrField(solrInput, "page.type", "NormalPage");
         //addSolrField(solrInput, "page.placement", "single");
 
