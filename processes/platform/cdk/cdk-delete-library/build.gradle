@@ -15,6 +15,7 @@ processPlugin {
     ]
 }
 
+// test comment
 dependencies {
     api "org.ceskaexpedice:process-api:${processapiversion}"
     api project(':processes:cdk:cdkprocesses')
