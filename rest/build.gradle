@@ -10,9 +10,9 @@ dependencies {
     api project(':folders')
 	
 	
-	// sdnnt 
-	api project(':processes:sdnnt')              //TODO: Move
-
+	// sdnnt
+	api project(':processes:sdnnt')
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
     api project(':document-hub:content')
 
 

@@ -111,4 +111,111 @@ public class CDKReharvest {
         int slash = ownPidPath.indexOf('/');
         return slash >= 0 ? ownPidPath.substring(0, slash) : ownPidPath;
     }
+
+    public static void main(String[] args) throws MigrateSolrIndexException, IOException, ParserConfigurationException,
+            ClassNotFoundException, IllegalAccessException, InstantiationException,
+            SAXException, NoSuchMethodException {
+        runReharvestOnlyPidTest();
+        //runReharvestChildrenTest();
+        //runReharvestDeletePidTest();
+    }
+
+    private static void runReharvestOnlyPidTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException,
+            ClassNotFoundException, IllegalAccessException, InstantiationException,
+            SAXException, NoSuchMethodException {
+        String destinationUrl = "http://localhost:8983/solr/search_cdk_v1";
+        String proxyApiUrl = "http://localhost:8080/search/api/admin/v7.0/connected";
+        String rootPid = "uuid:c5e400b0-b1ab-11eb-a22e-5ef3fc9bb22f";
+        String pid = "uuid:d4d42790-84ea-11ec-b436-5ef3fc9bb22f";
+        String ownPidPath = rootPid + "/" + pid;
+        String iterationUrl = destinationUrl;
+        String iterationType = "CURSOR";
+        String iterationRows = "4000";
+        String iterationBatch = "45";
+        String type = ReharvestItem.TypeOfReharvset.only_pid.name();
+        String libraries = "cbvk";
+        Boolean onlyShowConfiguration = false;
+        Integer maxItemsToDelete = 300000;
+
+        CDKReharvest.reharvestMain(
+                destinationUrl,
+                proxyApiUrl,
+                pid,
+                ownPidPath,
+                iterationUrl,
+                iterationType,
+                iterationRows,
+                iterationBatch,
+                rootPid,
+                type,
+                libraries,
+                onlyShowConfiguration,
+                maxItemsToDelete);
+    }
+
+    private static void runReharvestChildrenTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException,
+            ClassNotFoundException, IllegalAccessException, InstantiationException,
+            SAXException, NoSuchMethodException {
+        String destinationUrl = "http://localhost:8983/solr/search_cdk_v1";
+        String proxyApiUrl = "http://localhost:8080/search/api/admin/v7.0/connected";
+        String rootPid = "uuid:c5e400b0-b1ab-11eb-a22e-5ef3fc9bb22f";
+        String pid = "uuid:d4d42790-84ea-11ec-b436-5ef3fc9bb22f";
+        String ownPidPath = rootPid + "/" + pid;
+        String iterationUrl = destinationUrl;
+        String iterationType = "CURSOR";
+        String iterationRows = "4000";
+        String iterationBatch = "45";
+        String type = ReharvestItem.TypeOfReharvset.children.name();
+        String libraries = "cbvk";
+        Boolean onlyShowConfiguration = false;
+        Integer maxItemsToDelete = 300000;
+
+        CDKReharvest.reharvestMain(
+                destinationUrl,
+                proxyApiUrl,
+                pid,
+                ownPidPath,
+                iterationUrl,
+                iterationType,
+                iterationRows,
+                iterationBatch,
+                rootPid,
+                type,
+                libraries,
+                onlyShowConfiguration,
+                maxItemsToDelete);
+    }
+
+    private static void runReharvestDeletePidTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException,
+            ClassNotFoundException, IllegalAccessException, InstantiationException,
+            SAXException, NoSuchMethodException {
+        String destinationUrl = "http://localhost:8983/solr/search_cdk_v1";
+        String proxyApiUrl = "http://localhost:8080/search/api/admin/v7.0/connected";
+        String rootPid = "uuid:c5e400b0-b1ab-11eb-a22e-5ef3fc9bb22f";
+        String pid = "uuid:d4d42790-84ea-11ec-b436-5ef3fc9bb22f";
+        String ownPidPath = rootPid + "/" + pid;
+        String iterationUrl = destinationUrl;
+        String iterationType = "CURSOR";
+        String iterationRows = "4000";
+        String iterationBatch = "45";
+        String type = ReharvestItem.TypeOfReharvset.delete_pid.name();
+        String libraries = "cbvk";
+        Boolean onlyShowConfiguration = false;
+        Integer maxItemsToDelete = 300000;
+
+        CDKReharvest.reharvestMain(
+                destinationUrl,
+                proxyApiUrl,
+                pid,
+                ownPidPath,
+                iterationUrl,
+                iterationType,
+                iterationRows,
+                iterationBatch,
+                rootPid,
+                type,
+                libraries,
+                onlyShowConfiguration,
+                maxItemsToDelete);
+    }
 }

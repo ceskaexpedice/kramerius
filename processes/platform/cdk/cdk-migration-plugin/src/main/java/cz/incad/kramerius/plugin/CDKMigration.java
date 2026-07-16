@@ -246,4 +246,102 @@ public class CDKMigration {
         return String.format(Locale.ROOT, "%02d:%02d:%02d", hours, minutes, seconds);
     }
 
+    public static void main(String[] args) throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException, TransformerException {
+        runFullMigrationTest();
+        //runFullMigrationKKV();
+    }
+
+    private static void runFullMigrationKKV() throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException, TransformerException {
+        String configSource = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml";
+        String destinationUrl = "http://localhost:8983/solr/search_cdk_v1";
+        String iterationDl = "kkkv";
+        String iterationUrl = "https://kramerius.knihovnakv.cz/search/api/cdk/v7.0/forward/sync/solr";
+        String iterationId = "pid";
+        String iterationApiKey = System.getenv("API_KEY");
+        String iterationWorkingtime = "";
+        String timestampUrl = "";
+        String comparingIdentifier = "pid";
+        //String iterationFQuery = "indexed:[2006 TO 2007]";
+        //String iterationFQuery = "pid:\"uuid:31121f1c-649f-4deb-8e9e-501ed5780520\"";
+        String iterationFQuery = "";
+        String showConfigurationOnly = "false";
+        String showEffectiveConfigurationOnly = "false";
+
+        /*
+            @ParameterName("configSource") @IsRequired String configSource,
+            @ParameterName("destinationUrl") @IsRequired String destinationUrl,
+            @ParameterName("iterationDl") @IsRequired String iterationDl,
+            @ParameterName("iterationId") @IsRequired String iterationId,
+            @ParameterName("iterationUrl") @IsRequired String iterationUrl,
+            @ParameterName("iterationFQuery") String iterationFQuery,
+            @ParameterName("iterationApiKey") String iterationApiKey,
+            @ParameterName("iterationWorkingtime") String iterationWorkingtime,
+
+            @ParameterName("showConfigurationOnly") @IsRequired Boolean showConfigurationOnly
+
+         */
+
+        CDKMigration.migrateMain(
+                configSource,
+                destinationUrl,
+                iterationDl,
+                iterationId,
+                iterationUrl,
+                iterationFQuery,
+                iterationApiKey,
+                iterationWorkingtime,
+                timestampUrl,
+                comparingIdentifier,
+                "10",
+                Boolean.valueOf(showConfigurationOnly),
+                Boolean.valueOf(showEffectiveConfigurationOnly));
+    }
+
+
+    private static void runFullMigrationTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException, SAXException, NoSuchMethodException, TransformerException {
+        String configSource = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml";
+        String destinationUrl = "http://localhost:8983/solr/search_cdk_v1";
+        String iterationDl = "tul";
+        String iterationUrl = "https://kramerius.tul.cz/search/api/cdk/v7.0/forward/sync/solr";
+        String iterationId = "pid";
+        String iterationApiKey = System.getenv("API_KEY");
+        String iterationWorkingtime = "";
+        String timestampUrl = "";
+        String comparingIdentifier = "pid";
+        //String iterationFQuery = "indexed:[2006 TO 2007]";
+        //String iterationFQuery = "pid:\"uuid:31121f1c-649f-4deb-8e9e-501ed5780520\"";
+        String iterationFQuery = "";
+        String showConfigurationOnly = "false";
+        String showEffectiveConfigurationOnly = "false";
+
+        /*
+            @ParameterName("configSource") @IsRequired String configSource,
+            @ParameterName("destinationUrl") @IsRequired String destinationUrl,
+            @ParameterName("iterationDl") @IsRequired String iterationDl,
+            @ParameterName("iterationId") @IsRequired String iterationId,
+            @ParameterName("iterationUrl") @IsRequired String iterationUrl,
+            @ParameterName("iterationFQuery") String iterationFQuery,
+            @ParameterName("iterationApiKey") String iterationApiKey,
+            @ParameterName("iterationWorkingtime") String iterationWorkingtime,
+
+            @ParameterName("showConfigurationOnly") @IsRequired Boolean showConfigurationOnly
+
+         */
+
+        CDKMigration.migrateMain(
+                configSource,
+                destinationUrl,
+                iterationDl,
+                iterationId,
+                iterationUrl,
+                iterationFQuery,
+                iterationApiKey,
+                iterationWorkingtime,
+                timestampUrl,
+                comparingIdentifier,
+                null,
+            Boolean.valueOf(showConfigurationOnly),
+            Boolean.valueOf(showEffectiveConfigurationOnly));
+    }
+
 }
