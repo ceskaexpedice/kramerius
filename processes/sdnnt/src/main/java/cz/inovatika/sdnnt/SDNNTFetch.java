@@ -9,15 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -468,9 +460,12 @@ public class SDNNTFetch {
 
 
     public static File throttle(CloseableHttpClient httpClient, String url) throws IOException, InterruptedException {
-        int maxRepetition = 3;
+        Set<Integer> throttleStatuses = throttleStatuses();
+        LOGGER.fine("Throttle statuses: " + throttleStatuses);
+        int maxRepetition = 5;
 
         for (int i = 0; i < maxRepetition; i++) {
+            LOGGER.fine("Throttle iteration " + (i+1) + " of " + maxRepetition+ ", url = " +url);
             HttpGet request = new HttpGet(url);
             request.setHeader("Accept", "application/json");
 
@@ -483,7 +478,8 @@ public class SDNNTFetch {
                         IOUtils.copy(response.getEntity().getContent(), fos);
                     }
                     return tmpFile;
-                } else if (status == 409) {
+                } else if (throttleStatuses.contains(status)) {
+                    LOGGER.info("Throttle status ("+status+"); retrying");
                     return null; // Signalizujeme konflikt pro retry
                 } else {
                     throw new IOException("Unexpected response status: " + status);
@@ -495,11 +491,24 @@ public class SDNNTFetch {
             }
 
             // Pokud je null, znamená to status 409
-            int sleep = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.throttle.wait", 720000);
-            LOGGER.info("Server is too busy (409); waiting for " + (sleep / 1000 / 60) + " min");
+            int sleep = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.throttle.wait", 30_000);
+            //LOGGER.info("Server is too busy (409); waiting for " + (sleep / 1000 / 60) + " min");
+            LOGGER.info("Server returned throttled status; waiting for " + (sleep / 1000 / 60) + " min");
             Thread.sleep(sleep);
         }
         throw new IllegalStateException("Maximum number of waiting exceeded (409 Conflict)");
+    }
+
+    private static Set<Integer> throttleStatuses() {
+        List<Object> configured = KConfiguration.getInstance().getConfiguration()
+                .getList("sdnnt.throttle.statuses", Arrays.asList("409"));
+        LOGGER.info("Throttle statuses configured: " + configured);
+        return configured.stream()
+                .map(Object::toString)
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .map(Integer::parseInt)
+                .collect(Collectors.toSet());
     }
 
 //    public static File throttle(Client client,  String url) throws IOException, InterruptedException {
@@ -545,7 +554,8 @@ public class SDNNTFetch {
         String prevToken = "";
         //Client c = Client.create();
         LOGGER.info(String.format("SDNNT changes endpoint is %s", sdnntChangesEndpoint));
-        String sdnntApiEndpoint = sdnntChangesEndpoint + "?format=" + format + "&rows=1000&resumptionToken=%s&digital_library="+config.getAcronym();
+        int defaultRows = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.fetch.rows", 400);
+        String sdnntApiEndpoint = sdnntChangesEndpoint + "?format=" + format + "&rows="+defaultRows+"&resumptionToken=%s&digital_library="+config.getAcronym();
         while (token != null && !token.equals(prevToken)) {
             String formatted = String.format(sdnntApiEndpoint, token);
             LOGGER.info("Conctacting sdnnt instance "+format);
