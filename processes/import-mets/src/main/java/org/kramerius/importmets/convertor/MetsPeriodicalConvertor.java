@@ -652,7 +652,7 @@ public class MetsPeriodicalConvertor extends BaseConvertor {
                     log.warn("Invalid structLink from: " + from + " to: " + to);
                     continue;
                 }
-                if (from.startsWith("ISSUE") || from.startsWith("VOLUME") || from.startsWith("SUPPLEMENT")) {
+                if (from.startsWith("ISSUE") || from.startsWith("VOLUME") || (from.startsWith("SUPPLEMENT")&&(soundCollectionId == null))) {
                     if (isReprePage(target.getMods())) {
                         if (part.getFiles() == null || part.getFiles().isEmpty()) {
                             for (FileDescriptor targetFile : target.getFiles()) {
