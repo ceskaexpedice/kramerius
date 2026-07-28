@@ -97,6 +97,7 @@ include 'processes:platform:curator:worker'
 
 // CDK platform module
 include 'processes:platform:cdk:cdk-migration-plugin'
+include 'processes:platform:cdk:cdk-update-migration-plugin'
 include 'processes:platform:cdk:cdk-delete-library'
 include 'processes:platform:cdk:cdk-reharvest-plugin'
 include 'processes:platform:cdk:worker'

@@ -349,7 +349,7 @@ public class Indexer {
             int pageNumber = i + 1;
             counters.incrementProcessed();
             report("extracting page " + pageNumber + "/" + pages);
-            String ocrText = normalizeWhitespacesForOcrText(extractor.getPageText(i));
+            String ocrText = normalizeWhitespacesForOcrText(extractor.getPageText(pageNumber));
             SolrInput solrInput = solrInputBuilder.processPageFromPdf(nodeManager, repositoryNode, pageNumber, ocrText);
             String solrInputStr = solrInput.getDocument().asXML();
             LOGGER.fine("Indexing " + pid + " page " + pageNumber + " with input: " + solrInputStr);

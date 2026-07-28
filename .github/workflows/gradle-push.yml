@@ -12,10 +12,12 @@ on:
     branches: 
      - master
      - feature/*
+     - hotfix/*
   pull_request:
     branches: 
      - master
      - feature/*
+     - hotfix/*
     
 permissions:
   contents: read
