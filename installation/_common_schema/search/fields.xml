@@ -323,7 +323,6 @@
 		<copyField source="pid_paths" dest="pid_paths.children" />
 		<copyField source="pid_paths" dest="pid_paths.parents" />
 
-		<copyField source="physical_locations.facet" dest="physical_locations.search" />
 
 </fields>
 
