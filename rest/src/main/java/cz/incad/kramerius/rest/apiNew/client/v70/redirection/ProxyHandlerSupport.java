@@ -188,22 +188,25 @@ public abstract class ProxyHandlerSupport {
                 String responseMimeType = entity.getContentType();
                 InputStream contentStream = entity.getContent();
                 StreamingOutput outputStream = null;
+
                 if (dataConsumer != null) {
                     byte[] bytes = IOUtils.toByteArray(contentStream);
-                    dataConsumer.accept(bytes, responseMimeType);
+                    byte[] consumerBytes = Arrays.copyOf(bytes, bytes.length);
+                    dataConsumer.accept(consumerBytes, responseMimeType);
                     outputStream = output -> {
                         output.write(bytes);
-                        output.flush();
-                        EntityUtils.consumeQuietly(entity);
+                        //output.flush();
+                        //EntityUtils.consumeQuietly(entity);
                     };
                 } else {
                     byte[] bytes = IOUtils.toByteArray(contentStream);
                     outputStream = output -> {
                         output.write(bytes);
-                        output.flush();
-                        EntityUtils.consumeQuietly(entity);
+                        //output.flush();
+                        //EntityUtils.consumeQuietly(entity);
                     };
                 }
+
 
                 ResponseBuilder respEntity = null;
                 if (mimetype != null) {
@@ -221,6 +224,7 @@ public abstract class ProxyHandlerSupport {
             } else {
                 // event for reharvest
                 if (code == 404) {
+                    LOGGER.log(Level.FINE, String.format(" NOT FOUND -> code %s,  %d", url, code));
                     if (deleteTrigger && this.deleteTriggerSupport != null) {
                         this.deleteTriggerSupport.executeDeleteTrigger(pid);
                     }
@@ -235,7 +239,8 @@ public abstract class ProxyHandlerSupport {
 
     protected Response buildForwardApacheResponsePOST(String url, JSONObject body, String apiKey, String pid, boolean shibHeaders, BiConsumer<byte[], String> dataConsumer) {
         HttpPost post = apachePost(url, apiKey, shibHeaders);
-        StringEntity entityP = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
+        JSONObject safeBody = body != null ? body : new JSONObject();
+        StringEntity entityP = new StringEntity(safeBody.toString(), ContentType.APPLICATION_JSON);
         post.setEntity(entityP);
         String headers = "(" + Arrays.stream(post.getHeaders()).map(h -> {
             return String.format("%s = %s", h.getName(), h.getValue());
@@ -243,6 +248,7 @@ public abstract class ProxyHandlerSupport {
         LOGGER.log(Level.FINE, String.format("POST %s %s", url, headers));
         try (CloseableHttpResponse response = apacheClient.execute(post)) {
             int code = response.getCode();
+            LOGGER.log(Level.FINE, String.format(" -> code %d", code));
             if (code == 200) {
                 long stop = System.currentTimeMillis();
                 LOGGER.log(Level.FINE, String.format(" -> code %d", code));
@@ -255,15 +261,15 @@ public abstract class ProxyHandlerSupport {
                     dataConsumer.accept(bytes, responseMimeType);
                     outputStream = output -> {
                         output.write(bytes);
-                        output.flush();
-                        EntityUtils.consumeQuietly(entity);
+//                        output.flush();
+//                        EntityUtils.consumeQuietly(entity);
                     };
                 } else {
                     byte[] bytes = IOUtils.toByteArray(contentStream);
                     outputStream = output -> {
                         output.write(bytes);
-                        output.flush();
-                        EntityUtils.consumeQuietly(entity);
+//                        output.flush();
+//                        EntityUtils.consumeQuietly(entity);
                     };
                 }
 
@@ -279,7 +285,25 @@ public abstract class ProxyHandlerSupport {
                 }
                 return respEntity.build();
             } else {
-                return Response.status(code).build();
+                HttpEntity entity = response.getEntity();
+                String responseMimeType = entity != null ? entity.getContentType() : null;
+                String errorBody = "";
+                if (entity != null) {
+                    errorBody = IOUtils.toString(entity.getContent(), java.nio.charset.StandardCharsets.UTF_8);
+                }
+                String loggedBody = errorBody.length() > 1000 ? errorBody.substring(0, 1000) + "..." : errorBody;
+                LOGGER.log(Level.WARNING, String.format(
+                        "Forward POST returned non-OK status: status=%d, pid=%s, url=%s, responseBody=%s",
+                        code, pid, url, loggedBody
+                ));
+                ResponseBuilder responseBuilder = Response.status(code);
+                if (responseMimeType != null) {
+                    responseBuilder.type(responseMimeType);
+                }
+                if (!errorBody.isEmpty()) {
+                    responseBuilder.entity(errorBody);
+                }
+                return responseBuilder.build();
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -343,9 +367,9 @@ public abstract class ProxyHandlerSupport {
             String header = prepareHeader(headers);
             get.setHeader("CDK-TOKEN-PARAMETERS", header);
             get.setHeader("CDK_TOKEN_PARAMETERS", header); // deprecated
-            if (apiKey != null && !apiKey.isEmpty()) {
-                get.addHeader("X-API-KEY", apiKey);
-            }
+        }
+        if (apiKey != null && !apiKey.isEmpty()) {
+            get.addHeader("X-API-KEY", apiKey);
         }
         return get;
     }
@@ -354,8 +378,9 @@ public abstract class ProxyHandlerSupport {
         LOGGER.fine(String.format("Requesting %s", url));
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("User-Agent", "CDK/1.0");
-        if (headers && isAuthenticated() && isDnntUser()) {
+        if (headers && isAuthenticated()) {
             String header = prepareHeader(headers);
+            httpPost.setHeader("CDK-TOKEN-PARAMETERS", header);
             httpPost.setHeader("CDK_TOKEN_PARAMETERS", header);
         }
         if (apiKey != null && !apiKey.isEmpty()) {
@@ -364,7 +389,7 @@ public abstract class ProxyHandlerSupport {
         return httpPost;
     }
 
-        //TODO: Fix; cannot be associated only with dnnto user
+    //TODO: Fix; cannot be associated only with dnnto user
     protected boolean isDnntUser() {
         List<String> names = Arrays.stream(this.user.getGroups()).map(Role::getName).collect(Collectors.toList());
         LOGGER.log(Level.FINE, String.format("Roles %s", names.toString()));

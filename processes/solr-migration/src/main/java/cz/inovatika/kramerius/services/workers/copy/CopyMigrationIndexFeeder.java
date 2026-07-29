@@ -41,7 +41,7 @@ public abstract class CopyMigrationIndexFeeder<T extends WorkerIndexedItem, C ex
         });
         String query = "?q=" + idIdentifier + ":(" + URLEncoder.encode(reduce, StandardCharsets.UTF_8) + ")&fl="
                 + URLEncoder.encode(fieldlist, StandardCharsets.UTF_8) + "&wt=xml&rows=" + pids.size();
-        LOGGER.info(String.format("Requesting uri %s, %s",requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint, query));
+        LOGGER.fine(String.format("Requesting uri %s, %s",requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint, query));
         return HTTPSolrUtils.executeQueryApache(client, this.enricher,requestUrl.endsWith("/") ? requestUrl + requestEndpoint : requestUrl +"/"+ requestEndpoint , query);
     }
 

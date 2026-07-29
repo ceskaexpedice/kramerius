@@ -23,6 +23,10 @@ public class SolrConfigParser {
      * @return A ready-to-use SolrIteratorConfig.Builder.
      */
     public static SolrIteratorConfig parse(Element iteration, String filterQueryOverride) {
+        return parse(iteration, filterQueryOverride, null);
+    }
+
+    public static SolrIteratorConfig parse(Element iteration, String filterQueryOverride, String timestampUrl) {
 
         Element urlElm = XMLUtils.findElement(iteration, "url");
         String url = urlElm != null ? urlElm.getTextContent() : null;
@@ -87,6 +91,9 @@ public class SolrConfigParser {
         Element timstampFieldElm = XMLUtils.findElement(iteration, "timestamp_field");
         if (timstampFieldElm != null) {
             builder.timestampField(timstampFieldElm.getTextContent());
+        }
+        if (StringUtils.isAnyString(timestampUrl)) {
+            builder.timestampUrl(timestampUrl);
         }
 
         Element responseHandlingElm = XMLUtils.findElement(iteration, "response-handling");

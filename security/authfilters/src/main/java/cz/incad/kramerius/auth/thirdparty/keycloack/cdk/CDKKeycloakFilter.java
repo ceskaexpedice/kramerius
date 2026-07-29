@@ -39,6 +39,9 @@ public class CDKKeycloakFilter extends ExtAuthFilter {
     protected boolean userStoreIsNeeded(HttpServletRequest httpReq) {
         try {
             String header = httpReq.getHeader("CDK_TOKEN_PARAMETERS");
+            if (header == null || header.isEmpty()) {
+                header = httpReq.getHeader("CDK-TOKEN-PARAMETERS");
+            }
             return header != null;
         }catch (Throwable th){
             LOGGER.log(Level.SEVERE,"Error retrieving KeycloakAccount", th);

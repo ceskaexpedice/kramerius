@@ -1,4 +1,4 @@
-openapi: 3.0.2
+﻿openapi: 3.0.2
 info:
   title: Klientské API v systému Kramerius
   description: |
@@ -799,6 +799,75 @@ paths:
           description: Interní chyba serveru nebo problém při komunikaci s Process Managerem
 
   # Dotazy na obrazová data       
+  /items/{pid}/requests/{reqid}/availability:
+    get:
+      tags:
+        - User requests
+      summary: Request availability
+      description: Returns whether the request type is supported and currently available for the object.
+      operationId: getRequestAvailability
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Object PID
+          schema:
+            type: string
+            example: "uuid:5f69fed8-6e54-40de-938e-14c34f745428"
+        - in: path
+          name: reqid
+          required: true
+          description: Request type, for example "generate_pdf"
+          schema:
+            type: string
+            example: "generate_pdf"
+      responses:
+        '200':
+          description: Request availability
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - pid
+                  - reqid
+                  - supported
+                  - available
+                properties:
+                  pid:
+                    type: string
+                  reqid:
+                    type: string
+                  supported:
+                    type: boolean
+                    description: True if the request type is supported by configuration.
+                  available:
+                    type: boolean
+                    description: True if the request can currently be started.
+                  reason:
+                    type: string
+                    description: Reason code when supported or available is false.
+              examples:
+                available:
+                  value:
+                    pid: "uuid:5f69fed8-6e54-40de-938e-14c34f745428"
+                    reqid: "generate_pdf"
+                    supported: true
+                    available: true
+                unsupported:
+                  value:
+                    pid: "uuid:5f69fed8-6e54-40de-938e-14c34f745428"
+                    reqid: "unknown_request"
+                    supported: false
+                    available: false
+                    reason: "unsupported_request"
+        '400':
+          description: Invalid PID format or value.
+        '404':
+          description: PID was not found.
+        '500':
+          description: Internal server error.
+
   /items/{pid}/image:
     head:
       tags:
@@ -1678,7 +1747,62 @@ paths:
         '404':
           description: Neexistujici požadavek
 
-  /userrequests/userspace/{token}:
+  /userrequests/userspace:
+    get:
+      tags:
+        - Uživatelské požadavky
+      summary: Ziskani seznamu uzivatelskych dat
+      description: Vraci seznam bundlu ulozenych v uzivatelskem prostoru prihlaseneho uzivatele.
+      operationId: listUserFiles
+      responses:
+        '200':
+          description: Seznam souboru v uzivatelskem prostoru
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Token pro stazeni ulozeneho bundlu
+                      example: "b5d56622"
+                    pid:
+                      type: string
+                      description: PID objektu
+                      example: "uuid:9cd57b03-0797-4e8f-90cb-6987dd633034"
+                    type:
+                      type: string
+                      description: Typ dokumentu
+                      enum: ["pdf", "epub", "text"]
+                      example: "pdf"
+                    created:
+                      type: string
+                      format: date-time
+                      description: Cas vytvoreni bundlu
+                      example: "2026-05-26T07:30:00Z"
+                    size:
+                      type: integer
+                      format: int64
+                      description: Velikost souboru v bajtech
+                      example: 1048576
+                    available:
+                      type: boolean
+                      description: Priznak, zda fyzicky soubor existuje na disku
+                      example: true
+              example:
+                - token: "b5d56622"
+                  pid: "uuid:9cd57b03-0797-4e8f-90cb-6987dd633034"
+                  type: "pdf"
+                  created: "2026-05-26T07:30:00Z"
+                  size: 1048576
+                  available: true
+        '403':
+          description: Uzivatel nema opravneni k pozadovane akci
+
+
+  /userrequests/userspace/{token}/{docType}:
     get:
       tags:
         - Uživatelské požadavky
@@ -1693,6 +1817,16 @@ paths:
           schema:
             type: string
             example: "b5d56622"
+        - name: docType
+          in: path
+          required: true
+          description: Typ souboru pro stažení
+          schema:
+            type: string
+            enum: [ "pdf","epub","text" ]
+            example: "pdf"
+
+
       responses:
         '200':
           description: Ziska soubor
@@ -1701,6 +1835,15 @@ paths:
               schema:
                 type: string
                 format: binary
+            application/epub+zip:
+              schema:
+                type: string
+                format: binary
+            text/plain:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Neplatny typ souboru
         '404':
           description: Neexistujici soubor
-

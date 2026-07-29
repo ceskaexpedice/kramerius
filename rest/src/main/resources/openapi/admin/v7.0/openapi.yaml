@@ -3625,6 +3625,14 @@ paths:
         - Procesy
       summary: Vrací seznam všech vlastníků procesů
       description: Vrací seznam všech vlastníků procesů.
+      parameters:
+        - name: workers
+          in: query
+          required: false
+          description: Filtrování dle workerů oddělených čárkami
+          schema:
+            type: string
+          example: worker1,worker2
       responses:
         '200':
           description: Úspěšně získané licence

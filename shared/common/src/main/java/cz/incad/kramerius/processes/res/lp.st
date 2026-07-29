@@ -164,4 +164,13 @@
         <securedaction>a_cdk_process</securedaction>
     </process>
 
+
+    <!-- Cleanup space -->
+    <process>
+        <id>cleanup_space</id>
+        <description>Clean up space</description>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
+        <securedaction>a_akubra_edit</securedaction>
+    </process>
+
 </processes>

@@ -101,7 +101,11 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
 
         Map<String, String> map = attributes(req);
         String username = "not_defined";
-        if (map.containsKey("eduPersonPrincipalName")) {
+        if (map.containsKey("eduPersonUniqueId")) {
+            username = map.get("eduPersonUniqueId");
+        } else if (map.containsKey("preffered_user_name")) {
+            username = map.get("preffered_user_name");
+        } else if (map.containsKey("eduPersonPrincipalName")) {
             username = map.get("eduPersonPrincipalName");
         } else if (map.containsKey("displayName")) {
             username = map.get("displayName");
@@ -109,7 +113,7 @@ public class CDKUserSupport extends AbstractThirdPartyUsersSupport<CDK3rdUser> {
             username = map.get("remote_user");
         }
         
-        return "_cdk_"+username;
+        return username;
     }
 
     @Override

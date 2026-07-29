@@ -25,9 +25,11 @@ public class MigrationConfigParser {
     public static MigrationConfig parse(Element processElm) {
 
         MigrationConfig.Builder builder = new MigrationConfig.Builder();
+        String sourceName = MigrationConfig.DEFAULT_SOURCE_NAME;
         Element sourceNameElm = XMLUtils.findElement(processElm, "source-name");
         if (sourceNameElm != null) {
-            builder.sourceName(sourceNameElm.getTextContent());
+            sourceName = sourceNameElm.getTextContent();
+            builder.sourceName(sourceName);
         }
         Element nameElm = XMLUtils.findElement(processElm, "name");
         if (nameElm != null) {
@@ -54,9 +56,11 @@ public class MigrationConfigParser {
             builder.workingTime(workingTimeElm.getTextContent());
         }
 
+        String timestampUrl = null;
         Element timestampElm = XMLUtils.findElement(processElm, "timestamp");
         if (timestampElm != null) {
-            builder.timestampUrl(timestampElm.getTextContent());
+            timestampUrl = normalizeTimestampUrl(timestampElm.getTextContent(), sourceName);
+            builder.timestampUrl(timestampUrl);
         }
 
         Element introspectElm = XMLUtils.findElement(processElm, "introspect");
@@ -68,7 +72,7 @@ public class MigrationConfigParser {
         Element iterationElm = XMLUtils.findElement(processElm, "iteration");
         SolrIteratorConfig iteratorConfig = null;
         if (iterationElm != null) {
-            iteratorConfig = SolrConfigParser.parse(iterationElm, null);
+            iteratorConfig = SolrConfigParser.parse(iterationElm, null, timestampUrl);
             builder.iteratorConfig(iteratorConfig);
         } else {
              LOGGER.log(Level.SEVERE, "Required <iteration> element not found in configuration.");
@@ -83,5 +87,17 @@ public class MigrationConfigParser {
             LOGGER.log(Level.SEVERE, "Required <feeder> element not found in configuration.");
         }
         return builder.build();
+    }
+
+    public static String normalizeTimestampUrl(String timestampUrl, String sourceName) {
+        if (timestampUrl == null || timestampUrl.trim().isEmpty()) {
+            return null;
+        }
+        String normalized = timestampUrl.trim();
+        if ((normalized.endsWith("connected") || normalized.endsWith("connected/"))
+                && sourceName != null && !sourceName.trim().isEmpty()) {
+            return normalized + (normalized.endsWith("/") ? "" : "/") + sourceName.trim() + "/timestamp";
+        }
+        return normalized;
     }
 }

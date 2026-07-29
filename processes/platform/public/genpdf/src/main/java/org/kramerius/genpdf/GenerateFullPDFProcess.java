@@ -7,13 +7,13 @@ import cz.incad.kramerius.document.guice.DocumentServiceModule;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.guice.PDFModule;
+import cz.incad.kramerius.processes.notifications.GenerationNotification;
+import cz.incad.kramerius.processes.notifications.GenerationNotificationDispatcher;
 import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
-import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.guice.DocHubModule;
-import org.antlr.stringtemplate.StringTemplate;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
@@ -21,18 +21,17 @@ import org.ceskaexpedice.processplatform.api.context.PluginContext;
 import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.kramerius.genpdf.impl.GenerateFullPDFServiceImpl;
 
-import javax.mail.MessagingException;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.Date;
 import java.util.logging.Logger;
 
 public class GenerateFullPDFProcess {
 
     public static final String GENERATE_PDF_TEXT_KEY = "generate.pdf.text";
     public static final String GENERATE_PDF_SUBJECT_KEY = "generate.pdf.subject";
+    public static final String GENERATE_PDF_EMAIL_SENDER_KEY = "generate.pdf.email.sender";
+    public static final String GENERATE_PDF_EMAIL_BODY_KEY = "generate.pdf.email.body";
 
     public static Logger LOGGER = Logger.getLogger(GenerateFullPDFProcess.class.getName());
 
@@ -43,7 +42,10 @@ public class GenerateFullPDFProcess {
             @ParameterName("roles") @IsRequired String roles,
             @ParameterName("providedByLicense") String providedByLicenses,
             @ParameterName("locale") String locale,
-            @ParameterName("email") String email
+            @ParameterName("email") String email,
+            @ParameterName("notificationMode") String notificationMode,
+            @ParameterName("notificationCallbackUrl") String notificationCallbackUrl,
+            @ParameterName("notificationSource") String notificationSource
     ) {
 
         LOGGER.info("Generating PDF");
@@ -52,6 +54,11 @@ public class GenerateFullPDFProcess {
         LOGGER.info("roles: " + roles);
         LOGGER.info("locale: " + locale);
         LOGGER.info("email: " + email);
+        LOGGER.info("providedByLicense: " + providedByLicenses);
+        LOGGER.info("notificationMode:" + notificationMode);
+        LOGGER.info("notificationCallbackUrl:" + notificationCallbackUrl);
+        LOGGER.info("notificationSource:" + notificationSource);
+
 
         System.setProperty(ArgumentLocalesProvider.LOCALE_PROPERTY_KEY, locale);
 
@@ -80,27 +87,34 @@ public class GenerateFullPDFProcess {
 
             String token = serv.generate(pid, user, providedByLicenses);
 
-            if (StringUtils.isAnyString(email)) {
-                LOGGER.info("Email specified: " + email);
 
-                String mailPropertiesFile = System.getProperty("user.home") + File.separator + ".kramerius4" + File.separator + "mail.properties";
-                if (new File(mailPropertiesFile).exists()) {
-                    try {
-                        String administratorEmail = KConfiguration.getInstance().getConfiguration().getString("administrator.email");
-                        String text = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_TEXT_KEY, "Download notification, \ndownload is accessible here $link$");
-                        String subject = KConfiguration.getInstance().getConfiguration().getString(GENERATE_PDF_SUBJECT_KEY, "Download notification");
-                        String api = KConfiguration.getInstance().getConfiguration().getString("api.client.point");
-                        String link = String.format("%s/%s/%s/pdf", api, "userrequests/userspace", token);
-                        StringTemplate template = new StringTemplate(text);
-                        template.setAttribute("link", link);
-                        serv.sendEmailNotification(administratorEmail, Arrays.asList(email), subject, template.toString());
-                    } catch (MessagingException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else {
-                    throw new IllegalArgumentException("Mail properties file not found");
-                }
-            }
+            String api = KConfiguration.getInstance().getConfiguration().getString("api.client.point");
+            String link = String.format("%s/%s/%s/pdf", api, "userrequests/userspace", token);
+            GenerationNotificationDispatcher.notify(
+                    new GenerationNotification.Builder()
+                            .pid(pid)
+                            .user(user)
+                            .email(email)
+                            .documentType("pdf")
+                            .filename(pid + ".pdf")
+                            .downloadToken(token)
+                            .downloadUrl(link)
+                            .title(pid)
+                            .source(notificationSource != null ? notificationSource : "genpdf")
+                            .build(),
+                    notificationMode,
+                    notificationCallbackUrl,
+                    new GenerationNotificationDispatcher.LocalMailConfiguration(
+                            GENERATE_PDF_EMAIL_SENDER_KEY,
+                            GENERATE_PDF_SUBJECT_KEY,
+                            GENERATE_PDF_EMAIL_BODY_KEY,
+                            GENERATE_PDF_TEXT_KEY,
+                            null,
+                            "Download notification",
+                            "Download notification,\ndownload is accessible here $link$"
+                    ),
+                    serv::sendEmailNotification
+            );
         } catch (DocumentException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

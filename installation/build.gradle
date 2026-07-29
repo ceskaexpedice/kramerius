@@ -102,6 +102,12 @@ def solrEnvironments = [
                 schemaDir: "",
                 dependsOn: "generateSchemasearch_cdk"
         ],
+        updates_cdk: [
+                prefix: "solr-9.x.cdk",
+                index:"updates",
+                schemaDir: "",
+                dependsOn: "generateSchemaupdates_cdk"
+        ],
         search_sa: [
                 prefix: "solr-9.x",
                 index:"search",

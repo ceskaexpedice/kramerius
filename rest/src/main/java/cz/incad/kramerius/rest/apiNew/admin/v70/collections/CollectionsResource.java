@@ -2,13 +2,13 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.processes.client.ProcessManagerClient;
 import cz.incad.kramerius.processes.client.ProcessManagerMapper;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection.ThumbnailbStateEnum;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ClientIIIFGenerator;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.SimpleIIIFGenerator;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ThumbsGenerator;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.utils.APIProcessScheduler;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
@@ -135,7 +135,7 @@ public class CollectionsResource extends AdminApiResource {
             // schedule
 
             JSONObject scheduleReindexationPar = getScheduleReindexationPar(collection.pid, user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
-            JSONObject scheduled = scheduleMainProcess(scheduleReindexationPar);
+            JSONObject scheduled = APIProcessScheduler.scheduleMainProcess(this.apacheClient,scheduleReindexationPar);
 
             JSONObject result = new JSONObject();
             result.put("collection", collection.toJson());
@@ -155,23 +155,6 @@ public class CollectionsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
-    }
-
-    private JSONObject scheduleMainProcess(JSONObject scheduleReindexationPar) {
-        ProcessManagerClient processManagerClient = new ProcessManagerClient(apacheClient);
-
-        String profileId = scheduleReindexationPar.getString(ProcessManagerMapper.PCP_PROFILE_ID);
-        JSONObject profile = processManagerClient.getProfile(profileId);
-        JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
-        JSONArray scheduledProfiles = null;
-        if (!plugin.isNull(ProcessManagerMapper.PCP_SCHEDULED_PROFILES)) {
-            scheduledProfiles = plugin.getJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
-        }
-
-        String processId = processManagerClient.scheduleProcess(scheduleReindexationPar);
-        JSONObject result = new JSONObject();
-        result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
-        return result;
     }
 
     /**
@@ -411,7 +394,7 @@ public class CollectionsResource extends AdminApiResource {
             });
             JSONObject result = new JSONObject();
 
-            JSONObject scheduled = scheduleMainProcess(scheduleReindexationPar[0]);
+            JSONObject scheduled = APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar[0]);
 
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar[0]);
             result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduled);
@@ -520,7 +503,7 @@ public class CollectionsResource extends AdminApiResource {
             JSONObject result = new JSONObject();
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
             if (scheduleReindexationPar != null) {
-                result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcess( scheduleReindexationPar));
+                result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             }
 
             return Response.status(Status.OK).entity(result.toString()).build();
@@ -641,7 +624,7 @@ public class CollectionsResource extends AdminApiResource {
             result.put("added", pidsAdded.size());
             result.put("ignored", ignored);
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar[0]);
-            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcess( scheduleReindexationPar[0]));
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar[0]));
             return Response.ok(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -751,7 +734,7 @@ public class CollectionsResource extends AdminApiResource {
                 // trees), 2. no need to re-index collection
                 JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
                 scheduleMainProcesses.put(scheduleReindexationPar);
-                scheduleMainProcessesPlanned.put(scheduleMainProcess(scheduleReindexationPar));
+                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             });
 
         } catch (WebApplicationException e) {
@@ -825,7 +808,7 @@ public class CollectionsResource extends AdminApiResource {
             JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
             JSONObject result = new JSONObject();
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
-            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcess(scheduleReindexationPar));
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -894,12 +877,12 @@ public class CollectionsResource extends AdminApiResource {
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
             JSONObject scheduleReindexationPar = getScheduleReindexationPar(pid, user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
             scheduleMainProcesses.put(scheduleReindexationPar);
-            scheduleMainProcessesPlanned.put(scheduleMainProcess(scheduleReindexationPar));
+            scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
 
             for (String childPid : childrenPids) {
                 JSONObject scheduleReindexationPar1 = getScheduleReindexationPar(childPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, childPid);
                 scheduleMainProcesses.put(scheduleReindexationPar1);
-                scheduleMainProcessesPlanned.put(scheduleMainProcess(scheduleReindexationPar1));
+                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar1));
             }
             JSONObject result = new JSONObject();
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleMainProcesses);

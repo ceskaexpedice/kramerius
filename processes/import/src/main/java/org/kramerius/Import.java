@@ -975,33 +975,7 @@ public class Import {
 //    }
 
     public static String fetchJwtToken(CloseableHttpClient httpClient) throws IOException {
-        KConfiguration config = KConfiguration.getInstance();
-        String clientId = config.getConfiguration().getString("process.token.clientId");
-        String secret = config.getConfiguration().getString("process.token.secret");
-        String extsPoint = config.getConfiguration().getString("api.exts.v7.point");
-
-        if (extsPoint.endsWith("/")) extsPoint = extsPoint.substring(0, extsPoint.length() - 1);
-        String url = String.format("%s/tokens/%s?secrets=%s", extsPoint, clientId, secret);
-
-        LOGGER.info("Requesting JWT token from: " + url);
-        HttpGet request = new HttpGet(url);
-        request.setHeader("Accept", "application/json");
-
-        return httpClient.execute(request, response -> {
-            int status = response.getCode();
-            String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
-            if (status == 200) {
-                JSONObject jsonResponse = new JSONObject(body);
-                if (jsonResponse.has("access_token")) {
-                    return jsonResponse.getString("access_token");
-                } else {
-                    throw new IOException("Response does not contain 'access_token'. Body: " + body);
-                }
-            } else {
-                throw new IOException("Failed to fetch token. Status: " + status + ", Body: " + body);
-            }
-        });
+        return ProcessTokenSupport.fetchJwtToken(httpClient);
     }
     private static void addCollection(AkubraRepository akubraRepository, CloseableHttpClient httpClient, String jwtToken, String collectionPid, ImportInventory plan, Set<TitlePidTuple> collectionsToReindex) {
         //Client c = Client.create();

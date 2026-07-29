@@ -101,7 +101,7 @@
 		jsonObject.put("indexed", this.indexed);
 		jsonObject.put("updated", this.updated);
 		jsonObject.put("batches", this.batches);
-			jsonObject.put("workers", this.workers);
+			jsonObject.put("migrationIndexFeeders", this.migrationIndexFeeders);
 -->
 
   <field name="_version_" type="long" indexed="true" stored="true"/>
@@ -112,7 +112,7 @@
   <field name="indexed" type="long" indexed="true" stored="true"/>
   <field name="updated" type="long" indexed="true" stored="true"/>
   <field name="batches" type="long" indexed="true" stored="true"/>
-  <field name="workers" type="long" indexed="true" stored="true"/>
+  <field name="migrationIndexFeeders" type="long" indexed="true" stored="true"/>
   <field name="date" type="date" indexed="true" stored="true"/>
 
   <uniqueKey>id</uniqueKey>

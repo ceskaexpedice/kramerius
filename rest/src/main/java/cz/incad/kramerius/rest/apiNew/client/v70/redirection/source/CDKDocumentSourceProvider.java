@@ -1,6 +1,8 @@
 package cz.incad.kramerius.rest.apiNew.client.v70.redirection.source;
 
+
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Service for identifying the source library (acronym) of a document.
@@ -14,4 +16,6 @@ public interface CDKDocumentSourceProvider {
      * @throws IOException If there is an error communicating with the Solr index.
      */
     String getDocumentSource(String pid) throws IOException;
+
+    List<String> getDocumentSources(String pid) throws IOException;
 }

@@ -188,7 +188,7 @@ public class SetLicenseProcess {
         while (iterator.hasNext()) {
             List<String> pids = iterator.next();
             indexerAccess.addSingleFieldValueForMultipleObjects(pids, SOLR_FIELD_LICENSES_OF_ANCESTORS, license, true, false);
-            LOGGER.info(String.format("Indexed pids: %s", pids.toString()));
+            LOGGER.fine(String.format("Indexed pids: %s", pids.toString()));
             LOGGER.info(String.format("Indexed: %d/%d", iterator.getReturned(), iterator.getTotal()));
         }
 

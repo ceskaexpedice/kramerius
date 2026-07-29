@@ -4,6 +4,7 @@ package cz.incad.kramerius.services.workers.copy.cdk;
 import cz.inovatika.kramerius.services.config.MigrationConfig;
 import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
 import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
+import cz.incad.kramerius.utils.ProcessTokenSupport;
 import cz.incad.kramerius.utils.StringUtils;
 
 import org.apache.hc.client5.http.classic.methods.HttpPut;
@@ -14,8 +15,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +76,7 @@ public class CDKCopyFinisher extends MigrationIndexFeederFinisher {
         );
         putRequest.setEntity(entity);
         try {
+            ProcessTokenSupport.setBearerToken(putRequest, this.client);
             return this.client.execute(putRequest, response -> {
                 int status = response.getCode();
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
@@ -101,7 +101,7 @@ public class CDKCopyFinisher extends MigrationIndexFeederFinisher {
     public void exceptionDuringCrawl(Exception ex) {
         if (EXCEPTION_DURING_CRAWL.size() < EXCEPTION_DURING_CRAWL_LIMIT) {
             EXCEPTION_DURING_CRAWL.add(ex);
-            LOGGER.info("Exception during crawl :"+EXCEPTION_DURING_CRAWL);
+            LOGGER.log(Level.SEVERE, "Exception during crawl", ex);
         }
     }
 
@@ -117,9 +117,7 @@ public class CDKCopyFinisher extends MigrationIndexFeederFinisher {
         if (!EXCEPTION_DURING_CRAWL.isEmpty()) {
             LOGGER.log(Level.SEVERE, "Exception during crawl :");
             EXCEPTION_DURING_CRAWL.forEach(ex -> {
-                StringWriter stringWriter = new StringWriter();
-                PrintWriter pw = new PrintWriter(stringWriter);
-                ex.printStackTrace(pw);
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             });
         }
     }

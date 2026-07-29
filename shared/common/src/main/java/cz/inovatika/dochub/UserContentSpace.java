@@ -2,6 +2,7 @@ package cz.inovatika.dochub;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserContentSpace {
@@ -11,7 +12,10 @@ public interface UserContentSpace {
 
     public Optional<InputStream> getBundle(String token, String user, DocumentType type) throws UsageException, IOException;
 
+
     public String getToken(String pid, String user);
+
+    public List<UserContentBundle> listBundles(String user) throws IOException;
 
     boolean exists(String token, DocumentType type);
 

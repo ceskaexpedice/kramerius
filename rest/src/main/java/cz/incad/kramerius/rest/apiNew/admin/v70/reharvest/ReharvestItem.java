@@ -122,7 +122,20 @@ public class ReharvestItem {
             public boolean isDeletingReharvest() {
                 return true;
             }
+        },
+        live_conflict {
+            @Override
+            public boolean isNewHarvest() {
+                return false;
+            }
+
+            @Override
+            public boolean isDeletingReharvest() {
+                return false;
+            }
         };
+
+
 
         public abstract boolean isNewHarvest();
         public abstract boolean isDeletingReharvest();

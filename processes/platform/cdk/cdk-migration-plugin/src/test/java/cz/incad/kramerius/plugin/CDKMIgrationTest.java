@@ -2,8 +2,6 @@ package cz.incad.kramerius.plugin;
 
 import cz.inovatika.kramerius.services.Migration;
 import org.apache.commons.io.FileUtils;
-import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
-import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -18,15 +16,7 @@ public class CDKMIgrationTest {
 
     @Test
     public void testShowConfigOnly() throws Exception {
-        final String CONFIG_SOURCE = "/cz/incad/kramerius/services/workers/copy/K7.xml";
-        final String DESTINATION_URL = "http://solr-proxy.cdk-val-kramerius.svc.cluster.local:8983/solr/search_v2";
-        final String ITERATION_DL = "knav";
-        final String ITERATION_ID = "compositeId";
-        final String ITERATION_URL = "http://knav-tunnel.cdk-proxy.svc.cluster.local/search/api/cdk/v7.0/forward/sync/solr";
-        final String ITERATION_FQUERY = "model:page";
-        final String ITERATION_APIKEY = "apikey";
-        final String ITERATION_WORKING_TIME = "workingtime";
-        final boolean ONLY_SHOW_CONFIGURATION = true;
+        CDKMigrationTestConfig config = CDKMigrationTestConfig.load();
 
         File tmp = File.createTempFile("cdk-test", ".xml");
         tmp.deleteOnExit();
@@ -41,24 +31,97 @@ public class CDKMIgrationTest {
 
 
             CDKMigration.migrateMain(
-                    CONFIG_SOURCE,
-                    DESTINATION_URL,
-                    ITERATION_DL,
-                    ITERATION_ID,
-                    ITERATION_URL,
-                    ITERATION_FQUERY,
-                    ITERATION_APIKEY,
-                    ITERATION_WORKING_TIME,
-                    ONLY_SHOW_CONFIGURATION
+                    config.configSource(),
+                    config.destinationUrl(),
+                    config.iterationDl(),
+                    config.iterationId(),
+                    config.iterationUrl(),
+                    config.iterationFQuery(),
+                    config.iterationApiKey(),
+                    config.iterationWorkingtime(),
+                    true
             );
 
             verify(migrationSpy, never()).migrate(any(File.class));
 
             String written = FileUtils.readFileToString(tmp, StandardCharsets.UTF_8);
-            assertTrue(written.contains(DESTINATION_URL));
-            assertTrue(written.contains(ITERATION_DL));
-            assertTrue(written.contains(ITERATION_ID));
-            assertTrue(written.contains(ITERATION_URL));
+            assertTrue(written.contains(config.destinationUrl()));
+            assertTrue(written.contains(config.iterationDl()));
+            assertTrue(written.contains(config.iterationId()));
+            assertTrue(written.contains(config.iterationUrl()));
+        }
+    }
+
+    @Test
+    public void testShowConfigOnlyWithExtendedParameters() throws Exception {
+        CDKMigrationTestConfig config = CDKMigrationTestConfig.load();
+
+        File tmp = File.createTempFile("cdk-test-extended", ".xml");
+        tmp.deleteOnExit();
+
+        try (MockedStatic<CDKMigration> cdkmStatic = Mockito.mockStatic(CDKMigration.class, Mockito.CALLS_REAL_METHODS)) {
+            cdkmStatic.when(CDKMigration::createTempFile).thenReturn(tmp);
+
+            CDKMigration.migrateMain(
+                    config.configSource(),
+                    config.destinationUrl(),
+                    config.iterationDl(),
+                    config.iterationId(),
+                    config.iterationUrl(),
+                    config.iterationFQuery(),
+                    config.iterationApiKey(),
+                    config.iterationWorkingtime(),
+                    config.timestampUrl(),
+                    config.comparingIdentifier(),
+                    true
+            );
+
+            String written = FileUtils.readFileToString(tmp, StandardCharsets.UTF_8);
+            assertTrue(written.contains(config.destinationUrl()));
+            assertTrue(written.contains(config.iterationId()));
+            assertTrue(written.contains(config.timestampUrl()));
+            assertTrue(written.contains("<id>" + config.comparingIdentifier() + "</id>"));
+        }
+    }
+
+    @Test
+    public void testShowUpdateConfigOnly() throws Exception {
+        CDKMigrationTestConfig config = CDKMigrationTestConfig.load();
+        final String expectedTimestampUrl = config.timestampUrl() + "/" + config.iterationDl() + "/timestamp";
+
+        File tmp = File.createTempFile("cdk-test-update", ".xml");
+        tmp.deleteOnExit();
+
+        Migration migrationSpy = Mockito.spy(new Migration());
+
+        try (MockedStatic<CDKMigration> cdkmStatic = Mockito.mockStatic(CDKMigration.class, Mockito.CALLS_REAL_METHODS)) {
+            cdkmStatic.when(CDKMigration::createTempFile).thenReturn(tmp);
+            cdkmStatic.when(CDKMigration::createMigration).thenReturn(migrationSpy);
+
+            CDKMigration.migrateMain(
+                    config.updateConfigSource(),
+                    config.destinationUrl(),
+                    config.iterationDl(),
+                    config.iterationId(),
+                    config.iterationUrl(),
+                    config.iterationFQuery(),
+                    config.iterationApiKey(),
+                    config.iterationWorkingtime(),
+                    config.timestampUrl(),
+                    config.comparingIdentifier(),
+                    true
+            );
+
+            verify(migrationSpy, never()).migrate(any(File.class));
+
+            String written = FileUtils.readFileToString(tmp, StandardCharsets.UTF_8);
+            assertTrue(written.contains("<name>" + config.iterationDl() + "-update</name>"));
+            assertTrue(written.contains("<type>update</type>"));
+            assertTrue(written.contains("<timestamp>" + expectedTimestampUrl + "</timestamp>"));
+            assertTrue(written.contains("<timestamp_field>indexed</timestamp_field>"));
+            assertTrue(written.contains("<url>" + config.iterationUrl() + "</url>"));
+            assertTrue(written.contains("<apikey>" + config.iterationApiKey() + "</apikey>"));
+            assertTrue(written.contains("<id>" + config.comparingIdentifier() + "</id>"));
         }
     }
 }

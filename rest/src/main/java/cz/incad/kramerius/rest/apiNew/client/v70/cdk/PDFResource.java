@@ -55,16 +55,16 @@ public class PDFResource extends ClientApiResource {
     @Produces({"application/pdf", "application/json"})
     public Response selectionWithSource(@PathParam("source") String source, @QueryParam("pids") String pidsParam,
                               @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
-                              @QueryParam("format") String format) throws OutOfRangeException {
+                              @QueryParam("format") String format,@QueryParam("language") String language) throws OutOfRangeException {
         try {
             if (StringUtils.isAnyString(pidsParam)) {
                 String[] pids = pidsParam.split(",");
                 if (pids.length > 0) {
                     ProxyItemHandler redirectHandler = findRedirectHandler(pids[0], source); // TODO pepo
                     if (redirectHandler != null) {
-                        return redirectHandler.pdfSelection(pidsParam, firstPageType, format);
+                        return redirectHandler.pdfSelection(pidsParam, firstPageType, format,language);
                     } else {
-                        return Response.ok().build();
+                        return Response.status(Response.Status.BAD_REQUEST).build();
                     }
                 } else {
                     throw new OutOfRangeException("No pids provided");
@@ -85,16 +85,19 @@ public class PDFResource extends ClientApiResource {
     @Produces({"application/pdf", "application/json"})
     public Response selection(@QueryParam("pids") String pidsParam,
                               @QueryParam("firstPageType") @DefaultValue("TEXT") String firstPageType,
-                              @QueryParam("format") String format) throws OutOfRangeException {
+                              @QueryParam("format") String format,@QueryParam("language") String language) throws OutOfRangeException {
         try {
             if (StringUtils.isAnyString(pidsParam)) {
                 String[] pids = pidsParam.split(",");
                 if (pids.length > 0) {
+                    //LOGGER.fine("PDF selection for " + pids[0]);
                     ProxyItemHandler redirectHandler = findRedirectHandler(pids[0], null); // TODO pepo
+                    LOGGER.fine("PDF selection for " + pids[0] + " found forward handler " + (redirectHandler != null));
                     if (redirectHandler != null) {
-                        return redirectHandler.pdfSelection(pidsParam, firstPageType, format);
+                        return redirectHandler.pdfSelection(pidsParam, firstPageType, format, language);
                     } else {
-                        return Response.ok().build();
+                        LOGGER.log(Level.WARNING, "No redirect handler found for " + pids[0]);
+                        return Response.status(Response.Status.BAD_REQUEST).build();
                     }
                 } else {
                     throw new OutOfRangeException("No pids provided");
@@ -113,7 +116,6 @@ public class PDFResource extends ClientApiResource {
 
     public ProxyItemHandler findRedirectHandler(String pid, String source) throws LexerException, IOException {
         if (source == null) {
-            //source = defaultDocumentSource(pid);
             source = documentSourceProvider.getDocumentSource(pid);
         }
         OneInstance found = instances.find(source);

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- updates fields -->
+<fields>
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+  <field name="batches" type="long" indexed="true" stored="true"/>
+  <field name="date" type="date" indexed="true" stored="true"/>
+  <field name="id" type="string" indexed="true" stored="true"/>
+  <field name="indexed" type="long" indexed="true" stored="true"/>
+  <field name="name" type="string" indexed="true" stored="true"/>
+  <field name="type" type="string" docValues="true" indexed="true" stored="true"/>
+  <field name="updated" type="long" indexed="true" stored="true"/>
+  <field name="workers" type="long" indexed="true" stored="true"/>
+</fields>

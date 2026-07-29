@@ -61,125 +61,12 @@ public class KubernetesReharvestProcess {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Prague"));
 
         Map<String, String> env = System.getenv();
-        Map<String, String> iterationMap = KubernetesEnvSupport.iterationMap(env);
-        if (!iterationMap.containsKey("batch")) {
-            iterationMap.put("batch", "45");
-        }
-        Map<String, String> reharvestMap = KubernetesEnvSupport.reharvestMap(env);
-        Map<String, String> destinationMap = KubernetesEnvSupport.destinationMap(env);
-        Map<String, String> proxyMap = KubernetesEnvSupport.proxyMap(env);
-        boolean onlyShowConfiguration = env.containsKey(ONLY_SHOW_CONFIGURATION);
-        int maxItemsToDelete = env.containsKey(MAX_ITEMS_TO_DELETE) ? Integer.parseInt(env.get(MAX_ITEMS_TO_DELETE)) : DEFAULT_MAX_ITEMS_TO_DELETE;
-
         AtomicReference<String> idReference = new AtomicReference<>();
         try (CloseableHttpClient closeableHttpClient = buildApacheClient()){
-
-            if (reharvestMap.containsKey("url") && proxyMap.containsKey("url")) {
-                String wurl = reharvestMap.get("url");
-                if (!wurl.endsWith("/")) {
-                    wurl = wurl + "/";
-                }
-                
-                // Top item
-                LOGGER.info("Requesting :"+wurl + "top?state=open");
-                HttpGet get = new HttpGet(wurl + "top?state=open");
-                try(CloseableHttpResponse response = closeableHttpClient.execute(get)) {
-                    int code = response.getCode();
-                    if (code == 200) {
-                        HttpEntity entity = response.getEntity();
-                        InputStream is = entity.getContent();
-                        String str = IOUtils.toString(is, "UTF-8");
-                        LOGGER.info(String.format("Response is %s", str));
-                        JSONObject itemObject = new JSONObject(str);
-
-                        String id = itemObject.getString("id");
-                        idReference.set(id);
-                        String pid = itemObject.getString("pid");
-                        if (!onlyShowConfiguration) {
-                            changeState(closeableHttpClient, wurl, id,"running");
-                            String podname = env.get("HOSTNAME");
-                            if (cz.incad.kramerius.utils.StringUtils.isAnyString(podname)) {
-                                changePodname(closeableHttpClient, wurl, id, podname);
-                            }
-                        }
-
-                        List<Pair<String,String>> allPidsList = new ArrayList<>();
-                        try {
-                            allPidsList = ReharvestUtils.findPidByType(iterationMap, closeableHttpClient, ReharvestItem.fromJSON(itemObject), maxItemsToDelete);
-                            // check size; if size > 10000 - fail state
-                            if (allPidsList.size() <  maxItemsToDelete) {
-
-                                String proxyURl = proxyMap.get("url");
-                                if (proxyURl != null) {
-                                    ReharvestItem reharvestItem = ReharvestItem.fromJSON(itemObject);
-
-                                    Map<String, JSONObject> configurations = libraryConfigurations(closeableHttpClient, proxyURl,reharvestItem);
-                                    if (!reharvestItem.getTypeOfReharvest().isDeletingReharvest()) {
-                                        // check channels before delete
-                                        ChannelUtils.checkSolrChannelEndpoints(closeableHttpClient, configurations);
-                                    }
-
-                                    // delete all asociated pids from index
-                                    String build = ReharvestUtils.deleteAllGivenPids(closeableHttpClient, destinationMap, allPidsList, onlyShowConfiguration);
-                                    LOGGER.info(String.format("Deleted pids results %s",build));
-
-                                    // reindex pids
-                                    if (!reharvestItem.getTypeOfReharvest().isDeletingReharvest()) {
-
-                                        if (reharvestItem.getTypeOfReharvest().isNewHarvest()) {
-                                            // find properties from libs
-                                            Map<String, Map<String, String>> foundRoots = ReharvestUtils.findRootsAndPidPathsFromLibs(closeableHttpClient,pid,configurations);
-                                            LOGGER.info("Found roots:"+foundRoots);
-                                            //String foundPid = null;
-                                            String foundRootPid = null;
-                                            String ownPidPath = null;
-                                            for (String key : foundRoots.keySet()) {
-                                                foundRootPid = foundRoots.get(key).get("root.pid");
-                                                ownPidPath = foundRoots.get(key).get("own_pid_path");
-                                            }
-                                            if (ownPidPath != null) {
-                                                LOGGER.info("Own pid path "+ownPidPath);
-                                                reharvestItem.setOwnPidPath(ownPidPath);
-                                            }
-                                            if (foundRootPid != null) {
-                                                LOGGER.info("root pid "+ownPidPath);
-                                                reharvestItem.setRootPid(foundRootPid);
-                                            }
-
-                                            LOGGER.log(Level.INFO, "Reharvest item after check {0}", reharvestItem.toString());
-                                        }
-
-
-                                        ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
-                                    }
-                                    if (!onlyShowConfiguration) {
-                                        changeState(closeableHttpClient, wurl, id,"closed");
-                                    }
-                                } else {
-                                    LOGGER.severe("No proxy configuration");
-                                }
-                            } else {
-                                changeState(closeableHttpClient, wurl, id,"too_big");
-                                String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", allPidsList.size(), maxItemsToDelete);
-                                LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
-                            }
-
-                        } catch(TooBigException ex) {
-                            changeState(closeableHttpClient, wurl, id,"too_big");
-                            String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", ex.getCounter(), maxItemsToDelete);
-                            LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
-                        }
-                    } else {
-                        LOGGER.info("No item to reharvest");
-                    }
-                }
-            } else {
-                LOGGER.severe("No proxy or reharvest configuration");
-            }
-            
-            
+            run(env, closeableHttpClient, idReference);
         } catch (Throwable thr) {
             if (idReference.get() != null) {
+                Map<String, String> reharvestMap = KubernetesEnvSupport.reharvestMap(env);
                 //Client client = buildClient();
                 String wurl = reharvestMap.get("url");
                 if (!wurl.endsWith("/")) {
@@ -196,6 +83,123 @@ public class KubernetesReharvestProcess {
             LOGGER.severe("Exception :" + thr.getMessage());
         }
 
+    }
+
+    static void run(Map<String, String> env, CloseableHttpClient closeableHttpClient, AtomicReference<String> idReference) throws Exception {
+        Map<String, String> iterationMap = KubernetesEnvSupport.iterationMap(env);
+        if (!iterationMap.containsKey("batch")) {
+            iterationMap.put("batch", "45");
+        }
+        Map<String, String> reharvestMap = KubernetesEnvSupport.reharvestMap(env);
+        Map<String, String> destinationMap = KubernetesEnvSupport.destinationMap(env);
+        Map<String, String> proxyMap = KubernetesEnvSupport.proxyMap(env);
+        boolean onlyShowConfiguration = env.containsKey(ONLY_SHOW_CONFIGURATION);
+        int maxItemsToDelete = env.containsKey(MAX_ITEMS_TO_DELETE) ? Integer.parseInt(env.get(MAX_ITEMS_TO_DELETE)) : DEFAULT_MAX_ITEMS_TO_DELETE;
+
+        if (reharvestMap.containsKey("url") && proxyMap.containsKey("url")) {
+            String wurl = reharvestMap.get("url");
+            if (!wurl.endsWith("/")) {
+                wurl = wurl + "/";
+            }
+
+            // Top item
+            LOGGER.info("Requesting :"+wurl + "top?state=open");
+            HttpGet get = new HttpGet(wurl + "top?state=open");
+            try(CloseableHttpResponse response = closeableHttpClient.execute(get)) {
+                int code = response.getCode();
+                if (code == 200) {
+                    HttpEntity entity = response.getEntity();
+                    InputStream is = entity.getContent();
+                    String str = IOUtils.toString(is, "UTF-8");
+                    LOGGER.info(String.format("Response is %s", str));
+                    JSONObject itemObject = new JSONObject(str);
+
+                    String id = itemObject.getString("id");
+                    idReference.set(id);
+                    String pid = itemObject.getString("pid");
+                    if (!onlyShowConfiguration) {
+                        changeState(closeableHttpClient, wurl, id,"running");
+                        String podname = env.get("HOSTNAME");
+                        if (cz.incad.kramerius.utils.StringUtils.isAnyString(podname)) {
+                            changePodname(closeableHttpClient, wurl, id, podname);
+                        }
+                    }
+
+                    List<Pair<String,String>> allPidsList = new ArrayList<>();
+                    try {
+                        allPidsList = ReharvestUtils.findPidByType(iterationMap, closeableHttpClient, ReharvestItem.fromJSON(itemObject), maxItemsToDelete);
+                        // check size; if size > 10000 - fail state
+                        if (allPidsList.size() <  maxItemsToDelete) {
+
+                            String proxyURl = proxyMap.get("url");
+                            if (proxyURl != null) {
+                                ReharvestItem reharvestItem = ReharvestItem.fromJSON(itemObject);
+
+                                Map<String, JSONObject> configurations = libraryConfigurations(closeableHttpClient, proxyURl,reharvestItem);
+                                if (!reharvestItem.getTypeOfReharvest().isDeletingReharvest()) {
+                                    // check channels before delete
+                                    ChannelUtils.checkSolrChannelEndpoints(closeableHttpClient, configurations);
+                                }
+
+                                // delete all asociated pids from index
+                                String build = ReharvestUtils.deleteAllGivenPids(closeableHttpClient, destinationMap, allPidsList, onlyShowConfiguration);
+                                LOGGER.info(String.format("Deleted pids results %s",build));
+
+                                // reindex pids
+                                if (!reharvestItem.getTypeOfReharvest().isDeletingReharvest()) {
+
+                                    if (reharvestItem.getTypeOfReharvest().isNewHarvest()) {
+                                        // find properties from libs
+                                        Map<String, Map<String, String>> foundRoots = ReharvestUtils.findRootsAndPidPathsFromLibs(closeableHttpClient,pid,configurations);
+                                        LOGGER.info("Found roots:"+foundRoots);
+                                        //String foundPid = null;
+                                        String foundRootPid = null;
+                                        String ownPidPath = null;
+                                        for (String key : foundRoots.keySet()) {
+                                            foundRootPid = foundRoots.get(key).get("root.pid");
+                                            ownPidPath = foundRoots.get(key).get("own_pid_path");
+                                        }
+                                        if (ownPidPath != null) {
+                                            LOGGER.info("Own pid path "+ownPidPath);
+                                            reharvestItem.setOwnPidPath(ownPidPath);
+                                        }
+                                        if (foundRootPid != null) {
+                                            LOGGER.info("root pid "+ownPidPath);
+                                            reharvestItem.setRootPid(foundRootPid);
+                                        }
+
+                                        LOGGER.log(Level.INFO, "Reharvest item after check {0}", reharvestItem.toString());
+                                    }
+
+
+                                    ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
+                                }
+                                if (!onlyShowConfiguration) {
+                                    changeState(closeableHttpClient, wurl, id,"closed");
+                                }
+                            } else {
+                                LOGGER.severe("No proxy configuration");
+                            }
+                        } else {
+                            changeState(closeableHttpClient, wurl, id,"too_big");
+                            String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", allPidsList.size(), maxItemsToDelete);
+                            LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
+                        }
+
+                    } catch(TooBigException ex) {
+                        changeState(closeableHttpClient, wurl, id,"too_big");
+                        String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", ex.getCounter(), maxItemsToDelete);
+                        LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
+                    }
+                } else {
+                    LOGGER.info("No item to reharvest");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            LOGGER.severe("No proxy or reharvest configuration");
+        }
     }
 
 

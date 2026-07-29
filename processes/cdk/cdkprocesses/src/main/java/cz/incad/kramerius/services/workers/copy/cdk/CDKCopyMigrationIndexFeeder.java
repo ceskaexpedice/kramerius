@@ -5,6 +5,7 @@ import cz.incad.kramerius.services.workers.batch.CDKUpdateSolrBatchCreator;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKExistingConflictFeederItem;
 import cz.incad.kramerius.services.workers.copy.cdk.model.CDKWorkerIndexedItem;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.kramerius.services.config.MigrationConfig;
 import cz.inovatika.kramerius.services.iterators.ApacheHTTPRequestEnricher;
 import cz.inovatika.kramerius.services.workers.MigrationIndexFeederFinisher;
@@ -24,8 +25,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,7 +91,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
                         CDKCopyFinisher.NEWINDEXED.addAndGet(XMLUtils.getElements(addDocument).size());
                         String s = HTTPSolrUtils.sendToDest(migrationConfig.getFeederConfig().getDestinationConfig().getDestinationUrl(), this.client, batch);
-                        LOGGER.info(s);
+                        LOGGER.fine(s);
                     }
 
                     /**
@@ -126,6 +130,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
                                 onUpdateEvent(addDocument);
                                 CDKCopyFinisher.UPDATED.addAndGet(XMLUtils.getElements(addDocument).size());
                                 String s = HTTPSolrUtils.sendToDest(config.getDestinationConfig().getDestinationUrl() , this.client, destBatch);
+                                LOGGER.fine(s);
                             } else {
                                 LOGGER.warning("No batch for update");
                             }
@@ -134,30 +139,40 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
                             LOGGER.info("No update element ");
                         }
                     }
+                    ///admin/v7.0/reharvest
+                    String reharvestApi = KConfiguration.getInstance().getConfiguration().getString("cdk.api.reharvest.point");
 
                     /**  Reharvesting existing conflict */
                     if (!cdkReplicateContext.getExistingConflictRecords().isEmpty()) {
+
                         cdkReplicateContext.getExistingConflictRecords().forEach(existingConflictRecord -> {
-                            existingConflictRecord.reharvestConflict(client, "-reharvest api-");
+                            try {
+                                existingConflictRecord.reharvestConflict(client, reharvestApi);
+                            } catch (Exception e) {
+                                LOGGER.log(Level.SEVERE, "Reharvest failed for " + existingConflictRecord.getPid(), e);
+                            }
                         });
                     }
 
                     /** Reharvest new conflict */
-                    if (cdkReplicateContext.getNewConflictRecords().isEmpty()) {
+                    if (!cdkReplicateContext.getNewConflictRecords().isEmpty()) {
                         cdkReplicateContext.getNewConflictRecords().forEach(newConflictRecord -> {
-                            newConflictRecord.reharvestConflict(client, "-reharvest api-");
+                            try {
+                                newConflictRecord.reharvestConflict(client, reharvestApi);
+                            } catch (Exception e) {
+                                LOGGER.log(Level.SEVERE, "Reharvest failed for " + newConflictRecord.getPid(), e);
+                            }
                         });
                     }
                 } catch (ParserConfigurationException | SAXException | IOException e) {
-                    LOGGER.log(Level.SEVERE,"Informing about exception");
-                    finisher.exceptionDuringCrawl(e);
-                    LOGGER.log(Level.SEVERE,e.getMessage(),e);
+                    abortHarvest("CDK feeder batch failed; aborting harvest", e);
                 }
             }
         } catch(Exception ex) {
-            LOGGER.log(Level.SEVERE,"Informing about exception");
-            finisher.exceptionDuringCrawl(ex);
-            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            if (ex instanceof HarvestAbortedException) {
+                throw (HarvestAbortedException) ex;
+            }
+            abortHarvest("CDK feeder failed; aborting harvest", ex);
         } finally {
 //            try {
 //                this.barrier.await();
@@ -165,6 +180,18 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 //                LOGGER.log(Level.SEVERE, e.getMessage(),e);
 //            }
             LOGGER.info(String.format("Feeder finished; All work for feeders: %d; work in batches: %d; indexed: %d; updated %d, compositeIderror %d" ,  CDKCopyFinisher.FEEDERS.get(), CDKCopyFinisher.BATCHES.get(), CDKCopyFinisher.NEWINDEXED.get(), CDKCopyFinisher.UPDATED.get(), CDKCopyFinisher.NOT_INDEXED_COMPOSITEID.get()));
+        }
+    }
+
+    private void abortHarvest(String message, Exception ex) {
+        LOGGER.log(Level.SEVERE, message, ex);
+        finisher.exceptionDuringCrawl(ex);
+        throw new HarvestAbortedException(message, ex);
+    }
+
+    private static class HarvestAbortedException extends RuntimeException {
+        HarvestAbortedException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 
@@ -178,12 +205,13 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
         String collectionField = this.config.getRequestConfig().getCollectionField();
         String checkUrlC = this.config.getRequestConfig().getCheckUrl();
         String checkEndpoint = this.config.getRequestConfig().getCheckEndpoint();
+        String childOfComposite = this.config.getRequestConfig().getChildOfComposite();
         boolean compositeId = this.config.getRequestConfig().isCompositeId();
 
         List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
         String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+ String.join(" ", computedFields);
         if (compositeId) {
-            fieldlist = fieldlist + " " + " root.pid compositeId";
+            fieldlist = fieldlist + " root.pid compositeId model root.model own_model_path own_parent.pid";
         }
 
         String query = "?q=" + "pid" + ":(" + URLEncoder.encode(reduce, StandardCharsets.UTF_8)
@@ -200,7 +228,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
 
         List<CDKWorkerIndexedItem> indexedRecordList = new ArrayList<>();
-        List<CDKExistingConflictFeederItem> econflicts = findIndexConflict(docs);
+        List<CDKExistingConflictFeederItem> econflicts = findIndexConflict(childOfComposite, subitems, docs);
         removePids(econflicts, docs);
 
         List<String> econflictPids = econflicts.stream().map(CDKExistingConflictFeederItem::getPid).toList();
@@ -243,26 +271,111 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
         docs.removeIf(doc -> pids.contains(doc.get("pid")));
     }
 
-    private List<CDKExistingConflictFeederItem> findIndexConflict(List<Map<String,Object>> docs) {
-        String childOfComposite = this.config.getRequestConfig().getChildOfComposite();
+    static List<CDKExistingConflictFeederItem> findIndexConflict(String childOfComposite, List<IterationItem> subitems, List<Map<String,Object>> docs) {
+        // 1. Vytvorime si rychlou mapu pro vyhledavani zdrojovych polozek podle PID (O(1) pristup)
+        Map<String, IterationItem> sourceByPid = subitems.stream()
+                .filter(item -> StringUtils.isAnyString(item.getPid()))
+                .collect(Collectors.toMap(IterationItem::getPid, item -> item, (left, right) -> left, LinkedHashMap::new));
 
-        Map<String, List<String>> pidToCompositeIds = docs.stream()
-                .filter(map -> {
-                    String pid = (String) map.get(childOfComposite);
-                    String compositeId = (String) map.get("compositeId");
-                    return StringUtils.isAnyString(pid) && StringUtils.isAnyString(compositeId);
-                })
-                .collect(Collectors.groupingBy(
-                        map -> (String) map.get(childOfComposite),
-                        Collectors.mapping(map -> (String) map.get("compositeId"), Collectors.toList())
-                ));
+        Map<String, ConflictAccumulator> conflicts = new LinkedHashMap<>();
 
+        // 2. Projdeme dokumenty vracene z lokalniho Solru
+        for (Map<String, Object> indexedDoc : docs) {
+            String pid = getString(indexedDoc, childOfComposite); // V tvem pripade "pid"
+            if (!StringUtils.isAnyString(pid)) continue;
 
-        return pidToCompositeIds.entrySet().stream()
-                .map(entry -> new CDKExistingConflictFeederItem(entry.getKey(),
-                        entry.getValue().stream().distinct().collect(Collectors.toList())))
-                .filter(CDKExistingConflictFeederItem::isConflict)
+            IterationItem sourceItem = sourceByPid.get(pid);
+            if (sourceItem == null) continue; // Polozka je sice v Solru, ale neni v aktualni migrovane davce
+
+            // pid
+            ConflictAccumulator accumulator = conflicts.computeIfAbsent(pid, ConflictAccumulator::new);
+            // pridam compositeId
+            accumulator.addCompositeId(getString(indexedDoc, "compositeId"));
+
+            // 3. Porovname lokalni index se zdrojem (zda nedoslo k presunu v hierarchii)
+            if (findConflict(indexedDoc, sourceItem.getDoc())) {
+                accumulator.conflict = true;
+                accumulator.addCompositeId(resolveCompositeId(sourceItem.getDoc(), pid));
+            }
+        }
+
+        // 4. Vyfiltrujeme pouze ty akumulatory, kde se skutecne potvrdil konflikt
+        return conflicts.values().stream()
+                .filter(accumulator -> accumulator.conflict)
+                .map(ConflictAccumulator::toConflictItem)
                 .collect(Collectors.toList());
+    }
+
+    static boolean findConflict(Map<String, Object> indexedDoc, Map<String, Object> sourceDoc) {
+        // zjistim compositeId
+        String indexedCompositeId = getString(indexedDoc, "compositeId");
+        // pid - indexovany
+        String indexedPid = getString(indexedDoc, "pid");
+        // resolvuje na zaklade root.pidu
+        String sourceCompositeId = resolveCompositeId(sourceDoc, indexedPid);
+
+        if (StringUtils.isAnyString(indexedCompositeId) && StringUtils.isAnyString(sourceCompositeId)
+                && !indexedCompositeId.equals(sourceCompositeId)) {
+            return true;
+        }
+
+        return different(indexedDoc, sourceDoc, "root.pid")
+                || different(indexedDoc, sourceDoc, "model")
+                || different(indexedDoc, sourceDoc, "root.model")
+                || different(indexedDoc, sourceDoc, "own_model_path")
+                || different(indexedDoc, sourceDoc, "own_parent.pid");
+    }
+
+    private static boolean different(Map<String, Object> indexedDoc, Map<String, Object> sourceDoc, String fieldName) {
+        String indexedValue = getString(indexedDoc, fieldName);
+        String sourceValue = getString(sourceDoc, fieldName);
+        if (!StringUtils.isAnyString(indexedValue) || !StringUtils.isAnyString(sourceValue)) {
+            return false;
+        }
+        return !indexedValue.equals(sourceValue);
+    }
+
+    private static String resolveCompositeId(Map<String, Object> sourceDoc, String pid) {
+        String compositeId = getString(sourceDoc, "compositeId");
+        if (StringUtils.isAnyString(compositeId)) {
+            return compositeId;
+        }
+
+        String rootPid = getString(sourceDoc, "root.pid");
+        if (StringUtils.isAnyString(rootPid) && StringUtils.isAnyString(pid)) {
+            return rootPid + "!" + pid;
+        }
+
+        return null;
+    }
+
+    private static String getString(Map<String, Object> doc, String fieldName) {
+        if (doc == null || !doc.containsKey(fieldName)) {
+            return null;
+        }
+
+        Object value = doc.get(fieldName);
+        return value != null ? value.toString() : null;
+    }
+
+    private static final class ConflictAccumulator {
+        private final String pid;
+        private final LinkedHashSet<String> compositeIds = new LinkedHashSet<>();
+        private boolean conflict;
+
+        private ConflictAccumulator(String pid) {
+            this.pid = pid;
+        }
+
+        private void addCompositeId(String compositeId) {
+            if (StringUtils.isAnyString(compositeId)) {
+                compositeIds.add(compositeId);
+            }
+        }
+
+        private CDKExistingConflictFeederItem toConflictItem() {
+            return new CDKExistingConflictFeederItem(pid, new ArrayList<>(compositeIds), conflict);
+        }
     }
 
 
