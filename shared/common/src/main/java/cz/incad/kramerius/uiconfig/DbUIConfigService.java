@@ -3,8 +3,6 @@ package cz.incad.kramerius.uiconfig;
 import com.google.inject.Provider;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -30,16 +28,16 @@ public class DbUIConfigService implements UIConfigService {
     public void save(UIConfigType type, InputStream json) {
         try {
             byte[] data = json.readAllBytes();
-            if(validator != null) {
+            if (validator != null) {
                 validator.validate(new ByteArrayInputStream(data));
             }
             try (Connection c = connectionProvider.get();
                  PreparedStatement ps = c.prepareStatement("""
-                 INSERT INTO ui_config (config_type, config_json)
-                 VALUES (?, ?::jsonb)
-                 ON CONFLICT (config_type)
-                 DO UPDATE SET config_json = EXCLUDED.config_json
-             """)) {
+                             INSERT INTO ui_config (config_type, config_json)
+                             VALUES (?, ?::jsonb)
+                             ON CONFLICT (config_type)
+                             DO UPDATE SET config_json = EXCLUDED.config_json
+                         """)) {
                 ps.setString(1, type.name());
                 String jsonText = new String(data, StandardCharsets.UTF_8);
                 ps.setString(2, jsonText);
@@ -48,15 +46,13 @@ public class DbUIConfigService implements UIConfigService {
         } catch (InvalidJsonException e) {
             throw e;
         } catch (Exception e) {
-            throw new UIConfigException(
-                    "Failed saving config " + type, e);
+            throw new UIConfigException("Failed saving config " + type, e);
         }
     }
 
     public InputStream load(UIConfigType type) {
         try (Connection c = connectionProvider.get();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT config_json FROM ui_config WHERE config_type = ?")) {
+             PreparedStatement ps = c.prepareStatement("SELECT config_json FROM ui_config WHERE config_type = ?")) {
             ps.setString(1, type.name());
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
