@@ -11,7 +11,7 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.uiconfig.DbUIConfigResourceService;
 import cz.incad.kramerius.uiconfig.UIConfigException;
-import cz.incad.kramerius.uiconfig.UIResourceContent;
+import cz.incad.kramerius.uiconfig.UIConfigResourceContent;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -24,8 +24,7 @@ import java.util.logging.Logger;
 @Path("/admin/v7.0/ui-config/resources")
 public class UIConfigContentResource extends AdminApiResource {
 
-    private static final Logger LOGGER =
-            Logger.getLogger(UIConfigContentResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(UIConfigContentResource.class.getName());
 
     @Inject
     RightsResolver rightsResolver;
@@ -45,37 +44,26 @@ public class UIConfigContentResource extends AdminApiResource {
     @GET
     @Path("{resourceKey:.+}")
     public Response getResource(@PathParam("resourceKey") String resourceKey) {
-
         try {
             User user = userProvider.get();
-
             if (!permitConfig(user)) {
                 throw new cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException(
                         "user '%s' is not allowed to manage resources",
                         user.getLoginname());
             }
-
-            DbUIConfigResourceService service =
-                    new DbUIConfigResourceService(connectionProvider);
-
-            UIResourceContent resource = service.load(resourceKey);
-
+            DbUIConfigResourceService service = new DbUIConfigResourceService(connectionProvider);
+            UIConfigResourceContent resource = service.load(resourceKey);
             if (resource == null) {
                 throw new cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException(
                         "No such resource");
             }
-
             return Response.ok(new ByteArrayInputStream(resource.getContent()))
                     .type(resource.getContentType())
                     .header("Cache-Control", "no-cache")
                     .build();
-
         } catch (UIConfigException e) {
-            LOGGER.log(Level.SEVERE,
-                    "Failed to load UI resource " + resourceKey, e);
-
-            throw new InternalServerErrorException(
-                    "Failed to load UI resource");
+            LOGGER.log(Level.SEVERE, "Failed to load UI resource " + resourceKey, e);
+            throw new InternalServerErrorException("Failed to load UI resource");
         }
     }
 
@@ -90,7 +78,6 @@ public class UIConfigContentResource extends AdminApiResource {
             @PathParam("resourceKey") String resourceKey,
             @HeaderParam("Content-Type") String contentType,
             InputStream content) {
-
         try {
             User user = userProvider.get();
 
@@ -99,20 +86,12 @@ public class UIConfigContentResource extends AdminApiResource {
                         "user '%s' is not allowed to manage resources",
                         user.getLoginname());
             }
-
-            DbUIConfigResourceService service =
-                    new DbUIConfigResourceService(connectionProvider);
-
+            DbUIConfigResourceService service = new DbUIConfigResourceService(connectionProvider);
             service.save(resourceKey, contentType, content);
-
             return Response.noContent().build();
-
         } catch (UIConfigException e) {
-            LOGGER.log(Level.SEVERE,
-                    "Failed to save UI resource " + resourceKey, e);
-
-            throw new InternalServerErrorException(
-                    "Failed to save UI resource");
+            LOGGER.log(Level.SEVERE, "Failed to save UI resource " + resourceKey, e);
+            throw new InternalServerErrorException("Failed to save UI resource");
         }
     }
 

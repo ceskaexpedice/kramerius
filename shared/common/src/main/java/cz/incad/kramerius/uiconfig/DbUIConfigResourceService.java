@@ -13,7 +13,7 @@ import java.sql.SQLException;
  *
  * @author ppodsednik
  */
-public class DbUIConfigResourceService implements UIResourceService {
+public class DbUIConfigResourceService implements UIConfigResourceService {
 
     private final Provider<Connection> connectionProvider;
 
@@ -25,15 +25,14 @@ public class DbUIConfigResourceService implements UIResourceService {
     public void save(String resourceKey, String contentType, InputStream content) {
         try (Connection c = connectionProvider.get();
              PreparedStatement ps = c.prepareStatement("""
-                     INSERT INTO ui_resource
+                     INSERT INTO ui_config_resource
                          (resource_key, content_type, content)
                      VALUES
                          (?, ?, ?)
                      ON CONFLICT (resource_key)
                      DO UPDATE SET
                          content_type = EXCLUDED.content_type,
-                         content = EXCLUDED.content,
-                         updated_at = now()
+                         content = EXCLUDED.content
                      """)) {
             ps.setString(1, resourceKey);
             ps.setString(2, contentType);
@@ -45,11 +44,11 @@ public class DbUIConfigResourceService implements UIResourceService {
     }
 
     @Override
-    public UIResourceContent load(String resourceKey) {
+    public UIConfigResourceContent load(String resourceKey) {
         try (Connection c = connectionProvider.get();
              PreparedStatement ps = c.prepareStatement("""
                      SELECT content_type, content
-                     FROM ui_resource
+                     FROM ui_config_resource
                      WHERE resource_key = ?
                      """)) {
             ps.setString(1, resourceKey);
@@ -57,7 +56,7 @@ public class DbUIConfigResourceService implements UIResourceService {
                 if (!rs.next()) {
                     return null;
                 }
-                return new UIResourceContent(
+                return new UIConfigResourceContent(
                         resourceKey,
                         rs.getString("content_type"),
                         rs.getBytes("content")
@@ -73,7 +72,7 @@ public class DbUIConfigResourceService implements UIResourceService {
         try (Connection c = connectionProvider.get();
              PreparedStatement ps = c.prepareStatement("""
                      SELECT 1
-                     FROM ui_resource
+                     FROM ui_config_resource
                      WHERE resource_key = ?
                      LIMIT 1
                      """)) {

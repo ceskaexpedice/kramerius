@@ -1701,6 +1701,36 @@ paths:
         '404':
           description: UI config neexistuje
 
+  /ui-config/resources/{resourceKey}:
+    get:
+      tags:
+        - UIConfig
+      summary: Vraci UI configuration resource
+      description: >
+        Vraci obsah UI configuration resource identifikovaneho.
+        Media type v odpovedi odpovida ulozenemu resource content type.
+      parameters:
+        - name: resourceKey
+          in: path
+          required: true
+          description: Unikatni id resource.
+          example: licenses/dnnto/page/unauthenticated/cs
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: UI config neexistuje
+
+
   # Uzivatelske pozadavky
   /userrequests/requests/{reqid}:
     get:

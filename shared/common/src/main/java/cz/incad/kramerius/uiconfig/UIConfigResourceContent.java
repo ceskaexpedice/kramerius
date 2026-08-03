@@ -1,16 +1,16 @@
 package cz.incad.kramerius.uiconfig;
 
 /**
- * UIResource
+ * UIConfigResourceContent
  * @author ppodsednik
  */
-public class UIResourceContent {
+public class UIConfigResourceContent {
 
     private final String resourceKey;
     private final String contentType;
     private final byte[] content;
 
-    public UIResourceContent(String resourceKey, String contentType, byte[] content) {
+    public UIConfigResourceContent(String resourceKey, String contentType, byte[] content) {
         this.resourceKey = resourceKey;
         this.contentType = contentType;
         this.content = content;

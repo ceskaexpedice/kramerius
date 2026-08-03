@@ -3,13 +3,13 @@ package cz.incad.kramerius.uiconfig;
 import java.io.InputStream;
 
 /**
- * UIResourceService
+ * UIConfigResourceService
  *
  * @author ppodsednik
  */
-public interface UIResourceService {
+public interface UIConfigResourceService {
 
-    UIResourceContent load(String resourceKey);
+    UIConfigResourceContent load(String resourceKey);
 
     void save(String resourceKey, String contentType, InputStream content);
 
