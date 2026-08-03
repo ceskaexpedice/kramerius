@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fields>
+  <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
+  <field name="_version_" type="long" indexed="true" stored="true"/>
+
+  <!-- jednoznacny identifikator dokumentu -->
+  <field name="id" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- Kramerius pid -->
+  <field name="pid" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- root PID pro titul -->
+  <field name="root_pid" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- zdroj importu -->
+  <field name="source" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- datum sklizeni -->
+  <field name="fetched" type="date" default="NOW" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- model objektu: monograph, periodical, periodicalvolume, ... -->
+  <field name="model" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- stav z KAPP -->
+  <field name="state" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- titul -->
+  <field name="title" type="text_cz" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- rok vydani -->
+  <field name="date_issued_year" type="int" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- knihovny, ve kterych je objekt veden -->
+  <field name="digital_library" type="string" indexed="true" stored="true" multiValued="true"></field>
+
+  <!-- prirazene licence; pole muze v odpovedi KAPP chybet -->
+  <field name="assigned_licenses" type="string" indexed="true" stored="true" multiValued="true"></field>
+</fields>
