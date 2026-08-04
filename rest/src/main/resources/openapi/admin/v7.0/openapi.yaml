@@ -4762,3 +4762,69 @@ paths:
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 
+  /ui-config/resources/{resourceKey}:
+    get:
+      tags:
+        - UIConfig
+      summary: Vraci UI configuration resource
+      description: >
+        Vraci obsah UI configuration resource identifikovaneho.
+        Media type v odpovedi odpovida ulozenemu resource content type.
+      parameters:
+        - name: resourceKey
+          in: path
+          required: true
+          description: Unikatni id resource.
+          example: licenses/dnnto/page/unauthenticated/cs
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: UI config neexistuje
+    put:
+      tags:
+        - UIConfig
+      summary: Vytvori nebo opravi UI configuration resource
+      description: >
+        Vytvori novy UI configuration resource nebo opravi existujici.
+        Media type resource je urceno pomoci Content-Type request header.
+      parameters:
+        - name: resourceKey
+          in: path
+          required: true
+          description: Unikatni id resource
+          example: licenses/dnnto/image/logo
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          image/svg+xml:
+            schema:
+              type: string
+              format: binary
+          text/html:
+            schema:
+              type: string
+      responses:
+        '204':
+          description: Resource v poradku ulozen
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci

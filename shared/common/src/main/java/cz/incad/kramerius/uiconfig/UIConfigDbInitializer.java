@@ -48,6 +48,10 @@ public class UIConfigDbInitializer {
             if (!uiConfigTable) {
                 createUIConfigTable(connection);
             }
+            boolean uiConfigResourceTable = DatabaseUtils.tableExists(connection, "UI_CONFIG_RESOURCE");
+            if (!uiConfigResourceTable) {
+                createUIConfigResourceTable(connection);
+            }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
@@ -61,6 +65,14 @@ public class UIConfigDbInitializer {
         PreparedStatement prepareStatement = connection.prepareStatement(sql);
         int r = prepareStatement.executeUpdate();
         LOGGER.log(Level.FINEST, "CREATE TABLE ui_config: updated rows {0}", r);
+    }
+
+    private static void createUIConfigResourceTable(Connection connection) throws IOException, SQLException {
+        InputStream is = UIConfigDbInitializer.class.getResourceAsStream("res/inituiconfig_resource.sql");
+        String sql = IOUtils.readAsString(is, Charset.forName("UTF-8"), true);
+        PreparedStatement prepareStatement = connection.prepareStatement(sql);
+        int r = prepareStatement.executeUpdate();
+        LOGGER.log(Level.FINEST, "CREATE TABLE ui_config_resource: updated rows {0}", r);
     }
 
 }
