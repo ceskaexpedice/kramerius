@@ -27,6 +27,7 @@ public class KAPPSyncResource {
     public static final int DEFAULT_ROWS = 15;
 
     private static final String CONFIG_ENDPOINT = "kapp.endpoint";
+    private static final String CONFIG_LIBRARY = "kapp.check.acronym";
     private static final String CONFIG_SOLR_HOST = "kapp.solrHost";
     private static final String CONFIG_ROWS = "kapp.fetch.rows";
 
@@ -36,6 +37,7 @@ public class KAPPSyncResource {
     public Response info() {
         JSONObject infoObject = new JSONObject();
         infoObject.put("endpoint", KConfiguration.getInstance().getConfiguration().getString(CONFIG_ENDPOINT));
+        infoObject.put("library", KConfiguration.getInstance().getConfiguration().getString(CONFIG_LIBRARY));
         infoObject.put("solrHost", KConfiguration.getInstance().getConfiguration().getString(CONFIG_SOLR_HOST));
         infoObject.put("rows", KConfiguration.getInstance().getConfiguration().getInt(CONFIG_ROWS, 1000));
 
@@ -102,6 +104,61 @@ public class KAPPSyncResource {
     public Response syncChildren(@PathParam("rootPid") String rootPid) {
         try {
             String query = buildQuery(null, null, null, null, rootPid) + " AND -pid:\"" + escapeSolr(rootPid) + "\"";
+            String sort = URLEncoder.encode("date_issued_year asc,pid asc", "UTF-8");
+
+            String url = kappSolrHost()
+                    + String.format("/select?q=%s&wt=json&rows=4000&sort=%s",
+                    URLEncoder.encode(query, "UTF-8"), sort);
+
+            JSONObject response = solrResponse(url);
+            removeVersion(response);
+
+            JSONObject result = new JSONObject();
+            result.put(rootPid, response.getJSONObject("response").getJSONArray("docs"));
+            return Response.ok().entity(result.toString(2)).build();
+        } catch (IOException e) {
+            throw new WebApplicationException(e);
+        }
+    }
+
+    @GET
+    @Path("sync/actions")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response syncActions(
+            @DefaultValue("0") @QueryParam("page") String spage,
+            @DefaultValue("15") @QueryParam("rows") String srows,
+            @QueryParam("action") String action) {
+        try {
+            int page = parseInt(spage, DEFAULT_PAGE);
+            int rows = parseInt(srows, DEFAULT_ROWS);
+            int start = page * rows;
+
+            String query = "source:kapp AND type:main";
+            if (action != null && !action.trim().isEmpty()) {
+                query = query + " AND sync_actions:\"" + escapeSolr(action.trim()) + "\"";
+            } else {
+                query = query + " AND sync_actions:*";
+            }
+            String sort = URLEncoder.encode("sync_sort asc,pid asc", "UTF-8");
+
+            String url = kappSolrHost()
+                    + String.format("/select?q=%s&wt=json&rows=%d&start=%d&sort=%s",
+                    URLEncoder.encode(query, "UTF-8"), rows, start, sort);
+
+            JSONObject response = solrResponse(url);
+            removeVersion(response);
+            return Response.ok().entity(response.getJSONObject("response").toString(2)).build();
+        } catch (IOException e) {
+            throw new WebApplicationException(e);
+        }
+    }
+
+    @GET
+    @Path("sync/actions/children/{rootPid}")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response syncActionChildren(@PathParam("rootPid") String rootPid) {
+        try {
+            String query = "source:kapp AND parent_id:\"" + escapeSolr(rootPid) + "\" AND sync_actions:*";
             String sort = URLEncoder.encode("date_issued_year asc,pid asc", "UTF-8");
 
             String url = kappSolrHost()

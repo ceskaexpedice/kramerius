@@ -19,6 +19,15 @@
   <!-- datum sklizeni -->
   <field name="fetched" type="date" default="NOW" indexed="true" stored="true" multiValued="false"></field>
 
+  <!-- main or granularity -->
+  <field name="type" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- parent PID pro casti periodik a monografickych celku -->
+  <field name="parent_id" type="string" indexed="true" stored="true" multiValued="false"></field>
+
+  <!-- zaznam obsahuje casti -->
+  <field name="has_granularity" type="boolean" indexed="true" stored="true" multiValued="false"></field>
+
   <!-- model objektu: monograph, periodical, periodicalvolume, ... -->
   <field name="model" type="string" indexed="true" stored="true" multiValued="false"></field>
 
@@ -36,4 +45,15 @@
 
   <!-- prirazene licence; pole muze v odpovedi KAPP chybet -->
   <field name="assigned_licenses" type="string" indexed="true" stored="true" multiValued="true"></field>
+
+  <!-- skutecny stav v Krameriovi -->
+  <field name="real_kram_licenses" type="string" indexed="true" stored="true" multiValued="true"></field>
+  <field name="real_kram_exists" type="boolean" indexed="true" stored="true" multiValued="false"></field>
+  <field name="real_kram_date" type="string" indexed="true" stored="true" multiValued="false"></field>
+  <field name="real_kram_model" type="string" indexed="true" stored="true" multiValued="false"></field>
+  <field name="real_kram_titles_search" type="string" indexed="true" stored="true" multiValued="true"></field>
+
+  <!-- navrzene synchronizacni akce -->
+  <field name="sync_actions" type="string" indexed="true" stored="true" multiValued="true"></field>
+  <field name="sync_sort" type="int" indexed="true" stored="true" multiValued="false"></field>
 </fields>

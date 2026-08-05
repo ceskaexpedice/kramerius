@@ -29,6 +29,7 @@ dependencies {
 
     // flag to license
     implementation project(":processes:platform:curator:flag-to-license")
+    implementation project(":processes:platform:curator:flag-to-license-pids")
     // backup-collections
     implementation project(":processes:platform:curator:backup-collections")
     implementation project(":processes:platform:curator:restore-collections")
@@ -68,6 +69,7 @@ processWorker {
 
 
             project(":processes:platform:curator:flag-to-license"),
+            project(":processes:platform:curator:flag-to-license-pids"),
             project(":processes:platform:curator:backup-collections"),
             project(":processes:platform:curator:restore-collections"),
             project(":processes:platform:curator:migrate-collections"),
