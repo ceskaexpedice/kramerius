@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
+}
+
+description "Change flag (public|private) to license (public|onsite) for selected object(s)"
+
+processPlugin {
+    spiImplementation='org.kramerius.plugin.FlagToLicensePidsSPI'
+
+    profiles = [ [profileId: "flag_to_license_pids",
+                  description: "Change flag (public|private) to license (public|onsite) for selected object(s)",jvmArgs: ["-Xms1g","-Xmx32g"]] ]
+
+
+    excludeDependencies = [
+        'com.sun.jersey',
+        'javax.ws.rs'
+    ]
+}
+
+dependencies{
+    implementation project(':processes:licenses')
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+}
