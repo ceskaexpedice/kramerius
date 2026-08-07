@@ -10,8 +10,8 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.inovatika.sdnnt.LicenseAPIFetcher;
 import cz.inovatika.sdnnt.SyncConfig;
+import cz.inovatika.sync.LicenseAPIFetcher;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -221,7 +221,8 @@ public class SDNNTSyncResource {
 
                             JSONObject sdnntSyncPar = getSDNNTSyncProcess(defid, pidlistFile, license, user.getLoginname());
                             LOGGER.info(String.format("Schedule reindexation of %s and payload %s", name, sdnntSyncPar.toString(2) ));
-                            APIProcessScheduler.scheduleMainProcess(this.apacheClient,sdnntSyncPar);
+                            JSONObject jsonObject = APIProcessScheduler.scheduleMainProcess(this.apacheClient, sdnntSyncPar);
+                            String processIdVal = jsonObject.optString("processId");
 
                             String sdnntHost = KConfiguration.getInstance().getConfiguration().getString("solrSdnntHost");
                             
@@ -237,13 +238,13 @@ public class SDNNTSyncResource {
                                 Element processId = add.createElement("field");
                                 processId.setAttribute("name", "process_id");
                                 processId.setAttribute("update", "add-distinct");
-                                // processId.setTextContent(batch.processId);
+                                processId.setTextContent(processIdVal);
                                 doc.appendChild(processId);
                                 
                                 Element processUuid = add.createElement("field");
                                 processUuid.setAttribute("name", "process_uuid");
                                 processUuid.setAttribute("update", "add-distinct");
-                                // batch processUuid.setTextContent(batch.processUuid);
+                                processUuid.setTextContent(processIdVal);
                                 doc.appendChild(processUuid);
                                 
                                 add.getDocumentElement().appendChild(doc);

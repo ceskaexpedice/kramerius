@@ -53,6 +53,10 @@
   <field name="real_kram_model" type="string" indexed="true" stored="true" multiValued="false"></field>
   <field name="real_kram_titles_search" type="string" indexed="true" stored="true" multiValued="true"></field>
 
+  <field name="process_id" type="string" indexed="true" stored="true" multiValued="true"></field>	
+  <field name="process_uuid" type="string" indexed="true" stored="true" multiValued="true"></field>	
+
+
   <!-- navrzene synchronizacni akce -->
   <field name="sync_actions" type="string" indexed="true" stored="true" multiValued="true"></field>
   <field name="sync_sort" type="int" indexed="true" stored="true" multiValued="false"></field>

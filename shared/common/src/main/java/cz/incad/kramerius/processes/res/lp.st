@@ -119,6 +119,14 @@
     </process>
 
     <process>
+        <id>kapp-sync</id>
+        <description>Kapp sync</description>
+        <mainClass>cz.inovatika.kapp.KAPPFetch</mainClass>
+        <javaProcessParameters>-Xmx4g -Xms1g -Dfile.encoding=UTF-8</javaProcessParameters>
+        <securedaction>a_generate_nkplogs</securedaction>
+    </process>
+
+    <process>
         <id>backup-collections</id>
         <description>Collection backup</description>
         <mainClass>cz.inovatika.collections.Backup</mainClass>

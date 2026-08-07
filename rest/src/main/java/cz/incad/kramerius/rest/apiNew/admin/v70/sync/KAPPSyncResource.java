@@ -1,19 +1,45 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.sync;
 
+import com.google.inject.Provider;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.utils.APIProcessScheduler;
+import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.kapp.KAPPFetch;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Provides endpoints for KAPP synchronization snapshot.
@@ -26,20 +52,54 @@ public class KAPPSyncResource {
     public static final int DEFAULT_PAGE = 0;
     public static final int DEFAULT_ROWS = 15;
 
-    private static final String CONFIG_ENDPOINT = "kapp.endpoint";
-    private static final String CONFIG_LIBRARY = "kapp.check.acronym";
     private static final String CONFIG_SOLR_HOST = "kapp.solrHost";
-    private static final String CONFIG_ROWS = "kapp.fetch.rows";
+    private static final int DEFAULT_BATCH_SIZE = 5000;
+
+    private enum KappSyncActionEnum {
+        add_public(Arrays.asList("public"), Arrays.asList("add_license")),
+        add_onsite(Arrays.asList("onsite"), Arrays.asList("add_license")),
+        remove_public(Arrays.asList("public"), Arrays.asList("remove_license")),
+        remove_onsite(Arrays.asList("onsite"), Arrays.asList("remove_license")),
+        change_public_onsite(Arrays.asList("onsite", "public"), Arrays.asList("add_license", "remove_license")),
+        change_onsite_public(Arrays.asList("public", "onsite"), Arrays.asList("add_license", "remove_license")),
+        partial_change(new ArrayList<>(), new ArrayList<>());
+
+        private final List<String> licenses;
+        private final List<String> defids;
+
+        KappSyncActionEnum(List<String> licenses, List<String> defids) {
+            this.licenses = licenses;
+            this.defids = defids;
+        }
+
+        public List<String> getLicenses() {
+            return licenses;
+        }
+
+        public List<String> getDefids() {
+            return defids;
+        }
+    }
+
+    @Inject
+    Provider<User> userProvider;
+
+    @Inject
+    @javax.inject.Named("forward-client")
+    private CloseableHttpClient apacheClient;
 
     @GET
     @Path("info")
     @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
     public Response info() {
         JSONObject infoObject = new JSONObject();
-        infoObject.put("endpoint", KConfiguration.getInstance().getConfiguration().getString(CONFIG_ENDPOINT));
-        infoObject.put("library", KConfiguration.getInstance().getConfiguration().getString(CONFIG_LIBRARY));
-        infoObject.put("solrHost", KConfiguration.getInstance().getConfiguration().getString(CONFIG_SOLR_HOST));
-        infoObject.put("rows", KConfiguration.getInstance().getConfiguration().getInt(CONFIG_ROWS, 1000));
+        infoObject.put("kramerius", KConfiguration.getInstance().getConfiguration().getString(
+                KAPPFetch.CONFIG_CHECK_LOCAL_API,
+                KConfiguration.getInstance().getConfiguration().getString("api.point")));
+        infoObject.put("acronym", KConfiguration.getInstance().getConfiguration().getString(KAPPFetch.CONFIG_ACRONYM));
+        infoObject.put("endpoint", KConfiguration.getInstance().getConfiguration().getString(KAPPFetch.CONFIG_ENDPOINT));
+        infoObject.put("version", KConfiguration.getInstance().getConfiguration().getString(
+                KAPPFetch.CONFIG_CHECK_VERSION, KAPPFetch.DEFAULT_VERSION));
 
         return Response.ok().entity(infoObject.toString(2)).build();
     }
@@ -176,6 +236,113 @@ public class KAPPSyncResource {
         }
     }
 
+    @GET
+    @Path("sync/batches")
+    @Produces({ MediaType.APPLICATION_JSON + ";charset=utf-8" })
+    public Response planBatches() {
+        Client client = Client.create();
+        JSONArray response = new JSONArray();
+
+        try {
+            for (KappSyncActionEnum action : KappSyncActionEnum.values()) {
+                List<String> defids = action.getDefids();
+                if (!defids.isEmpty()) {
+                    for (int j = 0; j < defids.size(); j++) {
+                        String defid = defids.get(j);
+                        String license = action.getLicenses().get(j);
+
+                        List<Pair<String, String>> pairs = pidsFromSolr(action.name());
+                        int numberOfBatches = pairs.size() / DEFAULT_BATCH_SIZE;
+                        numberOfBatches = numberOfBatches + ((pairs.size() % DEFAULT_BATCH_SIZE) == 0 ? 0 : 1);
+
+                        for (int i = 0; i < numberOfBatches; i++) {
+                            int from = i * DEFAULT_BATCH_SIZE;
+                            int to = Math.min((i + 1) * DEFAULT_BATCH_SIZE, pairs.size());
+                            List<Pair<String, String>> sublist = pairs.subList(from, to);
+
+                            String batchToken = UUID.randomUUID().toString();
+                            User user = this.userProvider.get();
+
+                            List<String> pids = sublist.stream().map(Pair::getRight).collect(Collectors.toList());
+
+                            File pidlistFile = File.createTempFile(
+                                    String.format("batch_%s_%d_%s", action.name(), j, defid), ".txt");
+                            IOUtils.writeLines(pids, "\n", new FileOutputStream(pidlistFile), Charset.forName("UTF-8"));
+
+                            List<String> paramsList = Arrays.asList(license,
+                                    "pidlist_file:" + pidlistFile.getAbsolutePath());
+
+                            String prefix = action.name().startsWith("add") ? "Přidání licence" : "Odebrání licence";
+                            String name = String.format("%s '%s' pro %s", prefix, paramsList.get(0), paramsList.get(1));
+                            if (name.toCharArray().length > 1024) {
+                                name = name.substring(0, 1019) + "...";
+                            }
+
+                            JSONObject kappSyncPar = getKAPPSyncProcess(defid, pidlistFile, license, user.getLoginname());
+                            LOGGER.info(String.format("Schedule reindexation of %s and payload %s", name,
+                                    kappSyncPar.toString(2)));
+                            JSONObject jsonObject = APIProcessScheduler.scheduleMainProcess(this.apacheClient, kappSyncPar);
+                            String processIdVal = jsonObject.optString("processId");
+
+                            Document add = XMLUtils.crateDocument("add");
+                            sublist.stream().forEach(pair -> {
+                                Element doc = add.createElement("doc");
+
+                                Element idField = add.createElement("field");
+                                idField.setAttribute("name", "id");
+                                idField.setTextContent(pair.getLeft());
+                                doc.appendChild(idField);
+
+                                Element processId = add.createElement("field");
+                                processId.setAttribute("name", "process_id");
+                                processId.setAttribute("update", "add-distinct");
+                                processId.setTextContent(processIdVal);
+                                doc.appendChild(processId);
+
+                                Element processUuid = add.createElement("field");
+                                processUuid.setAttribute("name", "process_uuid");
+                                processUuid.setAttribute("update", "add-distinct");
+                                processUuid.setTextContent(processIdVal);
+
+                                doc.appendChild(processUuid);
+
+                                add.getDocumentElement().appendChild(doc);
+                            });
+
+                            StringWriter writer = new StringWriter();
+                            XMLUtils.print(add, writer);
+                            WebResource resource = client.resource(kappSolrHost() + "/update?commitWithin=7000");
+                            ClientResponse resp = resource.accept(MediaType.TEXT_XML).type(MediaType.TEXT_XML)
+                                    .entity(writer.toString(), MediaType.TEXT_XML).post(ClientResponse.class);
+                            if (resp.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
+                                throw new IllegalStateException("Exiting with staus:" + resp.getStatus());
+                            }
+
+                            JSONObject retobject = new JSONObject();
+                            retobject.put("sync_actions", action.name());
+                            retobject.put("defid", defid);
+                            retobject.put("license", license);
+                            retobject.put("number_of_objects", sublist.size());
+                            retobject.put("batch_number", i);
+                            response.put(retobject);
+                        }
+                    }
+                }
+            }
+
+            return Response.ok().entity(response.toString(2)).build();
+        } catch (JSONException | IOException | ParserConfigurationException | TransformerException e) {
+            throw new WebApplicationException(e);
+        }
+    }
+
+    protected JSONObject getKAPPSyncProcess(String defid, File pidlistFile, String license, String userid) {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("pid", "pidlist_file:" + pidlistFile.getAbsolutePath());
+        payload.put("license", license);
+        return APIProcessScheduler.createScheduleProcess(defid, payload, userid);
+    }
+
     private static String buildQuery(String model, String state, String license, String digitalLibrary, String rootPid) {
         StringBuilder builder = new StringBuilder("source:kapp");
         appendExactQuery(builder, "model", model);
@@ -190,6 +357,39 @@ public class KAPPSyncResource {
         if (value != null && !value.trim().isEmpty()) {
             builder.append(" AND ").append(field).append(":\"").append(escapeSolr(value.trim())).append("\"");
         }
+    }
+
+    private static List<Pair<String, String>> pidsFromSolr(String action) throws IOException {
+        List<Pair<String, String>> pids = new ArrayList<>();
+        String mainQuery = URLEncoder.encode(String.format("source:kapp AND type:main AND sync_actions:\"%s\"",
+                escapeSolr(action)), "UTF-8");
+        String cursor = "*";
+        String nextCursor = "*";
+        do {
+            cursor = nextCursor;
+
+            String url = kappSolrHost() + String.format("/select?q=%s&wt=json&rows=%d&sort=%s&cursorMark=%s&fl=%s",
+                    mainQuery,
+                    DEFAULT_ROWS,
+                    URLEncoder.encode("id asc", "UTF-8"),
+                    cursor,
+                    URLEncoder.encode("pid id", "UTF-8"));
+
+            JSONObject result = solrResponse(url);
+            JSONArray docs = result.getJSONObject("response").getJSONArray("docs");
+            for (int i = 0; i < docs.length(); i++) {
+                JSONObject doc = docs.getJSONObject(i);
+                String pid = doc.optString("pid", null);
+                String id = doc.optString("id", null);
+                if (pid != null && !pid.trim().isEmpty() && id != null && !id.trim().isEmpty()) {
+                    pids.add(Pair.of(id, pid));
+                }
+            }
+
+            nextCursor = result.getString("nextCursorMark");
+        } while (!nextCursor.equals(cursor));
+
+        return pids;
     }
 
     private static String escapeSolr(String value) {

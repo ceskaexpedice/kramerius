@@ -17,7 +17,7 @@ processPlugin {
 }
 
 dependencies{
-    implementation project(':processes:sdnnt')
+    implementation project(':processes:licenses-sync')
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
 
