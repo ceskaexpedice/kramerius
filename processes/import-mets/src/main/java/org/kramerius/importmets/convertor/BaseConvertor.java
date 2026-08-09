@@ -1705,7 +1705,8 @@ public abstract class BaseConvertor {
 
             byte[] binaryContent = null;
             if (!usePdfServer) {
-                binaryContent = scaleImage(img, 0, FedoraUtils.THUMBNAIL_HEIGHT);
+                int pdfThumbnailSize = KConfiguration.getInstance().getConfiguration().getInt("convert.pdfThumbnailSize", FedoraUtils.THUMBNAIL_HEIGHT);
+                binaryContent = scaleImage(img, 0, pdfThumbnailSize);
                 if (binaryContent == null || binaryContent.length == 0) {
                     return null;
                 }
