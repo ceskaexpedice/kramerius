@@ -29,6 +29,7 @@ dependencies {
 
     // flag to license
     implementation project(":processes:platform:curator:flag-to-license")
+    implementation project(":processes:platform:curator:flag-to-license-pids")
     // backup-collections
     implementation project(":processes:platform:curator:backup-collections")
     implementation project(":processes:platform:curator:restore-collections")
@@ -36,6 +37,8 @@ dependencies {
     implementation project(":processes:platform:curator:migrate-collections")
     // sdnnt-sync
     implementation project(":processes:platform:curator:sdnnt-sync")
+    // kapp-sync
+    implementation project(":processes:platform:curator:kapp-sync")
     // update-foxml
     implementation project(":processes:platform:curator:update-foxml")
 
@@ -68,10 +71,12 @@ processWorker {
 
 
             project(":processes:platform:curator:flag-to-license"),
+            project(":processes:platform:curator:flag-to-license-pids"),
             project(":processes:platform:curator:backup-collections"),
             project(":processes:platform:curator:restore-collections"),
             project(":processes:platform:curator:migrate-collections"),
             project(":processes:platform:curator:sdnnt-sync"),
+            project(":processes:platform:curator:kapp-sync"),
             project(":processes:platform:curator:update-foxml"),
             project(":processes:platform:curator:statistics-p")
     ]

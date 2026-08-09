@@ -1,4 +1,4 @@
-description "SDNNT check process"
+description "Licenses sync process"
 
 
 dependencies {

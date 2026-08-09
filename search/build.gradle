@@ -57,7 +57,7 @@ dependencies {
 
     api project(':processes:dnntflag')           //TODO: Move licenses and dnnt delete
     api project(':processes:nkp-logs')           //TODO: Move
-    api project(':processes:sdnnt')              //TODO: Move
+api project(':processes:licenses-sync')      //TODO: Move
 
     api project(':processes:licenses')
     api project(':processes:collections-backup')

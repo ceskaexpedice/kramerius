@@ -40,6 +40,18 @@ def solrEnvironments = [
                 schemaDir: "",
                 dependsOn: "generateSchemamonitor_cloud"
         ],
+        "kapp-sync_sa":[
+                prefix: "solr-9.x",
+                index:"kapp-sync",
+                schemaDir: "conf",
+                dependsOn: "generateSchemaprocessing_sa"
+        ],
+        "kapp-sync_cloud":[
+                prefix: "solr-9.x.cloud",
+                index:"kapp-sync",
+                schemaDir: "",
+                dependsOn: "generateSchemamonitor_cloud"
+        ],
 
         // processing
         processing_sa:[

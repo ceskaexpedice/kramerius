@@ -1,6 +1,7 @@
 package cz.inovatika.licenses;
 
 import cz.incad.kramerius.security.licenses.impl.embedded.cz.CzechEmbeddedLicenses;
+import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.kramerius.services.iterators.MigrationIterator;
 import cz.inovatika.kramerius.services.iterators.MigrationIteratorFactory;
@@ -40,6 +41,8 @@ public class FlagToLicenseProcess {
 
 
     public static final int DEFAULT_BATCH_SIZE = KConfiguration.getInstance().getConfiguration().getInt("flagToLicense", 1000);
+    public static final int DEFAULT_PID_QUERY_BATCH_SIZE = KConfiguration.getInstance().getConfiguration()
+            .getInt(PROCESSES_CONF_KEY + "pidQueryBatchSize", 100);
 
     public static final List<String> DEFAULT_MODELS = Arrays.asList(
             "monograph",
@@ -69,6 +72,19 @@ public class FlagToLicenseProcess {
      * @throws ParserConfigurationException
      */
     public static void main() throws Exception {
+        process(null);
+    }
+
+    public static void mainForPids(String target) throws Exception {
+        List<String> pids = ProcessUtils.extractPids(target).stream()
+                .map(String::trim)
+                .filter(pid -> !pid.isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
+        process(pids);
+    }
+
+    private static void process(List<String> filteredPids) throws Exception {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             List<String> models = KConfiguration.getInstance().getConfiguration().getList(PROCESSES_CONF_KEY + "models", DEFAULT_MODELS).stream().map(Objects::toString).collect(Collectors.toList());
 
@@ -81,75 +97,38 @@ public class FlagToLicenseProcess {
             //Client client = Client.create();
 
 
-            List<String> alreadyLicensedPids = new ArrayList<>();
-
             List<String> publicPids = new ArrayList<>();
             List<String> privatePids = new ArrayList<>();
 
                 boolean compositeId = KConfiguration.getInstance().getConfiguration().getBoolean("solrSearch.useCompositeId", false);
             LOGGER.info("Solr cloud:"+compositeId);
-            SolrIteratorConfig config =
-                    new SolrIteratorConfig.Builder(KConfiguration.getInstance().getSolrSearchHost(), "pid")
-                            .fieldList("pid,root.pid,accessibility,model,licenses,count_monograph_unit")
-                            .sort(compositeId ? "compositeId asc" :   "pid asc")
-                            .endpoint("select")
-                            .filterQuery(query)
-                            .factoryClz(SolrIteratorFactory.class.getName())
-                            .build();
-            MigrationIteratorFactory iteratorFactory = MigrationIteratorFactory.create(config);
-            MigrationIterator migrationIterator = iteratorFactory.createMigrationIterator(config, httpClient);
-            migrationIterator.iterate(httpClient, (itdocs) -> {
-                itdocs.forEach(doc -> {
-                    String pid = doc.getPid();
+            for (String filterQuery : buildFilterQueries(query, filteredPids)) {
+                SolrIteratorConfig config =
+                        new SolrIteratorConfig.Builder(KConfiguration.getInstance().getSolrSearchHost(), "pid")
+                                .fieldList("pid,accessibility,licenses")
+                                .sort(compositeId ? "compositeId asc" :   "pid asc")
+                                .endpoint("select")
+                                .filterQuery(filterQuery)
+                                .factoryClz(SolrIteratorFactory.class.getName())
+                                .build();
+                MigrationIteratorFactory iteratorFactory = MigrationIteratorFactory.create(config);
+                MigrationIterator migrationIterator = iteratorFactory.createMigrationIterator(config, httpClient);
+                migrationIterator.iterate(httpClient, (itdocs) -> {
+                    itdocs.forEach(doc -> {
+                        String pid = doc.getPid();
 
-                    String accessibility = doc.getDoc().get("accessibility").toString();
-                    String model = doc.getDoc().get("model").toString();
-                    String rootPid = doc.getDoc().get("root.pid").toString();
-                    Object countMonographUnit = doc.getDoc().get("count_monograph_unit");
-                    List<String> lics = (List<String>) doc.getDoc().get("licenses");
-
-                    // pridavame pro monografie, ktere nemaji count_monograph_unit
-                    if (model.equals("monograph") &&  countMonographUnit == null) {
-                        if (accessibility.equals("public")) {
+                        String license = targetLicenseFor(doc.getDoc().get("accessibility"), doc.getDoc().get("licenses"));
+                        if (CzechEmbeddedLicenses.PUBLIC_LICENSE.getName().equals(license)) {
                             publicPids.add(pid);
-                        } else if (accessibility.equals("private")) {
+                        } else if (CzechEmbeddedLicenses.ONSITE_LICENSE.getName().equals(license)) {
                             privatePids.add(pid);
                         }
-                    }
-                    if (model.equals("periodicalvolume") || model.equals("monographunit")) {
-                        if (accessibility.equals("public")) {
-                            publicPids.add(pid);
-                        } else if (accessibility.equals("private")) {
-                            privatePids.add(pid);
-                        }
-                    }
-
-
-
-                    if (lics != null && (lics.contains(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName()) || lics.contains(CzechEmbeddedLicenses.ONSITE_LICENSE.getName()))) {
-                        alreadyLicensedPids.add(pid);
-                    }
-
-//                    if (accessibility != null && accessibility.equals("public")) {
-//                        publicPids.add(pid);
-//                    } else if (accessibility != null && accessibility.equals("private")) {
-//                        privatePids.add(pid);
-//                    }
+                    });
+                }, () -> {
 
                 });
-            }, () -> {
+            }
 
-            });
-
-
-            // remove from public list & private list
-            alreadyLicensedPids.forEach(pid -> {
-                publicPids.remove(pid);
-                privatePids.remove(pid);
-            });
-
-
-            LOGGER.info(String.format("Number of already licensed pids: %d", alreadyLicensedPids.size()));
             LOGGER.info(String.format("To public license: %d", publicPids.size()));
             LOGGER.info(String.format("To onsite license: %d", privatePids.size()));
 
@@ -164,6 +143,62 @@ public class FlagToLicenseProcess {
             throw new RuntimeException(e);
         }
 
+    }
+
+    static List<String> buildFilterQueries(String baseQuery, List<String> filteredPids) {
+        return buildFilterQueries(baseQuery, filteredPids, DEFAULT_PID_QUERY_BATCH_SIZE);
+    }
+
+    static List<String> buildFilterQueries(String baseQuery, List<String> filteredPids, int batchSize) {
+        if (filteredPids == null) {
+            return Collections.singletonList(baseQuery);
+        }
+
+        int safeBatchSize = Math.max(1, batchSize);
+        List<String> queries = new ArrayList<>();
+        for (int i = 0; i < filteredPids.size(); i += safeBatchSize) {
+            int end = Math.min(i + safeBatchSize, filteredPids.size());
+            String pidQuery = filteredPids.subList(i, end).stream()
+                    .map(FlagToLicenseProcess::pidExactQuery)
+                    .collect(Collectors.joining(" OR "));
+            queries.add(String.format("%s AND (%s)", baseQuery, pidQuery));
+        }
+        return queries;
+    }
+
+    static String pidExactQuery(String pid) {
+        return "pid:\"" + escapeSolr(pid) + "\"";
+    }
+
+    private static String escapeSolr(String value) {
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    static String targetLicenseFor(Object accessibility, Object licenses) {
+        if (accessibility == null || hasTargetLicense(licenses)) {
+            return null;
+        }
+        if ("public".equals(accessibility.toString())) {
+            return CzechEmbeddedLicenses.PUBLIC_LICENSE.getName();
+        }
+        if ("private".equals(accessibility.toString())) {
+            return CzechEmbeddedLicenses.ONSITE_LICENSE.getName();
+        }
+        return null;
+    }
+
+    static boolean hasTargetLicense(Object licenses) {
+        if (licenses == null) {
+            return false;
+        }
+        if (licenses instanceof Collection) {
+            Collection<?> values = (Collection<?>) licenses;
+            return values.contains(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName())
+                    || values.contains(CzechEmbeddedLicenses.ONSITE_LICENSE.getName());
+        }
+        String license = licenses.toString();
+        return license.equals(CzechEmbeddedLicenses.PUBLIC_LICENSE.getName())
+                || license.equals(CzechEmbeddedLicenses.ONSITE_LICENSE.getName());
     }
 
     private static void scheduleSetLicenses(List<String> pids, String lic) throws JSONException {

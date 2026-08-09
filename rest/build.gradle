@@ -11,7 +11,7 @@ dependencies {
 	
 	
 	// sdnnt
-	api project(':processes:sdnnt')
+api project(':processes:licenses-sync')
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
     api project(':document-hub:content')
 

@@ -1,12 +1,8 @@
-package cz.inovatika.sdnnt;
+package cz.inovatika.sync;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class LicenseAPIFetcher {
     

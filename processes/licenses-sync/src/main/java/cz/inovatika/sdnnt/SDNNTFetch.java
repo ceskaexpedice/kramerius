@@ -1,7 +1,6 @@
 package cz.inovatika.sdnnt;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
@@ -10,20 +9,14 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -34,7 +27,6 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -43,6 +35,8 @@ import org.json.JSONObject;
 //import com.sun.jersey.api.client.WebResource;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.inovatika.sync.LicenseAPIFetcher;
+import cz.inovatika.sync.SyncUtils;
 import cz.inovatika.sdnnt.utils.SDNNTCheckUtils;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 
@@ -171,7 +165,7 @@ public class SDNNTFetch {
                                     List<String> pidLicenses = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_LICENSES_KEY);
                                     if (pidLicenses != null && !pidLicenses.isEmpty()) {
                                         for (String lic : pidLicenses) {
-                                            atomicAddDistinct(idoc, lic, "real_kram_licenses");
+                                            SyncUtils.atomicAddDistinct(idoc, lic, "real_kram_licenses");
                                         }
                                     }
 
@@ -179,20 +173,20 @@ public class SDNNTFetch {
                                     List<String> titles = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
                                     if (titles != null && !titles.isEmpty()) {
                                         for (String lic : titles) {
-                                            atomicAddDistinct(idoc, lic, "real_kram_titles_search");
+                                            SyncUtils.atomicAddDistinct(idoc, lic, "real_kram_titles_search");
                                         }
                                     }
 
-                                    atomicOneValSet(idoc, true, "real_kram_exists");
+                                    SyncUtils.atomicOneValSet(idoc, true, "real_kram_exists");
 
                                     String date = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_DATE_KEY);
                                     if (date != null) {
-                                        atomicOneValSet(idoc, date, "real_kram_date");
+                                        SyncUtils.atomicOneValSet(idoc, date, "real_kram_date");
                                     }
 
                                     String model = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
                                     if (model != null) {
-                                        atomicOneValSet(idoc, model, "real_kram_model");
+                                        SyncUtils.atomicOneValSet(idoc, model, "real_kram_model");
                                     }
 
                                     if (!allChangedIds.contains(ident.toString())) {
@@ -238,12 +232,12 @@ public class SDNNTFetch {
                                         if (expectedLicense.toString().equals("dnntt") && !realKramLicenses.contains("dnntt")) {
                                             // ocekavana licence dnntt; kram licence dnnto -> zmena dnnto->dnntt
                                             if (realKramLicenses.contains("dnnto")) {
-                                                atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name(), "sync_actions");
-                                                atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
+                                                SyncUtils.atomicAddDistinct(in, SyncActionEnum.change_dnnto_dnntt.name(), "sync_actions");
+                                                SyncUtils.atomicOneValSet(in, SyncActionEnum.change_dnnto_dnntt.getValue(), "sync_sort");
                                                 dirty = true;
                                             } else {
-                                                atomicAddDistinct(in, SyncActionEnum.add_dnntt.name(), "sync_actions");
-                                                atomicOneValSet(in, SyncActionEnum.add_dnntt.getValue(), "sync_sort");
+                                                SyncUtils.atomicAddDistinct(in, SyncActionEnum.add_dnntt.name(), "sync_actions");
+                                                SyncUtils.atomicOneValSet(in, SyncActionEnum.add_dnntt.getValue(), "sync_sort");
                                                 dirty = true;
                                             }
                                         }
@@ -251,12 +245,12 @@ public class SDNNTFetch {
                                         if (expectedLicense.toString().equals("dnnto") && !realKramLicenses.contains("dnnto")) {
                                             // ocekavana licence dnnto; kram licence dnntt -> zmena dnntt->dnnto
                                             if (realKramLicenses.contains("dnntt")) {
-                                                atomicAddDistinct(in, SyncActionEnum.change_dnntt_dnnto.name() /*"change_dnnto_dnntt"*/, "sync_actions");
-                                                atomicOneValSet(in, SyncActionEnum.change_dnntt_dnnto.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
+                                                SyncUtils.atomicAddDistinct(in, SyncActionEnum.change_dnntt_dnnto.name() /*"change_dnnto_dnntt"*/, "sync_actions");
+                                                SyncUtils.atomicOneValSet(in, SyncActionEnum.change_dnntt_dnnto.getValue() /*"change_dnnto_dnntt"*/, "sync_sort");
                                                 dirty = true;
                                             } else {
-                                                atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
-                                                atomicOneValSet(in, SyncActionEnum.add_dnnto.getValue() /*"add_dnnto"*/, "sync_sort");
+                                                SyncUtils.atomicAddDistinct(in, SyncActionEnum.add_dnnto.name() /*"add_dnnto"*/, "sync_actions");
+                                                SyncUtils.atomicOneValSet(in, SyncActionEnum.add_dnnto.getValue() /*"add_dnnto"*/, "sync_sort");
                                                 dirty = true;
                                             }
                                         }
@@ -266,14 +260,14 @@ public class SDNNTFetch {
                                 if (granularityItem || !hasGranularity) {
 
                                     if (realKramLicenses.contains("dnntt")) {
-                                        atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
-                                        atomicOneValSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
+                                        SyncUtils.atomicAddDistinct(in, SyncActionEnum.remove_dnntt.name() /*"remove_dnntt"*/, "sync_actions");
+                                        SyncUtils.atomicOneValSet(in, SyncActionEnum.remove_dnntt.getValue() /*"remove_dnntt"*/, "sync_sort");
                                         dirty = true;
                                     }
                                     if (realKramLicenses.contains("dnnto")) {
-                                        atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
+                                        SyncUtils.atomicAddDistinct(in, SyncActionEnum.remove_dnnto.name() /*"remove_dnnto"*/, "sync_actions");
                                         if (!realKramLicenses.contains("dnntt")) {
-                                            atomicOneValSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
+                                            SyncUtils.atomicOneValSet(in, SyncActionEnum.remove_dnnto.getValue() /*"remove_dnnto"*/, "sync_sort");
                                         }
                                         dirty = true;
                                     }
@@ -291,8 +285,8 @@ public class SDNNTFetch {
                                         List<String> actions = distinctValues(masterInSyncActions);
 
                                         if (!actions.contains(SyncActionEnum.partial_change.name())) {
-                                            atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
-                                            atomicOneValSet(masterIn, SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+                                            SyncUtils.atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
+                                            SyncUtils.atomicOneValSet(masterIn, SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
                                         }
                                         //if (fieldValue.con)
                                     } else {
@@ -302,16 +296,16 @@ public class SDNNTFetch {
 
                                         SolrInputDocument masterIn = new SolrInputDocument();
                                         masterIn.setField("id", masterId);
-                                        atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
-                                        atomicOneValSet(masterIn, SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
+                                        SyncUtils.atomicAddDistinct(masterIn, SyncActionEnum.partial_change.name(), "sync_actions");
+                                        SyncUtils.atomicOneValSet(masterIn, SyncActionEnum.partial_change.getValue() /* "partial_change"*/, "sync_sort");
 
                                         if (fetchedObject.keySet().contains(pid)) {
-                                            atomicOneValSet(masterIn, true, "real_kram_exists");
+                                            SyncUtils.atomicOneValSet(masterIn, true, "real_kram_exists");
 
                                             List<String> pidLicenses = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_LICENSES_KEY);
                                             if (pidLicenses != null && !pidLicenses.isEmpty()) {
                                                 for (String lic : pidLicenses) {
-                                                    atomicAddDistinct(masterIn, lic, "real_kram_licenses");
+                                                    SyncUtils.atomicAddDistinct(masterIn, lic, "real_kram_licenses");
                                                 }
                                             }
 
@@ -319,18 +313,18 @@ public class SDNNTFetch {
                                             List<String> titles = (List<String>) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_TITLES_KEY);
                                             if (titles != null && !titles.isEmpty()) {
                                                 for (String lic : titles) {
-                                                    atomicAddDistinct(masterIn, lic, "real_kram_titles_search");
+                                                    SyncUtils.atomicAddDistinct(masterIn, lic, "real_kram_titles_search");
                                                 }
                                             }
 
                                             String date = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_DATE_KEY);
                                             if (date != null) {
-                                                atomicOneValSet(masterIn, date, "real_kram_date");
+                                                SyncUtils.atomicOneValSet(masterIn, date, "real_kram_date");
                                             }
 
                                             String model = (String) fetchedObject.get(pid).get(LicenseAPIFetcher.FETCHER_MODEL_KEY);
                                             if (model != null) {
-                                                atomicOneValSet(masterIn, model, "real_kram_model");
+                                                SyncUtils.atomicOneValSet(masterIn, model, "real_kram_model");
                                             }
                                         }
 
@@ -365,152 +359,16 @@ public class SDNNTFetch {
 
 
     private static List<String> distinctValues(Collection<Object> fieldValues) {
-        List<Object> data = new ArrayList<>();
-        if (fieldValues != null) {
-            fieldValues.stream().forEach(obj-> {
-                Map<String,Object> m = (Map<String, Object>) obj;
-                //Object val = 
-                Iterator<Entry<String, Object>> iterator = m.entrySet().iterator();
-                if (iterator.hasNext())  {
-                    Object val = iterator.next().getValue();
-                    if (val instanceof Collection) {
-                        data.addAll( (Collection) val );
-                    } else {
-                        data.add(val);
-                    }
-                }
-            });
-        }
-        return data.stream().map(Object::toString).collect(Collectors.toList());
+        return SyncUtils.distinctModifierValues(fieldValues);
     }
 
 
 
     private static SolrDocumentList getById(HttpSolrClient client, List<String> pids, String collection)
             throws SolrServerException, IOException {
-        SolrDocumentList list = new SolrDocumentList();
         int getBatch = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.query.byid", 20);
-        int numberOfBatch = pids.size() / getBatch;
-        numberOfBatch = numberOfBatch + (pids.size() % getBatch == 0 ? 0 : 1);
-        for (int i = 0; i < numberOfBatch; i++) {
-            int from = i*getBatch;
-            int to = Math.min((i+1)*getBatch, pids.size());
-            List<String> subPids = pids.subList(from, to);
-            list.addAll(client.getById(collection, subPids));
-        }
-        return list;
+        return SyncUtils.getById(client, pids, collection, getBatch);
     }
-
-    public static void atomicOneValSet(SolrInputDocument idoc, Object fValue, String fName) {
-        Object fieldValue = idoc.getFieldValue(fName);
-        if (fieldValue == null) {
-            Map<String, Object> modifier = new HashMap<>(1);
-            modifier.put("set", fValue);
-            idoc.addField(fName, modifier);
-        }
-    }
-    
-    public static void atomicSet(SolrInputDocument idoc, Object fValue, String fName) {
-        if (!addToExistingModifier(idoc, fValue, fName)) {
-            Map<String, Object> modifier = new HashMap<>(1);
-            modifier.put("set", fValue);
-            idoc.addField(fName, modifier);
-        }
-    }
-
-    public static void atomicAddDistinct(SolrInputDocument idoc, Object fValue, String fName) {
-        if (!addToExistingModifier(idoc, fValue, fName)) {
-            Map<String, Object> modifier = new HashMap<>(1);
-            modifier.put("add-distinct", fValue);
-            idoc.addField(fName, modifier);
-        }
-    }
-
-
-
-    private static boolean addToExistingModifier(SolrInputDocument idoc, Object fValue, String fName) {
-        Object fieldValue = idoc.getFieldValue(fName);
-        if (fieldValue != null) {
-            String key = null;
-            List<Object> values = new ArrayList<>();
-            Map<String, Object> map = (Map<String, Object>) fieldValue;
-            Iterator<Entry<String, Object>> iterator = map.entrySet().iterator();
-            if (iterator.hasNext())  {
-                Entry<String, Object> entry = iterator.next();
-                key = entry.getKey();
-                Object value = entry.getValue();
-                if (value instanceof Collection) {
-                    values.addAll((Collection)value);
-                    values.add(fValue);
-                } else {
-                    values.add(value);
-                    values.add(fValue);
-                }
-            }
-            
-            if (key != null) {
-                map.put(key, values);
-            }
-            return true;
-        }
-        return false;
-        
-    }
-
-
-
-    public static File throttle(CloseableHttpClient httpClient, String url) throws IOException, InterruptedException {
-        Set<Integer> throttleStatuses = throttleStatuses();
-        LOGGER.fine("Throttle statuses: " + throttleStatuses);
-        int maxRepetition = 5;
-
-        for (int i = 0; i < maxRepetition; i++) {
-            LOGGER.fine("Throttle iteration " + (i+1) + " of " + maxRepetition+ ", url = " +url);
-            HttpGet request = new HttpGet(url);
-            request.setHeader("Accept", "application/json");
-
-            File resultFile = httpClient.execute(request, response -> {
-                int status = response.getCode();
-                if (status == 200) { // Status.OK
-                    File tmpFile = File.createTempFile("sdnnt", "resp");
-                    tmpFile.deleteOnExit();
-                    try (FileOutputStream fos = new FileOutputStream(tmpFile)) {
-                        IOUtils.copy(response.getEntity().getContent(), fos);
-                    }
-                    return tmpFile;
-                } else if (throttleStatuses.contains(status)) {
-                    LOGGER.info("Throttle status ("+status+"); retrying");
-                    return null; // Signalizujeme konflikt pro retry
-                } else {
-                    throw new IOException("Unexpected response status: " + status);
-                }
-            });
-
-            if (resultFile != null) {
-                return resultFile;
-            }
-
-            // Pokud je null, znamená to status 409
-            int sleep = KConfiguration.getInstance().getConfiguration().getInt("sdnnt.throttle.wait", 30_000);
-            //LOGGER.info("Server is too busy (409); waiting for " + (sleep / 1000 / 60) + " min");
-            LOGGER.info("Server returned throttled status; waiting for " + (sleep / 1000 / 60) + " min");
-            Thread.sleep(sleep);
-        }
-        throw new IllegalStateException("Maximum number of waiting exceeded (409 Conflict)");
-    }
-
-    private static Set<Integer> throttleStatuses() {
-        List<Object> configured = KConfiguration.getInstance().getConfiguration()
-                .getList("sdnnt.throttle.statuses", Arrays.asList("409"));
-        LOGGER.info("Throttle statuses configured: " + configured);
-        return configured.stream()
-                .map(Object::toString)
-                .map(String::trim)
-                .filter(value -> !value.isEmpty())
-                .map(Integer::parseInt)
-                .collect(Collectors.toSet());
-    }
-
 //    public static File throttle(Client client,  String url) throws IOException, InterruptedException {
 //
 //        int max_repetion = 3;
@@ -559,7 +417,7 @@ public class SDNNTFetch {
         while (token != null && !token.equals(prevToken)) {
             String formatted = String.format(sdnntApiEndpoint, token);
             LOGGER.info("Conctacting sdnnt instance "+format);
-            File file = throttle(httpClient, formatted);
+            File file = SyncUtils.throttle(httpClient, formatted);
             String response = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
             JSONObject resObject = new JSONObject(response);
             

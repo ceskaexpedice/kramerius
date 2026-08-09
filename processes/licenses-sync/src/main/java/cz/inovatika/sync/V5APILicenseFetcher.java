@@ -1,4 +1,4 @@
-package cz.inovatika.sdnnt;
+package cz.inovatika.sync;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
