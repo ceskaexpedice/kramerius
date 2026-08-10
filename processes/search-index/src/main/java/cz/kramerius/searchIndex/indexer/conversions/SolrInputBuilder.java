@@ -299,21 +299,14 @@ public class SolrInputBuilder {
                 }
             }
             //licenses
-            List<Node> containsLicenseEls = Dom4jUtils.buildXpath(
-                    "Description/containsLicense" + //toto je spravny zapis, ostatni jsou chybne/stara data
-                            "|Description/containsLicenses" +
-                            "|Description/containsLicence" +
-                            "|Description/containsLicences" +
-                            "|Description/contains-license" +
-                            "|Description/contains-licenses" +
-                            "|Description/contains-licence" +
-                            "|Description/contains-licences" +
-                            "|Description/contains-dnnt-label" +
-                            "|Description/contains-dnnt-labels"
-            ).selectNodes(relsExtRootEl);
-            for (Node containsLicenseEl : containsLicenseEls) {
-                String license = containsLicenseEl.getStringValue();
+            LicensesExtractor licensesExtractor = new LicensesExtractor();
+            for (String license : licensesExtractor.extractContainsLicenses(relsExtRootEl)) {
                 addSolrField(solrInput, "contains_licenses", license);
+            }
+            if ("collection".equals(model) && nodeManager != null) {
+                for (String license : nodeManager.getLicensesContainedByDescendants(repositoryNode.getPid())) {
+                    addSolrField(solrInput, "contains_licenses", license);
+                }
             }
             for (String license : repositoryNode.getLicenses()) {
                 addSolrField(solrInput, "licenses", license);

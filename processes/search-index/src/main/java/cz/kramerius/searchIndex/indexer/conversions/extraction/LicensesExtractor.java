@@ -28,6 +28,29 @@ public class LicensesExtractor {
         return result;
     }
 
+    public List<String> extractContainsLicenses(Element rdfEl) {
+        List<String> result = new ArrayList<>();
+        List<Node> containsLicenseEls = Dom4jUtils.buildXpath(
+                "Description/containsLicense" + //toto je spravny zapis, ostatni jsou chybne/stara data
+                        "|Description/containsLicenses" +
+                        "|Description/containsLicence" +
+                        "|Description/containsLicences" +
+                        "|Description/contains-license" +
+                        "|Description/contains-licenses" +
+                        "|Description/contains-licence" +
+                        "|Description/contains-licences" +
+                        "|Description/contains-dnnt-label" +
+                        "|Description/contains-dnnt-labels"
+        ).selectNodes(rdfEl);
+        for (Node containsLicenseEl : containsLicenseEls) {
+            String license = toStringOrNull(containsLicenseEl);
+            if (license != null) {
+                result.add(license);
+            }
+        }
+        return result;
+    }
+
     private String toStringOrNull(Node node) {
         return ExtractorUtils.toStringOrNull(node);
     }

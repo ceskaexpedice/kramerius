@@ -241,6 +241,46 @@ public class RepositoryNodeManager {
         return list;
     }
 
+    public List<String> getLicensesContainedByDescendants(String pid) {
+        Set<String> result = new HashSet<>();
+        collectLicensesContainedByDescendants(pid, new HashSet<>(), result);
+        return new ArrayList<>(result);
+    }
+
+    private void collectLicensesContainedByDescendants(String pid, Set<String> visitedPids, Set<String> result) {
+        if (pid == null || visitedPids.contains(pid)) {
+            return;
+        }
+        visitedPids.add(pid);
+
+        String model = akubraRepository.pi().getModel(pid);
+        if ("page".equals(model) || "track".equals(model)) {
+            return;
+        }
+
+        OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
+        collectLicensesFromChildren(children.own(), visitedPids, result);
+        collectLicensesFromChildren(children.foster(), visitedPids, result);
+    }
+
+    private void collectLicensesFromChildren(List<ProcessingIndexItem> children, Set<String> visitedPids, Set<String> result) {
+        if (children == null) {
+            return;
+        }
+        for (ProcessingIndexItem child : children) {
+            String childPid = child.targetPid();
+            if (childPid == null || visitedPids.contains(childPid) || !akubraRepository.exists(childPid)) {
+                continue;
+            }
+            Document relsExtDoc = akubraRepository.re().get(childPid).asDom4j(false);
+            String childModel = akubraRepository.pi().getModel(childPid);
+            LicensesExtractor extractor = new LicensesExtractor();
+            result.addAll(extractor.extractLicenses(relsExtDoc.getRootElement(), childModel));
+            result.addAll(extractor.extractContainsLicenses(relsExtDoc.getRootElement()));
+            collectLicensesContainedByDescendants(childPid, visitedPids, result);
+        }
+    }
+
     private List<AuthorInfo> mergePrimaryAuthors(RepositoryNode ownParent, List<RepositoryNode> fosterParents, List<AuthorInfo> myPrimaryAuthors) {
         //fill list
         List<AuthorInfo> authors = new ArrayList<>();

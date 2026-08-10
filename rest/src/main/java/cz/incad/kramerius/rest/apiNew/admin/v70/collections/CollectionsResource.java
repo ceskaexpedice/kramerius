@@ -492,18 +492,21 @@ public class CollectionsResource extends AdminApiResource {
                 akubraRepository.re().update(collectionPid, bis);
                 return null;
             });
-            //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. no need to re-index collection
+            //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. collection object
             //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
-            JSONObject scheduleReindexationPar = null;
+            JSONArray scheduleMainProcessesPlanned = new JSONArray();
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                scheduleReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+
+                JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
+                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
             }
             JSONObject result = new JSONObject();
-            //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
-            if (scheduleReindexationPar != null) {
-                result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
+            if (scheduleMainProcessesPlanned.length() > 0) {
+                result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcessesPlanned);
             }
 
             return Response.status(Status.OK).entity(result.toString()).build();
@@ -580,7 +583,6 @@ public class CollectionsResource extends AdminApiResource {
 
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
-            final JSONObject[] scheduleReindexationPar = {null};
             akubraRepository.doWithLock(collectionPid, new LockOperation<Object>() {
                 @Override
                 public Object execute() {
@@ -602,16 +604,24 @@ public class CollectionsResource extends AdminApiResource {
                         //no need to re-index collection itself
                         if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                             LOGGER.info("Ommiting indexation");
-                        } else {
-                            for (String itemPid : pidsAdded) {
-                                scheduleReindexationPar[0] = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
-                            }
                         }
 
                     }
                     return null;
                 }
             });
+
+            JSONArray scheduleMainProcessesPlanned = new JSONArray();
+            if (!(StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false"))) {
+                for (String itemPid : pidsAdded) {
+                    JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+                }
+                if (!pidsAdded.isEmpty()) {
+                    JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
+                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
+                }
+            }
 
             JSONArray ignored = new JSONArray();
             for (String itemPid : errorsByPid.keySet()) {
@@ -623,8 +633,9 @@ public class CollectionsResource extends AdminApiResource {
             JSONObject result = new JSONObject();
             result.put("added", pidsAdded.size());
             result.put("ignored", ignored);
-            //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar[0]);
-            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar[0]));
+            if (scheduleMainProcessesPlanned.length() > 0) {
+                result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcessesPlanned);
+            }
             return Response.ok(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
@@ -731,11 +742,16 @@ public class CollectionsResource extends AdminApiResource {
             });
             reindexCollection.forEach(itemPid -> {
                 // schedule reindexations - 1. item that was removed (whole tree and foster
-                // trees), 2. no need to re-index collection
+                // trees), 2. collection object
                 JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
                 scheduleMainProcesses.put(scheduleReindexationPar);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             });
+            if (!reindexCollection.isEmpty()) {
+                JSONObject scheduleReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
+                scheduleMainProcesses.put(scheduleReindexationPar);
+                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
+            }
 
         } catch (WebApplicationException e) {
             throw e;
@@ -804,11 +820,14 @@ public class CollectionsResource extends AdminApiResource {
                     return null;
                 }
             });
-            //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. no need to re-index collection
+            //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. collection object
             JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+            JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
             JSONObject result = new JSONObject();
-            //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
-            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
+            JSONArray scheduleMainProcessesPlanned = new JSONArray();
+            scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
+            scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcessesPlanned);
             return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
             throw e;
