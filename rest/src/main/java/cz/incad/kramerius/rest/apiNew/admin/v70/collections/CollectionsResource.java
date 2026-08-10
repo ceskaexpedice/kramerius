@@ -498,10 +498,10 @@ public class CollectionsResource extends AdminApiResource {
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
 
-                JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
+                JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
             }
             JSONObject result = new JSONObject();
@@ -614,11 +614,11 @@ public class CollectionsResource extends AdminApiResource {
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             if (!(StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false"))) {
                 for (String itemPid : pidsAdded) {
-                    JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                    JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
                     scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
                 }
                 if (!pidsAdded.isEmpty()) {
-                    JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
+                    JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
                     scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
                 }
             }
@@ -743,12 +743,12 @@ public class CollectionsResource extends AdminApiResource {
             reindexCollection.forEach(itemPid -> {
                 // schedule reindexations - 1. item that was removed (whole tree and foster
                 // trees), 2. collection object
-                JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
+                JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
                 scheduleMainProcesses.put(scheduleReindexationPar);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             });
             if (!reindexCollection.isEmpty()) {
-                JSONObject scheduleReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
+                JSONObject scheduleReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
                 scheduleMainProcesses.put(scheduleReindexationPar);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             }
@@ -821,8 +821,8 @@ public class CollectionsResource extends AdminApiResource {
                 }
             });
             //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. collection object
-            JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", false, itemPid);
-            JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", false, "sbírka " + collectionPid);
+            JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+            JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
             JSONObject result = new JSONObject();
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));

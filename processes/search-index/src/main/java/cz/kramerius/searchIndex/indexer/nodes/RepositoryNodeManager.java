@@ -253,14 +253,18 @@ public class RepositoryNodeManager {
         }
         visitedPids.add(pid);
 
-        String model = akubraRepository.pi().getModel(pid);
-        if ("page".equals(model) || "track".equals(model)) {
-            return;
-        }
+        try {
+            String model = akubraRepository.pi().getModel(pid);
+            if ("page".equals(model) || "track".equals(model)) {
+                return;
+            }
 
-        OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
-        collectLicensesFromChildren(children.own(), visitedPids, result);
-        collectLicensesFromChildren(children.foster(), visitedPids, result);
+            OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
+            collectLicensesFromChildren(children.own(), visitedPids, result);
+            collectLicensesFromChildren(children.foster(), visitedPids, result);
+        } catch (RuntimeException e) {
+            handleContainsLicensesExtractionError(pid, e);
+        }
     }
 
     private void collectLicensesFromChildren(List<ProcessingIndexItem> children, Set<String> visitedPids, Set<String> result) {
@@ -272,12 +276,24 @@ public class RepositoryNodeManager {
             if (childPid == null || visitedPids.contains(childPid) || !akubraRepository.exists(childPid)) {
                 continue;
             }
-            Document relsExtDoc = akubraRepository.re().get(childPid).asDom4j(false);
-            String childModel = akubraRepository.pi().getModel(childPid);
-            LicensesExtractor extractor = new LicensesExtractor();
-            result.addAll(extractor.extractLicenses(relsExtDoc.getRootElement(), childModel));
-            result.addAll(extractor.extractContainsLicenses(relsExtDoc.getRootElement()));
-            collectLicensesContainedByDescendants(childPid, visitedPids, result);
+            try {
+                Document relsExtDoc = akubraRepository.re().get(childPid).asDom4j(false);
+                String childModel = akubraRepository.pi().getModel(childPid);
+                LicensesExtractor extractor = new LicensesExtractor();
+                result.addAll(extractor.extractLicenses(relsExtDoc.getRootElement(), childModel));
+                result.addAll(extractor.extractContainsLicenses(relsExtDoc.getRootElement()));
+                collectLicensesContainedByDescendants(childPid, visitedPids, result);
+            } catch (RuntimeException e) {
+                handleContainsLicensesExtractionError(childPid, e);
+            }
+        }
+    }
+
+    private void handleContainsLicensesExtractionError(String pid, RuntimeException e) {
+        if (surviveInconsistentObjects) {
+            LOGGER.log(Level.SEVERE, "Cannot extract contains_licenses through descendant " + pid + ", ignoring", e);
+        } else {
+            throw e;
         }
     }
 
