@@ -96,6 +96,30 @@ public class UIConfigContentResource extends AdminApiResource {
     }
 
     // --------------------------------------------------------------------
+    // DELETE
+    // --------------------------------------------------------------------
+
+    @DELETE
+    @Path("{resourceKey:.+}")
+    public Response deleteResource(@PathParam("resourceKey") String resourceKey) {
+        try {
+            User user = userProvider.get();
+
+            if (!permitConfig(user)) {
+                throw new cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException(
+                        "user '%s' is not allowed to manage resources",
+                        user.getLoginname());
+            }
+            DbUIConfigResourceService service = new DbUIConfigResourceService(connectionProvider);
+            service.delete(resourceKey);
+            return Response.noContent().build();
+        } catch (UIConfigException e) {
+            LOGGER.log(Level.SEVERE, "Failed to delete UI resource " + resourceKey, e);
+            throw new InternalServerErrorException("Failed to delete UI resource");
+        }
+    }
+
+    // --------------------------------------------------------------------
     // HELPERS
     // --------------------------------------------------------------------
 

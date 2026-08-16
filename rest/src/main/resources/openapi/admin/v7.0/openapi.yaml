@@ -4828,3 +4828,22 @@ paths:
           description: Resource v poradku ulozen
         '403':
           description: Uživatel nemá oprávnění k požadované akci
+    delete:
+      tags:
+        - UIConfig
+      summary: Smaze UI configuration resource
+      description: >
+        Smaze UI configuration resource identifikovany pomoci resourceKey.
+      parameters:
+        - name: resourceKey
+          in: path
+          required: true
+          description: Unikatni id resource
+          example: licenses/dnnto/image/logo
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Resource v poradku smazan
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci

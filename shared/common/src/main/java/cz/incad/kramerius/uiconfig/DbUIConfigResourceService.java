@@ -68,6 +68,20 @@ public class DbUIConfigResourceService implements UIConfigResourceService {
     }
 
     @Override
+    public void delete(String resourceKey) {
+        try (Connection c = connectionProvider.get();
+             PreparedStatement ps = c.prepareStatement("""
+                     DELETE FROM ui_config_resource
+                     WHERE resource_key = ?
+                     """)) {
+            ps.setString(1, resourceKey);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new UIConfigException("Failed deleting resource " + resourceKey, e);
+        }
+    }
+
+    @Override
     public boolean exists(String resourceKey) {
         try (Connection c = connectionProvider.get();
              PreparedStatement ps = c.prepareStatement("""

@@ -89,6 +89,18 @@ public class DbUIConfigResourceServiceTest_integration {
     }
 
     @Test
+    public void testDeleteResource() {
+        String key = "licenses/test/page/delete";
+        dbUIConfigResourceService.save(key, "text/html", new ByteArrayInputStream("<html/>".getBytes(StandardCharsets.UTF_8)));
+        assertTrue(dbUIConfigResourceService.exists(key));
+
+        dbUIConfigResourceService.delete(key);
+
+        assertFalse(dbUIConfigResourceService.exists(key));
+        assertNull(dbUIConfigResourceService.load(key));
+    }
+
+    @Test
     public void testOverwriteContentType() {
         String key = "licenses/dnnto/page/unauthenticated/cs";
         dbUIConfigResourceService.save(key, "text/html", new ByteArrayInputStream("<html/>".getBytes(StandardCharsets.UTF_8)));

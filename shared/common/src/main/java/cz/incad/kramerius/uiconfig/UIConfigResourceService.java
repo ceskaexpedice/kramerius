@@ -13,5 +13,7 @@ public interface UIConfigResourceService {
 
     void save(String resourceKey, String contentType, InputStream content);
 
+    void delete(String resourceKey);
+
     boolean exists(String resourceKey);
 }
