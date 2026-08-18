@@ -10,6 +10,7 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.uiconfig.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.*;
@@ -17,8 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,6 +25,7 @@ import java.util.logging.Logger;
 public class UIConfigResource extends AdminApiResource {
 
     private static final Logger LOGGER = Logger.getLogger(UIConfigResource.class.getName());
+    private final UIConfigReferencePatternProvider referencePatternProvider = new UIConfigReferencePatternProvider();
 
     @Inject
     RightsResolver rightsResolver;
@@ -89,6 +89,33 @@ public class UIConfigResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveCuratorListsConfig(InputStream json) {
         return saveConfig(UIConfigType.CURATOR_LISTS, json);
+    }
+
+    @GET
+    @Path("metadata")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMetadata() {
+        User user = this.userProvider.get();
+        if (permitConfig(user)) {
+            JSONArray configs = new JSONArray();
+            for (UIConfigDefinition definition : referencePatternProvider.getDefinitions()) {
+                configs.put(new JSONObject()
+                        .put("key", definition.getKey())
+                        .put("endpoint", definition.getEndpoint())
+                        .put("title", definition.getTitle())
+                        .put("schema", new JSONObject().put("type", definition.getSchemaType()))
+                        .put("resourceReferencePatterns", new JSONArray(
+                                referencePatternProvider.getResourceReferencePatterns(definition.getType()))));
+            }
+
+            return Response.ok(new JSONObject().put("configs", configs).toString(), MediaType.APPLICATION_JSON_TYPE)
+                    .header("Cache-Control", "no-cache")
+                    .build();
+        } else {
+            throw new cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException(
+                    "user '%s' is not allowed to manage config ",
+                    user.getLoginname());
+        }
     }
 
     // --------------------------------------------------------------------

@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DbUIResourceService
@@ -64,6 +66,28 @@ public class DbUIConfigResourceService implements UIConfigResourceService {
             }
         } catch (SQLException e) {
             throw new UIConfigException("Failed loading resource " + resourceKey, e);
+        }
+    }
+
+    @Override
+    public List<UIConfigResourceInfo> list() {
+        try (Connection c = connectionProvider.get();
+             PreparedStatement ps = c.prepareStatement("""
+                     SELECT resource_key, content_type
+                     FROM ui_config_resource
+                     ORDER BY resource_key
+                     """);
+             ResultSet rs = ps.executeQuery()) {
+            List<UIConfigResourceInfo> resources = new ArrayList<>();
+            while (rs.next()) {
+                resources.add(new UIConfigResourceInfo(
+                        rs.getString("resource_key"),
+                        rs.getString("content_type")
+                ));
+            }
+            return resources;
+        } catch (SQLException e) {
+            throw new UIConfigException("Failed listing resources", e);
         }
     }
 

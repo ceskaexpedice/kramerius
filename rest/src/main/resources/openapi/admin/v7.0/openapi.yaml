@@ -4526,6 +4526,51 @@ paths:
       tags:
         - workmode
 
+  /ui-config/metadata:
+    get:
+      tags:
+        - UIConfig
+      summary: Vraci metadata editoru UI konfigurace
+      description: >
+        Vraci seznam UI konfiguraci vcetne endpointu, titulku, schematu a patternu
+        pro detekci resource referenci. Patterny jsou sestavene z defaultu a KConfiguration.
+      responses:
+        '200':
+          description: Metadata UI konfigurace
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                          example: ui-config.general
+                        endpoint:
+                          type: string
+                          example: general
+                        title:
+                          type: string
+                          example: General JSON
+                        schema:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              example: object
+                        resourceReferencePatterns:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            - /pages/content/*
+        '403':
+          description: Uzivatel nema opravneni k pozadovane akci
+
   /ui-config/general:
     get:
       tags:
@@ -4759,6 +4804,32 @@ paths:
           description: Konfigurace úspěšně vytvořena
         '400':
           description: Neplatná data požadavku
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /ui-config/resources:
+    get:
+      tags:
+        - UIConfig
+      summary: Vraci seznam UI configuration resources
+      description: >
+        Vraci seznam ulozenych UI configuration resources bez jejich binarniho obsahu.
+      responses:
+        '200':
+          description: Seznam resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    resourceKey:
+                      type: string
+                      example: licenses/dnnto/page/unauthenticated/cs
+                    contentType:
+                      type: string
+                      example: text/html
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 

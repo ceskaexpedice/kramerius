@@ -23,6 +23,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import javax.servlet.http.HttpServletRequest;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+
 /**
  * @author pavels
  *
@@ -33,5 +39,50 @@ public class ApplicationURLTest {
     public void testCreateURL() {
         String created = ApplicationURL.createURL("krameriusdemo.mzk.cz", "http", "/search/");
         Assert.assertEquals("http://krameriusdemo.mzk.cz/search/", created);
+    }
+
+    @Test
+    public void applicationURLUsesForwardedProto() {
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        expect(request.getRequestURL()).andReturn(new StringBuffer("http://localhost:8080/search/api/client/v7.0/ui-config/general")).times(2);
+        expect(request.getHeader("x-forwarded-host")).andReturn("k7.inovatika.dev");
+        expect(request.getRequestURI()).andReturn("/search/api/client/v7.0/ui-config/general");
+        expect(request.getHeader("x-forwarded-proto")).andReturn("https");
+        expect(request.getHeader("x-forwarded-port")).andReturn(null);
+        replay(request);
+
+        String applicationURL = ApplicationURL.applicationURL(request);
+
+        Assert.assertEquals("https://k7.inovatika.dev/search", applicationURL);
+    }
+
+    @Test
+    public void applicationURLUsesForwardedPortWhenNotDefault() {
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        expect(request.getRequestURL()).andReturn(new StringBuffer("http://localhost:8080/search/api/client/v7.0/ui-config/general")).times(2);
+        expect(request.getHeader("x-forwarded-host")).andReturn("k7.inovatika.dev");
+        expect(request.getRequestURI()).andReturn("/search/api/client/v7.0/ui-config/general");
+        expect(request.getHeader("x-forwarded-proto")).andReturn("https");
+        expect(request.getHeader("x-forwarded-port")).andReturn("8443");
+        replay(request);
+
+        String applicationURL = ApplicationURL.applicationURL(request);
+
+        Assert.assertEquals("https://k7.inovatika.dev:8443/search", applicationURL);
+    }
+
+    @Test
+    public void applicationURLSkipsDefaultForwardedPort() {
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        expect(request.getRequestURL()).andReturn(new StringBuffer("http://localhost:8080/search/api/client/v7.0/ui-config/general")).times(2);
+        expect(request.getHeader("x-forwarded-host")).andReturn("k7.inovatika.dev");
+        expect(request.getRequestURI()).andReturn("/search/api/client/v7.0/ui-config/general");
+        expect(request.getHeader("x-forwarded-proto")).andReturn("https");
+        expect(request.getHeader("x-forwarded-port")).andReturn("443");
+        replay(request);
+
+        String applicationURL = ApplicationURL.applicationURL(request);
+
+        Assert.assertEquals("https://k7.inovatika.dev/search", applicationURL);
     }
 }

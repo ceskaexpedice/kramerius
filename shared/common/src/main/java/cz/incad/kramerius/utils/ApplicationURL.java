@@ -47,28 +47,15 @@ public class ApplicationURL {
     public static String applicationURL(HttpServletRequest request) {
         try {
             String url = request.getRequestURL().toString();
-            String header = request.getHeader("x-forwarded-host");
+            String header = firstHeaderValue(request.getHeader("x-forwarded-host"));
             if (header != null) {
                 String requestUri = request.getRequestURI();
-                // should be covered:
-                //X-Forwarded-Proto
-                //X-Forwarded-Port
-
-                String protocol = new URL(request.getRequestURL().toString()).getProtocol();
-                // check if header contains more than one value, if so, it takes first
-                if (header.contains(",")) {
-                    String[] split = header.split(",");
-                    if (split.length > 1) {
-                        LOGGER.fine(String.format("x-forwarded-host contains more than one value: %s. " +
-                                "Picking up the first one", Arrays.toString(split)));
-                        url = createURL(split[0], protocol, requestUri);
-                    } else {
-                        url = createURL(header, protocol, requestUri);
-                    }
-
-                } else {
-                    url = createURL(header, protocol, requestUri);
-                }
+                String protocol = forwardedProtocol(request);
+                String port = firstHeaderValue(request.getHeader("x-forwarded-port"));
+                url = createURL(hostWithForwardedPort(header, protocol, port), protocol, requestUri);
+            } else if (request.getHeader("x-forwarded-proto") != null) {
+                URL requestUrl = new URL(url);
+                url = createURL(requestUrl.getAuthority(), forwardedProtocol(request), request.getRequestURI());
             }
             return applicationURL(url);
         } catch (MalformedURLException e) {
@@ -137,11 +124,12 @@ public class ApplicationURL {
     }
 
     public static String urlFromRequest(HttpServletRequest httpReq) throws MalformedURLException {
-        String header = httpReq.getHeader("x-forwarded-host");
+        String header = firstHeaderValue(httpReq.getHeader("x-forwarded-host"));
         if (header != null) {
             String requestUri = httpReq.getRequestURI();
-            String protocol = new URL(httpReq.getRequestURL().toString()).getProtocol();
-            String createdURL = createURL(header, protocol, requestUri);
+            String protocol = forwardedProtocol(httpReq);
+            String port = firstHeaderValue(httpReq.getHeader("x-forwarded-port"));
+            String createdURL = createURL(hostWithForwardedPort(header, protocol, port), protocol, requestUri);
             return createdURL;
         } else {
             String string = httpReq.getRequestURL().toString();
@@ -157,6 +145,42 @@ public class ApplicationURL {
         }
         String urlString = protocol+"://"+headerField+"/"+requestUri;
         return urlString;
+    }
+
+    private static String forwardedProtocol(HttpServletRequest request) throws MalformedURLException {
+        String forwardedProto = firstHeaderValue(request.getHeader("x-forwarded-proto"));
+        if (forwardedProto != null) {
+            return forwardedProto.toLowerCase();
+        }
+        return new URL(request.getRequestURL().toString()).getProtocol();
+    }
+
+    private static String firstHeaderValue(String header) {
+        if (header == null) {
+            return null;
+        }
+        String first = header.split(",", 2)[0].trim();
+        if (header.contains(",")) {
+            LOGGER.fine(String.format("Forwarded header contains more than one value: %s. Picking up the first one",
+                    Arrays.toString(header.split(","))));
+        }
+        return first.isEmpty() ? null : first;
+    }
+
+    private static String hostWithForwardedPort(String host, String protocol, String port) {
+        if (port == null || port.isBlank() || hostContainsPort(host) || isDefaultPort(protocol, port)) {
+            return host;
+        }
+        return host + ":" + port;
+    }
+
+    private static boolean hostContainsPort(String host) {
+        return host.matches("^\\[[^]]+]:\\d+$") || (!host.startsWith("[") && host.lastIndexOf(':') > host.lastIndexOf(']'));
+    }
+
+    private static boolean isDefaultPort(String protocol, String port) {
+        return ("http".equalsIgnoreCase(protocol) && "80".equals(port))
+                || ("https".equalsIgnoreCase(protocol) && "443".equals(port));
     }
 
 }

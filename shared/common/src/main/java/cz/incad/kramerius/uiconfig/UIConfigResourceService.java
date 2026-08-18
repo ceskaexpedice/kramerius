@@ -1,6 +1,7 @@
 package cz.incad.kramerius.uiconfig;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * UIConfigResourceService
@@ -10,6 +11,8 @@ import java.io.InputStream;
 public interface UIConfigResourceService {
 
     UIConfigResourceContent load(String resourceKey);
+
+    List<UIConfigResourceInfo> list();
 
     void save(String resourceKey, String contentType, InputStream content);
 

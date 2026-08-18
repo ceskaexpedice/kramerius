@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -76,6 +77,20 @@ public class DbUIConfigResourceServiceTest_integration {
     public void testLoadNonExistingResourceReturnsNull() {
         UIConfigResourceContent resource = dbUIConfigResourceService.load("licenses/unknown/page/cs");
         assertNull(resource);
+    }
+
+    @Test
+    public void testListResources() {
+        dbUIConfigResourceService.save("licenses/z/page/cs", "text/html", new ByteArrayInputStream("<html/>".getBytes(StandardCharsets.UTF_8)));
+        dbUIConfigResourceService.save("licenses/a/image/logo", "image/png", new ByteArrayInputStream(new byte[]{1, 2, 3}));
+
+        List<UIConfigResourceInfo> resources = dbUIConfigResourceService.list();
+
+        assertEquals(2, resources.size());
+        assertEquals("licenses/a/image/logo", resources.get(0).getResourceKey());
+        assertEquals("image/png", resources.get(0).getContentType());
+        assertEquals("licenses/z/page/cs", resources.get(1).getResourceKey());
+        assertEquals("text/html", resources.get(1).getContentType());
     }
 
     @Test

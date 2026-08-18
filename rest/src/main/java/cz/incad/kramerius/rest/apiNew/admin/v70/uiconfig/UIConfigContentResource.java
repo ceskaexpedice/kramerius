@@ -12,12 +12,17 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.uiconfig.DbUIConfigResourceService;
 import cz.incad.kramerius.uiconfig.UIConfigException;
 import cz.incad.kramerius.uiconfig.UIConfigResourceContent;
+import cz.incad.kramerius.uiconfig.UIConfigResourceInfo;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +45,30 @@ public class UIConfigContentResource extends AdminApiResource {
     // --------------------------------------------------------------------
     // GET
     // --------------------------------------------------------------------
+
+    @GET
+    public Response listResources() {
+        try {
+            User user = userProvider.get();
+            if (!permitConfig(user)) {
+                throw new cz.incad.kramerius.rest.apiNew.exceptions.ForbiddenException(
+                        "user '%s' is not allowed to manage resources",
+                        user.getLoginname());
+            }
+            DbUIConfigResourceService service = new DbUIConfigResourceService(connectionProvider);
+            List<UIConfigResourceInfo> resources = service.list();
+            JSONArray json = new JSONArray();
+            resources.forEach(resource -> json.put(new JSONObject()
+                    .put("resourceKey", resource.getResourceKey())
+                    .put("contentType", resource.getContentType())));
+            return Response.ok(json.toString(), MediaType.APPLICATION_JSON_TYPE)
+                    .header("Cache-Control", "no-cache")
+                    .build();
+        } catch (UIConfigException e) {
+            LOGGER.log(Level.SEVERE, "Failed to list UI resources", e);
+            throw new InternalServerErrorException("Failed to list UI resources");
+        }
+    }
 
     @GET
     @Path("{resourceKey:.+}")
