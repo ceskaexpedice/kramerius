@@ -15,7 +15,10 @@ dependencies {
 processWorker {
 	workerName = "cdkworker"
 	warArtifact = "org.ceskaexpedice:process-worker:${processapiversion}"
-	plugins = [
+
+    autoShareLibraries = true
+
+    plugins = [
         project(":processes:platform:cdk:cdk-migration-plugin"),
         project(":processes:platform:cdk:cdk-update-migration-plugin"),
         project(":processes:platform:cdk:cdk-delete-library"),

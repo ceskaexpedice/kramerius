@@ -121,7 +121,7 @@ public class CDKMigration {
                     configuration = EffectiveMigrationConfigRenderer.render(configuration, client);
                 }
             }
-            LOGGER.fine("Loading configuration " + configuration);
+            LOGGER.info("Loading configuration " + configuration);
 
             File tmpFile = createTempFile();
             FileUtils.write(tmpFile, configuration, "UTF-8");
