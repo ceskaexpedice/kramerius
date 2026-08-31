@@ -17,18 +17,8 @@ public class NullStatisticsAccessLogImpl extends AggregatedAccessLogs {
     }
 
     @Override
-    public void reportAccess(String pid, String streamName) throws IOException {
-
-    }
-
-    @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
 
-    }
-
-    @Override
-    public boolean isReportingAccess(String pid, String streamName) {
-        return false;
     }
 
     @Override

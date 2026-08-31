@@ -14,6 +14,7 @@ import javax.ws.rs.core.StreamingOutput;
 import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.utils.ExtractDataInfoUtils;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.inovatika.monitoring.ApiCallEvent;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -104,7 +105,7 @@ public class CDKItemResource {
 
                         if (FedoraUtils.DEFAULT_SECURED_STREAM.contains(dsid)) {
                             try {
-                                this.accessLog.reportAccess(pid, dsid);
+                                this.accessLog.reportAccess(pid, dsid, ReportedAction.READ.name());
                             } catch (IOException e) {
                                 LOGGER.log(Level.WARNING, "Cannot log access to " + pid + "/" + dsid, e);
                             }

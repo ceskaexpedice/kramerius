@@ -78,7 +78,7 @@ public class StatisticsResource {
 
 
     @Inject
-    @Named("database")
+    @Named("solr-statistics")
     StatisticsAccessLog statisticsAccessLog;
 
     @Inject

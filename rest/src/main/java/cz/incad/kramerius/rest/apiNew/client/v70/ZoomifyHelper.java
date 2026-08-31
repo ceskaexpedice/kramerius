@@ -7,6 +7,7 @@ import cz.incad.kramerius.imaging.DeepZoomCacheService;
 import cz.incad.kramerius.imaging.DeepZoomTileSupport;
 import cz.incad.kramerius.rest.apiNew.exceptions.NotFoundException;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.XMLUtils;
@@ -73,7 +74,7 @@ public class ZoomifyHelper {
 
     public Response buildImagePropertiesResponse(String pid, HttpServletRequest req) throws IOException, XPathExpressionException {
         try {
-            this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+            this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name());
             this.mostDesirable.saveAccess(pid, new java.util.Date());
         } catch (Exception e) {
             LOGGER.severe("cannot write statistic records");

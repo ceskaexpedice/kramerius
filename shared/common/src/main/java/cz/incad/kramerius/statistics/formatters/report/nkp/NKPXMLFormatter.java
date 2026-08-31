@@ -1,21 +1,12 @@
 package cz.incad.kramerius.statistics.formatters.report.nkp;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import cz.incad.kramerius.ObjectModelsPath;
-import cz.incad.kramerius.ObjectPidsPath;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
-import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.statistics.formatters.report.StatisticsReportFormatter;
 import cz.incad.kramerius.statistics.formatters.utils.StringUtils;
 import cz.incad.kramerius.statistics.impl.NKPLogReport;
-import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;

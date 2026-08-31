@@ -37,7 +37,6 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
-import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
 import cz.incad.kramerius.statistics.utils.ReportUtils;
@@ -379,8 +378,6 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
 
         JSONArray licJSONArray = new JSONArray();
         licenses.stream().forEach(licJSONArray::put);
-        map.put(DNNTStatisticsAccessLogImpl.DNNT_LABELS_KEY, licJSONArray);
-        map.put(DNNTStatisticsAccessLogImpl.LICENSES_KEY, licJSONArray);
 
         // root title
         if (obj.has("root_title")) {
