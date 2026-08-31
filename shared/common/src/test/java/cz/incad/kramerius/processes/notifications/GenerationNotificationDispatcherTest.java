@@ -17,6 +17,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -136,6 +137,41 @@ public class GenerationNotificationDispatcherTest {
         Assert.assertEquals(RECIPIENT, mailSender.recipients.get(0));
         Assert.assertTrue(mailSender.text.contains("https://kramerius.example/userspace/epub-token/epub"));
         Assert.assertTrue(mailSender.text.contains("generated.epub"));
+    }
+
+    @Test
+    public void sendsNotificationMailWithCommaInConfiguredBody() {
+        CapturingMailSender mailSender = new CapturingMailSender();
+        Configuration config = KConfiguration.getInstance().getConfiguration();
+        config.setProperty("generate.notification.email.sender", SENDER);
+        config.setProperty("generate.notification.email.subject", "File ready");
+        config.setProperty("generate.notification.email.body", Arrays.asList(
+                "Dobry den",
+                " Vas pozadavek na generovani ($title$ - $filename$) byl vyrizen.\nSoubor je pripraven zde - $link$.\nOdkaz na digitalizat je zde: https://client.example/uuid/$pid$"
+        ));
+
+        GenerationNotificationDispatcher.notify(
+                notification("pdf", "genpdf", "uuid:notification", "notification-token", "https://kramerius.example/userspace/notification-token/pdf"),
+                GenerationNotificationDispatcher.MODE_LOCAL,
+                null,
+                new GenerationNotificationDispatcher.LocalMailConfiguration(
+                        "generate.notification.email.sender",
+                        "generate.notification.email.subject",
+                        "generate.notification.email.body",
+                        null,
+                        null,
+                        "Soubor pripraven ke stazeni",
+                        "Dobry den,\nsoubor $filename$ je pripraven ke stazeni.\nOdkaz ke stazeni: $link$"
+                ),
+                mailSender
+        );
+
+        Assert.assertEquals("File ready", mailSender.subject);
+        String normalizedText = mailSender.text.replace("\r\n", "\n");
+        Assert.assertEquals(
+                "Dobry den, Vas pozadavek na generovani (Generated pdf - generated.pdf) byl vyrizen.\nSoubor je pripraven zde - https://kramerius.example/userspace/notification-token/pdf.\nOdkaz na digitalizat je zde: https://client.example/uuid/uuid:notification",
+                normalizedText
+        );
     }
 
     @Test

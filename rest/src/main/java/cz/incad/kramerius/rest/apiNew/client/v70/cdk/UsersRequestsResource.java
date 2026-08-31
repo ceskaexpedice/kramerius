@@ -84,8 +84,10 @@ public class UsersRequestsResource extends ClientApiResource {
         //String downloadUrl = payload.optString("downloadUrl", null);
         String documentType = payload.optString("documentType", null);
 
+        LOGGER.fine("Payload "+payload.toString()+"\n\n");
+
         String api = KConfiguration.getInstance().getConfiguration().getString("api.client.point");
-        String link = String.format("%s/%s/%s/%s", api, "userrequests/userspace", downloadCDKToken != null ? downloadCDKToken : downloadToken, documentType);
+        String link = String.format("%s/%s/%s/%s", api, "userrequests/userspace", downloadCDKToken != null ? downloadCDKToken : source+":"+downloadToken, documentType);
 
         GenerationNotificationDispatcher.notify(
                 new GenerationNotification.Builder()
@@ -385,6 +387,7 @@ public class UsersRequestsResource extends ClientApiResource {
     }
 
     private void sendEmailNotification(String emailFrom, List<Object> recipients, String subject, String text) throws javax.mail.MessagingException {
+        LOGGER.info("\t Sending email notification: from=" + emailFrom + ", recipients=" + recipients + ", subject=" + subject + ", text=" + text);
         Session session = new MailerImpl().getSession(null, null);
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(emailFrom));
