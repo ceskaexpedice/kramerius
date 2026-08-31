@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.core.Response;
 
+import cz.incad.kramerius.statistics.ReportedAction;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -40,7 +41,7 @@ public abstract class AbstractTileResource {
 
     protected void reportAccess(AggregatedAccessLogs accessLogs, String pid) {
         try {
-            accessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+            accessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name());
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }

@@ -14,7 +14,7 @@ public class NullStatisticsModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        this.bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(NullStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        this.bind(StatisticsAccessLog.class).annotatedWith(Names.named("solr-statistics")).to(NullStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
         this.bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(NullStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
 
         this.bind(AggregatedAccessLogs.class).in(Scopes.SINGLETON);

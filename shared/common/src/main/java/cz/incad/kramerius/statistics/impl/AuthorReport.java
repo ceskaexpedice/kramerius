@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
-import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
 
 import com.google.inject.Inject;

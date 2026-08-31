@@ -19,51 +19,30 @@
  */
 package cz.incad.kramerius.statistics.impl;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.StatisticReport;
+import cz.incad.kramerius.statistics.StatisticsReportException;
+import cz.incad.kramerius.statistics.StatisticsReportSupport;
+import cz.incad.kramerius.statistics.filters.*;
+import cz.incad.kramerius.statistics.utils.ReportUtils;
+import cz.incad.kramerius.utils.database.Offset;
+import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
-import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
-
-import antlr.StringUtils;
-import cz.incad.kramerius.SolrAccess;
-import cz.incad.kramerius.statistics.ReportedAction;
-import cz.incad.kramerius.statistics.StatisticReport;
-import cz.incad.kramerius.statistics.StatisticsReportException;
-import cz.incad.kramerius.statistics.StatisticsReportSupport;
-import cz.incad.kramerius.statistics.filters.DateFilter;
-import cz.incad.kramerius.statistics.filters.IPAddressFilter;
-import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
-import cz.incad.kramerius.statistics.filters.LicenseFilter;
-import cz.incad.kramerius.statistics.filters.ModelFilter;
-import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
-import cz.incad.kramerius.statistics.filters.UniqueIPAddressesFilter;
-import cz.incad.kramerius.statistics.filters.VisibilityFilter;
-import cz.incad.kramerius.statistics.utils.ReportUtils;
-import cz.incad.kramerius.utils.DatabaseUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
-import cz.incad.kramerius.utils.database.JDBCUpdateTemplate;
-import cz.incad.kramerius.utils.database.Offset;
 
 /**
  * Report pro konkretni model

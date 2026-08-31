@@ -23,6 +23,7 @@ import cz.incad.kramerius.rest.apiNew.utils.ExtractDataInfoUtils;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.limits.LimitConfiguration;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.dochub.UserContentSpace;
 import cz.inovatika.monitoring.APICallMonitor;
@@ -580,7 +581,7 @@ public class ItemsResource extends ClientApiResource {
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
 
-            this.accessLog.reportAccess(pid, KnownDatastreams.IMG_FULL.toString());
+            this.accessLog.reportAccess(pid, KnownDatastreams.IMG_FULL.toString(), ReportedAction.READ.name());
 
             if (ImageMimeType.JPEG2000.getValue().equals(mimeType)) {
                 StreamingOutput stream = output -> {
@@ -1246,7 +1247,7 @@ public class ItemsResource extends ClientApiResource {
             if (imgPreview == null) {
                 throw new NotFoundException("no image/preview available for object %s (and it's descendants)", pid);
             } else {
-                this.accessLog.reportAccess(pid, KnownDatastreams.IMG_PREVIEW.toString());
+                this.accessLog.reportAccess(pid, KnownDatastreams.IMG_PREVIEW.toString(), ReportedAction.READ.name());
                 StreamingOutput stream = output -> {
                     IOUtils.copy(imgPreview.getFirst(), output);
                     IOUtils.closeQuietly(imgPreview.getFirst());
@@ -1322,14 +1323,14 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.MP3)) {
-                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_MP3.toString());
+                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_MP3.toString(), ReportedAction.READ.name());
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.MP3);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_MP3.toString());
+                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_MP3.toString(), ReportedAction.READ.name());
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_MP3).getMimetype();
                 InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_MP3).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
@@ -1428,14 +1429,14 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.OGG)) {
-                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_OGG.toString());
+                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_OGG.toString(), ReportedAction.READ.name());
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.OGG);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_OGG.toString());
+                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_OGG.toString(), ReportedAction.READ.name());
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_OGG).getMimetype();
                 InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_OGG).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
@@ -1490,14 +1491,14 @@ public class ItemsResource extends ClientApiResource {
             checkObjectAndDatastreamExist(pid, dsId.toString());
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             if (shouldUseAudioServer(pid, AudioFormat.WAV)) {
-                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_WAV.toString());
+                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_WAV.toString(), ReportedAction.READ.name());
                 HttpServletRequest request = this.requestProvider.get();
                 AudioStreamId audioStreamId = new AudioStreamId(pid, AudioFormat.WAV);
                 Response.ResponseBuilder builder = Response.ok(); //status code will be replaced
                 audioHelper.forwardHttpGET(audioStreamId, request, builder);
                 return builder.build();
             } else {
-                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_WAV.toString());
+                this.accessLog.reportAccess(pid, KnownDatastreams.AUDIO_WAV.toString(), ReportedAction.READ.name());
                 String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.AUDIO_WAV).getMimetype();
                 InputStream is = akubraRepository.getDatastreamContent(pid, KnownDatastreams.AUDIO_WAV).asInputStream();
                 return getAudioDataFromAkubra(mimeType, is, pid);
@@ -1710,9 +1711,9 @@ public class ItemsResource extends ClientApiResource {
     private void reportAccess(String pid, String streamName) {
         try {
             if (this.accessLog != null) {
-                this.accessLog.reportAccess(pid, streamName);
+                this.accessLog.reportAccess(pid, streamName, ReportedAction.READ.name());
             } else {
-                this.accessLog.reportAccess(pid, null);
+                this.accessLog.reportAccess(pid, null, ReportedAction.READ.name());
             }
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid + ", stream name: " + streamName, e);
@@ -1852,7 +1853,7 @@ public class ItemsResource extends ClientApiResource {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            this.accessLog.reportAccess(pid, dsId.toString());
+            this.accessLog.reportAccess(pid, dsId.toString(), ReportedAction.READ.name());
 
             try (InputStream is = akubraRepository.getDatastreamContent(pid, dsId.name()).asInputStream();
                  ZipInputStream zip = new ZipInputStream(is)) {

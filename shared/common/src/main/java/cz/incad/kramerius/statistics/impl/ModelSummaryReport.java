@@ -1,40 +1,17 @@
 package cz.incad.kramerius.statistics.impl;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import org.antlr.stringtemplate.StringTemplate;
-
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.name.Named;
-
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsReportException;
 import cz.incad.kramerius.statistics.StatisticsReportSupport;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
-import cz.incad.kramerius.statistics.filters.DateFilter;
-import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
-import cz.incad.kramerius.statistics.filters.LicenseFilter;
-import cz.incad.kramerius.statistics.filters.ModelFilter;
-import cz.incad.kramerius.statistics.filters.MultimodelFilter;
-import cz.incad.kramerius.statistics.filters.StatisticsFilter;
-import cz.incad.kramerius.statistics.filters.StatisticsFiltersContainer;
-import cz.incad.kramerius.statistics.filters.VisibilityFilter;
-import cz.incad.kramerius.utils.database.JDBCQueryTemplate;
+import cz.incad.kramerius.statistics.filters.*;
 import cz.incad.kramerius.utils.database.Offset;
+
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  *  Agregovany report -> Modely a pocty 
