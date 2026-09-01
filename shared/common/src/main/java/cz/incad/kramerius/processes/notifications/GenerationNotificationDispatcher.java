@@ -70,13 +70,13 @@ public class GenerationNotificationDispatcher {
             return;
         }
 
-        String subject = config.getString(mailConfiguration.getSubjectKey(), mailConfiguration.getDefaultSubject());
-        String text = config.getString(mailConfiguration.getBodyKey(), "");
+        String subject = getTextProperty(config, mailConfiguration.getSubjectKey(), mailConfiguration.getDefaultSubject());
+        String text = getTextProperty(config, mailConfiguration.getBodyKey(), "");
         if (!StringUtils.isAnyString(text) && StringUtils.isAnyString(mailConfiguration.getLegacyBodyKey())) {
-            text = config.getString(mailConfiguration.getLegacyBodyKey(), "");
+            text = getTextProperty(config, mailConfiguration.getLegacyBodyKey(), "");
         }
         String k7DocUrl = StringUtils.isAnyString(mailConfiguration.getK7DocUrlTemplateKey())
-                ? config.getString(mailConfiguration.getK7DocUrlTemplateKey(), "")
+                ? getTextProperty(config, mailConfiguration.getK7DocUrlTemplateKey(), "")
                 : "";
         if (!StringUtils.isAnyString(text)) {
             text = mailConfiguration.defaultBody(k7DocUrl);
@@ -88,6 +88,9 @@ public class GenerationNotificationDispatcher {
         template.setAttribute("link", notification.getDownloadUrl());
         template.setAttribute("pid", notification.getPid());
         template.setAttribute("token", notification.getDownloadToken());
+
+        template.setAttribute("cdkToken", notification.getDownloadCDKToken());
+        template.setAttribute("cdkSource", notification.getSource());
 
         try {
             mailSender.send(senderEmail, Arrays.asList(notification.getEmail()), subject, template.toString());
@@ -176,6 +179,17 @@ public class GenerationNotificationDispatcher {
             }
             return builder.toString();
         }
+    }
+
+    private static String getTextProperty(Configuration config, String key, String defaultValue) {
+        if (!StringUtils.isAnyString(key) || !config.containsKey(key)) {
+            return defaultValue;
+        }
+        String[] values = config.getStringArray(key);
+        if (values.length == 0) {
+            return defaultValue;
+        }
+        return String.join(",", values);
     }
 
     public interface MailSender {

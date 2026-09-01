@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'org.ceskaexpedice.processplatform.process' version '1.0.5'
+     id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
 }
 
 description = 'Project for migration data from remote kramerius to cdk index'
@@ -13,6 +13,11 @@ processPlugin {
              description: "CDK Migration from one library do another one",
              jvmArgs: ["-Xms1g","-Xmx32g"]]
     ]
+    excludeDependencies = [
+        'com.sun.jersey',
+        'javax.ws.rs'
+    ]
+
 }
 
 dependencies {
