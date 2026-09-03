@@ -40,6 +40,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.google.inject.name.Named;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
+import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.w3c.dom.Document;
@@ -366,7 +367,7 @@ public class ZoomifyServlet extends AbstractImageServlet {
 
     private void reportAccess(String pid) {
         try {
-            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM);
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name());
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }

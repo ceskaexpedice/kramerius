@@ -30,14 +30,6 @@ public interface StatisticsAccessLog {
 
     /**
      * Report one access 
-     * @param pid accessing pid 
-     * @param streamName accessing stream
-     * @throws IOException IO error has been occured
-     */
-    public void reportAccess(String pid, String streamName) throws IOException;
-    
-    /**
-     * Report one access 
      * @param pid
      * @param streamName
      * @param actionName
@@ -45,14 +37,6 @@ public interface StatisticsAccessLog {
      */
     public void reportAccess(String pid, String streamName, String actionName) throws IOException;
     
-    /**
-     * Returns true if access to  given pid and stream should be reported
-     * @param pid accessing pid
-     * @param streamName accessing stream
-     * @return
-     */
-    public boolean isReportingAccess(String pid, String streamName);
-
     /**
      * Process all log
      * @param sup

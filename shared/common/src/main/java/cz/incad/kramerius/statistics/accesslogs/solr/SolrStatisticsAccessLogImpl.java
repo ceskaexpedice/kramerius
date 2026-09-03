@@ -59,7 +59,6 @@ import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.accesslogs.AbstractStatisticsAccessLog;
 import cz.incad.kramerius.statistics.accesslogs.LogRecord;
 import cz.incad.kramerius.statistics.accesslogs.LogRecordDetail;
-import cz.incad.kramerius.statistics.accesslogs.database.DatabaseStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
@@ -77,7 +76,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     private static final String SOLR_POINT_NEW = "api.log.point";
 
 
-    static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DatabaseStatisticsAccessLogImpl.class.getName());
+    static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SolrStatisticsAccessLogImpl.class.getName());
 
 
     @Inject
@@ -117,7 +116,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
     }
 
     @Override
-    public void reportAccess(final String pid, final String streamName) throws IOException {
+    public void reportAccess(final String pid, final String streamName, String actionName) throws IOException {
         Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
         
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(solrDoc);
@@ -195,7 +194,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 logRecord.setUserSessionAttributes(new JSONObject(user.getSessionAttributes()).toString());
             }
             
-            logRecord.setReportedAction(this.reportedAction != null  && this.reportedAction.get() != null ?  this.reportedAction.get().name() : ReportedAction.READ.name());
+            logRecord.setReportedAction(actionName);
             logRecord.setDbVersion(versionService.getVersion());
             // pokud je user != null -> tokenid
             // jinak sessionid
@@ -344,20 +343,6 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         return results;
     }
     
-    //TODO: Implement
-    @Override
-    public void reportAccess(String pid, String streamName, String actionName) throws IOException {
-        ReportedAction action = ReportedAction.valueOf(actionName);
-        this.reportedAction.set(action);
-        this.reportAccess(pid, streamName);
-    }
-
-    @Override
-    public boolean isReportingAccess(String pid, String streamName) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
     @Override
     public void processAccessLog(ReportedAction reportedAction, StatisticsAccessLogSupport sup) {
         // TODO Auto-generated method stub

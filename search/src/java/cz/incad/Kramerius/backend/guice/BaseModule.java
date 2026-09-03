@@ -32,7 +32,6 @@ import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
-import cz.incad.kramerius.statistics.accesslogs.dnnt.DNNTStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.impl.*;
 import cz.inovatika.cdk.cache.CDKRequestCacheSupport;
@@ -55,8 +54,7 @@ public class BaseModule extends AbstractModule {
     protected void configure() {
 
         // logs statistics
-        bind(StatisticsAccessLog.class).annotatedWith(Names.named("database")).to(SolrStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
-        bind(StatisticsAccessLog.class).annotatedWith(Names.named("dnnt")).to(DNNTStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class).annotatedWith(Names.named("solr-statistics")).to(SolrStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
 
         // api monitoring
         bind(APICallMonitor.class).to(SolrAPICallMonitor.class).asEagerSingleton();
@@ -71,7 +69,6 @@ public class BaseModule extends AbstractModule {
         reports.addBinding().to(LangReport.class);
         reports.addBinding().to(LicenseReport.class);
         reports.addBinding().to(AnnualStatisticsReport.class);
-        reports.addBinding().to(PidsReport.class);
 
         reports.addBinding().to(MultimodelReport.class);
         reports.addBinding().to(NKPLogReport.class);

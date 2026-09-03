@@ -179,9 +179,11 @@ public class SDNNTSyncResource {
         JSONArray response = new JSONArray();
 
         try {
+            LOGGER.info(" Scheduling batches for synchronization ");
             SyncActionEnum[] values = SyncActionEnum.values();
             for (SyncActionEnum action : values) {
                 List<String> defids = action.getDefids();
+                LOGGER.info(String.format("Scheduling  %s", action.name()));
                 if (!defids.isEmpty()) {
                     for (int j = 0; j < defids.size(); j++) {
                         String defid = defids.get(j);
@@ -210,7 +212,9 @@ public class SDNNTSyncResource {
                             List<String> paramsList = Arrays.asList(license,
                                     "pidlist_file:"+pidlistFile.getAbsolutePath());
 
-                            
+
+                            LOGGER.info(String.format("Scheduling %s batch %d of %d", action.name(), i, numberOfBatches));
+
                             String prefix = action.name().startsWith("add") ? "Přidání licence" : "Odebrání licence";
                             String name = String.format("%s '%s' pro %s", prefix, paramsList.get(0), paramsList.get(1));
                             if (name.toCharArray().length > 1024) {
@@ -220,7 +224,7 @@ public class SDNNTSyncResource {
 
 
                             JSONObject sdnntSyncPar = getSDNNTSyncProcess(defid, pidlistFile, license, user.getLoginname());
-                            LOGGER.info(String.format("Schedule reindexation of %s and payload %s", name, sdnntSyncPar.toString(2) ));
+                            LOGGER.info(String.format("Schedule licenses of %s and payload %s", name, sdnntSyncPar.toString(2) ));
                             JSONObject jsonObject = APIProcessScheduler.scheduleMainProcess(this.apacheClient, sdnntSyncPar);
                             String processIdVal = jsonObject.optString("processId");
 
@@ -259,8 +263,6 @@ public class SDNNTSyncResource {
                             }
 
                             JSONObject retobject = new JSONObject();
-                            // retobject.put("processId", batch.processId);
-                            // retobject.put("processUuid", batch.processUuid);
                             retobject.put("sync_actions", action.name());
                             retobject.put("defid", defid);
                             retobject.put("license", license);
