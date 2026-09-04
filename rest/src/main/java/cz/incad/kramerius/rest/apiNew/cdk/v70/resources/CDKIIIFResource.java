@@ -33,12 +33,16 @@ import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
+import cz.incad.kramerius.iiif.IIIFRequestGuard;
 import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+
+import static cz.incad.kramerius.iiif.IIIFRequestGuard.requiresFullReadCheck;
 
 /**
  * Provides support for IIIF endpoints
@@ -81,14 +85,7 @@ public class CDKIIIFResource extends AbstractTileResource {
             //unescape PID
             pid = URLDecoder.decode(pid, "UTF-8");
 
-            ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
-            boolean permited = false;
-            for (ObjectPidsPath pth : paths) {
-                permited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.A_READ.getFormalName(), pid, null, pth).flag();
-                if (permited) break;
-            }
-
-            if (permited) {
+            if (permitted(pid)) {
                 try {
                     reportAccess(aggregatedAccessLogs, pid);
                     String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
@@ -123,6 +120,17 @@ public class CDKIIIFResource extends AbstractTileResource {
     }
 
 
+    private boolean permitted(String pid) throws IOException {
+        ObjectPidsPath[] paths = solrAccess.getPidPaths(pid);
+        boolean permited = false;
+        for (ObjectPidsPath pth : paths) {
+            permited = this.actionAllowed.isActionAllowed(userProvider.get(), SecuredActions.A_READ.getFormalName(), pid, null, pth).flag();
+            if (permited) break;
+        }
+        return permited;
+    }
+
+
     public static String disectZoom(String requestURL) {
         // "dvju"
         try {
@@ -150,6 +158,14 @@ public class CDKIIIFResource extends AbstractTileResource {
     }
 
     public Response iiifTile(String pid, String region, String size, String rotation,String qf, String format) throws IOException {
+        pid = URLDecoder.decode(pid, "UTF-8");
+
+        int maxTileSize = KConfiguration.getInstance().getConfiguration()
+                .getInt("iiif.tile.maxsize", IIIFRequestGuard.DEFAULT_MAX_TILE_SIZE);
+        if (requiresFullReadCheck(region, size, maxTileSize) && !permitted(pid)) {
+            throw new ActionNotAllowed("not allowed");
+        }
+
         String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
         if(u != null) {
             String defaultMime = ItemsResource.IIIF_SUPPORTED_MIMETYPES.get(format);

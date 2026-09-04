@@ -190,6 +190,7 @@ public class SolrInputBuilder {
         }
 
         //datastreams for data extractions
+        
         Element relsExtRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "RELS-EXT");
         Element modsRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "BIBLIO_MODS");
         //Element dcRootEl = getLatestDatastreamVersionXmlContent(foxmlDoc, "DC");

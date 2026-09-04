@@ -8,6 +8,7 @@ import cz.incad.Kramerius.imaging.utils.CDKIIIFServletUtils;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.cdk.CDKUtils;
+import cz.incad.kramerius.iiif.IIIFRequestGuard;
 import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
@@ -40,6 +41,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -125,11 +127,13 @@ public class IiifServlet extends AbstractImageServlet {
                     return;
                 }
 
-
-                StringBuilder iiifUrl = new StringBuilder(forwardUrl + (forwardUrl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/iiif/" + pid);
+                String cdkIiifBaseUrl = forwardUrl + (forwardUrl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/iiif/" + pid;
+                StringBuilder iiifUrl = new StringBuilder(cdkIiifBaseUrl);
                 boolean isInfoRequest = false;
+                List<String> iiifTokens = new ArrayList<>();
                 while (tokenizer.hasMoreTokens()) {
                     String token = tokenizer.nextToken();
+                    iiifTokens.add(token);
                     iiifUrl.append("/").append(token);
                     if ("info.json".equals(token)) isInfoRequest = true;
                 }
@@ -137,6 +141,17 @@ public class IiifServlet extends AbstractImageServlet {
                 if (isInfoRequest) {
                     proxyInfoJson(acronym, iiifUrl.toString(), req, resp);
                 } else {
+                    String region = iiifTokens.size() > 0 ? iiifTokens.get(0) : null;
+                    String size = iiifTokens.size() > 1 ? iiifTokens.get(1) : null;
+                    int maxTileSize = KConfiguration.getInstance().getConfiguration()
+                            .getInt("iiif.tile.maxsize", IIIFRequestGuard.DEFAULT_MAX_TILE_SIZE);
+                    if (IIIFRequestGuard.requiresInfoJsonProbe(region, size, maxTileSize)) {
+                        int status = probeInfoJson(acronym, cdkIiifBaseUrl + "/info.json", req);
+                        if (status != HttpServletResponse.SC_OK) {
+                            resp.sendError(status);
+                            return;
+                        }
+                    }
                     proxyTile(acronym, iiifUrl.toString(), req, resp);
                 }
             } else {
@@ -227,6 +242,27 @@ public class IiifServlet extends AbstractImageServlet {
         String baseurl = KConfiguration.getInstance().getConfiguration()
                 .getString("cdk.collections.sources." + source + ".forwardurl");
         return baseurl;
+    }
+
+
+    private int probeInfoJson(String source, String url, HttpServletRequest req) throws IOException {
+        org.apache.hc.client5.http.classic.methods.HttpGet get = new org.apache.hc.client5.http.classic.methods.HttpGet(url);
+
+        CDKIIIFServletUtils.httpRequestAPIKey(source, get);
+        String remoteAddress = IPAddressUtils.getRemoteAddress(req, KConfiguration.getInstance().getConfiguration());
+        CDKIIIFServletUtils.httpRequestCDKPARAMETERS(source, this.userProvider.get(), remoteAddress, get);
+
+        try (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse response = (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse) apacheClient.get().execute(get)) {
+            int code = response.getCode();
+            org.apache.hc.core5.http.HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                org.apache.hc.core5.http.io.entity.EntityUtils.consume(entity);
+            }
+            return code;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error during probing info.json from: " + url, e);
+            return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        }
     }
 
 
