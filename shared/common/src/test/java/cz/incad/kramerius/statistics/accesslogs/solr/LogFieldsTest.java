@@ -1,6 +1,5 @@
 package cz.incad.kramerius.statistics.accesslogs.solr;
 
-import cz.incad.kramerius.utils.DCUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
