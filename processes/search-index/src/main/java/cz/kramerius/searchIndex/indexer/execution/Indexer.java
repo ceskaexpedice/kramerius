@@ -2,6 +2,7 @@ package cz.kramerius.searchIndex.indexer.execution;
 
 
 import cz.incad.kramerius.utils.IterationUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
@@ -9,6 +10,7 @@ import cz.kramerius.searchIndex.indexer.conversions.SolrInputBuilder;
 import cz.kramerius.searchIndex.indexer.conversions.extraction.AudioAnalyzer;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
+import cz.kramerius.utils.EncodingAwareReader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
@@ -23,6 +25,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -30,6 +34,8 @@ import java.util.logging.Logger;
 
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
+    private static final int OCR_DEBUG_PREVIEW_LENGTH = 160;
+    private static final String OCR_REPAIR_MISDECODED_UTF8_KEY = "search.index.ocr.repairMisdecodedUtf8";
 
     public static final int INDEXER_VERSION = 25; //this should be updated after every change in logic, that affects full indexation
 
@@ -256,7 +262,7 @@ public class Indexer {
 
 
                 boolean ocrExists = akubraRepository.datastreamExists(pid, KnownDatastreams.OCR_TEXT);
-                String ocr = ocrExists ?  akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString() : null;
+                String ocr = ocrExists ? readOcrText(pid) : null;
                 String ocrText = normalizeWhitespacesForOcrText(ocr);
 
                 //Check if the last character of the last valid word in OCR text is a hyphen, and if so, check the next page for the first word
@@ -268,7 +274,7 @@ public class Indexer {
                         if (syblings.size() > pos+1) {
                             String nextPid = syblings.get(pos + 1);
                             if (akubraRepository.datastreamExists(nextPid, KnownDatastreams.OCR_TEXT)) {
-                                String nextOcrText = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asString();
+                                String nextOcrText = readOcrText(nextPid);
                                 if (nextOcrText != null) {
                                     String lastWord = tuple.getLeft();
                                     int offset = tuple.getRight();
@@ -281,6 +287,14 @@ public class Indexer {
                 }
 
                 ocrText = normalizeWhitespacesForOcrText(ocrText);
+                String ocrDebugMessage = String.format(
+                        "OCR text_ocr indexing debug: pid=%s, model=%s, datastreamExists=%s, normalizedLength=%d, preview=\"%s\"",
+                        pid,
+                        repositoryNode.getModel(),
+                        ocrExists,
+                        ocrText == null ? 0 : ocrText.length(),
+                        debugPreview(ocrText));
+                LOGGER.fine(ocrDebugMessage);
                 //IMG_FULL mimetype
                 String imgFullMime = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
 
@@ -292,6 +306,13 @@ public class Indexer {
                     solrIndexer.indexFromXmlString(solrInputStr, false);
                 } catch (DocumentException e) {  //try to reindex without ocr - TODO: hack, ocr should be properly escaped
                     //typical root cause: Caused by: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 2302; Character reference "&#6" is an invalid XML character.
+                    String withoutOcrDebugMessage = String.format(
+                            "Reindexing without text_ocr after DocumentException: pid=%s, model=%s, originalOcrLength=%d, error=%s",
+                            pid,
+                            repositoryNode.getModel(),
+                            ocrText == null ? 0 : ocrText.length(),
+                            e.getMessage());
+                    reportError(withoutOcrDebugMessage);
                     SolrInput solrInput = solrInputBuilder.processObjectFromRepository(akubraRepository, foxmlDoc, "", repositoryNode, nodeManager, imgFullMime, audioLength, setFullIndexationInProgress);
                     String solrInputStr = solrInput.getDocument().asXML();
                     solrIndexer.indexFromXmlString(solrInputStr, false);
@@ -360,11 +381,110 @@ public class Indexer {
     }
 
     static String normalizeWhitespacesForOcrText(String ocrText) {
-        return ocrText == null ? null : ocrText
+        return normalizeWhitespacesForOcrText(
+                ocrText,
+                KConfiguration.getInstance().getConfiguration().getBoolean(OCR_REPAIR_MISDECODED_UTF8_KEY, false)
+        );
+    }
+
+    static String normalizeWhitespacesForOcrText(String ocrText, boolean repairMisdecodedUtf8) {
+        if (ocrText == null) {
+            return null;
+        }
+        String normalized = repairMisdecodedUtf8 ? repairMisdecodedUtf8(ocrText) : ocrText;
+        return normalized
                 // ("MAR-\nTIN", "MAR-\r\nTIN", "MAR-\n   TIN", "MAR-\n\tTIN", etc.) -> MARTIN
                 .replaceAll("-\\r?\\n\\s*", "")
                 // groups of white spaces -> " "
                 .replaceAll("\\s+", " ");
+    }
+
+    private static String repairMisdecodedUtf8(String text) {
+        StringBuilder result = new StringBuilder(text.length());
+        StringBuilder token = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (Character.isWhitespace(ch)) {
+                appendRepairedToken(result, token);
+                result.append(ch);
+            } else {
+                token.append(ch);
+            }
+        }
+        appendRepairedToken(result, token);
+        return result.toString();
+    }
+
+    private static void appendRepairedToken(StringBuilder result, StringBuilder token) {
+        if (token.length() == 0) {
+            return;
+        }
+        String original = token.toString();
+        result.append(repairMisdecodedUtf8Token(original));
+        token.setLength(0);
+    }
+
+    private static String repairMisdecodedUtf8Token(String token) {
+        if (!looksLikeMisdecodedUtf8(token)) {
+            return token;
+        }
+        String repairedFromIso88591 = repairMisdecodedUtf8Token(token, StandardCharsets.ISO_8859_1);
+        String repairedFromWindows1252 = repairMisdecodedUtf8Token(token, Charset.forName("windows-1252"));
+        String repaired = suspectCharacterScore(repairedFromIso88591) <= suspectCharacterScore(repairedFromWindows1252)
+                ? repairedFromIso88591
+                : repairedFromWindows1252;
+        return shouldUseRepairedToken(token, repaired) ? repaired : token;
+    }
+
+    private static String repairMisdecodedUtf8Token(String token, Charset sourceCharset) {
+        return new String(token.getBytes(sourceCharset), StandardCharsets.UTF_8);
+    }
+
+    private static boolean shouldUseRepairedToken(String original, String repaired) {
+        return !repaired.contains("\uFFFD") && suspectCharacterScore(repaired) < suspectCharacterScore(original);
+    }
+
+    private static boolean looksLikeMisdecodedUtf8(String token) {
+        return token.indexOf('\uFFFD') >= 0
+                || token.indexOf('Ã') >= 0
+                || token.indexOf('Ä') >= 0
+                || token.indexOf('Å') >= 0
+                || token.indexOf('Â') >= 0
+                || token.indexOf('â') >= 0
+                || containsC1Control(token);
+    }
+
+    private static boolean containsC1Control(String token) {
+        return token.chars().anyMatch(ch -> ch >= 0x80 && ch <= 0x9F);
+    }
+
+    private static int suspectCharacterScore(String token) {
+        int score = 0;
+        for (int i = 0; i < token.length(); i++) {
+            char ch = token.charAt(i);
+            if (ch == '\uFFFD' || ch == 'Ã' || ch == 'Ä' || ch == 'Å' || ch == 'Â' || ch == 'â') {
+                score += 2;
+            } else if (ch >= 0x80 && ch <= 0x9F) {
+                score += 3;
+            }
+        }
+        return score;
+    }
+
+    private String readOcrText(String pid) throws IOException {
+        try (InputStream inputStream = akubraRepository.getDatastreamContent(pid, KnownDatastreams.OCR_TEXT).asInputStream()) {
+            return EncodingAwareReader.readWithDetectedEncoding(inputStream);
+        }
+    }
+
+    private static String debugPreview(String text) {
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+        String preview = text.length() > OCR_DEBUG_PREVIEW_LENGTH
+                ? text.substring(0, OCR_DEBUG_PREVIEW_LENGTH) + "..."
+                : text;
+        return preview.replace("\"", "\\\"");
     }
 
     private void processChildren(String parentPid, RepositoryNode parentNode, Counters counters, IndexationType type, boolean isIndexationRoot, ProgressListener progressListener) {

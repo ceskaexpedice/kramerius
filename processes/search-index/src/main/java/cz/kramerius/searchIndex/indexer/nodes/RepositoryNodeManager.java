@@ -247,6 +247,57 @@ public class RepositoryNodeManager {
         return new ArrayList<>(result);
     }
 
+    public List<String> getEffectiveLicensesContainedByDescendants(String pid) {
+        Set<String> result = new HashSet<>();
+        collectEffectiveLicensesContainedByDescendants(pid, new HashSet<>(), result);
+        return new ArrayList<>(result);
+    }
+
+    private void collectEffectiveLicensesContainedByDescendants(String pid, Set<String> visitedPids, Set<String> result) {
+        if (pid == null || visitedPids.contains(pid)) {
+            return;
+        }
+        visitedPids.add(pid);
+
+        try {
+            String model = akubraRepository.pi().getModel(pid);
+            if ("page".equals(model) || "track".equals(model)) {
+                return;
+            }
+
+            OwnedAndFosteredChildren children = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
+            collectEffectiveLicensesFromChildren(children.own(), visitedPids, result);
+            collectEffectiveLicensesFromChildren(children.foster(), visitedPids, result);
+        } catch (RuntimeException e) {
+            handleContainsLicensesExtractionError(pid, e);
+        }
+    }
+
+    private void collectEffectiveLicensesFromChildren(List<ProcessingIndexItem> children, Set<String> visitedPids, Set<String> result) {
+        if (children == null) {
+            return;
+        }
+        for (ProcessingIndexItem child : children) {
+            String childPid = child.targetPid();
+            if (childPid == null || visitedPids.contains(childPid) || !akubraRepository.exists(childPid)) {
+                continue;
+            }
+            try {
+                Document relsExtDoc = akubraRepository.re().get(childPid).asDom4j(false);
+                RepositoryNode childNode = getKrameriusNode(childPid);
+                if (childNode != null) {
+                    result.addAll(childNode.getLicenses());
+                    result.addAll(childNode.getLicensesOfAncestors());
+                }
+                LicensesExtractor extractor = new LicensesExtractor();
+                result.addAll(extractor.extractContainsLicenses(relsExtDoc.getRootElement()));
+                collectEffectiveLicensesContainedByDescendants(childPid, visitedPids, result);
+            } catch (RuntimeException e) {
+                handleContainsLicensesExtractionError(childPid, e);
+            }
+        }
+    }
+
     private void collectLicensesContainedByDescendants(String pid, Set<String> visitedPids, Set<String> result) {
         if (pid == null || visitedPids.contains(pid)) {
             return;

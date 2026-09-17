@@ -305,7 +305,7 @@ public class SolrInputBuilder {
                 addSolrField(solrInput, "contains_licenses", license);
             }
             if ("collection".equals(model) && nodeManager != null) {
-                for (String license : nodeManager.getLicensesContainedByDescendants(repositoryNode.getPid())) {
+                for (String license : nodeManager.getEffectiveLicensesContainedByDescendants(repositoryNode.getPid())) {
                     addSolrField(solrInput, "contains_licenses", license);
                 }
             }

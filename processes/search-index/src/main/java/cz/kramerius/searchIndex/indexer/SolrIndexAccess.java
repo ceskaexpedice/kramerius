@@ -208,7 +208,7 @@ public class SolrIndexAccess {
             updateDoc.addField("pid", pid);
 
             Map<String, Object> updateData = new HashMap<>();
-            updateData.put("set", value == null ? null : value.toString());
+            updateData.put("set", value);
             updateDoc.addField(fieldName, updateData);
 
             if (indexTime) {
