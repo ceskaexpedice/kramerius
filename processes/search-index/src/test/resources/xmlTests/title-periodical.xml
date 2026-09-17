@@ -58,6 +58,23 @@
         </out>
     </test>
 
+
+    <test name="Svoboda ">
+        <desc></desc>
+        <in>
+            <titleInfo>
+                <title>Svoboda</title>
+                <subTitle>orgán Středočeského krajského výboru KSČ</subTitle>
+            </titleInfo>
+        </in>
+        <out>
+            <field name="title.search">Svoboda: orgán Středočeského krajského výboru KSČ</field>
+            <field name="title.sort">SVOBODA ORGA|N STR|EDOC|ESKE|HO KRAJSKE|HO VY|BORU KSC|</field>
+            <field name="titles.search">Svoboda: orgán Středočeského krajského výboru KSČ</field>
+        </out>
+    </test>
+
+
 </testSuite>
 
 

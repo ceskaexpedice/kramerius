@@ -20,8 +20,9 @@ public class UpdateStarter {
             @ParameterName("startIndexer") @IsRequired Boolean startIndexerFromArgs,
             @ParameterName("pathtype") String pathtype
     )  {
+        String resolvedPathType = resolvePathType(pathtype);
         File inputDataDir;
-        if (pathtype != null && pathtype.equals("relative")) {
+        if ("relative".equals(resolvedPathType)) {
             inputDataDir = new File(KConfiguration.getInstance().getProperty( "import.directory")+File.separator+importDirFromArgs);
         } else {
             inputDataDir = new File(importDirFromArgs);
@@ -32,10 +33,19 @@ public class UpdateStarter {
         LOGGER.info("--- Starting method: updateMain ---");
         LOGGER.info("Parameter 'inputDataDir': " + inputDataDir);
         LOGGER.info("Parameter 'startIndexer': " + startIndexerFromArgs);
+        LOGGER.info("Parameter 'pathtype': " + (resolvedPathType == null ? "N/A" : resolvedPathType));
         LOGGER.info("----------------------------------");
 
         LOGGER.info("Process platform " + inputDataDir.getAbsolutePath()+"; start indexer " + startIndexerFromArgs);
         //TODO: Pathtype - check
         UpdateStreams.updateMain(inputDataDir.getAbsolutePath(), startIndexerFromArgs);
+    }
+
+    private static String resolvePathType(String pathtype) {
+        if (StringUtils.isAnyString(pathtype)) {
+            return pathtype;
+        }
+        String configuredPathType = KConfiguration.getInstance().getConfiguration().getString("imports.pathtype");
+        return StringUtils.isAnyString(configuredPathType) ? configuredPathType : pathtype;
     }
 }
