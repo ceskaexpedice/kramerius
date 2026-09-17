@@ -19,6 +19,11 @@ import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
+import cz.kramerius.searchIndex.indexer.SolrConfig;
+import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
+import cz.kramerius.searchIndex.indexer.conversions.extraction.LicensesExtractor;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -492,7 +497,7 @@ public class CollectionsResource extends AdminApiResource {
                 akubraRepository.re().update(collectionPid, bis);
                 return null;
             });
-            //schedule reindexations - 1. newly added item (whole tree and foster trees), 2. collection object
+            //schedule reindexation - newly added item (whole tree and foster trees)
             //TODO: mozna optimalizace: pouzit zde indexaci typu COLLECTION_ITEMS (neimplementovana)
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
@@ -501,8 +506,7 @@ public class CollectionsResource extends AdminApiResource {
                 JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
 
-                JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
-                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
+                updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
             }
             JSONObject result = new JSONObject();
             if (scheduleMainProcessesPlanned.length() > 0) {
@@ -618,8 +622,7 @@ public class CollectionsResource extends AdminApiResource {
                     scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
                 }
                 if (!pidsAdded.isEmpty()) {
-                    JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
-                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
+                    updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
                 }
             }
 
@@ -647,6 +650,18 @@ public class CollectionsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    private void updateCollectionContainsLicensesInSearchIndex(String collectionPid, boolean ignoreInconsistentObjects) {
+        Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(false);
+        Set<String> containsLicenses = new HashSet<>(new LicensesExtractor().extractContainsLicenses(relsExt.getRootElement()));
+
+        RepositoryNodeManager nodeManager = new RepositoryNodeManager(akubraRepository, ignoreInconsistentObjects);
+        containsLicenses.addAll(nodeManager.getEffectiveLicensesContainedByDescendants(collectionPid));
+        RepositoryNode collectionNode = nodeManager.getKrameriusNode(collectionPid);
+
+        Object value = containsLicenses.isEmpty() ? null : new ArrayList<>(containsLicenses);
+        new SolrIndexAccess(new SolrConfig()).setSingleFieldValue(collectionPid, collectionNode, "contains_licenses", value, true, true);
     }
 
     private void checkCanAddItemToCollection(String itemPid, String collectionPid) throws
@@ -741,16 +756,13 @@ public class CollectionsResource extends AdminApiResource {
                 return null;
             });
             reindexCollection.forEach(itemPid -> {
-                // schedule reindexations - 1. item that was removed (whole tree and foster
-                // trees), 2. collection object
+                // schedule reindexation - item that was removed (whole tree and foster trees)
                 JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
                 scheduleMainProcesses.put(scheduleReindexationPar);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             });
             if (!reindexCollection.isEmpty()) {
-                JSONObject scheduleReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
-                scheduleMainProcesses.put(scheduleReindexationPar);
-                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
+                updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
             }
 
         } catch (WebApplicationException e) {
@@ -820,13 +832,12 @@ public class CollectionsResource extends AdminApiResource {
                     return null;
                 }
             });
-            //schedule reindexations - 1. item that was removed (whole tree and foster trees), 2. collection object
+            //schedule reindexation - item that was removed (whole tree and foster trees)
             JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
-            JSONObject scheduleCollectionReindexationPar = getScheduleReindexationPar(collectionPid, user1.getLoginname(), "OBJECT", true, "sbírka " + collectionPid);
             JSONObject result = new JSONObject();
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
-            scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleCollectionReindexationPar));
+            updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
             result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcessesPlanned);
             return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {
