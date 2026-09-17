@@ -2,6 +2,7 @@ package cz.kramerius.searchIndex.indexer.execution;
 
 
 import cz.incad.kramerius.utils.IterationUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
 import cz.kramerius.searchIndex.indexer.SolrInput;
@@ -34,6 +35,7 @@ import java.util.logging.Logger;
 public class Indexer {
     private static final Logger LOGGER = Logger.getLogger(Indexer.class.getName());
     private static final int OCR_DEBUG_PREVIEW_LENGTH = 160;
+    private static final String OCR_REPAIR_MISDECODED_UTF8_KEY = "search.index.ocr.repairMisdecodedUtf8";
 
     public static final int INDEXER_VERSION = 25; //this should be updated after every change in logic, that affects full indexation
 
@@ -379,7 +381,18 @@ public class Indexer {
     }
 
     static String normalizeWhitespacesForOcrText(String ocrText) {
-        return ocrText == null ? null : repairMisdecodedUtf8(ocrText)
+        return normalizeWhitespacesForOcrText(
+                ocrText,
+                KConfiguration.getInstance().getConfiguration().getBoolean(OCR_REPAIR_MISDECODED_UTF8_KEY, false)
+        );
+    }
+
+    static String normalizeWhitespacesForOcrText(String ocrText, boolean repairMisdecodedUtf8) {
+        if (ocrText == null) {
+            return null;
+        }
+        String normalized = repairMisdecodedUtf8 ? repairMisdecodedUtf8(ocrText) : ocrText;
+        return normalized
                 // ("MAR-\nTIN", "MAR-\r\nTIN", "MAR-\n   TIN", "MAR-\n\tTIN", etc.) -> MARTIN
                 .replaceAll("-\\r?\\n\\s*", "")
                 // groups of white spaces -> " "
