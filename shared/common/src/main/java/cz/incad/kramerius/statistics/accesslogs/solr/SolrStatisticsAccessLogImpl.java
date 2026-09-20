@@ -1,49 +1,9 @@
 package cz.incad.kramerius.statistics.accesslogs.solr;
 
-import static org.apache.http.HttpStatus.SC_OK;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathExpressionException;
-
-import cz.incad.kramerius.security.impl.criteria.Licenses;
-import cz.incad.kramerius.utils.IPAddressUtils;
-import cz.incad.kramerius.utils.XMLUtils;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.akubra.DatastreamContentWrapper;
-import org.ceskaexpedice.akubra.KnownDatastreams;
-import org.json.JSONObject;
-import org.w3c.dom.Document;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.sun.jersey.api.client.Client;
-
 import cz.incad.kramerius.ObjectModelsPath;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
@@ -52,6 +12,7 @@ import cz.incad.kramerius.pdf.utils.ModsUtils;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.impl.criteria.Licenses;
 import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.StatisticReport;
@@ -61,9 +22,38 @@ import cz.incad.kramerius.statistics.accesslogs.LogRecord;
 import cz.incad.kramerius.statistics.accesslogs.LogRecordDetail;
 import cz.incad.kramerius.statistics.accesslogs.utils.SElemUtils;
 import cz.incad.kramerius.utils.DCUtils;
+import cz.incad.kramerius.utils.IPAddressUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
+import org.apache.commons.configuration.Configuration;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.ceskaexpedice.akubra.AkubraRepository;
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static org.apache.http.HttpStatus.SC_OK;
 
 public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
@@ -221,6 +211,7 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             
             logRecord.setFieldsFromHttpRequestHeaders(extractFieldsFromHttpRequestHeaders());
             
+            Map<String, LogFields> logFieldsMap = new HashMap<>();
             for (int i = 0, ll = paths.length; i < ll; i++) {
                 if (paths[i].contains(SpecialObjects.REPOSITORY.getPid())) {
                     paths[i] = paths[i].cutHead(0);
@@ -228,32 +219,38 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                 String[] pathFromLeafToRoot = paths[i].getPathFromLeafToRoot();
                 for (int j = 0; j < pathFromLeafToRoot.length; j++) {
                     final String detailPid = pathFromLeafToRoot[j];
-                    String detailModel = akubraRepository.re().getModel(detailPid);
-                    LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, detailModel);
-                    DatastreamContentWrapper dcDatastreamContent = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_DC);
-                    if (dcDatastreamContent != null) {
-                        //TODO: Should be from BIBLIO_MODS
-                        Document dc = dcDatastreamContent.asDom(true);
-                        Object dateFromDC = DCUtils.dateFromDC(dc);
-                        if (dateFromDC != null) {
-                            logRecord.addIssueDate(dateFromDC.toString());
-                        }
-                        
-                        
-                        Object languageFromDc = DCUtils.languageFromDC(dc);
-                        if (languageFromDc != null) {
-                            logRecord.addLang(languageFromDc.toString());
-                        }
-                        
-                        Object title = DCUtils.titleFromDC(dc);
-                        if (title != null) {
-                            logRecord.addTitle(title.toString());
-                            logDetail.setTitle(title.toString());
-                        }
-                        Document mods = akubraRepository.getDatastreamContent(detailPid, KnownDatastreams.BIBLIO_MODS).asDom(false);
+                    LogFields logFields = logFieldsMap.get(detailPid);
+                    if(logFields == null) {
+                        Document foXml = akubraRepository.get(detailPid).asDom(true);
+                        logFields = new LogFields(foXml);
+                        logFieldsMap.put(detailPid, logFields);
+                    }
+                    LogRecordDetail logDetail = LogRecordDetail.buildDetail(detailPid, logFields.getRelsExtModel());
+                    String dateFromDC = logFields.getDCDate();
+                    if (dateFromDC != null) {
+                        logRecord.addIssueDate(dateFromDC);
+                    }
+                    String languageFromDc = logFields.getDCLanguage();
+                    if (languageFromDc != null) {
+                        logRecord.addLang(languageFromDc);
+                    }
+                    String titleFromDc = logFields.getDCTitle();
+                    if (titleFromDc != null) {
+                        logRecord.addTitle(titleFromDc);
+                        logDetail.setTitle(titleFromDc);
+                    }
+                    String[] creatorsFromDC = logFields.getDCCreators();
+                    for (String cr : creatorsFromDC) {
+                        logRecord.addAuthor(cr);
+                    }
+                    String[] publishersFromDC = logFields.getDCPublishers();
+                    for (String p : publishersFromDC) {
+                        logRecord.addPublisher(p);
+                    }
+                    if (logFields.getDC() != null) {
                         Map<String, List<String>> identifiers;
                         try {
-                            identifiers = ModsUtils.identifiersFromMods(mods);
+                            identifiers = logFields.getModsIdentifiers();
                             for (String key : identifiers.keySet()) {
                                 if (key.equals(ISBN_MODS_KEY)) {
                                     identifiers.get(ISBN_MODS_KEY).stream().forEach(isbn-> {
@@ -274,16 +271,6 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                             }
                         } catch (XPathExpressionException e) {
                             Logger.getLogger(SolrStatisticsAccessLogImpl.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-                        }
-                        
-                        String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
-                        for (String cr : creatorsFromDC) {
-                            logRecord.addAuthor(cr);
-                        }
-
-                        String[] publishersFromDC = DCUtils.publishersFromDC(dc);
-                        for (String p : publishersFromDC) {
-                            logRecord.addPublisher(p);
                         }
                     }
                     logRecord.addDetail(logDetail);
