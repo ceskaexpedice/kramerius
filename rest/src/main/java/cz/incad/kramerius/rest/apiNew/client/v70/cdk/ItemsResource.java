@@ -119,7 +119,7 @@ public class ItemsResource extends ClientApiResource {
 
     //public static final String API_V7 = "v7";
 
-    
+
     @Inject
     Provider<HttpServletRequest> requestProvider;
 
@@ -280,7 +280,7 @@ public class ItemsResource extends ClientApiResource {
     }
 
 
-    
+
     // musime resit pres forward
     @GET
     @Path("{pid}/info/providedByLicenses")
@@ -350,7 +350,15 @@ public class ItemsResource extends ClientApiResource {
                 event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoStructure(event);
             } else {
-                return Response.ok().build();
+                //-------------------------------------
+                checkSupportedObjectPid(pid);
+                checkObjectExists(pid);
+                JSONObject jsonObject = akubraRepository.pi().extractStructureInfo(pid);
+                return Response.ok(jsonObject).build();
+                //--------------------------------------------------------------------
+
+
+                //return Response.ok().build();
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -496,7 +504,7 @@ public class ItemsResource extends ClientApiResource {
             }
         }
     }
-    
+
     @GET
     @Path("{pid}/metadata/mods")
     @Produces(MediaType.APPLICATION_XML + ";charset=utf-8")
@@ -581,7 +589,7 @@ public class ItemsResource extends ClientApiResource {
             }
         }
     }
-    
+
     @HEAD
     @Path("{source}/{pid}/metadata/dc")
     public Response isMetadataDublinCoreAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
@@ -684,7 +692,7 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    
+
     @HEAD
     @Path("{source}/{pid}/ocr/text")
     public Response isOcrTextAvailable(@PathParam("pid") String pid, @PathParam("source") String source) {
@@ -697,7 +705,7 @@ public class ItemsResource extends ClientApiResource {
             } else {
                 return Response.ok().build();
             }
-            
+
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1163,7 +1171,7 @@ public class ItemsResource extends ClientApiResource {
             }
         }
     }
-    
+
     @GET
     @Path("{source}/{pid}/image/thumb")
     public Response getImgThumb(@PathParam("pid") String pid, @PathParam("source") String source) {
@@ -1171,7 +1179,7 @@ public class ItemsResource extends ClientApiResource {
         try {
         	checkSupportedObjectPid(pid);
             //checkObjectExists(pid);
-            
+
             ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
@@ -1242,7 +1250,7 @@ public class ItemsResource extends ClientApiResource {
             }
         }
     }
-    
+
     @HEAD
     @Path("{pid}/audio/mp3")
     public Response isAudioMp3Available(@PathParam("pid") String pid) {
@@ -1596,14 +1604,14 @@ public class ItemsResource extends ClientApiResource {
             }
         }
     }
-    
-    
+
+
     @GET
     @Produces("image/jpeg")
     //@Path("iiif/{pid}/{region}/{size}/{rotation}/{qualityformat}")
     @Path("{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
-    public Response tile(@PathParam("pid") String pid, 
-            @PathParam("region") String region, 
+    public Response tile(@PathParam("pid") String pid,
+            @PathParam("region") String region,
             @PathParam("size") String size,
             @PathParam("rotation") String rotation,
             @PathParam("qualityformat") String qf
@@ -1634,10 +1642,10 @@ public class ItemsResource extends ClientApiResource {
     @Produces("image/jpeg")
     //@Path("iiif/{source}/{pid}/{region}/{size}/{rotation}/{qualityformat}")
     @Path("{source}/{pid}/image/iiif/{region}/{size}/{rotation}/{qualityformat}")
-    public Response tile(@PathParam("source") String source,  @PathParam("pid") String pid, 
-            @PathParam("region") String region, 
+    public Response tile(@PathParam("source") String source,  @PathParam("pid") String pid,
+            @PathParam("region") String region,
             @PathParam("size") String size,
-            @PathParam("rotation") String rotation, 
+            @PathParam("rotation") String rotation,
             @PathParam("qualityformat") String qf
             ) {
 

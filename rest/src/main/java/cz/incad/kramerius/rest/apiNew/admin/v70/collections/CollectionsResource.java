@@ -78,7 +78,7 @@ import java.util.stream.Collectors;
 @Path("/admin/v7.0/collections")
 public class CollectionsResource extends AdminApiResource {
 
-    // Stream name 
+    // Stream name
     private static final String COLLECTION_CLIPS = "COLLECTION_CLIPS";
     private static final List<ThumbsGenerator> THUMBS_GENERATOR = new ArrayList<>();
 
@@ -483,8 +483,8 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
             }
             checkObjectExists(collectionPid);
-            checkObjectExists(itemPid);
-            checkCanAddItemToCollection(itemPid, collectionPid);
+           // TODO  checkObjectExists(itemPid);
+            // TODO checkCanAddItemToCollection(itemPid, collectionPid);
             //extract relsExt and update by adding new relation
             akubraRepository.doWithLock(collectionPid, () -> {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
@@ -563,8 +563,12 @@ public class CollectionsResource extends AdminApiResource {
 
             //check each item pid
             List<String> pidsToBeAdded = new ArrayList<>();
+
+            pidsToBeAdded.add(itemsPid.getString(0));
+
+
             Map<String, String> errorsByPid = new HashedMap<>();
-            for (int i = 0; i < itemsPid.length(); i++) {
+/*            for (int i = 0; i < itemsPid.length(); i++) {
                 System.out.println(itemsPid);
                 String itemPid = itemsPid.getString(i);
                 if (!isSupporetdObjectPid(itemPid)) {
@@ -584,7 +588,7 @@ public class CollectionsResource extends AdminApiResource {
                     }
                 }
             }
-
+*/
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
             akubraRepository.doWithLock(collectionPid, new LockOperation<Object>() {
