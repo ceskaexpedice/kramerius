@@ -9,6 +9,7 @@ dependencies {
     api project(":processes:platform:cdk:cdk-update-migration-plugin")
     api project(":processes:platform:cdk:cdk-delete-library")
     api project(":processes:platform:cdk:cdk-reharvest-plugin")
+    api project(":processes:platform:cdk:cdk-index-collection-plugin")
 }
 
 

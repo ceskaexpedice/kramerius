@@ -266,6 +266,11 @@ public class ClientUserResource {
     private Set<String> actionsForPid(String pid, ObjectPidsPath[] pidPaths, SecuredActions[] values) {
         Set<String> set = new LinkedHashSet<>();
         for (SecuredActions sa : values) {
+            if(pid.startsWith("cdk")){
+                set.add(sa.getFormalName());
+                continue;
+            }
+
             for (ObjectPidsPath pth : pidPaths) {
                 pth = pth.injectRepository();
                 RightsReturnObject actionAllowed = this.rightsResolver.isActionAllowed(userProvider.get(), sa.getFormalName(),pid,null,pth.injectRepository());

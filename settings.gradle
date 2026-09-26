@@ -101,6 +101,7 @@ include 'processes:platform:curator:worker'
 include 'processes:platform:cdk:cdk-migration-plugin'
 include 'processes:platform:cdk:cdk-update-migration-plugin'
 include 'processes:platform:cdk:cdk-delete-library'
+include 'processes:platform:cdk:cdk-index-collection-plugin'
 include 'processes:platform:cdk:cdk-reharvest-plugin'
 include 'processes:platform:cdk:worker'
 

@@ -1,4 +1,4 @@
-package cz.kramerius.searchIndex;
+package cz.incad.kramerius.cdk.index;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -7,28 +7,13 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import cz.kramerius.searchIndex.indexer.SolrConfig;
-import cz.kramerius.searchIndex.indexer.execution.Counters;
-import cz.kramerius.searchIndex.indexer.execution.IndexationType;
-import cz.kramerius.searchIndex.indexer.execution.Indexer;
-import cz.kramerius.searchIndex.indexer.execution.ProgressListener;
-import org.apache.commons.io.IOUtils;
 import org.ceskaexpedice.akubra.AkubraRepository;
-import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
-import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.ceskaexpedice.processplatform.api.context.PluginContext;
 import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static cz.incad.kramerius.processes.utils.ProcessUtils.extractPids;
 
@@ -41,13 +26,6 @@ public class NewIndexerProcessIndexObject {
     public static final Logger LOGGER = Logger.getLogger(NewIndexerProcessIndexObject.class.getName());
     public static final String PIDLIST_FILE_PREFIX = "pidlist_file:";
 
-    /**
-     * args[0] - authToken
-     * args[1] - indexation type
-     * args[2] - pid
-     * args[3] - ignore inconsistent objects - if indexer should continue, or fail when meeting object that is inconsistent in repository
-     * args[4...] - optional title
-     */
     public static void indexerMain(
             String type,
             String pidsP,
@@ -59,17 +37,8 @@ public class NewIndexerProcessIndexObject {
 
         LOGGER.info(String.format( "Extracting argument %s", pidsP));
         List<String> pids = extractPids(pidsP);
-        
-        //tady je problem v tom, ze pokud jeden z parametru obsahuje carku, tak Kramerius pri parsovani argumentu z pole v databazi to vyhodnoti jako vice argumentu.
-        //napr.
-        //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor, op. 51, no. 2. Andante moderato"] se pri registraci procesu ulozi a po jeho spusteni nacte jako:
-        //["TREE_AND_FOSTER_TREES", "uuid:23345cf7-7e62-47e9-afad-018624a19ea6", "Quartet A minor", " op. 51", " no. 2. Andante moderato"]
-        //proto nazev, co muze obsahovat carku, pouzivam jako posledni argument
-        //String title = shortenIfTooLong(mergeArraysEnd(args, argsIndex), 256);
 
-        //zmena nazvu
-        //TODO: mozna spis abstraktni proces s metodou updateName() a samotny kod procesu by mel callback na zjisteni nazvu, kterym by se zavolal updateName()
-
+        /*
         if (pidsP.startsWith("pidlist_file")) {
             String titleToUpdate = title != null
                     ? String.format("Indexace %s (%s, typ %s)", title, pidsP.substring(PIDLIST_FILE_PREFIX.length()), type)
@@ -87,26 +56,19 @@ public class NewIndexerProcessIndexObject {
             pluginContext.updateProcessName(titleToUpdate);
         }
 
+         */
+
         SolrConfig solrConfig = new SolrConfig();
 
-        //access to repository through new public HTTP APIs
-        /*RepositoryAccessImplByKrameriusNewApis.Credentials krameriusCredentials = new RepositoryAccessImplByKrameriusNewApis.Credentials(krameriusApiAuthClient, krameriusApiAuthUid, krameriusApiAuthAccessToken);
-        FedoraAccess repository = new RepositoryAccessImplByKrameriusNewApis(krameriusBackendBaseUrl, krameriusCredentials);*/
-
-        //access to repository through java directly (injected cz.incad.kramerius.FedoraAccess)
         Injector injector = Guice.createInjector(new SolrModule(), new RepoModule(), new NullStatisticsModule());
         AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
         Indexer indexer = new Indexer(akubraRepository, solrConfig, System.out, ignoreInconsistentObjects);
         LOGGER.info(" --- PIDS PROCESSING --- ");
+
         Counters counters = new Counters();
         try {
             for (int i = 0; i < pids.size(); i++) {
                 String pid = pids.get(i);
-
-                // TODO pepo
-                if(pid.startsWith("cdk")){
-                    continue;
-                }
 
                 LOGGER.info(String.format("Processing pid '%s'; %d of %d ", pid, i, pids.size()));
                 indexer.indexByObjectPid(pid, IndexationType.valueOf(type), counters, false, new ProgressListener() {
@@ -137,6 +99,7 @@ public class NewIndexerProcessIndexObject {
         }
     }
 
+    /*
     //FIXME: duplicate code (same method in NewIndexerProcessIndexObject, SetPolicyProcess), use abstract/utility class, but not before bigger cleanup in process scheduling
     //["Quartet A minor", " op. 51", " no. 2. Andante moderato"] => "Quartet A minor, op. 51, no. 2 Andante moderato"
     private static String mergeArraysEnd(String[] args, int argsIndex) {
@@ -163,4 +126,6 @@ public class NewIndexerProcessIndexObject {
             return string.substring(0, maxLength - suffix.length()) + suffix;
         }
     }
+
+     */
 }

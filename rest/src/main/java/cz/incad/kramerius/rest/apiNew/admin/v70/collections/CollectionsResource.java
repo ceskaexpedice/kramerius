@@ -473,7 +473,7 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkReadOnlyWorkMode();
             checkSupportedObjectPid(collectionPid);
-            checkSupportedObjectPid(itemPid);
+            //checkSupportedObjectPid(itemPid);
             User user = this.userProvider.get();
 
             if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
@@ -503,10 +503,28 @@ public class CollectionsResource extends AdminApiResource {
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
-                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+                // TODO pepo
+                if(itemPid.startsWith("cdk")){
+                    // nejaky jiny proces, ktery udela jen toto
+                    /*
+                    if (repositoryNode.getPidsOfFosterParentsOfTypeCollection() != null) {
+                        for (String collection : repositoryNode.getPidsOfFosterParentsOfTypeCollection()) {
+                            addSolrField(solrInput, "in_collections.direct", collection);
+                        }
+                    }
+                    if (repositoryNode.getPidsOfAnyAncestorsOfTypeCollection() != null) {
+                        for (String collection : repositoryNode.getPidsOfAnyAncestorsOfTypeCollection()) {
+                            addSolrField(solrInput, "in_collections", collection);
+                        }
+                    }
+                    
+                     */
 
-                updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
+                }else{
+                    JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+                    updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
+                }
             }
             JSONObject result = new JSONObject();
             if (scheduleMainProcessesPlanned.length() > 0) {

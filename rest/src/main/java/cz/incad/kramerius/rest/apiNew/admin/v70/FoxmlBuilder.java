@@ -58,10 +58,16 @@ public class FoxmlBuilder {
      */
     public boolean appendRelationToRelsExt(String ownerPid, Document relsExt, String relation, String newItemPid) {
         Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
-        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relation, newItemPid)).selectSingleNode(description);
+        String targetPid;
+        if (newItemPid.contains("/")) {
+            targetPid = newItemPid;
+        } else {
+            targetPid ="info:fedora/" + relation;
+        }
+        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='%s']", relation, targetPid)).selectSingleNode(description);
         if (relationEl == null) {
             Element element = description.addElement(new QName(relation.toString(), NS_REL));
-            element.addAttribute(new QName("resource", NS_RDF), "info:fedora/" + newItemPid);
+            element.addAttribute(new QName("resource", NS_RDF), targetPid);
             return true;
         } else {
             LOGGER.warning(String.format("Relation %s:%s already found in rels-ext of %s, ignoring", relation, newItemPid, ownerPid));
