@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * CDK Migration starter
  */
 public class CDKIndexCollection {
-    private static final Logger LOGGER = Logger.getLogger(CDKMigration.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CDKIndexCollection.class.getName());
 
     // Factory methods that we can override/mock if needed
     static Migration createMigration() throws MigrateSolrIndexException {
@@ -88,7 +88,7 @@ public class CDKIndexCollection {
                 timestampUrl,
                 comparingIdentifier,
                 feederBatchSize);
-        InputStream stream = CDKMigration.class.getResourceAsStream(configSource);
+        InputStream stream = CDKIndexCollection.class.getResourceAsStream(configSource);
         if (configSource.trim().startsWith("file:///")) {
             URL fileUrl = new URL(configSource);
             stream = fileUrl.openStream();
@@ -281,6 +281,7 @@ public class CDKIndexCollection {
 
          */
 
+        /*
         CDKMigration.migrateMain(
                 configSource,
                 destinationUrl,
@@ -295,6 +296,8 @@ public class CDKIndexCollection {
                 "10",
                 Boolean.valueOf(showConfigurationOnly),
                 Boolean.valueOf(showEffectiveConfigurationOnly));
+
+         */
     }
 
 
@@ -328,6 +331,7 @@ public class CDKIndexCollection {
 
          */
 
+        /*
         CDKMigration.migrateMain(
                 configSource,
                 destinationUrl,
@@ -342,6 +346,8 @@ public class CDKIndexCollection {
                 null,
             Boolean.valueOf(showConfigurationOnly),
             Boolean.valueOf(showEffectiveConfigurationOnly));
+
+         */
     }
 
 }
