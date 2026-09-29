@@ -1,17 +1,17 @@
-package cz.incad.kramerius.cdk.index.prepare;
+package cz.incad.kramerius.cdk.index;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CdkIndexer {
+public class CDKIndexer {
 
     private static final String CDK_PREFIX = "cdk/";
 
-    private final ProcessingIndexService processingIndexService;
+    private final CDKProcessingIndexService cdkProcessingIndexService;
     private final SearchIndexService searchIndex;
 
-    public CdkIndexer(ProcessingIndexService processingIndexService, SearchIndexService searchIndex) {
-        this.processingIndexService = processingIndexService;
+    public CDKIndexer(CDKProcessingIndexService cdkProcessingIndexService, SearchIndexService searchIndex) {
+        this.cdkProcessingIndexService = cdkProcessingIndexService;
         this.searchIndex = searchIndex;
     }
 
@@ -22,7 +22,22 @@ public class CdkIndexer {
      * CDK collections už byly naindexovány běžným Indexerem.
      */
     public void index(String rootCollectionPid) {
-        indexCollection(rootCollectionPid, new ArrayList<>());
+        List<String> parentCollections = getParentCollections(rootCollectionPid);
+        indexCollection(rootCollectionPid, parentCollections);
+    }
+
+    private List<String> getParentCollections(String collectionPid) {
+        List<String> result = new ArrayList<>();
+        String current = collectionPid;
+        while (true) {
+            String parent = cdkProcessingIndexService.getParentCollection(current);
+            if (parent == null) {
+                break;
+            }
+            result.add(parent);
+            current = parent;
+        }
+        return result;
     }
 
     /**
@@ -31,12 +46,12 @@ public class CdkIndexer {
      * parentCollections obsahuje nadřazené CDK collections,
      * ale NE collectionPid samotné.
      */
-    private void indexCollection(String collectionPid, List<String> parentCollections) {
+    private void indexCollection(String collectionPid, List<String> ancestorCollections) {
 
         /*
          * CDK collections obsažené přímo v této collection.
          */
-        List<String> childCollections = processingIndexService.getContainedCollections(collectionPid);
+        List<String> childCollections = cdkProcessingIndexService.getCollections(collectionPid);
 
         /*
          * Reference typu:
@@ -47,7 +62,7 @@ public class CdkIndexer {
          *
          *     cdk-s11 -> contains -> cdk/d1
          */
-        List<String> references = processingIndexService.getContainedCdkReferences(collectionPid);
+        List<String> references = cdkProcessingIndexService.getCDKReferences(collectionPid);
 
         /*
          * Pro objekt, na který reference ukazuje, jsou
@@ -71,7 +86,7 @@ public class CdkIndexer {
         List<String> collectionsForReference = new ArrayList<>();
 
         collectionsForReference.add(collectionPid);
-        collectionsForReference.addAll(parentCollections);
+        collectionsForReference.addAll(ancestorCollections);
 
         /*
          * Zpracování všech objektů odkazovaných
@@ -85,7 +100,7 @@ public class CdkIndexer {
         /*
          * Rekurzivní pokračování v CDK collection stromu.
          */
-        List<String> newParentCollections = new ArrayList<>(parentCollections);
+        List<String> newParentCollections = new ArrayList<>(ancestorCollections);
         newParentCollections.add(collectionPid);
         for (String childCollection : childCollections) {
             indexCollection(childCollection, newParentCollections);
@@ -151,8 +166,7 @@ public class CdkIndexer {
          * přičemž tyto hodnoty pocházejí z původního
          * Indexeru MZK.
          */
-        List<String> existing = document.getMultiValueField("in-collection");
-
+        List<String> existing = document.getInCollections();
         if (existing == null) {
             existing = new ArrayList<>();
         } else {
@@ -178,7 +192,7 @@ public class CdkIndexer {
             }
         }
 
-        document.setField("in-collection", existing);
+        document.setInCollections(existing);
 
         /*
          * Pouze kořen reference dostane
@@ -194,23 +208,21 @@ public class CdkIndexer {
          * z této reference nedostanou.
          */
         if (directCdkCollection != null) {
-
-            document.setField("in-collection-direct", directCdkCollection);
+            document.setInCollectionsDirect(directCdkCollection);
         }
 
         /*
          * Partial update pouze těchto dvou polí.
          * Ostatní pole dokumentu se nesmí měnit.
          */
-        searchIndex.updateCollectionFields(document.getPid(), document.getField("in-collection"), document.getField("in-collection-direct"));
+        searchIndex.updateCollectionsFields(document.getPid(), document.getInCollections(), document.getInCollectionsDirect());
     }
 
     private String removeCdkPrefix(String pid) {
-
         if (!pid.startsWith(CDK_PREFIX)) {
             throw new IllegalArgumentException("Not a CDK reference: " + pid);
         }
-
         return pid.substring(CDK_PREFIX.length());
     }
+
 }
