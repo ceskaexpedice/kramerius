@@ -1,6 +1,7 @@
 package cz.incad.kramerius.cdk.index;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class CDKIndexer {
@@ -164,15 +165,18 @@ public class CDKIndexer {
          *     [s11, s1]
          *
          * přičemž tyto hodnoty pocházejí z původního
-         * Indexeru MZK.
+         * Indexeru MZK a z minulych pruchodu CDK indexeru
          */
         List<String> existing = document.getInCollections();
-        if (existing == null) {
-            existing = new ArrayList<>();
-        } else {
-            existing = new ArrayList<>(existing);
-        }
 
+        // Odstraníme staré CDK values.
+        Iterator<String> iterator = existing.iterator();
+        while (iterator.hasNext()) {
+            String collection = iterator.next();
+            if (cdkProcessingIndexService.isCDKCollection(collection)) {
+                iterator.remove();
+            }
+        }
         /*
          * Přidáme CDK collections, ale bez duplicit.
          *
@@ -207,15 +211,21 @@ public class CDKIndexer {
          * Ale s11, d1, d11 už tuto hodnotu
          * z této reference nedostanou.
          */
+        String direct = document.getInCollectionsDirect();
         if (directCdkCollection != null) {
-            document.setInCollectionsDirect(directCdkCollection);
+            direct = directCdkCollection;
+        } else if (direct != null && cdkProcessingIndexService.isCDKCollection(direct)) {
+            // There used to be a direct CDK membership, but there isn't one now.
+            // Preserve a source direct collection if there is one.
+            direct = null;
         }
+        document.setInCollectionsDirect(direct);
 
         /*
          * Partial update pouze těchto dvou polí.
          * Ostatní pole dokumentu se nesmí měnit.
          */
-        searchIndex.updateCollectionsFields(document.getPid(), document.getInCollections(), document.getInCollectionsDirect());
+        searchIndex.updateCollectionsFields(document.getPid(), existing, document.getInCollectionsDirect());
     }
 
     private String removeCdkPrefix(String pid) {

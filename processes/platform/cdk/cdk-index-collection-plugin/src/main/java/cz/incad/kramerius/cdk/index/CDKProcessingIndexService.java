@@ -9,4 +9,6 @@ interface CDKProcessingIndexService {
     List<String> getCDKReferences(String collectionPid);
 
     String getParentCollection(String collectionPid);
+
+    boolean isCDKCollection(String collectionPid);
 }

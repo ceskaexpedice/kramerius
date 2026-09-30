@@ -46,4 +46,9 @@ class FakeCDKProcessingIndexService implements CDKProcessingIndexService {
         }
         return null;
     }
+
+    @Override
+    public boolean isCDKCollection(String collectionPid) {
+        return collections.containsKey(collectionPid);
+    }
 }

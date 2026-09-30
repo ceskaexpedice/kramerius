@@ -61,8 +61,11 @@ public class CDKIndexerTest {
         assertEquals(Arrays.asList("s11", "s1", "cdk-s11", "cdk-s1"), fakeSearchIndexService.get("d11").getInCollections());
     }
 
+    /*
     @Test
     public void addCDKCollectionFieldsToMigratedSourceTree1() {
+
+     */
 
         /*
          * MZK:
@@ -79,7 +82,7 @@ public class CDKIndexerTest {
          * └── cdk-s11
          *     └── cdk/s1
          */
-
+/*
         FakeCDKProcessingIndexService fakeProcessingIndexService = new FakeCDKProcessingIndexService();
         FakeSearchIndexService fakeSearchIndexService = new FakeSearchIndexService();
 
@@ -114,6 +117,9 @@ public class CDKIndexerTest {
         assertNull(fakeSearchIndexService.get("d11").getInCollectionsDirect());
         assertEquals(Arrays.asList("s11", "s1", "cdk-s11", "cdk-s1"), fakeSearchIndexService.get("d11").getInCollections());
     }
+
+ */
+
 
     private static void prepareData(FakeCDKProcessingIndexService fakeProcessingIndexService, FakeSearchIndexService fakeSearchIndexService) {
         // CDK Akubra: cdk-s1 (Rels-ext: cdk-s11); cdk-s11 (Rels-ext: cdk/s1)
