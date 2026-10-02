@@ -25,7 +25,7 @@ public class DanglingCollectionTest {
         d1.setInCollections(Arrays.asList("s11", "s1", "cdk-s1", "cdk-deleted"));
         d1.setInCollectionsDirect("cdk-deleted");
 
-        DanglingCollectionReferenceCleaner cleaner = new DanglingCollectionReferenceCleaner(search, fakeProcessingIndexService);
+        CDKCollectionSynchronizer cleaner = new CDKCollectionSynchronizer(search, fakeProcessingIndexService);
         cleaner.clean();
 
         assertEquals(Arrays.asList("s11", "s1", "cdk-s1"), search.get("d1").getInCollections());
@@ -45,7 +45,7 @@ public class DanglingCollectionTest {
         d1.setInCollections(Arrays.asList("s1", "cdk-s1"));
         d1.setInCollectionsDirect("cdk-s1");
 
-        DanglingCollectionReferenceCleaner cleaner = new DanglingCollectionReferenceCleaner(search, fakeProcessingIndexService);
+        CDKCollectionSynchronizer cleaner = new CDKCollectionSynchronizer(search, fakeProcessingIndexService);
         cleaner.clean();
 
         assertEquals(Arrays.asList("s1", "cdk-s1"), search.get("d1").getInCollections());

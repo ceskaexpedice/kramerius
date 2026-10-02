@@ -1,21 +1,17 @@
 package cz.incad.kramerius.cdk.index;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 public class CDKIndexer {
 
     public static final String CDK_PREFIX = "cdk/";
 
     private final CDKProcessingIndexService cdkProcessingIndexService;
     private final SearchIndexService searchIndex;
-    private final DanglingCollectionReferenceCleaner cleaner;
+    private final CDKCollectionSynchronizer cleaner;
 
     public CDKIndexer(
             CDKProcessingIndexService processingIndexService,
             SearchIndexService searchIndex,
-            DanglingCollectionReferenceCleaner cleaner) {
+            CDKCollectionSynchronizer cleaner) {
 
         this.cdkProcessingIndexService = processingIndexService;
         this.searchIndex = searchIndex;
@@ -29,10 +25,11 @@ public class CDKIndexer {
         if(cleaner != null){
             cleaner.clean();
         }
-        List<String> parentCollections = getParentCollections(rootCollectionPid);
-        indexCollection(rootCollectionPid, parentCollections);
+       // List<String> parentCollections = getParentCollections(rootCollectionPid);
+       // indexCollection(rootCollectionPid, parentCollections);
     }
 
+    /*
     private List<String> getParentCollections(String collectionPid) {
         List<String> result = new ArrayList<>();
         String current = collectionPid;
@@ -45,8 +42,8 @@ public class CDKIndexer {
             current = parent;
         }
         return result;
-    }
-
+    }*/
+/*
     private void indexCollection(String collectionPid, List<String> ancestorCollections) {
         List<String> childCollections = cdkProcessingIndexService.getCollections(collectionPid);
         List<String> references = cdkProcessingIndexService.getCDKReferences(collectionPid);
@@ -66,10 +63,11 @@ public class CDKIndexer {
             indexCollection(childCollection, newParentCollections);
         }
     }
-
+*/
     /**
      * Zpracuje objekt ze zdrojového search indexu a celý jeho podstrom.
      */
+  /*
     private void indexSourceTree(String pid, String directCdkCollection, List<String> cdkCollections) {
         SearchDocument document = searchIndex.get(pid);
         if (document == null) {
@@ -82,6 +80,8 @@ public class CDKIndexer {
         }
     }
 
+   */
+/*
     private void updateCollectionFields(SearchDocument document, String directCdkCollection, List<String> cdkCollections) {
         List<String> existing = document.getInCollections();
         Iterator<String> iterator = existing.iterator();
@@ -108,12 +108,13 @@ public class CDKIndexer {
 
         searchIndex.updateCollectionsFields(document.getPid(), existing, document.getInCollectionsDirect());
     }
-
+*/
+    /*
     private String removeCdkPrefix(String pid) {
         if (!pid.startsWith(CDK_PREFIX)) {
             throw new IllegalArgumentException("Not a CDK reference: " + pid);
         }
         return pid.substring(CDK_PREFIX.length());
-    }
+    }*/
 
 }

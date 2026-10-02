@@ -2,12 +2,12 @@ package cz.incad.kramerius.cdk.index;
 
 import java.util.*;
 
-public class DanglingCollectionReferenceCleaner {
+public class CDKCollectionSynchronizer {
 
     private final SearchIndexService searchIndex;
     private final CDKProcessingIndexService processingIndex;
 
-    public DanglingCollectionReferenceCleaner(SearchIndexService searchIndex, CDKProcessingIndexService processingIndex) {
+    public CDKCollectionSynchronizer(SearchIndexService searchIndex, CDKProcessingIndexService processingIndex) {
         this.searchIndex = searchIndex;
         this.processingIndex = processingIndex;
     }
@@ -67,7 +67,7 @@ public class DanglingCollectionReferenceCleaner {
     }*/
 
     public void clean() {
-        new DanglingCollectionReferenceCleanerSimple(searchIndex).clean();
+       // new DanglingCollectionReferenceCleanerSimple(searchIndex).clean();
         List<SearchDocument> documents = searchIndex.getAllDocuments();
         for (SearchDocument document : documents) {
             // CDK collections nečistíme.
@@ -82,8 +82,12 @@ public class DanglingCollectionReferenceCleaner {
             // Původní hodnoty ze standardního indexu zachováme.
             removeCDKValues(inCollections);
             String nonCDKDirect = direct;
-            if (direct != null && processingIndex.isCDKCollection(direct)) {
+            if(direct != null && searchIndex.get(direct) == null) {
                 nonCDKDirect = null;
+            }else{
+                if (direct != null && processingIndex.isCDKCollection(direct)) {
+                    nonCDKDirect = null;
+                }
             }
 
             // Znovu spočítáme, které CDK kolekce mají tento PID obsahovat.
@@ -225,7 +229,7 @@ public class DanglingCollectionReferenceCleaner {
         Iterator<String> iterator = inCollections.iterator();
         while (iterator.hasNext()) {
             String collection = iterator.next();
-            if (processingIndex.isCDKCollection(collection)) {
+            if (searchIndex.get(collection) == null || processingIndex.isCDKCollection(collection)) {
                 iterator.remove();
             }
         }
