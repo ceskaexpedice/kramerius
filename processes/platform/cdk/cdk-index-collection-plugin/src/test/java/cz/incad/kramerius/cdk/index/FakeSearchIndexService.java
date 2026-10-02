@@ -32,6 +32,22 @@ class FakeSearchIndexService implements SearchIndexService {
     }
 
     @Override
+    public List<SearchDocument> getAllDocuments() {
+        return new ArrayList<>(documents.values());
+    }
+
+    @Override
+    public Set<String> getExistingPids(Collection<String> pids) {
+        Set<String> result = new HashSet<>();
+        for (String pid : pids) {
+            if (documents.containsKey(pid)) {
+                result.add(pid);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public void updateCollectionsFields(String pid, List<String> inCollections, String inCollectionsDirect) {
         SearchDocument document = documents.get(pid);
         if (document == null) {

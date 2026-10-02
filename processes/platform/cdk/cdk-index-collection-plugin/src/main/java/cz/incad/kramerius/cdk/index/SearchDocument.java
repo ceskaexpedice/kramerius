@@ -35,4 +35,8 @@ class SearchDocument {
         this.inCollectionsDirect = value;
     }
 
+    @Override
+    public String toString() {
+        return pid;
+    }
 }

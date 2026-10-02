@@ -25,6 +25,14 @@ class FakeCDKProcessingIndexService implements CDKProcessingIndexService {
         list.add(target);
     }
 
+    public void removeCDKReference(String source, String target) {
+        List<String> list = cdkReferences.get(source);
+        if(list == null){
+            return;
+        }
+        list.remove(target);
+    }
+
     @Override
     public List<String> getCollections(String collectionPid) {
         List<String> result = collections.get(collectionPid);
@@ -49,6 +57,14 @@ class FakeCDKProcessingIndexService implements CDKProcessingIndexService {
 
     @Override
     public boolean isCDKCollection(String collectionPid) {
-        return collections.containsKey(collectionPid);
+        return collections.containsKey(collectionPid) || cdkReferences.containsKey(collectionPid);
     }
+
+    @Override
+    public boolean containsCDKReference(String collectionPid, String documentPid) {
+        List<String> references = getCDKReferences(collectionPid);
+        List<String> collections = getCollections(collectionPid);
+        return collections.contains(documentPid) || references.contains(CDKIndexer.CDK_PREFIX + documentPid);
+    }
+
 }
