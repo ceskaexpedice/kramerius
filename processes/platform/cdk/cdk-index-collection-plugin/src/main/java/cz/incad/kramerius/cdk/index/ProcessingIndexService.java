@@ -2,7 +2,7 @@ package cz.incad.kramerius.cdk.index;
 
 import java.util.List;
 
-interface CDKProcessingIndexService {
+public interface ProcessingIndexService {
 
     List<String> getCollections(String collectionPid);
 
@@ -12,5 +12,8 @@ interface CDKProcessingIndexService {
 
     boolean isCDKCollection(String collectionPid);
 
-    boolean containsCDKReference(String collectionPid, String documentPid);
+    /**
+     * Vrátí všechny aktuálně existující CDK kolekce.
+     */
+    List<String> getCDKCollections();
 }

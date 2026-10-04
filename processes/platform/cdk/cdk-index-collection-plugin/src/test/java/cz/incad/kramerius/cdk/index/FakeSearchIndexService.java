@@ -2,22 +2,35 @@ package cz.incad.kramerius.cdk.index;
 
 import java.util.*;
 
-class FakeSearchIndexService implements SearchIndexService {
-
-    private final Map<String, SearchDocument> documents = new HashMap<>();
+public class FakeSearchIndexService implements SearchIndexService {
+    private final Map<String, SearchDocument> documents = new LinkedHashMap<>();
     private final Map<String, List<String>> children = new HashMap<>();
 
     public void addDocument(String pid) {
-        documents.put(pid, new SearchDocument(pid));
+        addDocument(new SearchDocument(pid, new ArrayList<String>(), null));
     }
 
-    public void addChild(String parent, String child) {
-        List<String> list = children.get(parent);
-        if (list == null) {
-            list = new ArrayList<>();
-            children.put(parent, list);
+    public void addDocument(String pid, List<String> inCollections, String inCollectionsDirect) {
+        addDocument(new SearchDocument(pid, inCollections, inCollectionsDirect));
+    }
+
+    public void addDocument(SearchDocument document) {
+        documents.put(document.getPid(), document);
+        /*
+         * Parent/child relationships are maintained separately
+         * by setParent().
+         */
+    }
+
+    public void setParent(String childPid, String parentPid) {
+        List<String> childList = children.get(parentPid);
+        if (childList == null) {
+            childList = new ArrayList<>();
+            children.put(parentPid, childList);
         }
-        list.add(child);
+        if (!childList.contains(childPid)) {
+            childList.add(childPid);
+        }
     }
 
     @Override
@@ -28,23 +41,51 @@ class FakeSearchIndexService implements SearchIndexService {
     @Override
     public List<String> getChildren(String pid) {
         List<String> result = children.get(pid);
-        return result != null ? result : Collections.emptyList();
+        if (result == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(result);
     }
 
     @Override
-    public List<SearchDocument> getAllDocuments() {
-        return new ArrayList<>(documents.values());
-    }
+    public SearchDocumentPage findDocuments(String cursor, int limit) {
 
-    @Override
-    public Set<String> getExistingPids(Collection<String> pids) {
-        Set<String> result = new HashSet<>();
-        for (String pid : pids) {
-            if (documents.containsKey(pid)) {
-                result.add(pid);
+        /*
+         * Fake cursor implementation.
+         *
+         * We use the PID of the last returned document as the cursor.
+         */
+        List<SearchDocument> all = new ArrayList<>(documents.values());
+
+        /*
+         * Deterministic ordering, similar to what we need
+         * from Solr when using cursorMark.
+         */
+        Collections.sort(all,
+                new Comparator<SearchDocument>() {
+                    @Override
+                    public int compare(SearchDocument a, SearchDocument b) {
+                        return a.getPid().compareTo(b.getPid());
+                    }
+                });
+
+        int start = 0;
+        if (cursor != null) {
+            for (int i = 0; i < all.size(); i++) {
+                if (cursor.equals(all.get(i).getPid())) {
+                    start = i + 1;
+                    break;
+                }
             }
         }
-        return result;
+        if (start >= all.size()) {
+            return new SearchDocumentPage(Collections.<SearchDocument>emptyList(), null, false);
+        }
+        int end = Math.min(start + limit, all.size());
+        List<SearchDocument> page = new ArrayList<>(all.subList(start, end));
+        String nextCursor = page.get(page.size() - 1).getPid();
+        boolean hasMore = end < all.size();
+        return new SearchDocumentPage(page, nextCursor, hasMore);
     }
 
     @Override
@@ -53,7 +94,8 @@ class FakeSearchIndexService implements SearchIndexService {
         if (document == null) {
             throw new IllegalArgumentException("Document not found: " + pid);
         }
-        document.setInCollections(inCollections);
+        document.setInCollections(new ArrayList<>(inCollections));
         document.setInCollectionsDirect(inCollectionsDirect);
     }
+
 }

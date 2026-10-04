@@ -2,242 +2,290 @@ package cz.incad.kramerius.cdk.index;
 
 import java.util.*;
 
+/**
+ * Synchronizes CDK collection membership in the search index.
+ *
+ * <p>
+ * The synchronizer never loads the complete search index into memory.
+ * Source documents are processed page by page.
+ */
 public class CDKCollectionSynchronizer {
 
-    private final SearchIndexService searchIndex;
-    private final CDKProcessingIndexService processingIndex;
+    public static final String CDK_PREFIX = "cdk/";
 
-    public CDKCollectionSynchronizer(SearchIndexService searchIndex, CDKProcessingIndexService processingIndex) {
+    private static final int DEFAULT_PAGE_SIZE = 500;
+
+    private final SearchIndexService searchIndex;
+    private final ProcessingIndexService processingIndex;
+    private final int pageSize;
+
+    public CDKCollectionSynchronizer(SearchIndexService searchIndex, ProcessingIndexService processingIndex) {
+        this(searchIndex, processingIndex, DEFAULT_PAGE_SIZE);
+    }
+
+    public CDKCollectionSynchronizer(SearchIndexService searchIndex, ProcessingIndexService processingIndex, int pageSize) {
         this.searchIndex = searchIndex;
         this.processingIndex = processingIndex;
+        this.pageSize = pageSize;
     }
 
-    /*
-    public void clean() {
-        List<SearchDocument> documents = searchIndex.getAllDocuments();
-        for (SearchDocument document : documents) {
-            // CDK collections samotné nečistíme.
-            // Jejich hodnoty řeší CDKIndexer.
-            if (processingIndex.isCDKCollection(document.getPid())) {
+    public void synchronize() {
+        Set<String> cdkCollections = new HashSet<>(processingIndex.getCDKCollections());
+        /*
+         * sourcePid -> CDK collections which contain the source PID.
+         */
+        Map<String, Set<String>> sourceToCDK = new HashMap<>();
+        /*
+         * sourcePid -> CDK collection which directly references that source PID.
+         */
+        Map<String, String> sourceToDirectCDK = new HashMap<>();
+        /*
+         * Cache:
+         *
+         * source root PID -> complete source tree
+         */
+        Map<String, Set<String>> sourceTreeCache = new HashMap<>();
+        /*
+         * Cache:
+         *
+         * CDK collection -> effective source tree
+         *
+         * This includes references inherited from child CDK
+         * collections.
+         */
+        Map<String, Set<String>> cdkSourceTreeCache = new HashMap<>();
+
+        /*
+         * First build the complete CDK -> source mapping.
+         *
+         * This is done only once.
+         */
+        for (String cdkCollection : cdkCollections) {
+            Set<String> sourcePids = collectCDKSourceTrees(cdkCollection, new HashSet<>(), sourceTreeCache, cdkSourceTreeCache);
+            for (String sourcePid : sourcePids) {
+                Set<String> collections = sourceToCDK.get(sourcePid);
+                if (collections == null) {
+                    collections = new HashSet<>();
+                    sourceToCDK.put(sourcePid, collections);
+                }
+                collections.add(cdkCollection);
+            }
+        }
+
+        /*
+         * Direct references are deliberately calculated separately.
+         *
+         * Only a reference directly belonging to a CDK collection
+         * creates in-collection-direct.
+         */
+        for (String cdkCollection : cdkCollections) {
+            List<String> references = processingIndex.getCDKReferences(cdkCollection);
+            if (references == null) {
                 continue;
             }
-            List<String> inCollections = new ArrayList<>(document.getInCollections());
-            String direct = document.getInCollectionsDirect();
-
-            removeDeletedCDKValues(inCollections);
-
-            String nonCDKDirect = direct;
-            if (direct != null && processingIndex.isCDKCollection(direct) && searchIndex.get(direct) == null) {
-                nonCDKDirect = null;
-            }
-
-            List<String> validCDKCollections = getValidCDKCollections(document.getPid());
-
-            for (String cdkCollection : validCDKCollections) {
-                if (!inCollections.contains(cdkCollection)) {
-                    inCollections.add(cdkCollection);
+            for (String reference : references) {
+                String sourcePid = removeCdkPrefix(reference);
+                /*
+                 * Keep the same "first one wins" behavior as the
+                 * previous implementation.
+                 */
+                if (!sourceToDirectCDK.containsKey(sourcePid)) {
+                    sourceToDirectCDK.put(sourcePid, cdkCollection);
                 }
             }
-
-            String cdkDirect = getDirectCDKCollection(document.getPid());
-            String newDirect = nonCDKDirect;
-            if (cdkDirect != null) {
-                newDirect = cdkDirect;
-            }
-            searchIndex.updateCollectionsFields(document.getPid(), inCollections, newDirect);
         }
-    }
-*/
-    /*
-    private void removeDeletedCDKValues(List<String> inCollections) {
 
-        Iterator<String> iterator = inCollections.iterator();
-        while (iterator.hasNext()) {
-            String collectionPid = iterator.next();
-
-            if (!processingIndex.isCDKCollection(
-                    collectionPid)) {
-                continue;
+        /*
+         * Now process the search index page by page.
+         */
+        String cursor = null;
+        do {
+            SearchDocumentPage page = searchIndex.findDocuments(cursor, pageSize);
+            List<SearchDocument> documents = page.getDocuments();
+            for (SearchDocument document : documents) {
+                synchronizeDocument(document, cdkCollections, sourceToCDK, sourceToDirectCDK);
             }
-
-            if (searchIndex.get(collectionPid) == null) {
-                iterator.remove();
+            cursor = page.getNextCursor();
+            if (!page.hasMore()) {
+                break;
             }
-        }
-    }*/
-
-    public void clean() {
-       // new DanglingCollectionReferenceCleanerSimple(searchIndex).clean();
-        List<SearchDocument> documents = searchIndex.getAllDocuments();
-        for (SearchDocument document : documents) {
-            // CDK collections nečistíme.
-            // Jejich vazby řeší samotný CDKIndexer.
-            if (processingIndex.isCDKCollection(document.getPid())) {
-                continue;
-            }
-            List<String> inCollections = new ArrayList<>(document.getInCollections());
-            String direct = document.getInCollectionsDirect();
-
-            // Odstraníme CDK hodnoty.
-            // Původní hodnoty ze standardního indexu zachováme.
-            removeCDKValues(inCollections);
-            String nonCDKDirect = direct;
-            if(direct != null && searchIndex.get(direct) == null) {
-                nonCDKDirect = null;
-            }else{
-                if (direct != null && processingIndex.isCDKCollection(direct)) {
-                    nonCDKDirect = null;
-                }
-            }
-
-            // Znovu spočítáme, které CDK kolekce mají tento PID obsahovat.
-            List<String> validCDKCollections = getValidCDKCollections(document.getPid());
-            // Přidáme aktuálně platné CDK hodnoty.
-            inCollections.addAll(validCDKCollections);
-
-            // Spočítáme správnou CDK direct hodnotu.
-            String cdkDirect = getDirectCDKCollection(document.getPid());
-            String newDirect = nonCDKDirect;
-            if (cdkDirect != null) {
-                newDirect = cdkDirect;
-            }
-
-            searchIndex.updateCollectionsFields(document.getPid(), inCollections, newDirect);
-
-        }
+        } while (true);
     }
 
-    /**
-     * Vrátí CDK kolekce, které mají obsahovat daný source PID
-     * v in-collection.
-     */
-    private List<String> getValidCDKCollections(String sourcePid) {
-        List<String> result = new ArrayList<>();
-        List<SearchDocument> documents = searchIndex.getAllDocuments();
-        for (SearchDocument document : documents) {
-            String cdkCollection = document.getPid();
-            if (!processingIndex.isCDKCollection(cdkCollection)) {
-                continue;
-            }
-            Set<String> validSourcePids = new HashSet<>();
-            Set<String> visitedCDKCollections = new HashSet<>();
-            collectCDKSourceTrees(cdkCollection, visitedCDKCollections, validSourcePids);
-            if (validSourcePids.contains(sourcePid)) {
-                result.add(cdkCollection);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Projde celý CDK podstrom.
-     * <p>
-     * Například:
-     * <p>
-     * cdk-s1
-     * └── cdk-s11
-     * └── cdk/s1
-     * <p>
-     * Pro cdk-s1 tedy najde referenci cdk/s1,
-     * i když ji nemá cdk-s1 přímo, ale až jeho potomek cdk-s11.
-     */
-    private void collectCDKSourceTrees(String cdkCollection, Set<String> visitedCDKCollections, Set<String> validSourcePids) {
-        if (!visitedCDKCollections.add(cdkCollection)) {
+    private void synchronizeDocument(SearchDocument document, Set<String> cdkCollections, Map<String, Set<String>> sourceToCDK,
+                                     Map<String, String> sourceToDirectCDK) {
+        String pid = document.getPid();
+        /*
+         * CDK collection documents themselves are not modified.
+         *
+         * Their structure is maintained by the CDK processing/indexing
+         * side.
+         */
+        if (cdkCollections.contains(pid)) {
             return;
         }
         /*
-         * Nejprve reference této CDK kolekce.
+         * Start with the existing normal collection memberships.
          */
-        List<String> references = processingIndex.getCDKReferences(cdkCollection);
-        for (String reference : references) {
-            String sourcePid = removeCdkPrefix(reference);
-            collectSourceTree(sourcePid, validSourcePids);
-        }
-
+        List<String> inCollections = new ArrayList<>(document.getInCollections());
         /*
-         * Potom všechny podřízené CDK kolekce.
+         * Remove old CDK memberships.
+         *
+         * Non-CDK memberships remain untouched.
          */
-        List<String> children = processingIndex.getCollections(cdkCollection);
-        for (String child : children) {
-            collectCDKSourceTrees(child, visitedCDKCollections, validSourcePids);
+        removeCDKValues(inCollections, cdkCollections);
+        /*
+         * Preserve the old direct collection only when it is a
+         * valid non-CDK collection.
+         */
+        String direct = getNonCDKDirectCollection(document.getInCollectionsDirect(), cdkCollections);
+        /*
+         * Add currently valid CDK memberships.
+         */
+        Set<String> validCDKCollections = sourceToCDK.get(pid);
+        if (validCDKCollections != null) {
+            inCollections.addAll(validCDKCollections);
         }
+        /*
+         * Set the direct CDK collection, if this source PID is
+         * directly referenced by one.
+         */
+        String cdkDirect = sourceToDirectCDK.get(pid);
+        if (cdkDirect != null) {
+            direct = cdkDirect;
+        }
+        searchIndex.updateCollectionsFields(pid, inCollections, direct);
     }
 
     /**
-     * Projde celý source strom od daného PID.
-     * <p>
-     * Například reference:
-     * <p>
-     * cdk/s1
-     * <p>
-     * znamená celý strom:
-     * <p>
-     * s1
-     * └── s11
-     * └── d1
-     * └── d11
+     * Calculates all source PIDs represented by a CDK collection,
+     * including references inherited from child CDK collections.
+     */
+    private Set<String> collectCDKSourceTrees(
+            String cdkCollection,
+            Set<String> visitedCDKCollections,
+            Map<String, Set<String>> sourceTreeCache,
+            Map<String, Set<String>> cdkSourceTreeCache) {
+
+        /*
+         * Already calculated.
+         */
+        Set<String> cached = cdkSourceTreeCache.get(cdkCollection);
+        if (cached != null) {
+            return cached;
+        }
+
+        /*
+         * Protect against cycles in the CDK hierarchy.
+         */
+        if (!visitedCDKCollections.add(cdkCollection)) {
+            return Collections.emptySet();
+        }
+        Set<String> result = new HashSet<>();
+        /*
+         * References directly belonging to this CDK collection.
+         */
+        List<String> references = processingIndex.getCDKReferences(cdkCollection);
+        if (references != null) {
+            for (String reference : references) {
+                String sourcePid = removeCdkPrefix(reference);
+                Set<String> sourceTree = sourceTreeCache.get(sourcePid);
+                if (sourceTree == null) {
+                    sourceTree = new HashSet<>();
+                    collectSourceTree(sourcePid, sourceTree);
+                    sourceTreeCache.put(sourcePid, sourceTree);
+                }
+                result.addAll(sourceTree);
+            }
+        }
+        /*
+         * References inherited from child CDK collections.
+         */
+        List<String> children = processingIndex.getCollections(cdkCollection);
+        if (children != null) {
+            for (String child : children) {
+                if (!processingIndex.isCDKCollection(child)) {
+                    continue;
+                }
+                Set<String> childSourceTree = collectCDKSourceTrees(child, visitedCDKCollections, sourceTreeCache, cdkSourceTreeCache);
+                result.addAll(childSourceTree);
+            }
+        }
+        Set<String> cachedResult = Collections.unmodifiableSet(new HashSet<>(result));
+        cdkSourceTreeCache.put(cdkCollection, cachedResult);
+        return cachedResult;
+    }
+
+    /**
+     * Collects the complete source tree below rootPid.
      */
     private void collectSourceTree(String rootPid, Set<String> result) {
         if (!result.add(rootPid)) {
             return;
         }
         List<String> children = searchIndex.getChildren(rootPid);
+        if (children == null) {
+            return;
+        }
         for (String child : children) {
             collectSourceTree(child, result);
         }
     }
 
     /**
-     * Vrátí CDK kolekci, která má být direct pro daný source PID.
-     * <p>
-     * Důležité:
-     * pro direct se berou pouze reference přímo z dané CDK kolekce.
-     * <p>
-     * Takže:
-     * <p>
-     * cdk-s1
-     * └── cdk-s11
-     * └── cdk/s1
-     * <p>
-     * dává:
-     * <p>
-     * s1.in-collection-direct = cdk-s11
-     * <p>
-     * ale ne:
-     * <p>
-     * s11.in-collection-direct = cdk-s11
+     * Removes CDK collection PIDs from the existing
+     * in-collection field.
      */
-    private String getDirectCDKCollection(String sourcePid) {
-        List<SearchDocument> documents = searchIndex.getAllDocuments();
-        for (SearchDocument document : documents) {
-            String cdkCollection = document.getPid();
-            if (!processingIndex.isCDKCollection(cdkCollection)) {
-                continue;
-            }
-            List<String> references = processingIndex.getCDKReferences(cdkCollection);
-            for (String reference : references) {
-                String referencedSourcePid = removeCdkPrefix(reference);
-                if (sourcePid.equals(referencedSourcePid)) {
-                    return cdkCollection;
-                }
-            }
-        }
-        return null;
-    }
-
-    private void removeCDKValues(List<String> inCollections) {
+    private void removeCDKValues(List<String> inCollections, Set<String> cdkCollections) {
         Iterator<String> iterator = inCollections.iterator();
         while (iterator.hasNext()) {
             String collection = iterator.next();
-            if (searchIndex.get(collection) == null || processingIndex.isCDKCollection(collection)) {
+            /*
+             * Current CDK collection.
+             */
+            if (cdkCollections.contains(collection)) {
+                iterator.remove();
+                continue;
+            }
+            /*
+             * Collection document no longer exists.
+             *
+             * This also cleans up a dangling reference to a deleted
+             * CDK collection.
+             */
+            if (searchIndex.get(collection) == null) {
                 iterator.remove();
             }
         }
     }
 
+    /**
+     * Returns the old direct value if it is a valid non-CDK
+     * collection.
+     */
+    private String getNonCDKDirectCollection(String direct, Set<String> cdkCollections) {
+        if (direct == null) {
+            return null;
+        }
+        /*
+         * Current CDK direct value.
+         */
+        if (cdkCollections.contains(direct)) {
+            return null;
+        }
+        /*
+         * Dangling collection reference.
+         */
+        if (searchIndex.get(direct) == null) {
+            return null;
+        }
+        return direct;
+    }
+
     private String removeCdkPrefix(String reference) {
-        if (reference.startsWith(CDKIndexer.CDK_PREFIX)) {
-            return reference.substring(4);
+        if (reference.startsWith(CDK_PREFIX)) {
+            return reference.substring(
+                    CDK_PREFIX.length());
         }
         return reference;
     }
