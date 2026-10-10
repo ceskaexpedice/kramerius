@@ -192,7 +192,7 @@ public class CDKCollectionSynchronizerTest {
         assertEquals(Arrays.asList("s11", "s1"), fakeSearchIndexService.get("d11").getInCollections());
     }
 
-        @Test
+    @Test
     public void shouldRemoveDanglingCollectionReferences() {
         FakeSearchIndexService search = new FakeSearchIndexService();
         FakeProcessingIndexService fakeProcessingIndexService = new FakeProcessingIndexService();
