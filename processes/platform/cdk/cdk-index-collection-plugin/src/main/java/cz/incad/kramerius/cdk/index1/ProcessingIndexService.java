@@ -1,4 +1,3 @@
-
 package cz.incad.kramerius.cdk.index1;
 
 import java.util.List;

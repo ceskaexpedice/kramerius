@@ -1,4 +1,3 @@
-
 package cz.incad.kramerius.cdk.index1;
 
 import java.util.ArrayList;
@@ -65,4 +64,16 @@ public class FakeProcessingIndexService
     public boolean isCDKCollection(String collectionPid) {
         return cdkCollections.contains(collectionPid);
     }
+
+    public void removeCDKReference(
+            String collectionPid,
+            String referencedPid) {
+
+        List<String> refs = references.get(collectionPid);
+
+        if (refs != null) {
+            refs.remove(referencedPid);
+        }
+    }
+
 }

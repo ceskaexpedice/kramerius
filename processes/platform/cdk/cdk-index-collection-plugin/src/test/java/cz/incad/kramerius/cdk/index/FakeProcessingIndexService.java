@@ -36,14 +36,6 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
         }
     }
 
-    public void removeCDKReference(String source, String target) {
-        List<String> list = references.get(source);
-        if(list == null){
-            return;
-        }
-        list.remove(target);
-    }
-
     @Override
     public List<String> getCollections(String collectionPid) {
         List<String> result = collections.get(collectionPid);
@@ -76,4 +68,28 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
     public List<String> getCDKCollections() {
         return new ArrayList<>(cdkCollections);
     }
+
+    /*
+    public void removeCDKReference(
+            String collectionPid,
+            String referencedPid) {
+
+        List<String> refs = references.get(collectionPid);
+
+        if (refs != null) {
+            refs.remove(referencedPid);
+        }
+    }
+
+     */
+
+    public void removeCDKReference(String source, String target) {
+        List<String> list = references.get(source);
+        if(list == null){
+            return;
+        }
+        list.remove(target);
+    }
+
+
 }

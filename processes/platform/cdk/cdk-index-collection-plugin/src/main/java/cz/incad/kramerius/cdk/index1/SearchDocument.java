@@ -1,25 +1,28 @@
+
 package cz.incad.kramerius.cdk.index1;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchDocument {
+
     private final String pid;
     private final String ownPidPath;
     private List<String> inCollections;
-    private String inCollectionsDirect;
+    private List<String> inCollectionsDirect;
     private List<String> pidPaths;
 
     public SearchDocument(
             String pid,
             String ownPidPath,
             List<String> inCollections,
-            String inCollectionsDirect,
+            List<String> inCollectionsDirect,
             List<String> pidPaths) {
+
         this.pid = pid;
         this.ownPidPath = ownPidPath;
         this.inCollections = copy(inCollections);
-        this.inCollectionsDirect = inCollectionsDirect;
+        this.inCollectionsDirect = copy(inCollectionsDirect);
         this.pidPaths = copy(pidPaths);
     }
 
@@ -38,22 +41,23 @@ public class SearchDocument {
     }
 
     public List<String> getInCollections() {
-        return new ArrayList<>(inCollections);
+        return copy(inCollections);
     }
 
-    public String getInCollectionsDirect() {
-        return inCollectionsDirect;
+    public List<String> getInCollectionsDirect() {
+        return copy(inCollectionsDirect);
     }
 
     public List<String> getPidPaths() {
-        return new ArrayList<>(pidPaths);
+        return copy(pidPaths);
     }
 
     public void setCollections(
             List<String> inCollections,
-            String inCollectionsDirect) {
+            List<String> inCollectionsDirect) {
+
         this.inCollections = copy(inCollections);
-        this.inCollectionsDirect = inCollectionsDirect;
+        this.inCollectionsDirect = copy(inCollectionsDirect);
     }
 
     public void setPidPaths(List<String> pidPaths) {
