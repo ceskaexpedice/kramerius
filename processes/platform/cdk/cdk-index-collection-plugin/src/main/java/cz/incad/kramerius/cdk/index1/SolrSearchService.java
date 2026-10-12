@@ -24,14 +24,11 @@ public class SolrSearchService implements SearchIndexService {
 
     private static final String FIELD_PID = "pid";
     private static final String FIELD_OWN_PID_PATH = "own_pid_path";
-    private static final String FIELD_OWN_PID_PATH_CHILDREN =
-            "own_pid_path.children";
+    private static final String FIELD_OWN_PID_PATH_CHILDREN = "own_pid_path.children";
     private static final String FIELD_PID_PATHS = "pid_paths";
-    private static final String FIELD_PID_PATHS_CHILDREN =
-            "pid_paths.children";
+    private static final String FIELD_PID_PATHS_CHILDREN = "pid_paths.children";
     private static final String FIELD_IN_COLLECTION = "in_collections";
-    private static final String FIELD_IN_COLLECTION_DIRECT =
-            "in_collections.direct";
+    private static final String FIELD_IN_COLLECTION_DIRECT = "in_collections.direct";
 
     private final HttpSolrClient solrClient;
 
@@ -42,8 +39,7 @@ public class SolrSearchService implements SearchIndexService {
     @Override
     public SearchDocument get(String pid) {
         SolrQuery query = new SolrQuery();
-        query.setQuery(
-                FIELD_PID + ":" + ClientUtils.escapeQueryChars(pid));
+        query.setQuery(FIELD_PID + ":" + ClientUtils.escapeQueryChars(pid));
         query.setRows(1);
         query.setFields(
                 FIELD_PID,
@@ -51,19 +47,15 @@ public class SolrSearchService implements SearchIndexService {
                 FIELD_IN_COLLECTION,
                 FIELD_IN_COLLECTION_DIRECT,
                 FIELD_PID_PATHS);
-
         try {
             QueryResponse response = solrClient.query(query);
             SolrDocumentList results = response.getResults();
-
             if (results.isEmpty()) {
                 return null;
             }
-
             return toSearchDocument(results.get(0));
         } catch (SolrServerException | IOException e) {
-            throw new IllegalStateException(
-                    "Cannot load search document with PID " + pid, e);
+            throw new IllegalStateException("Cannot load search document with PID " + pid, e);
         }
     }
 
@@ -72,43 +64,28 @@ public class SolrSearchService implements SearchIndexService {
      * the target CDK path in pid_paths.
      */
     @Override
-    public List<SearchDocument> findUnlinkedSubtree(
-            String rootPid,
-            List<String> cdkPath) {
-
+    public List<SearchDocument> findUnlinkedSubtree(String rootPid, List<String> cdkPath) {
         SearchDocument root = get(rootPid);
-
-        if (root == null
-                || root.getOwnPidPath() == null
-                || root.getOwnPidPath().isEmpty()) {
+        if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
             return Collections.emptyList();
         }
-
         if (cdkPath == null || cdkPath.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "CDK path must not be empty");
+            throw new IllegalArgumentException("CDK path must not be empty");
         }
-
-        String targetCdkPath =
-                String.join("/", cdkPath)
-                        + "/" + root.getOwnPidPath();
-
+        String targetCdkPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
         String sourcePathQuery =
                 FIELD_OWN_PID_PATH_CHILDREN
                         + ":\""
                         + ClientUtils.escapeQueryChars(
                         root.getOwnPidPath())
                         + "\"";
-
         String missingCdkPathQuery =
                 "-" + FIELD_PID_PATHS_CHILDREN
                         + ":\""
                         + ClientUtils.escapeQueryChars(targetCdkPath)
                         + "\"";
-
         SolrQuery query = new SolrQuery();
-        query.setQuery(
-                sourcePathQuery + " AND " + missingCdkPathQuery);
+        query.setQuery(sourcePathQuery + " AND " + missingCdkPathQuery);
         query.setFields(
                 FIELD_PID,
                 FIELD_OWN_PID_PATH,
@@ -117,12 +94,8 @@ public class SolrSearchService implements SearchIndexService {
                 FIELD_PID_PATHS);
         query.setRows(PAGE_SIZE);
         query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
-
-        return executePagedQuery(
-                query,
-                "Cannot find unlinked subtree for PID "
-                        + rootPid + ", target CDK path "
-                        + targetCdkPath);
+        return executePagedQuery(query, "Cannot find unlinked subtree for PID " + rootPid +
+                ", target CDK path " + targetCdkPath);
     }
 
     /**
@@ -130,13 +103,9 @@ public class SolrSearchService implements SearchIndexService {
      * the specified collection PID.
      */
     @Override
-    public List<SearchDocument> findByDirectCollection(
-            String collectionPid) {
-
+    public List<SearchDocument> findByDirectCollection(String collectionPid) {
         SolrQuery query = new SolrQuery();
-        query.setQuery(
-                FIELD_IN_COLLECTION_DIRECT + ":"
-                        + ClientUtils.escapeQueryChars(collectionPid));
+        query.setQuery(FIELD_IN_COLLECTION_DIRECT + ":" + ClientUtils.escapeQueryChars(collectionPid));
         query.setFields(
                 FIELD_PID,
                 FIELD_OWN_PID_PATH,
@@ -145,24 +114,18 @@ public class SolrSearchService implements SearchIndexService {
                 FIELD_PID_PATHS);
         query.setRows(PAGE_SIZE);
         query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
-
-        return executePagedQuery(
-                query,
-                "Cannot find documents directly assigned to CDK collection "
-                        + collectionPid);
+        return executePagedQuery(query, "Cannot find documents directly assigned to CDK collection " + collectionPid);
     }
 
     /**
      * Finds documents whose pid_paths contains the specified path
      * or a descendant of that path.
-     *
+     * <p>
      * This relies on pid_paths.children being populated by the
      * PathHierarchyTokenizer (or equivalent schema configuration).
      */
     @Override
-    public List<SearchDocument> findByPidPathPrefix(
-            String pidPathPrefix) {
-
+    public List<SearchDocument> findByPidPathPrefix(String pidPathPrefix) {
         SolrQuery query = new SolrQuery();
         query.setQuery(
                 FIELD_PID_PATHS_CHILDREN + ":\""
@@ -176,54 +139,30 @@ public class SolrSearchService implements SearchIndexService {
                 FIELD_PID_PATHS);
         query.setRows(PAGE_SIZE);
         query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
-
         return executePagedQuery(
-                query,
-                "Cannot find documents with PID path prefix "
-                        + pidPathPrefix);
+                query, "Cannot find documents with PID path prefix " + pidPathPrefix);
     }
 
     @Override
-    public void updateCollectionsFields(
-            String pid,
-            List<String> inCollections,
-            List<String> inCollectionsDirect) {
-
+    public void updateCollectionsFields(String pid, List<String> inCollections, List<String> inCollectionsDirect) {
         SolrInputDocument update = new SolrInputDocument();
         update.setField(FIELD_PID, pid);
         update.setField(
                 FIELD_IN_COLLECTION,
-                Collections.singletonMap(
-                        "set",
-                        inCollections == null
-                                ? Collections.emptyList()
-                                : inCollections));
+                Collections.singletonMap("set", inCollections == null ? Collections.emptyList() : inCollections));
         update.setField(
                 FIELD_IN_COLLECTION_DIRECT,
-                Collections.singletonMap(
-                        "set",
-                        inCollectionsDirect == null
-                                ? Collections.emptyList()
-                                : inCollectionsDirect));
-
+                Collections.singletonMap("set", inCollectionsDirect == null ? Collections.emptyList() : inCollectionsDirect));
         submitUpdate(update);
     }
 
     @Override
-    public void updatePidPaths(
-            String pid,
-            List<String> pidPaths) {
-
+    public void updatePidPaths(String pid, List<String> pidPaths) {
         SolrInputDocument update = new SolrInputDocument();
         update.setField(FIELD_PID, pid);
         update.setField(
                 FIELD_PID_PATHS,
-                Collections.singletonMap(
-                        "set",
-                        pidPaths == null
-                                ? Collections.emptyList()
-                                : pidPaths));
-
+                Collections.singletonMap("set", pidPaths == null ? Collections.emptyList() : pidPaths));
         submitUpdate(update);
     }
 
@@ -231,37 +170,26 @@ public class SolrSearchService implements SearchIndexService {
         try {
             solrClient.commit();
         } catch (SolrServerException | IOException e) {
-            throw new IllegalStateException(
-                    "Cannot commit Solr updates", e);
+            throw new IllegalStateException("Cannot commit Solr updates", e);
         }
     }
 
-    private List<SearchDocument> executePagedQuery(
-            SolrQuery query,
-            String errorMessage) {
-
+    private List<SearchDocument> executePagedQuery(SolrQuery query, String errorMessage) {
         List<SearchDocument> result = new ArrayList<>();
         int start = 0;
-
         try {
             while (true) {
                 query.setStart(start);
-
                 QueryResponse response = solrClient.query(query);
                 SolrDocumentList documents = response.getResults();
-
                 for (SolrDocument document : documents) {
                     result.add(toSearchDocument(document));
                 }
-
                 start += documents.size();
-
-                if (documents.isEmpty()
-                        || start >= documents.getNumFound()) {
+                if (documents.isEmpty() || start >= documents.getNumFound()) {
                     break;
                 }
             }
-
             return result;
         } catch (SolrServerException | IOException e) {
             throw new IllegalStateException(errorMessage, e);
@@ -272,8 +200,7 @@ public class SolrSearchService implements SearchIndexService {
         try {
             solrClient.add(update);
         } catch (SolrServerException | IOException e) {
-            throw new IllegalStateException(
-                    "Cannot update Solr document", e);
+            throw new IllegalStateException("Cannot update Solr document", e);
         }
     }
 
@@ -282,8 +209,7 @@ public class SolrSearchService implements SearchIndexService {
                 asString(document.getFieldValue(FIELD_PID)),
                 asString(document.getFieldValue(FIELD_OWN_PID_PATH)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION)),
-                asStringList(
-                        document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
+                asStringList(document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
                 asStringList(document.getFieldValue(FIELD_PID_PATHS)));
     }
 
@@ -295,19 +221,16 @@ public class SolrSearchService implements SearchIndexService {
         if (value == null) {
             return new ArrayList<>();
         }
-
         if (value instanceof Collection<?>) {
             List<String> result = new ArrayList<>();
-
             for (Object item : (Collection<?>) value) {
                 result.add(item.toString());
             }
-
             return result;
         }
-
         return Collections.singletonList(value.toString());
     }
+
     @Override
     public List<String> getDirectCollectionValues() {
         SolrQuery query = new SolrQuery();
@@ -318,24 +241,18 @@ public class SolrSearchService implements SearchIndexService {
         query.setFacetLimit(-1);
         query.setFacetMinCount(1);
         query.setFacetSort("index");
-
         try {
             QueryResponse response = solrClient.query(query);
-            FacetField facet = response.getFacetField(
-                    FIELD_IN_COLLECTION_DIRECT);
-
+            FacetField facet = response.getFacetField(FIELD_IN_COLLECTION_DIRECT);
             List<String> values = new ArrayList<>();
-
             if (facet != null && facet.getValues() != null) {
                 for (FacetField.Count count : facet.getValues()) {
                     values.add(count.getName());
                 }
             }
-
             return values;
         } catch (SolrServerException | IOException e) {
-            throw new IllegalStateException(
-                    "Cannot retrieve direct collection values", e);
+            throw new IllegalStateException("Cannot retrieve direct collection values", e);
         }
     }
 }

@@ -1,16 +1,7 @@
 
 package cz.incad.kramerius.cdk.index1;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CDKCollectionSynchronizer {
 
@@ -53,12 +44,18 @@ public class CDKCollectionSynchronizer {
         for (ReferencePath reference : validReferences) {
             referencesByRoot.computeIfAbsent(reference.referencedPid, key -> new ArrayList<>()).add(reference);
         }
-        Set<String> stalePathPrefixes = new LinkedHashSet<>();
-        // Inspect only documents that have direct CDK memberships.
+        // Prefix -> kořenový dokument, ze kterého prefix pochází.
+        Map<String, SearchDocument> staleRoots = new LinkedHashMap<>();
         List<String> directCollectionValues = searchIndex.getDirectCollectionValues();
         for (String directCollection : directCollectionValues) {
             List<SearchDocument> roots = searchIndex.findByDirectCollection(directCollection);
             for (SearchDocument root : roots) {
+                // TODO !!!!!!!!!!!!!!
+//            SearchDocument collection = searchIndex.get(directCollection);
+//            if (collection != null && collection.getSource() != null) { // cdk.collections
+//                // Běžná zdrojová knihovní kolekce.
+//                continue;
+//            }
                 List<ReferencePath> expectedReferences = referencesByRoot.getOrDefault(root.getPid(), Collections.emptyList());
                 boolean directMembershipIsValid = false;
                 for (ReferencePath reference : expectedReferences) {
@@ -67,18 +64,21 @@ public class CDKCollectionSynchronizer {
                         break;
                     }
                 }
+                Set<String> obsoletePrefixes;
                 if (!directMembershipIsValid) {
-                    // The direct reference was removed from processing.
-                    stalePathPrefixes.addAll(findObsoletePrefixes(root, directCollection, expectedReferences));
+                    // Přímá reference byla odstraněna z processing indexu.
+                    obsoletePrefixes = findObsoletePrefixes(root, directCollection, expectedReferences);
                 } else {
-                    // The reference still exists, but its hierarchy may
-                    // have changed, leaving old CDK paths behind.
-                    stalePathPrefixes.addAll(findObsoletePrefixes(root, null, expectedReferences));
+                    // Reference stále existuje, ale hierarchie se mohla změnit.
+                    obsoletePrefixes = findObsoletePrefixes(root, null, expectedReferences);
+                }
+                for (String stalePrefix : obsoletePrefixes) {
+                    staleRoots.putIfAbsent(stalePrefix, root);
                 }
             }
         }
-        for (String stalePrefix : stalePathPrefixes) {
-            removePathPrefix(stalePrefix, validReferences);
+        for (Map.Entry<String, SearchDocument> entry : staleRoots.entrySet()) {
+            removePathPrefix(entry.getKey(), entry.getValue(), validReferences);
         }
     }
 
@@ -123,16 +123,24 @@ public class CDKCollectionSynchronizer {
         return slash < 0 ? path : path.substring(slash + 1);
     }
 
-    private void removePathPrefix(String staleRootPath, List<ReferencePath> validReferences) {
+    private void removePathPrefix(String staleRootPath, SearchDocument root, List<ReferencePath> validReferences) {
+        String rootOwnPidPath = root.getOwnPidPath();
+        String rootSuffix = "/" + rootOwnPidPath;
+        if (!staleRootPath.endsWith(rootSuffix)) {
+            throw new IllegalArgumentException("Stale root path does not end with root own PID path: " + staleRootPath);
+        }
+        // Prefix vypočítáme podle kořene, ne podle aktuálního dokumentu.
+        String removedCdkPrefix = staleRootPath.substring(0, staleRootPath.length() - rootSuffix.length());
         List<SearchDocument> affected = searchIndex.findByPidPathPrefix(staleRootPath);
         for (SearchDocument document : affected) {
+            List<String> currentPaths = document.getPidPaths();
             List<String> remainingPaths = new ArrayList<>();
-            for (String path : document.getPidPaths()) {
+            for (String path : currentPaths) {
                 if (path == null || !(path.equals(staleRootPath) || path.startsWith(staleRootPath + "/"))) {
                     remainingPaths.add(path);
                 }
             }
-            if (remainingPaths.size() == document.getPidPaths().size()) {
+            if (remainingPaths.size() == currentPaths.size()) {
                 continue;
             }
             Set<String> validMemberships = new LinkedHashSet<>();
@@ -146,18 +154,20 @@ public class CDKCollectionSynchronizer {
                 }
             }
             Set<String> inCollections = new LinkedHashSet<>(document.getInCollections());
-            String removedCdkPrefix =
-                    staleRootPath.substring(0, staleRootPath.length() - document.getOwnPidPath().length() - 1);
-            for (String collectionPid : Arrays.asList(removedCdkPrefix.split("/"))) {
+            for (String collectionPid : removedCdkPrefix.split("/")) {
                 if (!validMemberships.contains(collectionPid)) {
                     inCollections.remove(collectionPid);
                 }
             }
             List<String> direct = new ArrayList<>(document.getInCollectionsDirect());
-            // Remove only direct memberships that are no longer valid.
-            direct.removeIf(collectionPid ->
-                    !processingIndex.isCDKCollection(collectionPid) || !processingIndex.getCDKReferences(collectionPid)
-                            .contains(document.getPid()));
+            Iterator<String> iterator = direct.iterator();
+            while (iterator.hasNext()) {
+                String collectionPid = iterator.next();
+                if (!processingIndex.isCDKCollection(collectionPid) ||
+                        !processingIndex.getCDKReferences(collectionPid).contains(document.getPid())) {
+                    iterator.remove();
+                }
+            }
             searchIndex.updatePidPaths(document.getPid(), remainingPaths);
             searchIndex.updateCollectionsFields(document.getPid(), new ArrayList<>(inCollections), direct);
         }

@@ -12,13 +12,8 @@ public class SearchDocument {
     private List<String> inCollectionsDirect;
     private List<String> pidPaths;
 
-    public SearchDocument(
-            String pid,
-            String ownPidPath,
-            List<String> inCollections,
-            List<String> inCollectionsDirect,
-            List<String> pidPaths) {
-
+    public SearchDocument(String pid, String ownPidPath, List<String> inCollections,
+                          List<String> inCollectionsDirect, List<String> pidPaths) {
         this.pid = pid;
         this.ownPidPath = ownPidPath;
         this.inCollections = copy(inCollections);
@@ -27,9 +22,7 @@ public class SearchDocument {
     }
 
     private static List<String> copy(List<String> values) {
-        return values == null
-                ? new ArrayList<>()
-                : new ArrayList<>(values);
+        return values == null ? new ArrayList<>() : new ArrayList<>(values);
     }
 
     public String getPid() {
@@ -52,10 +45,7 @@ public class SearchDocument {
         return copy(pidPaths);
     }
 
-    public void setCollections(
-            List<String> inCollections,
-            List<String> inCollectionsDirect) {
-
+    public void setCollections(List<String> inCollections, List<String> inCollectionsDirect) {
         this.inCollections = copy(inCollections);
         this.inCollectionsDirect = copy(inCollectionsDirect);
     }
