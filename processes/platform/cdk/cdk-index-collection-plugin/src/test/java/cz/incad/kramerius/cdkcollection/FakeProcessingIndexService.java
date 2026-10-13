@@ -1,4 +1,4 @@
-package cz.incad.kramerius.cdk.index1;
+package cz.incad.kramerius.cdkcollection;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

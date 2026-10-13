@@ -1,5 +1,5 @@
 
-package cz.incad.kramerius.cdk.index1;
+package cz.incad.kramerius.cdkcollection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +12,20 @@ public class SearchDocument {
     private List<String> inCollectionsDirect;
     private List<String> pidPaths;
 
+    public boolean isCdkCollection() {
+        return cdkCollection;
+    }
+
+    private boolean cdkCollection;
+
     public SearchDocument(String pid, String ownPidPath, List<String> inCollections,
-                          List<String> inCollectionsDirect, List<String> pidPaths) {
+                          List<String> inCollectionsDirect, List<String> pidPaths, boolean cdkCollection) {
         this.pid = pid;
         this.ownPidPath = ownPidPath;
         this.inCollections = copy(inCollections);
         this.inCollectionsDirect = copy(inCollectionsDirect);
         this.pidPaths = copy(pidPaths);
+        this.cdkCollection = cdkCollection;
     }
 
     private static List<String> copy(List<String> values) {

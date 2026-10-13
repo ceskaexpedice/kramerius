@@ -1,10 +1,9 @@
 
-package cz.incad.kramerius.cdk.index1;
+package cz.incad.kramerius.cdkcollection;
 
 import java.util.*;
 
 public class CDKCollectionSynchronizer {
-
     private final SearchIndexService searchIndex;
     private final ProcessingIndexService processingIndex;
 
@@ -25,15 +24,22 @@ public class CDKCollectionSynchronizer {
 
     private List<ReferencePath> buildValidReferences() {
         List<ReferencePath> result = new ArrayList<>();
-        for (String collectionPid : processingIndex.getCDKCollections()) {
+        List<String> cdkCollections = processingIndex.getCDKCollections();
+        for (String collectionPid : cdkCollections) {
             List<String> cdkPath = getCDKPathFromRoot(collectionPid);
-            for (String referencedPid : processingIndex.getCDKReferences(collectionPid)) {
+            List<String> cdkReferences = processingIndex.getCDKReferences(collectionPid);
+            for (String referencedPid : cdkReferences) {
                 SearchDocument root = searchIndex.get(referencedPid);
                 if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
                     continue;
                 }
+                /* TODO
                 result.add(new ReferencePath(collectionPid, referencedPid, cdkPath,
                         String.join("/", cdkPath) + "/" + root.getOwnPidPath()));
+
+                 */
+                result.add(new ReferencePath(collectionPid, referencedPid, cdkPath,
+                        String.join("/", cdkPath) + "/" + referencedPid));
             }
         }
         return result;
@@ -48,14 +54,16 @@ public class CDKCollectionSynchronizer {
         Map<String, SearchDocument> staleRoots = new LinkedHashMap<>();
         List<String> directCollectionValues = searchIndex.getDirectCollectionValues();
         for (String directCollection : directCollectionValues) {
+            SearchDocument collection = searchIndex.get(directCollection);
+            if (collection != null && !collection.isCdkCollection()) {
+                // Běžná zdrojová knihovní kolekce.
+                continue;
+            }
             List<SearchDocument> roots = searchIndex.findByDirectCollection(directCollection);
             for (SearchDocument root : roots) {
-                // TODO !!!!!!!!!!!!!!
-//            SearchDocument collection = searchIndex.get(directCollection);
-//            if (collection != null && collection.getSource() != null) { // cdk.collections
-//                // Běžná zdrojová knihovní kolekce.
-//                continue;
-//            }
+                if(root.isCdkCollection()){
+                    continue;
+                }
                 List<ReferencePath> expectedReferences = referencesByRoot.getOrDefault(root.getPid(), Collections.emptyList());
                 boolean directMembershipIsValid = false;
                 for (ReferencePath reference : expectedReferences) {
@@ -71,6 +79,7 @@ public class CDKCollectionSynchronizer {
                 } else {
                     // Reference stále existuje, ale hierarchie se mohla změnit.
                     obsoletePrefixes = findObsoletePrefixes(root, null, expectedReferences);
+                   // obsoletePrefixes = new HashSet<>();
                 }
                 for (String stalePrefix : obsoletePrefixes) {
                     staleRoots.putIfAbsent(stalePrefix, root);
@@ -92,7 +101,8 @@ public class CDKCollectionSynchronizer {
         if (ownPath == null || ownPath.isEmpty()) {
             return obsolete;
         }
-        String suffix = "/" + ownPath;
+        String suffix = "/" + root.getPid();
+//        String suffix = "/" + ownPath;
         for (String path : root.getPidPaths()) {
             if (path == null || !path.endsWith(suffix)) {
                 continue;
@@ -110,7 +120,8 @@ public class CDKCollectionSynchronizer {
                 }
             }
             if (!valid) {
-                if (removedCollection == null || lastPathSegment(prefix).equals(removedCollection)) {
+                String lastPathSegment = lastPathSegment(prefix);
+                if (removedCollection == null || lastPathSegment.equals(removedCollection)) {
                     obsolete.add(fullRootPath);
                 }
             }
@@ -124,8 +135,9 @@ public class CDKCollectionSynchronizer {
     }
 
     private void removePathPrefix(String staleRootPath, SearchDocument root, List<ReferencePath> validReferences) {
-        String rootOwnPidPath = root.getOwnPidPath();
-        String rootSuffix = "/" + rootOwnPidPath;
+       // String rootOwnPidPath = root.getOwnPidPath();
+//        String rootSuffix = "/" + rootOwnPidPath;
+        String rootSuffix = "/" + root.getPid();
         if (!staleRootPath.endsWith(rootSuffix)) {
             throw new IllegalArgumentException("Stale root path does not end with root own PID path: " + staleRootPath);
         }
@@ -204,7 +216,10 @@ public class CDKCollectionSynchronizer {
         searchIndex.updateCollectionsFields(document.getPid(), new ArrayList<>(inCollections), direct);
         String ownPidPath = document.getOwnPidPath();
         if (ownPidPath != null && !ownPidPath.isEmpty()) {
-            String fullPath = String.join("/", reference.cdkPath) + "/" + ownPidPath;
+            int index = ownPidPath.indexOf(reference.referencedPid);
+            String lastPath = ownPidPath.substring(index);
+            String fullPath = String.join("/", reference.cdkPath) + "/" + lastPath;
+            //String fullPath = String.join("/", reference.cdkPath) + "/" + ownPidPath;
             Set<String> allPaths = new LinkedHashSet<>(document.getPidPaths());
             allPaths.add(fullPath);
             searchIndex.updatePidPaths(document.getPid(), new ArrayList<>(allPaths));

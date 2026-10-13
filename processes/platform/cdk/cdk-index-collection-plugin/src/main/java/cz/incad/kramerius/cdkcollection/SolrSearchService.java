@@ -1,5 +1,5 @@
 
-package cz.incad.kramerius.cdk.index1;
+package cz.incad.kramerius.cdkcollection;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -210,7 +210,8 @@ public class SolrSearchService implements SearchIndexService {
                 asString(document.getFieldValue(FIELD_OWN_PID_PATH)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
-                asStringList(document.getFieldValue(FIELD_PID_PATHS)));
+                asStringList(document.getFieldValue(FIELD_PID_PATHS)),
+                false);
     }
 
     private String asString(Object value) {
