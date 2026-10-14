@@ -1,9 +1,14 @@
 
 package cz.incad.kramerius.cdkcollection;
 
+import cz.incad.kramerius.plugin.CDKIndexCollection;
+
 import java.util.*;
+import java.util.logging.Logger;
 
 public class CDKCollectionSynchronizer {
+    private static final Logger LOGGER = Logger.getLogger(CDKIndexCollection.class.getName());
+
     private final SearchIndexService searchIndex;
     private final ProcessingIndexService processingIndex;
 
@@ -13,6 +18,7 @@ public class CDKCollectionSynchronizer {
     }
 
     public void synchronize() {
+        LOGGER.info("CDK Collection Synchronizer starts");
         List<ReferencePath> validReferences = buildValidReferences();
         // First remove obsolete paths and memberships.
         removeObsoleteReferences(validReferences);
@@ -20,6 +26,7 @@ public class CDKCollectionSynchronizer {
         for (ReferencePath reference : validReferences) {
             synchronizeReference(reference);
         }
+        LOGGER.info("CDK Collection Synchronizer finishes successfully");
     }
 
     private List<ReferencePath> buildValidReferences() {
@@ -33,11 +40,6 @@ public class CDKCollectionSynchronizer {
                 if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
                     continue;
                 }
-                /* TODO
-                result.add(new ReferencePath(collectionPid, referencedPid, cdkPath,
-                        String.join("/", cdkPath) + "/" + root.getOwnPidPath()));
-
-                 */
                 result.add(new ReferencePath(collectionPid, referencedPid, cdkPath,
                         String.join("/", cdkPath) + "/" + referencedPid));
             }
@@ -50,7 +52,6 @@ public class CDKCollectionSynchronizer {
         for (ReferencePath reference : validReferences) {
             referencesByRoot.computeIfAbsent(reference.referencedPid, key -> new ArrayList<>()).add(reference);
         }
-        // Prefix -> kořenový dokument, ze kterého prefix pochází.
         Map<String, SearchDocument> staleRoots = new LinkedHashMap<>();
         List<String> directCollectionValues = searchIndex.getDirectCollectionValues();
         for (String directCollection : directCollectionValues) {
@@ -59,9 +60,10 @@ public class CDKCollectionSynchronizer {
                 // Běžná zdrojová knihovní kolekce.
                 continue;
             }
+            // TODO pagination?
             List<SearchDocument> roots = searchIndex.findByDirectCollection(directCollection);
             for (SearchDocument root : roots) {
-                if(root.isCdkCollection()){
+                if (root.isCdkCollection()) {
                     continue;
                 }
                 List<ReferencePath> expectedReferences = referencesByRoot.getOrDefault(root.getPid(), Collections.emptyList());
@@ -79,7 +81,7 @@ public class CDKCollectionSynchronizer {
                 } else {
                     // Reference stále existuje, ale hierarchie se mohla změnit.
                     obsoletePrefixes = findObsoletePrefixes(root, null, expectedReferences);
-                   // obsoletePrefixes = new HashSet<>();
+                    // obsoletePrefixes = new HashSet<>();
                 }
                 for (String stalePrefix : obsoletePrefixes) {
                     staleRoots.putIfAbsent(stalePrefix, root);
@@ -92,17 +94,12 @@ public class CDKCollectionSynchronizer {
     }
 
     private Set<String> findObsoletePrefixes(SearchDocument root, String removedCollection, List<ReferencePath> expectedReferences) {
-        Set<String> validPrefixes = new LinkedHashSet<>();
-        for (ReferencePath reference : expectedReferences) {
-            validPrefixes.add(reference.fullPath);
-        }
         Set<String> obsolete = new LinkedHashSet<>();
         String ownPath = root.getOwnPidPath();
         if (ownPath == null || ownPath.isEmpty()) {
             return obsolete;
         }
         String suffix = "/" + root.getPid();
-//        String suffix = "/" + ownPath;
         for (String path : root.getPidPaths()) {
             if (path == null || !path.endsWith(suffix)) {
                 continue;
@@ -111,19 +108,23 @@ public class CDKCollectionSynchronizer {
             if (prefix.isEmpty()) {
                 continue;
             }
-            String fullRootPath = prefix + suffix;
             boolean valid = false;
             for (ReferencePath reference : expectedReferences) {
-                if (reference.fullPath.equals(fullRootPath)) {
+                if (reference.fullPath.equals(path)) {
                     valid = true;
                     break;
                 }
             }
-            if (!valid) {
-                String lastPathSegment = lastPathSegment(prefix);
-                if (removedCollection == null || lastPathSegment.equals(removedCollection)) {
-                    obsolete.add(fullRootPath);
+            if (valid) {
+                continue;
+            }
+            String lastPathSegment = lastPathSegment(prefix);
+            if (removedCollection != null) {
+                if (lastPathSegment.equals(removedCollection)) {
+                    obsolete.add(path);
                 }
+            } else if (processingIndex.isCDKCollection(lastPathSegment)) {
+                obsolete.add(path);
             }
         }
         return obsolete;
@@ -135,16 +136,17 @@ public class CDKCollectionSynchronizer {
     }
 
     private void removePathPrefix(String staleRootPath, SearchDocument root, List<ReferencePath> validReferences) {
-       // String rootOwnPidPath = root.getOwnPidPath();
+        // String rootOwnPidPath = root.getOwnPidPath();
 //        String rootSuffix = "/" + rootOwnPidPath;
         String rootSuffix = "/" + root.getPid();
         if (!staleRootPath.endsWith(rootSuffix)) {
             throw new IllegalArgumentException("Stale root path does not end with root own PID path: " + staleRootPath);
         }
-        // Prefix vypočítáme podle kořene, ne podle aktuálního dokumentu.
         String removedCdkPrefix = staleRootPath.substring(0, staleRootPath.length() - rootSuffix.length());
+        // TODO pagination
         List<SearchDocument> affected = searchIndex.findByPidPathPrefix(staleRootPath);
         for (SearchDocument document : affected) {
+            LOGGER.info(String.format("Removing obsolete reference \"%s\" in pid \"%s\"", staleRootPath, document.getPid()));
             List<String> currentPaths = document.getPidPaths();
             List<String> remainingPaths = new ArrayList<>();
             for (String path : currentPaths) {
@@ -186,7 +188,9 @@ public class CDKCollectionSynchronizer {
     }
 
     private void synchronizeReference(ReferencePath reference) {
+        // TODO pagination
         List<SearchDocument> subtree = searchIndex.findUnlinkedSubtree(reference.referencedPid, reference.cdkPath);
+        LOGGER.info(String.format("Synchronizing %d documents; reference path: %s", subtree.size(), reference.toString()));
         for (SearchDocument document : subtree) {
             updateDocument(document, reference);
         }
@@ -219,7 +223,6 @@ public class CDKCollectionSynchronizer {
             int index = ownPidPath.indexOf(reference.referencedPid);
             String lastPath = ownPidPath.substring(index);
             String fullPath = String.join("/", reference.cdkPath) + "/" + lastPath;
-            //String fullPath = String.join("/", reference.cdkPath) + "/" + ownPidPath;
             Set<String> allPaths = new LinkedHashSet<>(document.getPidPaths());
             allPaths.add(fullPath);
             searchIndex.updatePidPaths(document.getPid(), new ArrayList<>(allPaths));
@@ -237,6 +240,16 @@ public class CDKCollectionSynchronizer {
             this.referencedPid = referencedPid;
             this.cdkPath = new ArrayList<>(cdkPath);
             this.fullPath = fullPath;
+        }
+
+        @Override
+        public String toString() {
+            return "ReferencePath{" +
+                    "collectionPid='" + collectionPid + '\'' +
+                    ", referencedPid='" + referencedPid + '\'' +
+                    ", cdkPath=" + cdkPath +
+                    ", fullPath='" + fullPath + '\'' +
+                    '}';
         }
     }
 }

@@ -169,9 +169,7 @@ public class CDKCollectionSynchronizerTest {
         synchronizer.synchronize();
 
         SearchDocument cis1 = search.get("cis1");
-
         cis1.setCollections(cis1.getInCollections(), Arrays.asList("cdk-sb11", "cdk-other"));
-
         processing.addCDKCollection("cdk-other");
         processing.addCDKReference("cdk-other", "cis1");
 

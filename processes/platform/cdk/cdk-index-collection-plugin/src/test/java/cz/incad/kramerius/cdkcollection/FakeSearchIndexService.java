@@ -46,7 +46,7 @@ public class FakeSearchIndexService implements SearchIndexService {
         if (cdkPath == null || cdkPath.isEmpty()) {
             throw new IllegalArgumentException("CDK path must not be empty");
         }
-        String targetPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
+        String targetPath = String.join("/", cdkPath) + "/" + rootPid;
         List<SearchDocument> result = new ArrayList<>();
         Deque<String> pending = new ArrayDeque<>();
         Set<String> visited = new LinkedHashSet<>();
