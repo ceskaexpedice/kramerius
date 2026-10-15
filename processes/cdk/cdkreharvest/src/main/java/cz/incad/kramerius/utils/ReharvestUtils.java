@@ -45,6 +45,7 @@ import cz.incad.kramerius.TooBigException;
 import cz.incad.kramerius.cdk.ChannelUtils;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.kramerius.services.Migration;
 import cz.inovatika.kramerius.services.iterators.IterationItem;
 import cz.inovatika.kramerius.services.iterators.MigrationIterator;
@@ -95,9 +96,31 @@ public class ReharvestUtils {
     
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new IllegalStateException(String.format("Failed deleting reharvest batch %d/%d", i + 1, batches), e);
             }
         }
         return retBuilder.toString();
+    }
+
+    /** Mark a queue item closed when its Process Platform execution finishes. */
+    public static void closeQueueItem(String itemId) {
+        if (itemId == null || itemId.trim().isEmpty()) {
+            return;
+        }
+        try {
+            String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
+            JSONObject update = new JSONObject();
+            update.put("id", itemId);
+            update.put("state", new JSONObject().put("set", "closed"));
+            WebResource resource = Client.create().resource(reharvest + "/update/json/docs?commit=true");
+            String response = resource.accept(MediaType.APPLICATION_JSON)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(update.toString(), MediaType.APPLICATION_JSON)
+                    .post(String.class);
+            LOGGER.info(String.format("Closed reharvest queue item %s: %s", itemId, response));
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unable to close reharvest queue item " + itemId, e);
+        }
     }
 
 

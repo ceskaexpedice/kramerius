@@ -3,11 +3,13 @@
 var CLIENT_URL = '/search/openapi/client/v7.0/index.html'
 var ADMIN_URL = '/search/openapi/admin/v7.0/index.html'
 var EXTS_URL = '/search/openapi/exts/v7.0/index.html'
+var CDK_URL = '/search/openapi/cdk/v7.0/index.html'
 
 /** Clients url */	
 var CLIENT_DEFINITION_URL = "/search/api/client/v7.0/embedded/files/client/v7.0/openapi.yaml"
 var ADMIN_DEFINITION_URL = "/search/api/client/v7.0/embedded/files/admin/v7.0/openapi.yaml"
 var EXTS_DEFINITION_URL = "/search/api/client/v7.0/embedded/files/exts/v7.0/openapi.yaml"
+var CDK_DEFINITION_URL = "/search/api/client/v7.0/embedded/files/cdk/v7.0/openapi.yaml"
 
 var TOKEN = null;
 

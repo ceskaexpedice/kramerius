@@ -42,6 +42,10 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.processes.client.ProcessManagerClient;
+import cz.incad.kramerius.processes.client.ProcessManagerMapper;
+import cz.incad.kramerius.processes.definition.ProcessDefinitionManager;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.ForbiddenCheck;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,6 +56,7 @@ import com.google.inject.Inject;
 
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.apiNew.exceptions.BadRequestException;
+import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 
@@ -84,6 +89,9 @@ public class ReharvestResource {
 
     @Inject
     private Provider<User> userProvider;
+
+    @Inject
+    private ProcessDefinitionManager definitionManager;
 
 
     @GET
@@ -151,24 +159,17 @@ public class ReharvestResource {
         String conflictId = conflictUUID.toString();
 
         List<ReharvestItem> alreadySolvingConflict = this.reharvestManager.getItemByConflictId(conflictId);
-        if (alreadySolvingConflict.isEmpty() || alreadySolvingConflict.stream().noneMatch(item -> "waiting".equalsIgnoreCase(item.getState()))) {
+        boolean conflictAlreadyRecorded = alreadySolvingConflict.stream().anyMatch(item -> {
+            String state = item.getState();
+            return "waiting_for_approve".equalsIgnoreCase(state)
+                    || "scheduling".equalsIgnoreCase(state)
+                    || "waiting".equalsIgnoreCase(state)
+                    || "waiting_for".equalsIgnoreCase(state)
+                    || "open".equalsIgnoreCase(state)
+                    || "running".equalsIgnoreCase(state);
+        });
+        if (!conflictAlreadyRecorded) {
             String[] pidArray = pids.split(",");
-            for (String pid : pidArray) {
-
-                ReharvestItem deleteRoot = new ReharvestItem(UUID.randomUUID().toString());
-                deleteRoot.setTypeOfReharvest(ReharvestItem.TypeOfReharvset.delete_root);
-                deleteRoot.setName("Conflict - reharvest/delete invalid root");
-                deleteRoot.setRootPid(pid);
-                deleteRoot.setPid(pid);
-                deleteRoot.setState("waiting_for_approve");
-                deleteRoot.setConflictId(conflictId);
-                try {
-                    this.reharvestManager.register(deleteRoot);
-                } catch (AlreadyRegistedPidsException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    //throw new BadRequestException();
-                }
-            }
 
             List<ReharvestItem> rootItems = new ArrayList<>();
             List<ReharvestItem> childItems = new ArrayList<>();
@@ -208,8 +209,7 @@ public class ReharvestResource {
                         }
                     }
 
-                    if (models.size() == 1) {
-                        // ok
+                    if (models.size() == 1 && rootPids.size() == 1 && pidPaths.size() == 1) {
                         String model = models.iterator().next();
 
                         ReharvestItem rItem = new ReharvestItem(UUID.randomUUID().toString());
@@ -228,36 +228,20 @@ public class ReharvestResource {
                         } else {
                             childItems.add(rItem);
                         }
-
-                        // root items first
-                        rootItems.forEach(item -> {
-                            try {
-                                this.reharvestManager.register(item, false);
-                            } catch (AlreadyRegistedPidsException e) {
-                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                            }
-                        });
-
-                        // child items second
-                        childItems.forEach(item -> {
-                            try {
-                                this.reharvestManager.register(item, false);
-                            } catch (AlreadyRegistedPidsException e) {
-                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                            }
-                        });
                     } else {
-                        LOGGER.log(Level.SEVERE, String.format("More than one model found for pid %s, models %s, libraries %s", pid, models.toString(), libs.toString()));
+                        String reason = String.format("models: %s, root PIDs: %s, pid paths: %s, libraries: %s",
+                                models, rootPids, pidPaths, libs);
+                        LOGGER.log(Level.SEVERE, String.format("Ambiguous or incomplete source data for pid %s (%s)", pid, reason));
 
-                        ReharvestItem deleteRoot = new ReharvestItem(UUID.randomUUID().toString());
-                        deleteRoot.setTypeOfReharvest(TypeOfReharvset.live_conflict);
-                        deleteRoot.setName(String.format( "Conflict - live conflict %s, models: %s, libraries: %s", pid, models.toString(), libs.toString()));
-                        deleteRoot.setRootPid(pid);
-                        deleteRoot.setPid(pid);
-                        deleteRoot.setState("live_conflict");
-                        deleteRoot.setConflictId(conflictId);
+                        ReharvestItem liveConflict = new ReharvestItem(UUID.randomUUID().toString());
+                        liveConflict.setTypeOfReharvest(TypeOfReharvset.live_conflict);
+                        liveConflict.setName(String.format("Conflict - live conflict %s, %s", pid, reason));
+                        liveConflict.setRootPid(pid);
+                        liveConflict.setPid(pid);
+                        liveConflict.setState("live_conflict");
+                        liveConflict.setConflictId(conflictId);
                         try {
-                            this.reharvestManager.register(deleteRoot);
+                            this.reharvestManager.register(liveConflict);
                         } catch (AlreadyRegistedPidsException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(), e);
                             //throw new BadRequestException();
@@ -267,6 +251,23 @@ public class ReharvestResource {
                     }
 
                 } catch (UnsupportedEncodingException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            });
+
+            // Register only after all input PIDs have been introspected. Roots first,
+            // then children, without re-registering previously collected items.
+            rootItems.forEach(item -> {
+                try {
+                    this.reharvestManager.register(item, false);
+                } catch (AlreadyRegistedPidsException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            });
+            childItems.forEach(item -> {
+                try {
+                    this.reharvestManager.register(item, false);
+                } catch (AlreadyRegistedPidsException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             });
@@ -458,15 +459,17 @@ public class ReharvestResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response changeState(@PathParam("id") String id, @QueryParam("state") String state) {
         if (permit()) {
+            ReharvestItem itemById = reharvestManager.getItemById(id);
+            if (itemById == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            if ("open".equalsIgnoreCase(state)) {
+                return scheduleApprovedReharvest(itemById);
+            }
             try {
-                ReharvestItem itemById = reharvestManager.getItemById(id);
-                if (itemById != null) {
-                    itemById.setState(state);
-                    this.reharvestManager.update(itemById);
-                    return Response.ok(itemById.toJSON().toString()).build();
-                } else {
-                    return Response.status(Response.Status.NOT_FOUND).build();
-                }
+                itemById.setState(state);
+                ReharvestItem updated = this.reharvestManager.update(itemById);
+                return Response.ok((updated != null ? updated : itemById).toJSON().toString()).build();
             } catch (UnsupportedEncodingException | JSONException | ParseException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -474,6 +477,95 @@ public class ReharvestResource {
         } else {
             return Response.ok(Response.Status.FORBIDDEN).build();
         }
+    }
+
+    private Response scheduleApprovedReharvest(ReharvestItem item) {
+        if (StringUtils.isAnyString(item.getProcessId())) {
+            return Response.status(Response.Status.ACCEPTED).entity(item.toJSON().toString()).build();
+        }
+        if ("scheduling".equalsIgnoreCase(item.getState())) {
+            return Response.status(Response.Status.CONFLICT).build();
+        }
+        if (item.getTypeOfReharvest() == TypeOfReharvset.live_conflict) {
+            throw new BadRequestException("A live conflict cannot be scheduled as a reharvest");
+        }
+
+        String scheduledProcessId = null;
+        boolean claimedForScheduling = false;
+        try {
+            item.setState("scheduling");
+            if (this.reharvestManager.update(item) == null) {
+                return Response.status(Response.Status.CONFLICT).build();
+            }
+            claimedForScheduling = true;
+
+            scheduledProcessId = scheduleReharvestProcess(item);
+            if (!StringUtils.isAnyString(scheduledProcessId)) {
+                throw new IllegalStateException("Process Platform returned no process ID");
+            }
+            ReharvestItem latest = this.reharvestManager.getItemById(item.getId());
+            if (latest == null) {
+                throw new IllegalStateException("Reharvest item disappeared after process scheduling");
+            }
+            latest.setProcessId(scheduledProcessId);
+            if ("scheduling".equalsIgnoreCase(latest.getState())) {
+                latest.setState("running");
+            }
+            ReharvestItem updated = this.reharvestManager.update(latest);
+            if (updated == null) {
+                throw new IllegalStateException("Process was scheduled but its ID could not be stored on the reharvest item");
+            }
+            return Response.status(Response.Status.ACCEPTED)
+                    .entity(updated.toJSON().toString()).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unable to schedule reharvest item " + item.getId(), e);
+            if (claimedForScheduling && scheduledProcessId == null) {
+                try {
+                    ReharvestItem latest = this.reharvestManager.getItemById(item.getId());
+                    if (latest != null && "scheduling".equalsIgnoreCase(latest.getState())) {
+                        latest.setState("open");
+                        this.reharvestManager.update(latest);
+                    }
+                } catch (Exception rollbackError) {
+                    LOGGER.log(Level.SEVERE, "Unable to release reharvest item " + item.getId(), rollbackError);
+                }
+            }
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private String scheduleReharvestProcess(ReharvestItem item) {
+        KConfiguration configuration = KConfiguration.getInstance();
+        String adminApi = configuration.getConfiguration().getString("api.admin.v7.point");
+        if (!StringUtils.isAnyString(adminApi)) {
+            throw new IllegalStateException("Missing api.admin.v7.point configuration");
+        }
+        adminApi = adminApi.replaceAll("/+$", "");
+
+        JSONObject payload = new JSONObject();
+        payload.put("destinationUrl", configuration.getSolrSearchHost());
+        payload.put("proxyApiUrl", adminApi + "/connected");
+        payload.put("pid", item.getPid());
+        payload.put("ownPidPath", StringUtils.isAnyString(item.getOwnPidPath()) ? item.getOwnPidPath() : item.getPid());
+        if (item.getRootPid() != null) {
+            payload.put("rootPid", item.getRootPid());
+        }
+        payload.put("type", item.getTypeOfReharvest().name());
+        payload.put("libraries", item.getLibraries() == null ? "" : String.join(",", item.getLibraries()));
+        payload.put("reharvestItemId", item.getId());
+
+        JSONObject schedule = new JSONObject();
+        schedule.put(ProcessManagerMapper.PCP_PROFILE_ID, "cdk-reharvest");
+        schedule.put(ProcessManagerMapper.PCP_PAYLOAD, payload);
+        User user = this.userProvider.get();
+        schedule.put(ProcessManagerMapper.PCP_OWNER_ID_SCH, user != null ? user.getLoginname() : "system");
+        ProcessManagerClient processManagerClient = new ProcessManagerClient(this.apacheClient);
+        JSONObject profile = processManagerClient.getProfile("cdk-reharvest");
+        JSONObject plugin = processManagerClient.getPlugin(profile.getString(ProcessManagerMapper.PCP_PLUGIN_ID));
+        JSONArray scheduledProfiles = plugin.optJSONArray(ProcessManagerMapper.PCP_SCHEDULED_PROFILES);
+        ForbiddenCheck.checkByProfileAndParamsPids(
+                user, this.rightsResolver, this.definitionManager, "cdk-reharvest", payload, scheduledProfiles, this.solrAccess);
+        return processManagerClient.scheduleProcess(schedule);
     }
 
     @PUT

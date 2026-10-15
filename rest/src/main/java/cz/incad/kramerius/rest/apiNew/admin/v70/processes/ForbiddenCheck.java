@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class ForbiddenCheck {
+public class ForbiddenCheck {
     private static Logger LOGGER = Logger.getLogger(ForbiddenCheck.class.getName());
 
     static void checkGeneral(User user, RightsResolver rightsResolver) {
@@ -65,7 +65,7 @@ class ForbiddenCheck {
         }
     }
 
-    static void checkByProfileAndParamsPids(User user, RightsResolver rightsResolver, ProcessDefinitionManager definitionManager,
+    public static void checkByProfileAndParamsPids(User user, RightsResolver rightsResolver, ProcessDefinitionManager definitionManager,
                                                    String profileId, JSONObject payload, JSONArray scheduledProfiles, SolrAccess solrAccess) {
         Set<String> profilesToCheck = new HashSet<>();
         profilesToCheck.add(profileId);

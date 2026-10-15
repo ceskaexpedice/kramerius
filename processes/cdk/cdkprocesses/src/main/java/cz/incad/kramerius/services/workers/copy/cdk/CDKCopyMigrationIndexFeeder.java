@@ -281,7 +281,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
         // 2. Projdeme dokumenty vracene z lokalniho Solru
         for (Map<String, Object> indexedDoc : docs) {
-            String pid = getString(indexedDoc, childOfComposite); // V tvem pripade "pid"
+            String pid = getString(indexedDoc, childOfComposite);
             if (!StringUtils.isAnyString(pid)) continue;
 
             IterationItem sourceItem = sourceByPid.get(pid);

@@ -1,0 +1,252 @@
+openapi: 3.0.2
+info:
+  title: CDK administrace a procesy
+  description: API pro správu připojených knihoven CDK a plánování jejich harvest, update a delete procesů.
+  version: "7.0"
+servers:
+  - url: /search/api
+    description: Kramerius REST API
+tags:
+  - name: Připojené knihovny
+  - name: Časové značky
+  - name: CDK procesy
+security:
+  - BearerAuth: []
+paths:
+  /admin/v7.0/connected:
+    get:
+      tags: [Připojené knihovny]
+      summary: Seznam připojených knihoven a jejich stavů
+      operationId: getConnectedLibraries
+      responses:
+        '200':
+          description: Mapa knihoven a jejich stavů
+          content:
+            application/json: { schema: { type: object, additionalProperties: { $ref: '#/components/schemas/LibraryStatus' } } }
+        '403': { description: Přístup zamítnut }
+  /admin/v7.0/connected/refresh:
+    get:
+      tags: [Připojené knihovny]
+      summary: Obnoví stav připojených knihoven
+      operationId: refreshConnectedLibraries
+      responses:
+        '200': { description: Stav knihoven byl obnoven }
+        '403': { description: Přístup zamítnut }
+        '500': { description: Obnovení selhalo }
+  /admin/v7.0/connected/{library}/status:
+    get:
+      tags: [Připojené knihovny]
+      summary: Stav knihovny
+      operationId: getConnectedLibraryStatus
+      parameters:
+        - $ref: '#/components/parameters/library'
+      responses:
+        '200': { description: Stav knihovny, content: { application/json: { schema: { $ref: '#/components/schemas/LibraryStatus' } } } }
+        '400': { description: Knihovna neexistuje }
+        '403': { description: Přístup zamítnut }
+    put:
+      tags: [Připojené knihovny]
+      summary: Změní stav připojení knihovny
+      operationId: setConnectedLibraryStatus
+      parameters:
+        - $ref: '#/components/parameters/library'
+        - name: status
+          in: query
+          required: true
+          schema: { type: boolean }
+      responses:
+        '200': { description: Aktualizovaný stav knihovny }
+        '400': { description: Knihovna neexistuje }
+        '403': { description: Přístup zamítnut }
+  /admin/v7.0/connected/{library}/associations:
+    get:
+      tags: [Připojené knihovny]
+      summary: Fyzické lokace asociované s knihovnou
+      operationId: getLibraryAssociations
+      parameters:
+        - $ref: '#/components/parameters/library'
+      responses:
+        '200':
+          description: Seznam asociací
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Association' }
+        '403': { description: Přístup zamítnut }
+  /admin/v7.0/connected/{library}/timestamp:
+    get:
+      tags: [Časové značky]
+      summary: Poslední uložená časová značka knihovny
+      operationId: getLibraryTimestamp
+      parameters:
+        - $ref: '#/components/parameters/library'
+      responses:
+        '200': { description: Poslední časová značka, content: { application/json: { schema: { $ref: '#/components/schemas/Timestamp' } } } }
+        '403': { description: Přístup zamítnut }
+        '404': { description: Časová značka nebyla nalezena }
+    put:
+      tags: [Časové značky]
+      summary: Uloží časovou značku knihovny
+      operationId: putLibraryTimestamp
+      parameters:
+        - $ref: '#/components/parameters/library'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Timestamp' }
+      responses:
+        '200': { description: Uložená časová značka, content: { application/json: { schema: { $ref: '#/components/schemas/Timestamp' } } } }
+        '403': { description: Přístup zamítnut }
+        '500': { description: Uložení selhalo }
+  /admin/v7.0/connected/{library}/timestamps:
+    get:
+      tags: [Časové značky]
+      summary: Historie časových značek knihovny
+      operationId: getLibraryTimestamps
+      parameters:
+        - $ref: '#/components/parameters/library'
+      responses:
+        '200':
+          description: Seznam časových značek
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Timestamp' } }
+        '403': { description: Přístup zamítnut }
+  /admin/v7.0/connected/{library}/config:
+    get:
+      tags: [Připojené knihovny]
+      summary: Veřejná konfigurace zdroje knihovny
+      operationId: getLibraryConfig
+      parameters:
+        - $ref: '#/components/parameters/library'
+      responses:
+        '200': { description: Konfigurace knihovny, content: { application/json: { schema: { $ref: '#/components/schemas/LibraryConfig' } } } }
+        '403': { description: Přístup zamítnut }
+  /admin/v7.0/connected/{library}/config/channel/health:
+    get:
+      tags: [Připojené knihovny]
+      summary: Zdravotní stav zabezpečeného kanálu knihovny
+      operationId: getLibraryChannelHealth
+      parameters:
+        - $ref: '#/components/parameters/library'
+      responses:
+        '200': { description: Stav kanálu a kontrola uživatelských endpointů, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+        '403': { description: Přístup zamítnut }
+  /admin/v7.0/connected/introspect/{pid}:
+    get:
+      tags: [Připojené knihovny]
+      summary: Modely dokumentu a knihovny, které jej obsahují
+      operationId: introspectDocument
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Výsledky introspekce
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models: { type: array, items: { type: string } }
+                  libraries: { type: array, items: { type: string } }
+        '403': { description: Přístup zamítnut }
+        '500': { description: Introspekce selhala }
+#  /admin/v7.0/cdk/{library}/process/harvest:
+#    post:
+#      tags: [CDK procesy]
+#      summary: Naplánuje harvest knihovny
+#      operationId: scheduleCdkHarvest
+#      parameters:
+#        - $ref: '#/components/parameters/library'
+#      requestBody:
+#        $ref: '#/components/requestBodies/ProcessOptions'
+#      responses:
+#        '202': { description: Proces byl naplánován, content: { application/json: { schema: { $ref: '#/components/schemas/ScheduledProcess' } } } }
+#        '400': { description: Neplatná knihovna nebo volby }
+#        '403': { description: Nedostatečná oprávnění }
+#        '404': { description: Profil procesu nebyl nalezen }
+  /admin/v7.0/cdk/{library}/process/update:
+    post:
+      tags: [CDK procesy]
+      summary: Naplánuje aktualizaci knihovny
+      operationId: scheduleCdkUpdate
+      parameters:
+        - $ref: '#/components/parameters/library'
+      requestBody:
+        $ref: '#/components/requestBodies/ProcessOptions'
+      responses:
+        '202': { description: Proces byl naplánován, content: { application/json: { schema: { $ref: '#/components/schemas/ScheduledProcess' } } } }
+        '400': { description: Neplatná knihovna nebo volby }
+        '403': { description: Nedostatečná oprávnění }
+        '404': { description: Profil procesu nebyl nalezen }
+  /admin/v7.0/cdk/{library}/process/delete:
+    post:
+      tags: [CDK procesy]
+      summary: Naplánuje odstranění knihovny z CDK indexu
+      operationId: scheduleCdkDelete
+      parameters:
+        - $ref: '#/components/parameters/library'
+      requestBody:
+        $ref: '#/components/requestBodies/ProcessOptions'
+      responses:
+        '202': { description: Proces byl naplánován, content: { application/json: { schema: { $ref: '#/components/schemas/ScheduledProcess' } } } }
+        '400': { description: Neplatná knihovna nebo volby }
+        '403': { description: Nedostatečná oprávnění }
+        '404': { description: Profil procesu nebyl nalezen }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    library:
+      name: library
+      in: path
+      required: true
+      description: Akronym knihovny CDK
+      schema: { type: string, pattern: '^[A-Za-z0-9_-]+$' }
+  requestBodies:
+    ProcessOptions:
+      required: false
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              filterQuery: { type: string, description: Volitelný Solr filtr }
+            additionalProperties: false
+  schemas:
+    LibraryStatus:
+      type: object
+      properties:
+        status: { type: boolean }
+        type: { type: string }
+    Association:
+      type: object
+      properties:
+        sigla: { type: string }
+        description: { type: string }
+    Timestamp:
+      type: object
+      description: Struktura časové značky odpovídá modelu cz.incad.kramerius.timestamps.Timestamp.
+      additionalProperties: true
+    LibraryConfig:
+      type: object
+      properties:
+        baseurl: { type: string, nullable: true }
+        api: { type: string, nullable: true }
+        licenses: { type: boolean }
+        forwardurl: { type: string, nullable: true }
+        solrcloud: { type: boolean }
+    ScheduledProcess:
+      type: object
+      properties:
+        processId: { type: string }
+        library: { type: string }
+        action: { type: string, enum: [harvest, update, delete] }

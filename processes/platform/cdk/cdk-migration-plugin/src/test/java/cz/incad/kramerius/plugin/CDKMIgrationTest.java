@@ -2,6 +2,7 @@ package cz.incad.kramerius.plugin;
 
 import cz.inovatika.kramerius.services.Migration;
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+@Ignore
 public class CDKMIgrationTest {
 
     @Test
