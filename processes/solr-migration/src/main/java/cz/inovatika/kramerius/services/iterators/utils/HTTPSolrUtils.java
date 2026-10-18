@@ -207,11 +207,29 @@ public class HTTPSolrUtils {
         LOGGER.fine(String.format("Executing url,query: %s, %s " ,url, query));
         try {
             String t = executeSolrRequestApache(apacheClient, url, query, enricher);
-            return getElement(t);
+            try {
+                return getElement(t);
+            } catch (SAXException e) {
+                String requestUrl = url +(url.endsWith("/") ? "" : "/")+ query;
+                LOGGER.log(Level.SEVERE, String.format(
+                        "Could not parse Solr response as XML. URL: %s; response start (max 500 chars): %s",
+                        requestUrl, responseStart(t)), e);
+                throw e;
+            }
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            if (!(e instanceof SAXException)) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
             throw new RuntimeException(e);
         }
+    }
+
+    private static String responseStart(String response) {
+        if (response == null) {
+            return "<null>";
+        }
+        String start = response.substring(0, Math.min(response.length(), 500));
+        return start.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t");
     }
 
 //    public static Element executeQueryJersey(Client jerseyClient, String url, String query, ResponseHandlingConfig responseHandlingConfig) {

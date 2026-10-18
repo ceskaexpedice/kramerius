@@ -27,6 +27,7 @@ import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.APIMonitorResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.proxy.ConnectedInfoResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.processes.CDKProcessResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.impl.SolrReharvestManagerImpl;
@@ -231,6 +232,7 @@ public class ApiServletModule extends JerseyServletModule {
         if (cdkServerMode) {
             bind(ConnectedInfoResource.class);
             bind(ReharvestResource.class);
+            bind(CDKProcessResource.class);
         }
 
         

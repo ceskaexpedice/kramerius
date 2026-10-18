@@ -43,7 +43,8 @@ public class CDKReharvest {
             @ParameterName("type") String type,
             @ParameterName("libraries") String libraries,
             @ParameterName("onlyShowConfiguration") Boolean onlyShowConfiguration,
-            @ParameterName("maxItemsToDelete") Integer maxItemsToDelete
+            @ParameterName("maxItemsToDelete") Integer maxItemsToDelete,
+            @ParameterName("reharvestItemId") String reharvestItemId
     ) throws MigrateSolrIndexException, IOException, ParserConfigurationException,
             ClassNotFoundException, IllegalAccessException, InstantiationException,
             SAXException, NoSuchMethodException {
@@ -74,19 +75,23 @@ public class CDKReharvest {
         int maxDelete = maxItemsToDelete != null ? maxItemsToDelete : KubernetesReharvestProcess.DEFAULT_MAX_ITEMS_TO_DELETE;
         boolean showOnly = Boolean.TRUE.equals(onlyShowConfiguration);
 
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            Map<String, JSONObject> configurations = KubernetesReharvestProcess.libraryConfigurations(client, proxyApiUrl, item);
-            if (configurations.isEmpty()) {
-                throw new IllegalStateException("No enabled library configuration found for reharvest");
+        try {
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                Map<String, JSONObject> configurations = KubernetesReharvestProcess.libraryConfigurations(client, proxyApiUrl, item);
+                if (!item.getTypeOfReharvest().isDeletingReharvest()) {
+                    KubernetesReharvestProcess.validateLibraryConfigurations(item, configurations);
+                    ChannelUtils.checkSolrChannelEndpoints(client, configurations);
+                }
+
+                List<Pair<String, String>> pids = ReharvestUtils.findPidByType(iteration, client, item, maxDelete);
+                String deleteResult = ReharvestUtils.deleteAllGivenPids(client, destination, pids, showOnly);
+                LOGGER.info(String.format("Deleted pids results %s", deleteResult));
+
+                ReharvestUtils.reharvestPIDFromGivenCollections(
+                        pid, configurations, Boolean.toString(showOnly), destination, iteration, item);
             }
-            ChannelUtils.checkSolrChannelEndpoints(client, configurations);
-
-            List<Pair<String, String>> pids = ReharvestUtils.findPidByType(iteration, client, item, maxDelete);
-            String deleteResult = ReharvestUtils.deleteAllGivenPids(client, destination, pids, showOnly);
-            LOGGER.info(String.format("Deleted pids results %s", deleteResult));
-
-            ReharvestUtils.reharvestPIDFromGivenCollections(
-                    pid, configurations, Boolean.toString(showOnly), destination, iteration, item);
+        } finally {
+            ReharvestUtils.closeQueueItem(reharvestItemId);
         }
     }
 
@@ -150,7 +155,8 @@ public class CDKReharvest {
                 type,
                 libraries,
                 onlyShowConfiguration,
-                maxItemsToDelete);
+                maxItemsToDelete,
+                null);
     }
 
     private static void runReharvestChildrenTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException,
@@ -183,7 +189,8 @@ public class CDKReharvest {
                 type,
                 libraries,
                 onlyShowConfiguration,
-                maxItemsToDelete);
+                maxItemsToDelete,
+                null);
     }
 
     private static void runReharvestDeletePidTest() throws MigrateSolrIndexException, IOException, ParserConfigurationException,
@@ -216,6 +223,7 @@ public class CDKReharvest {
                 type,
                 libraries,
                 onlyShowConfiguration,
-                maxItemsToDelete);
+                maxItemsToDelete,
+                null);
     }
 }

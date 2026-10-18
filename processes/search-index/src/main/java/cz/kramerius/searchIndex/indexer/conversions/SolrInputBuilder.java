@@ -304,11 +304,6 @@ public class SolrInputBuilder {
             for (String license : licensesExtractor.extractContainsLicenses(relsExtRootEl)) {
                 addSolrField(solrInput, "contains_licenses", license);
             }
-            if ("collection".equals(model) && nodeManager != null) {
-                for (String license : nodeManager.getEffectiveLicensesContainedByDescendants(repositoryNode.getPid())) {
-                    addSolrField(solrInput, "contains_licenses", license);
-                }
-            }
             for (String license : repositoryNode.getLicenses()) {
                 addSolrField(solrInput, "licenses", license);
             }

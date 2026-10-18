@@ -3,6 +3,7 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.collections;
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.client.ProcessManagerMapper;
+import cz.incad.kramerius.rest.apiNew.admin.v70.FoxmlBuilder;
 import cz.incad.kramerius.rest.apiNew.admin.v70.AdminApiResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection.ThumbnailbStateEnum;
 import cz.incad.kramerius.rest.apiNew.admin.v70.collections.thumbs.ClientIIIFGenerator;
@@ -18,10 +19,10 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.StringUtils;
+import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
-import cz.kramerius.searchIndex.indexer.conversions.extraction.LicensesExtractor;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
 import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.commons.collections4.map.HashedMap;
@@ -42,6 +43,8 @@ import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,6 +68,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -78,8 +82,21 @@ import java.util.stream.Collectors;
 @Path("/admin/v7.0/collections")
 public class CollectionsResource extends AdminApiResource {
 
-    // Stream name
+    // Stream name 
     private static final String COLLECTION_CLIPS = "COLLECTION_CLIPS";
+    private static final String CONTAINS_LICENSE_RELATION = "containsLicense";
+    private static final List<String> CONTAINS_LICENSE_RELATIONS = Arrays.asList(
+            "containsLicense",
+            "containsLicenses",
+            "containsLicence",
+            "containsLicences",
+            "contains-license",
+            "contains-licenses",
+            "contains-licence",
+            "contains-licences",
+            "contains-dnnt-label",
+            "contains-dnnt-labels"
+    );
     private static final List<ThumbsGenerator> THUMBS_GENERATOR = new ArrayList<>();
 
     static {
@@ -90,6 +107,13 @@ public class CollectionsResource extends AdminApiResource {
     public static final Logger LOGGER = Logger.getLogger(CollectionsResource.class.getName());
 
     private static final int MAX_BATCH_SIZE = 100;
+    private static final List<String> LICENSE_INDEX_FIELDS = Arrays.asList(
+            "licenses",
+            "licenses.facet",
+            "licenses_of_ancestors",
+            "contains_licenses"
+    );
+
 
 
     @Inject
@@ -473,7 +497,7 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkReadOnlyWorkMode();
             checkSupportedObjectPid(collectionPid);
-            //checkSupportedObjectPid(itemPid);
+            checkSupportedObjectPid(itemPid);
             User user = this.userProvider.get();
 
             if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
@@ -483,8 +507,8 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
             }
             checkObjectExists(collectionPid);
-           // TODO  checkObjectExists(itemPid);
-            // TODO checkCanAddItemToCollection(itemPid, collectionPid);
+            checkObjectExists(itemPid);
+            checkCanAddItemToCollection(itemPid, collectionPid);
             //extract relsExt and update by adding new relation
             akubraRepository.doWithLock(collectionPid, () -> {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
@@ -503,28 +527,9 @@ public class CollectionsResource extends AdminApiResource {
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                // TODO pepo
-                if(itemPid.startsWith("cdk")){
-                    // nejaky jiny proces, ktery udela jen toto
-                    /*
-                    if (repositoryNode.getPidsOfFosterParentsOfTypeCollection() != null) {
-                        for (String collection : repositoryNode.getPidsOfFosterParentsOfTypeCollection()) {
-                            addSolrField(solrInput, "in_collections.direct", collection);
-                        }
-                    }
-                    if (repositoryNode.getPidsOfAnyAncestorsOfTypeCollection() != null) {
-                        for (String collection : repositoryNode.getPidsOfAnyAncestorsOfTypeCollection()) {
-                            addSolrField(solrInput, "in_collections", collection);
-                        }
-                    }
-                    
-                     */
-
-                }else{
-                    JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
-                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
-                    updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
-                }
+                JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+                updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.singleton(itemPid), Collections.emptyList());
             }
             JSONObject result = new JSONObject();
             if (scheduleMainProcessesPlanned.length() > 0) {
@@ -581,12 +586,8 @@ public class CollectionsResource extends AdminApiResource {
 
             //check each item pid
             List<String> pidsToBeAdded = new ArrayList<>();
-
-            pidsToBeAdded.add(itemsPid.getString(0));
-
-
             Map<String, String> errorsByPid = new HashedMap<>();
-/*            for (int i = 0; i < itemsPid.length(); i++) {
+            for (int i = 0; i < itemsPid.length(); i++) {
                 System.out.println(itemsPid);
                 String itemPid = itemsPid.getString(i);
                 if (!isSupporetdObjectPid(itemPid)) {
@@ -606,7 +607,7 @@ public class CollectionsResource extends AdminApiResource {
                     }
                 }
             }
-*/
+
             //add items to rels-ext of collection, schedule reindexation of items that had been added
             List<String> pidsAdded = new ArrayList<>();
             akubraRepository.doWithLock(collectionPid, new LockOperation<Object>() {
@@ -644,7 +645,7 @@ public class CollectionsResource extends AdminApiResource {
                     scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
                 }
                 if (!pidsAdded.isEmpty()) {
-                    updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
+                    updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, pidsAdded, Collections.emptyList());
                 }
             }
 
@@ -674,16 +675,150 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
-    private void updateCollectionContainsLicensesInSearchIndex(String collectionPid, boolean ignoreInconsistentObjects) {
-        Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(false);
-        Set<String> containsLicenses = new HashSet<>(new LicensesExtractor().extractContainsLicenses(relsExt.getRootElement()));
+    private void updateCollectionContainsLicensesInRepositoryAndSearchIndex(String collectionPid, boolean ignoreInconsistentObjects) throws IOException {
+        updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, ignoreInconsistentObjects, Collections.emptyList(), Collections.emptyList());
+    }
 
+    private void updateCollectionContainsLicensesInRepositoryAndSearchIndex(String collectionPid, boolean ignoreInconsistentObjects, java.util.Collection<String> addedItemPids, java.util.Collection<String> removedItemPids) throws IOException {
         RepositoryNodeManager nodeManager = new RepositoryNodeManager(akubraRepository, ignoreInconsistentObjects);
-        containsLicenses.addAll(nodeManager.getEffectiveLicensesContainedByDescendants(collectionPid));
         RepositoryNode collectionNode = nodeManager.getKrameriusNode(collectionPid);
+        updateCollectionContainsLicensesInRepositoryAndSearchIndex(
+                collectionPid,
+                ignoreInconsistentObjects,
+                addedItemPids,
+                removedItemPids,
+                collectionNode,
+                (pid, node, fieldName, value, indexTime, explicitCommit) ->
+                        new SolrIndexAccess(new SolrConfig()).setSingleFieldValue(pid, node, fieldName, value, indexTime, explicitCommit)
+        );
+    }
 
+    void updateCollectionContainsLicensesInRepositoryAndSearchIndex(String collectionPid, boolean ignoreInconsistentObjects, java.util.Collection<String> addedItemPids, java.util.Collection<String> removedItemPids, RepositoryNode collectionNode, SearchIndexFieldWriter searchIndexFieldWriter) throws IOException {
+        Set<String> containsLicenses = collectContainsLicensesFromSearchIndex(collectionPid, addedItemPids, removedItemPids);
+        updateCollectionContainsLicensesInRepository(collectionPid, containsLicenses);
         Object value = containsLicenses.isEmpty() ? null : new ArrayList<>(containsLicenses);
-        new SolrIndexAccess(new SolrConfig()).setSingleFieldValue(collectionPid, collectionNode, "contains_licenses", value, true, true);
+        searchIndexFieldWriter.setSingleFieldValue(collectionPid, collectionNode, "contains_licenses", value, true, true);
+    }
+
+    @FunctionalInterface
+    interface SearchIndexFieldWriter {
+        void setSingleFieldValue(String pid, RepositoryNode repositoryNode, String fieldName, Object value, boolean indexTime, boolean explicitCommit);
+    }
+
+    private void updateCollectionContainsLicensesInRepository(String collectionPid, Set<String> containsLicenses) {
+        akubraRepository.doWithLock(collectionPid, () -> {
+            Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
+            replaceContainsLicenses(relsExt, containsLicenses);
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
+            akubraRepository.re().update(collectionPid, bis);
+            return null;
+        });
+    }
+
+    private Set<String> collectContainsLicensesFromSearchIndex(String collectionPid, java.util.Collection<String> addedItemPids, java.util.Collection<String> removedItemPids) throws IOException {
+        Set<String> result = new TreeSet<>();
+        result.addAll(collectLicenseFacets(collectionContentLicensesQuery(collectionPid, removedItemPids)));
+        if (addedItemPids != null && !addedItemPids.isEmpty()) {
+            result.addAll(collectLicenseFacets(pidSubtreesLicensesQuery(addedItemPids)));
+        }
+        return result;
+    }
+
+    private Set<String> collectLicenseFacets(String query) throws IOException {
+        JSONObject response = solrAccess.requestWithSelectReturningJson(query, null);
+        Set<String> result = new TreeSet<>();
+        JSONObject facetCounts = response.optJSONObject("facet_counts");
+        if (facetCounts == null) {
+            return result;
+        }
+        JSONObject facetFields = facetCounts.optJSONObject("facet_fields");
+        if (facetFields == null) {
+            return result;
+        }
+        for (String field : LICENSE_INDEX_FIELDS) {
+            JSONArray facet = facetFields.optJSONArray(field);
+            if (facet != null) {
+                for (int i = 0; i + 1 < facet.length(); i += 2) {
+                    String license = facet.optString(i, null);
+                    int count = facet.optInt(i + 1, 0);
+                    if (count > 0 && StringUtils.isAnyString(license)) {
+                        result.add(license);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private String collectionContentLicensesQuery(String collectionPid, java.util.Collection<String> removedItemPids) throws IOException {
+        StringBuilder q = new StringBuilder();
+        q.append("in_collections:\"").append(escapeSolrPhrase(collectionPid)).append("\"");
+        if (removedItemPids != null) {
+            for (String removedPid : removedItemPids) {
+                if (StringUtils.isAnyString(removedPid)) {
+                    for (String pidPath : findPidPaths(removedPid)) {
+                        q.append(" AND -pid_paths.children:\"").append(escapeSolrPhrase(pidPath)).append("\"");
+                    }
+                }
+            }
+        }
+        return facetLicensesQuery(q.toString());
+    }
+
+    private String pidSubtreesLicensesQuery(java.util.Collection<String> pids) throws IOException {
+        List<String> pidPaths = new ArrayList<>();
+        for (String pid : pids) {
+            if (StringUtils.isAnyString(pid)) {
+                pidPaths.addAll(findPidPaths(pid));
+            }
+        }
+        String q = pidPaths.stream()
+                .map(pidPath -> "pid_paths.children:\"" + escapeSolrPhrase(pidPath) + "\"")
+                .collect(Collectors.joining(" OR "));
+        return facetLicensesQuery(q.isEmpty() ? "pid:__none__" : "(" + q + ")");
+    }
+
+    private List<String> findPidPaths(String pid) throws IOException {
+        org.w3c.dom.Document doc = solrAccess.getSolrDataByPid(pid, "pid_paths");
+        org.w3c.dom.Element pidPathsElement = XMLUtils.findElement(doc.getDocumentElement(), element ->
+                element.hasAttribute("name") && "pid_paths".equals(element.getAttribute("name")));
+        if (pidPathsElement == null || !"arr".equals(pidPathsElement.getNodeName())) {
+            return Collections.emptyList();
+        }
+        return XMLUtils.getElements(pidPathsElement, element -> "str".equals(element.getNodeName()))
+                .stream()
+                .map(org.w3c.dom.Element::getTextContent)
+                .filter(StringUtils::isAnyString)
+                .collect(Collectors.toList());
+    }
+
+    private String facetLicensesQuery(String q) throws IOException {
+        StringBuilder query = new StringBuilder();
+        query.append("q=").append(URLEncoder.encode(q, "UTF-8"));
+        query.append("&rows=0&facet=true&facet.mincount=1");
+        for (String field : LICENSE_INDEX_FIELDS) {
+            query.append("&facet.field=").append(URLEncoder.encode(field, "UTF-8"));
+        }
+        return query.toString();
+    }
+
+    private String escapeSolrPhrase(String value) {
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    static void replaceContainsLicenses(Document relsExt, Set<String> containsLicenses) {
+        Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
+        for (String relation : CONTAINS_LICENSE_RELATIONS) {
+            List<Node> nodes = Dom4jUtils.buildXpath("rel:" + relation).selectNodes(description);
+            for (Node node : nodes) {
+                node.detach();
+            }
+        }
+        for (String license : containsLicenses) {
+            Element containsLicense = description.addElement(new QName(CONTAINS_LICENSE_RELATION, FoxmlBuilder.NS_REL));
+            containsLicense.addText(license);
+        }
     }
 
     private void checkCanAddItemToCollection(String itemPid, String collectionPid) throws
@@ -784,7 +919,7 @@ public class CollectionsResource extends AdminApiResource {
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             });
             if (!reindexCollection.isEmpty()) {
-                updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
+                updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.emptyList(), reindexCollection);
             }
 
         } catch (WebApplicationException e) {
@@ -859,7 +994,7 @@ public class CollectionsResource extends AdminApiResource {
             JSONObject result = new JSONObject();
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
-            updateCollectionContainsLicensesInSearchIndex(collectionPid, true);
+            updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.emptyList(), Collections.singleton(itemPid));
             result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduleMainProcessesPlanned);
             return Response.status(Response.Status.OK).entity(result.toString()).build();
         } catch (WebApplicationException e) {

@@ -88,8 +88,7 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
     private ReharvestItem findItem(String id) throws UnsupportedEncodingException, JSONException, ParseException {
         String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
         List<String> pids = new ArrayList<>();
-        String query = URLEncoder.encode("state:(%s)", "UTF-8");
-        String fullUrl = String.format("%s/select?q=id:%ss&rows=1", reharvest, id);
+        String fullUrl = String.format("%s/select?q=id:%s&rows=1", reharvest, URLEncoder.encode(id, "UTF-8"));
         String t = solrGet(fullUrl);
         JSONArray docs = solrDocs(new JSONObject(t));
         if (docs.length() > 0) {
@@ -123,7 +122,9 @@ public class SolrReharvestManagerImpl implements ReharvestManager {
     public String searchItems(int start, int rows, List<String> filters) {
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
-            String sort = URLEncoder.encode("indexed desc", "UTF-8");
+            // `indexed` is not unique. Add the unique document id so Solr returns
+            // a stable order across offset-based page requests.
+            String sort = URLEncoder.encode("indexed desc,id asc", "UTF-8");
 
             String fullUrl = String.format("%s/select?q=*&rows=%d&sort=%s&start=%d", reharvest, rows,sort,start);
             if (!filters.isEmpty()) {
