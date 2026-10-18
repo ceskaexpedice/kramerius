@@ -1,6 +1,8 @@
 
 package cz.incad.kramerius.cdkcollection;
 
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -11,12 +13,14 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.params.CursorMarkParams;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SolrSearchService implements SearchIndexService {
 
@@ -32,8 +36,20 @@ public class SolrSearchService implements SearchIndexService {
 
     private final HttpSolrClient solrClient;
 
-    public SolrSearchService(HttpSolrClient solrClient) {
-        this.solrClient = solrClient;
+    public SolrSearchService() {
+        solrClient = createSearchQueryClient();
+    }
+
+    private static HttpSolrClient createSearchQueryClient() {
+        KConfiguration config = KConfiguration.getInstance();
+        String solrSearchHost = config.getSolrSearchHost();
+        return new HttpSolrClient.Builder(solrSearchHost).build();
+    }
+
+    private static SolrClient createProcessingUpdateClient() {
+        //TODO String processingSolrHost = configuration.getProcessingIndexHost();
+        //return new ConcurrentUpdateSolrClient.Builder(processingSolrHost).withQueueSize(100).build();
+        return null;
     }
 
     @Override
@@ -59,29 +75,25 @@ public class SolrSearchService implements SearchIndexService {
         }
     }
 
-    /**
-     * Finds documents in the source subtree that do not yet contain
-     * the target CDK path in pid_paths.
-     */
     @Override
-    public List<SearchDocument> findUnlinkedSubtree(String rootPid, List<String> cdkPath) {
+    public void findUnlinkedSubtree(String rootPid, List<String> cdkPath, Consumer<List<SearchDocument>> pageConsumer) {
+        if (pageConsumer == null) {
+            throw new IllegalArgumentException("Page consumer must not be null");
+        }
         SearchDocument root = get(rootPid);
         if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
-            return Collections.emptyList();
+            return;
         }
         if (cdkPath == null || cdkPath.isEmpty()) {
             throw new IllegalArgumentException("CDK path must not be empty");
         }
         String targetCdkPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
         String sourcePathQuery =
-                FIELD_OWN_PID_PATH_CHILDREN
-                        + ":\""
-                        + ClientUtils.escapeQueryChars(
-                        root.getOwnPidPath())
+                FIELD_OWN_PID_PATH_CHILDREN + ":\""
+                        + ClientUtils.escapeQueryChars(root.getOwnPidPath())
                         + "\"";
         String missingCdkPathQuery =
-                "-" + FIELD_PID_PATHS_CHILDREN
-                        + ":\""
+                "-" + FIELD_PID_PATHS_CHILDREN + ":\""
                         + ClientUtils.escapeQueryChars(targetCdkPath)
                         + "\"";
         SolrQuery query = new SolrQuery();
@@ -94,8 +106,8 @@ public class SolrSearchService implements SearchIndexService {
                 FIELD_PID_PATHS);
         query.setRows(PAGE_SIZE);
         query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
-        return executePagedQuery(query, "Cannot find unlinked subtree for PID " + rootPid +
-                ", target CDK path " + targetCdkPath);
+        executeCursorPagedQuery(query,
+                "Cannot find unlinked subtree for PID " + rootPid + ", target CDK path " + targetCdkPath, pageConsumer);
     }
 
     /**
@@ -103,9 +115,10 @@ public class SolrSearchService implements SearchIndexService {
      * the specified collection PID.
      */
     @Override
-    public List<SearchDocument> findByDirectCollection(String collectionPid) {
+    public void findByDirectCollection(String collectionPid, Consumer<List<SearchDocument>> pageConsumer) {
         SolrQuery query = new SolrQuery();
-        query.setQuery(FIELD_IN_COLLECTION_DIRECT + ":" + ClientUtils.escapeQueryChars(collectionPid));
+        query.setQuery(FIELD_IN_COLLECTION_DIRECT + ":"
+                + ClientUtils.escapeQueryChars(collectionPid));
         query.setFields(
                 FIELD_PID,
                 FIELD_OWN_PID_PATH,
@@ -114,18 +127,15 @@ public class SolrSearchService implements SearchIndexService {
                 FIELD_PID_PATHS);
         query.setRows(PAGE_SIZE);
         query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
-        return executePagedQuery(query, "Cannot find documents directly assigned to CDK collection " + collectionPid);
+        executeCursorPagedQuery(
+                query,
+                "Cannot find documents directly assigned to CDK collection "
+                        + collectionPid,
+                pageConsumer);
     }
 
-    /**
-     * Finds documents whose pid_paths contains the specified path
-     * or a descendant of that path.
-     * <p>
-     * This relies on pid_paths.children being populated by the
-     * PathHierarchyTokenizer (or equivalent schema configuration).
-     */
     @Override
-    public List<SearchDocument> findByPidPathPrefix(String pidPathPrefix) {
+    public void findByPidPathPrefix(String pidPathPrefix, Consumer<List<SearchDocument>> pageConsumer) {
         SolrQuery query = new SolrQuery();
         query.setQuery(
                 FIELD_PID_PATHS_CHILDREN + ":\""
@@ -139,8 +149,10 @@ public class SolrSearchService implements SearchIndexService {
                 FIELD_PID_PATHS);
         query.setRows(PAGE_SIZE);
         query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
-        return executePagedQuery(
-                query, "Cannot find documents with PID path prefix " + pidPathPrefix);
+        executeCursorPagedQuery(
+                query,
+                "Cannot find documents with PID path prefix " + pidPathPrefix,
+                pageConsumer);
     }
 
     @Override
@@ -191,6 +203,31 @@ public class SolrSearchService implements SearchIndexService {
                 }
             }
             return result;
+        } catch (SolrServerException | IOException e) {
+            throw new IllegalStateException(errorMessage, e);
+        }
+    }
+
+    private void executeCursorPagedQuery(SolrQuery query, String errorMessage, Consumer<List<SearchDocument>> pageConsumer) {
+        String cursorMark = CursorMarkParams.CURSOR_MARK_START;
+        try {
+            while (true) {
+                query.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
+                QueryResponse response = solrClient.query(query);
+                SolrDocumentList documents = response.getResults();
+                if (!documents.isEmpty()) {
+                    List<SearchDocument> page = new ArrayList<>(documents.size());
+                    for (SolrDocument document : documents) {
+                        page.add(toSearchDocument(document));
+                    }
+                    pageConsumer.accept(page);
+                }
+                String nextCursorMark = response.getNextCursorMark();
+                if (documents.isEmpty() || nextCursorMark == null || nextCursorMark.equals(cursorMark)) {
+                    break;
+                }
+                cursorMark = nextCursorMark;
+            }
         } catch (SolrServerException | IOException e) {
             throw new IllegalStateException(errorMessage, e);
         }

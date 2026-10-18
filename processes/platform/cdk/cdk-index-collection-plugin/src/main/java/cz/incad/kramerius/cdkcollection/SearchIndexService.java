@@ -2,6 +2,7 @@
 package cz.incad.kramerius.cdkcollection;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface SearchIndexService {
 
@@ -11,7 +12,7 @@ public interface SearchIndexService {
      * Finds documents in the source subtree that do not yet
      * contain the target CDK path.
      */
-    List<SearchDocument> findUnlinkedSubtree(String rootPid, List<String> cdkPath);
+    void findUnlinkedSubtree(String rootPid, List<String> cdkPath, Consumer<List<SearchDocument>> pageConsumer);
 
     /**
      * Finds documents whose in_collections.direct field contains
@@ -19,21 +20,22 @@ public interface SearchIndexService {
      * <p>
      * Normally these are the roots of direct CDK references.
      */
-    List<SearchDocument> findByDirectCollection(String collectionPid);
+    void findByDirectCollection(String collectionPid, Consumer<List<SearchDocument>> pageConsumer);
 
     /**
      * Finds documents whose pid_paths contains the given path
      * or a descendant path.
      */
-    List<SearchDocument> findByPidPathPrefix(String pidPathPrefix);
-
-    void updateCollectionsFields(String pid, List<String> inCollections, List<String> inCollectionsDirect);
-
-    void updatePidPaths(String pid, List<String> pidPaths);
+    void findByPidPathPrefix(String pidPathPrefix, Consumer<List<SearchDocument>> pageConsumer);
 
     /**
      * Returns all distinct values currently present in
      * in_collections.direct.
      */
     List<String> getDirectCollectionValues();
+
+    void updateCollectionsFields(String pid, List<String> inCollections, List<String> inCollectionsDirect);
+
+    void updatePidPaths(String pid, List<String> pidPaths);
+
 }

@@ -60,4 +60,16 @@ public class SearchDocument {
     public void setPidPaths(List<String> pidPaths) {
         this.pidPaths = copy(pidPaths);
     }
+
+    @Override
+    public String toString() {
+        return "SearchDocument{" +
+                "pid='" + pid + '\'' +
+                ", ownPidPath='" + ownPidPath + '\'' +
+                ", inCollections=" + inCollections +
+                ", inCollectionsDirect=" + inCollectionsDirect +
+                ", pidPaths=" + pidPaths +
+                ", cdkCollection=" + cdkCollection +
+                '}';
+    }
 }

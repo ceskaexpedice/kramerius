@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class FakeSearchIndexService implements SearchIndexService {
 
@@ -38,15 +39,18 @@ public class FakeSearchIndexService implements SearchIndexService {
     }
 
     @Override
-    public List<SearchDocument> findUnlinkedSubtree(String rootPid, List<String> cdkPath) {
+    public void findUnlinkedSubtree(String rootPid, List<String> cdkPath, Consumer<List<SearchDocument>> pageConsumer) {
+        if (pageConsumer == null) {
+            throw new IllegalArgumentException("Page consumer must not be null");
+        }
         SearchDocument root = documents.get(rootPid);
         if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
-            return new ArrayList<>();
+            return;
         }
         if (cdkPath == null || cdkPath.isEmpty()) {
             throw new IllegalArgumentException("CDK path must not be empty");
         }
-        String targetPath = String.join("/", cdkPath) + "/" + rootPid;
+        String targetPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
         List<SearchDocument> result = new ArrayList<>();
         Deque<String> pending = new ArrayDeque<>();
         Set<String> visited = new LinkedHashSet<>();
@@ -65,33 +69,40 @@ public class FakeSearchIndexService implements SearchIndexService {
             }
             pending.addAll(getChildren(pid));
         }
-
-        return result;
+        if (!result.isEmpty()) {
+            pageConsumer.accept(result);
+        }
     }
 
     @Override
-    public List<SearchDocument> findByDirectCollection(String collectionPid) {
+    public void findByDirectCollection(String collectionPid, Consumer<List<SearchDocument>> pageConsumer) {
         List<SearchDocument> result = new ArrayList<>();
         for (SearchDocument document : documents.values()) {
             if (document.getInCollectionsDirect().contains(collectionPid)) {
                 result.add(document);
             }
         }
-        return result;
+        if (!result.isEmpty()) {
+            pageConsumer.accept(result);
+        }
     }
 
     @Override
-    public List<SearchDocument> findByPidPathPrefix(String pidPathPrefix) {
+    public void findByPidPathPrefix(String pidPathPrefix, Consumer<List<SearchDocument>> pageConsumer) {
         List<SearchDocument> result = new ArrayList<>();
         for (SearchDocument document : documents.values()) {
             for (String path : document.getPidPaths()) {
-                if (path != null && (path.equals(pidPathPrefix) || path.startsWith(pidPathPrefix + "/"))) {
+                if (path != null
+                        && (path.equals(pidPathPrefix)
+                        || path.startsWith(pidPathPrefix + "/"))) {
                     result.add(document);
                     break;
                 }
             }
         }
-        return result;
+        if (!result.isEmpty()) {
+            pageConsumer.accept(result);
+        }
     }
 
     private boolean hasTargetCDKPath(SearchDocument document, String targetPath) {
