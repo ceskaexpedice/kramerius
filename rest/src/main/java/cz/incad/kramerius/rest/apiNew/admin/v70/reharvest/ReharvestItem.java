@@ -152,6 +152,7 @@ public class ReharvestItem {
     public static final String NAME_KEYWORD = "name";
     public static final String ID_KEYWORD = "id";
     public static final String POD_NAME_KEYWORD = "pod";
+    public static final String PROCESS_ID_KEYWORD = "processId";
     
     public static final String LIBRARIES_KEYWORD = "libraries";
     public static final String ERROR_MESSAGE_KEYWORD="error";
@@ -175,6 +176,10 @@ public class ReharvestItem {
     private Instant timestamp = Instant.now();
     /** Name of the pod */
     private String podname;
+    /** Process Platform execution associated with this queue item. */
+    private String processId;
+    /** Solr optimistic concurrency token. */
+    private Long solrVersion;
     /** List of libraries associated with this reharvest */
     private List<String> libraries = new ArrayList<>();
 
@@ -249,6 +254,18 @@ public class ReharvestItem {
     public String getPodname() {
         return podname;
     }
+    public String getProcessId() {
+        return processId;
+    }
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
+    public Long getSolrVersion() {
+        return solrVersion;
+    }
+    public void setSolrVersion(Long solrVersion) {
+        this.solrVersion = solrVersion;
+    }
     public String getOwnPidPath() {
         return ownPidPath;
     }
@@ -299,6 +316,9 @@ public class ReharvestItem {
         if (this.podname != null) {
             obj.put(POD_NAME_KEYWORD, this.podname);
         }
+        if (this.processId != null) {
+            obj.put(PROCESS_ID_KEYWORD, this.processId);
+        }
         
         if (this.ownPidPath != null) {
             obj.put(OWN_PID_PATH, this.ownPidPath);
@@ -320,6 +340,9 @@ public class ReharvestItem {
         
         obj.put(TYPE_KEYWORD, this.typeOfReharvest.name());
         obj.put(TIMESTAMP_KEYWORD,DateTimeFormatter.ISO_INSTANT.format(this.timestamp));
+        if (this.solrVersion != null) {
+            obj.put("_version_", this.solrVersion);
+        }
 
         return obj;
     }
@@ -353,9 +376,15 @@ public class ReharvestItem {
             String timestamp = json.getString(TIMESTAMP_KEYWORD);
             item.setTimestamp( Instant.from(DateTimeFormatter.ISO_INSTANT.parse(timestamp)));
         }
+        if (json.has("_version_")) {
+            item.setSolrVersion(json.getLong("_version_"));
+        }
         
         if (json.has(POD_NAME_KEYWORD)) {
             item.setPodname(json.getString(POD_NAME_KEYWORD));
+        }
+        if (json.has(PROCESS_ID_KEYWORD)) {
+            item.setProcessId(json.getString(PROCESS_ID_KEYWORD));
         }
         
         if (json.has(TYPE_KEYWORD)) {
@@ -381,12 +410,12 @@ public class ReharvestItem {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ReharvestItem item = (ReharvestItem) o;
-        return Objects.equals(id, item.id) && Objects.equals(name, item.name) && Objects.equals(state, item.state) && Objects.equals(pid, item.pid) && Objects.equals(rootPid, item.rootPid) && Objects.equals(ownPidPath, item.ownPidPath) && typeOfReharvest == item.typeOfReharvest && Objects.equals(timestamp, item.timestamp) && Objects.equals(podname, item.podname) && Objects.equals(libraries, item.libraries);
+        return Objects.equals(id, item.id) && Objects.equals(name, item.name) && Objects.equals(state, item.state) && Objects.equals(pid, item.pid) && Objects.equals(rootPid, item.rootPid) && Objects.equals(ownPidPath, item.ownPidPath) && typeOfReharvest == item.typeOfReharvest && Objects.equals(timestamp, item.timestamp) && Objects.equals(podname, item.podname) && Objects.equals(processId, item.processId) && Objects.equals(solrVersion, item.solrVersion) && Objects.equals(libraries, item.libraries);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, state, pid, rootPid, ownPidPath, typeOfReharvest, timestamp, podname, libraries);
+        return Objects.hash(id, name, state, pid, rootPid, ownPidPath, typeOfReharvest, timestamp, podname, processId, solrVersion, libraries);
     }
 
     @Override

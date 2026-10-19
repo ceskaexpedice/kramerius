@@ -58,7 +58,7 @@ public class ConnectedInfoResource {
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
 
-  @Inject
+    @Inject
     private RightsResolver rightsResolver;
 
     @Inject

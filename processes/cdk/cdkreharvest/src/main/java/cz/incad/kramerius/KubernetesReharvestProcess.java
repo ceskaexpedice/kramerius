@@ -137,6 +137,7 @@ public class KubernetesReharvestProcess {
 
                                 Map<String, JSONObject> configurations = libraryConfigurations(closeableHttpClient, proxyURl,reharvestItem);
                                 if (!reharvestItem.getTypeOfReharvest().isDeletingReharvest()) {
+                                    validateLibraryConfigurations(reharvestItem, configurations);
                                     // check channels before delete
                                     ChannelUtils.checkSolrChannelEndpoints(closeableHttpClient, configurations);
                                 }
@@ -267,5 +268,18 @@ public class KubernetesReharvestProcess {
             throw new RuntimeException(e);
         }
         return configurations;
+    }
+
+    public static void validateLibraryConfigurations(ReharvestItem item, Map<String, JSONObject> configurations) {
+        if (configurations == null || configurations.isEmpty()) {
+            throw new IllegalStateException("No enabled library configuration found for reharvest item " + item.getId());
+        }
+        List<String> requested = item.getLibraries();
+        if (requested != null && !requested.isEmpty()) {
+            List<String> missing = requested.stream().filter(library -> !configurations.containsKey(library)).toList();
+            if (!missing.isEmpty()) {
+                throw new IllegalStateException("Requested reharvest libraries are unavailable: " + missing);
+            }
+        }
     }
 }

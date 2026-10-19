@@ -100,6 +100,7 @@
   <field name="name" type="string" indexed="true" stored="true"/>
   <field name="pid" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="type" type="string" indexed="true" stored="true" multiValued="false"/>
+  <field name="processId" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="own_pid_path" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="state" type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="indexed" type="date" indexed="true" stored="true" default="NOW"/>

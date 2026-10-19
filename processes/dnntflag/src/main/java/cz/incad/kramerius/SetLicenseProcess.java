@@ -4,22 +4,21 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import cz.incad.kramerius.ProcessHelper.PidsOfDescendantsProducer;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.processes.utils.ProcessUtils;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
-import org.apache.commons.io.IOUtils;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNode;
+import cz.kramerius.searchIndex.indexer.nodes.RepositoryNodeManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.DistributedLocksException;
 import org.ceskaexpedice.akubra.RepositoryException;
+import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredParents;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
-import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
-import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.ceskaexpedice.processplatform.api.context.PluginContext;
 import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.dom4j.Document;
@@ -30,11 +29,12 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Prepsana logika z ParametrizedLabelSetDNNTFlag a ParametrizedLabelUnsetDNNTFlag, bez zpracovani CSV
@@ -158,6 +158,10 @@ public class SetLicenseProcess {
     private static void addLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws IOException {
         LOGGER.info(String.format("Adding license '%s' to %s", license, targetPid));
 
+        // pred pridanim licence vypocitame vsechny sbirky dotknute timto pidem
+        Set<String> affectedCollections = new SearchIndexEffectiveCollectionsProvider(searchIndex)
+                .getAffectedCollections(targetPid);
+
         //1. Do rels-ext ciloveho objektu se doplni license=L, pokud uz tam neni. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
         LOGGER.info("updating RELS-EXT record of the target object " + targetPid);
         addRelsExtRelationAfterNormalization(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, akubraRepository);
@@ -181,6 +185,7 @@ public class SetLicenseProcess {
         indexerAccess.addSingleFieldValueForMultipleObjects(targetPidOnly, SOLR_FIELD_LICENSES, license, true, false);
 
 
+
         //5. Aktualizuji se indexy vsech (vlastnich i nevlastnich) potomku (prida se licenses_of_ancestors=L) atomic updaty po davkach (muzou to byt az stovky tisic objektu)
         LOGGER.info("updating search index for all (own) descendants of target object");
         //PidsOfDescendantsProducer iterator = new PidsOfDescendantsProducer(targetPid, searchIndex, false);
@@ -199,6 +204,18 @@ public class SetLicenseProcess {
             e.printStackTrace();
             throw new RuntimeException((e));
         }
+
+        // Recalculate collection aggregates from the post-change repository data.
+        updateAffectedCollections(affectedCollections, akubraRepository, indexerAccess);
+
+        //commit changes in index
+        try {
+            indexerAccess.commit();
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
+        }
+
     }
 
     private static List<String> getPidsOfOwnAncestors(String targetPid, AkubraRepository akubraRepository) {
@@ -271,6 +288,11 @@ public class SetLicenseProcess {
     private static void removeLicense(String license, String targetPid, AkubraRepository akubraRepository, SolrAccess searchIndex, SolrIndexAccess indexerAccess) throws RepositoryException, IOException {
         LOGGER.info(String.format("Removing license '%s' from %s", license, targetPid));
 
+        // Capture membership before removing relations, then recalculate after
+        // the target and its ancestors have been updated.
+        Set<String> affectedCollections = new SearchIndexEffectiveCollectionsProvider(searchIndex)
+                .getAffectedCollections(targetPid);
+
         //1. Z rels-ext ciloveho objektu se odebere license=L, pokud tam je. Nejprve se ale normalizuji stare zapisy licenci (dnnt-label=L => license=L)
         LOGGER.info("updating RELS-EXT record of the target object " + targetPid);
         LicenseHelper.removeRelsExtRelationAfterNormalization(targetPid, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED, license, akubraRepository);
@@ -287,6 +309,7 @@ public class SetLicenseProcess {
         //3. Aktualizuje se index predku, kteri nemaji jiny zdroj licence (odebere se contains_licenses=L) atomic updatem
         LOGGER.info("updating search index of all (own) ancestors without another source of license");
         indexerAccess.removeSingleFieldValueFromMultipleObjects(pidsOfAncestorsWithoutAnotherSourceOfLicense, SOLR_FIELD_CONTAINS_LICENSES, license, true, false);
+
 
         //4. Aktualizuje se index ciloveho objektu (odebere se licenses=L) atomic updatem
         LOGGER.info("updating search index for the target object");
@@ -332,7 +355,17 @@ public class SetLicenseProcess {
             //nekteri potomci mohli mit narok na licenci z jineho zdroje ve svem strome, coz nelze u odebirani licence nevlastniho predka efektivne zjistit
             // TODO scheduleSub ProcessScheduler.scheduleIndexation(targetPid, null, true, authToken);
         }
-        //commit changes in index
+        //commit changes in index;
+        try {
+            indexerAccess.commit();
+        } catch (IOException | SolrServerException e) {
+            e.printStackTrace();
+            throw new RuntimeException((e));
+        }
+        // 6b. Akutalizace dotcenych kolekci
+        updateAffectedCollections(affectedCollections, akubraRepository, indexerAccess);
+
+        //commit changes in index;
         try {
             indexerAccess.commit();
         } catch (IOException | SolrServerException e) {
@@ -351,6 +384,138 @@ public class SetLicenseProcess {
             currentPid = ownParent.source();
         }
         return false;
+    }
+
+    private static void updateAffectedCollections(Set<String> affectedCollections,
+                                                  AkubraRepository akubraRepository,
+                                                  SolrIndexAccess indexerAccess) throws IOException {
+        if (affectedCollections.isEmpty()) {
+            return;
+        }
+        LOGGER.info("recomputing contains_licenses for affected collections");
+        RepositoryNodeManager nodeManager = new RepositoryNodeManager(akubraRepository, false);
+        for (String collectionPid : affectedCollections) {
+            // propocita vsechny pidy a secte licence
+            Set<String> containsLicenses = recomputeCollectionContainsLicenses(collectionPid, akubraRepository);
+            Object value = containsLicenses.isEmpty() ? null : new ArrayList<>(containsLicenses);
+            RepositoryNode collectionNode = nodeManager.getKrameriusNode(collectionPid);
+
+            LOGGER.info("updating SOLR index for collection " + collectionPid+" with contains_licenses=" + value + " atomic update");
+
+            indexerAccess.setSingleFieldValue(collectionPid, collectionNode, SOLR_FIELD_CONTAINS_LICENSES, value, true, false);
+        }
+    }
+
+    // prepocitava contains_licenses a operuje nad sbirkou
+    private static Set<String> recomputeCollectionContainsLicenses(String collectionPid, AkubraRepository akubraRepository) throws IOException {
+        return akubraRepository.doWithLock(collectionPid, () -> {
+            // sibrkovy rels ext
+            Document collectionRelsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
+            // prepocitava licence z polozek
+            Set<String> containsLicenses = collectLicensesFromCollectionItems(collectionRelsExt, akubraRepository);
+            // odeberre z rels ext sbirky
+            Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(collectionRelsExt);
+            removeRelations(description, RELS_EXT_RELATION_CONTAINS_LICENSE);
+            for (String relation : RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED) {
+                removeRelations(description, relation);
+            }
+            for (String containsLicense : containsLicenses) {
+                Element newRelationEl = description.addElement(RELS_EXT_RELATION_CONTAINS_LICENSE, Dom4jUtils.getNamespaceUri("rel"));
+                newRelationEl.addText(containsLicense);
+            }
+            ByteArrayInputStream bis = new ByteArrayInputStream(collectionRelsExt.asXML().getBytes(Charset.forName("UTF-8")));
+            akubraRepository.re().update(collectionPid, bis);
+            return containsLicenses;
+        });
+    }
+
+    /**
+     * For each direct collection item, use license metadata on the item when it
+     * exists. Only items without local license metadata need their own ancestor
+     * chain inspected for explicitly owned licenses.
+     */
+    private static Set<String> collectLicensesFromCollectionItems(Document collectionRelsExt, AkubraRepository akubraRepository) {
+        Set<String> result = new TreeSet<>();
+        List<Node> resources = Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description/rel:contains/@rdf:resource").selectNodes(collectionRelsExt);
+        for (Node resource : resources) {
+            String itemPid = resource.getText();
+            if (itemPid != null && itemPid.startsWith("info:fedora/")) {
+                itemPid = itemPid.substring("info:fedora/".length());
+            }
+            if (itemPid == null || !akubraRepository.re().exists(itemPid)) {
+                continue;
+            }
+
+            collectLicensesFromCollectionItem(itemPid, akubraRepository, result);
+        }
+        return result;
+    }
+
+    // prochazi polozku itemPid do hloubky aby mohl nasel vsechny vlastni licence a vsechny detske licence
+    private static void collectLicensesFromCollectionItem(String itemPid, AkubraRepository akubraRepository, Set<String> result) {
+        LOGGER.info("collecting licenses from collection item " + itemPid);
+        Document itemRelsExt = akubraRepository.re().get(itemPid).asDom4j(true);
+        Element itemDescription = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(itemRelsExt);
+        if (itemDescription == null) {
+            return;
+        }
+        // prima licence
+        List<String> ownLicenses = readRelationValues(itemDescription, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED);
+        //contains licences
+        List<String> childLicenses = readRelationValues(itemDescription, RELS_EXT_RELATION_CONTAINS_LICENSE, RELS_EXT_RELATION_CONTAINS_LICENSE_DEPRECATED);
+
+        result.addAll(ownLicenses);
+        result.addAll(childLicenses);
+        LOGGER.info("licenses from collection item " + itemPid + ": " + result);
+
+        // Also walk upward even when this item has local license metadata:
+        // its own license/aggregate and inherited licenses can coexist. Read
+        // explicit ancestor licenses only, since ancestor containsLicense may
+        // include unrelated fostered branches.
+        Set<String> visited = new HashSet<>();
+        visited.add(itemPid);
+        String currentPid = itemPid;
+        while (true) {
+
+            OwnedAndFosteredParents parents = akubraRepository.pi().getOwnedAndFosteredParents(currentPid);
+            ProcessingIndexItem ownParent = parents == null ? null : parents.own();
+            if (ownParent == null || ownParent.source() == null || !visited.add(ownParent.source())) {
+                break;
+            }
+            currentPid = ownParent.source();
+            if (!akubraRepository.re().exists(currentPid)) {
+                continue;
+            }
+
+            Document ancestorRelsExt = akubraRepository.re().get(currentPid).asDom4j(true);
+            Element ancestorDescription = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(ancestorRelsExt);
+            if (ancestorDescription != null) {
+                result.addAll(readRelationValues(ancestorDescription, RELS_EXT_RELATION_LICENSE, RELS_EXT_RELATION_LICENSE_DEPRECATED));
+            }
+            LOGGER.info(" \t " + currentPid +"; result "+result);
+        }
+    }
+
+    // vraci vsechny typy relaci
+    private static List<String> readRelationValues(Element description, String relationName, String[] deprecatedRelationNames) {
+        List<String> result = new ArrayList<>();
+        for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(description)) {
+            result.add(relationEl.getText());
+        }
+        for (String relation : deprecatedRelationNames) {
+            for (Node relationEl : Dom4jUtils.buildXpath("rel:" + relation).selectNodes(description)) {
+                result.add(relationEl.getText());
+            }
+        }
+        return result;
+    }
+
+    // rusi vsechny contains_licenses
+    private static void removeRelations(Element description, String relationName) {
+        List<Node> relations = Dom4jUtils.buildXpath("rel:" + relationName).selectNodes(description);
+        for (Node relation : relations) {
+            relation.detach();
+        }
     }
 
     private static List<String> getDescendantsOwningLicense(String targetPid, String license, AkubraRepository akubraRepository) throws RepositoryException, IOException {

@@ -14,6 +14,8 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -122,6 +124,16 @@ public class CDKMigration {
                 }
             }
             LOGGER.info("Loading configuration " + configuration);
+
+            PluginContext pluginContext = PluginContextHolder.getContext();
+            String processName = String.format("CDK migrace – %s%s%s",
+                    iterationDl,
+                    Boolean.TRUE.equals(showConfigurationOnly) || Boolean.TRUE.equals(showEffectiveConfigurationOnly)
+                            ? " (pouze zobrazení konfigurace)"
+                            : "",
+                    StringUtils.isBlank(iterationFQuery) ? "" : " | fquery: " + iterationFQuery);
+            pluginContext.updateProcessName(processName);
+
 
             File tmpFile = createTempFile();
             FileUtils.write(tmpFile, configuration, "UTF-8");
