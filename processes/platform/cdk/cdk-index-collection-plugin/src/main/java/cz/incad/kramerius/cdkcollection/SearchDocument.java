@@ -11,11 +11,6 @@ public class SearchDocument {
     private List<String> inCollections;
     private List<String> inCollectionsDirect;
     private List<String> pidPaths;
-
-    public boolean isCdkCollection() {
-        return cdkCollection;
-    }
-
     private boolean cdkCollection;
 
     public SearchDocument(String pid, String ownPidPath, List<String> inCollections,
@@ -59,6 +54,10 @@ public class SearchDocument {
 
     public void setPidPaths(List<String> pidPaths) {
         this.pidPaths = copy(pidPaths);
+    }
+
+    public boolean isCdkCollection() {
+        return cdkCollection;
     }
 
     @Override

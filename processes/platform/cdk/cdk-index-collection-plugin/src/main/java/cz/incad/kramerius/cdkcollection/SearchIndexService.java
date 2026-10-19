@@ -34,8 +34,5 @@ public interface SearchIndexService {
      */
     List<String> getDirectCollectionValues();
 
-    void updateCollectionsFields(String pid, List<String> inCollections, List<String> inCollectionsDirect);
-
-    void updatePidPaths(String pid, List<String> pidPaths);
-
+    void updateDocumentFieldsBatch(List<SearchDocumentUpdate> updates);
 }

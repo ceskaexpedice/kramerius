@@ -156,55 +156,32 @@ public class SolrSearchService implements SearchIndexService {
     }
 
     @Override
-    public void updateCollectionsFields(String pid, List<String> inCollections, List<String> inCollectionsDirect) {
-        SolrInputDocument update = new SolrInputDocument();
-        update.setField(FIELD_PID, pid);
-        update.setField(
-                FIELD_IN_COLLECTION,
-                Collections.singletonMap("set", inCollections == null ? Collections.emptyList() : inCollections));
-        update.setField(
-                FIELD_IN_COLLECTION_DIRECT,
-                Collections.singletonMap("set", inCollectionsDirect == null ? Collections.emptyList() : inCollectionsDirect));
-        submitUpdate(update);
-    }
-
-    @Override
-    public void updatePidPaths(String pid, List<String> pidPaths) {
-        SolrInputDocument update = new SolrInputDocument();
-        update.setField(FIELD_PID, pid);
-        update.setField(
-                FIELD_PID_PATHS,
-                Collections.singletonMap("set", pidPaths == null ? Collections.emptyList() : pidPaths));
-        submitUpdate(update);
-    }
-
-    public void commit() {
-        try {
-            solrClient.commit();
-        } catch (SolrServerException | IOException e) {
-            throw new IllegalStateException("Cannot commit Solr updates", e);
+    public void updateDocumentFieldsBatch(List<SearchDocumentUpdate> updates) {
+        if (updates == null || updates.isEmpty()) {
+            return;
         }
-    }
-
-    private List<SearchDocument> executePagedQuery(SolrQuery query, String errorMessage) {
-        List<SearchDocument> result = new ArrayList<>();
-        int start = 0;
+        List<SolrInputDocument> solrUpdates = new ArrayList<>(updates.size());
+        for (SearchDocumentUpdate update : updates) {
+            SolrInputDocument document = new SolrInputDocument();
+            document.setField(FIELD_PID, update.getPid());
+            document.setField(
+                    FIELD_PID_PATHS,
+                    Collections.singletonMap("set",
+                            update.getPidPaths() == null ? Collections.emptyList() : update.getPidPaths()));
+            document.setField(
+                    FIELD_IN_COLLECTION,
+                    Collections.singletonMap("set",
+                            update.getInCollections() == null ? Collections.emptyList() : update.getInCollections()));
+            document.setField(
+                    FIELD_IN_COLLECTION_DIRECT,
+                    Collections.singletonMap("set",
+                            update.getInCollectionsDirect() == null ? Collections.emptyList() : update.getInCollectionsDirect()));
+            solrUpdates.add(document);
+        }
         try {
-            while (true) {
-                query.setStart(start);
-                QueryResponse response = solrClient.query(query);
-                SolrDocumentList documents = response.getResults();
-                for (SolrDocument document : documents) {
-                    result.add(toSearchDocument(document));
-                }
-                start += documents.size();
-                if (documents.isEmpty() || start >= documents.getNumFound()) {
-                    break;
-                }
-            }
-            return result;
+            solrClient.add(solrUpdates);
         } catch (SolrServerException | IOException e) {
-            throw new IllegalStateException(errorMessage, e);
+            throw new IllegalStateException("Cannot update document fields in batch", e);
         }
     }
 
@@ -233,14 +210,6 @@ public class SolrSearchService implements SearchIndexService {
         }
     }
 
-    private void submitUpdate(SolrInputDocument update) {
-        try {
-            solrClient.add(update);
-        } catch (SolrServerException | IOException e) {
-            throw new IllegalStateException("Cannot update Solr document", e);
-        }
-    }
-
     private SearchDocument toSearchDocument(SolrDocument document) {
         return new SearchDocument(
                 asString(document.getFieldValue(FIELD_PID)),
@@ -248,7 +217,7 @@ public class SolrSearchService implements SearchIndexService {
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
                 asStringList(document.getFieldValue(FIELD_PID_PATHS)),
-                false);
+                false); // TODO tady se musi testovat pole cdk collection jestli neni empty
     }
 
     private String asString(Object value) {

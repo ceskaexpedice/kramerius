@@ -115,13 +115,15 @@ public class FakeSearchIndexService implements SearchIndexService {
     }
 
     @Override
-    public void updateCollectionsFields(String pid, List<String> inCollections, List<String> inCollectionsDirect) {
-        requireDocument(pid).setCollections(inCollections, inCollectionsDirect);
-    }
-
-    @Override
-    public void updatePidPaths(String pid, List<String> pidPaths) {
-        requireDocument(pid).setPidPaths(pidPaths);
+    public void updateDocumentFieldsBatch(List<SearchDocumentUpdate> updates) {
+        if (updates == null || updates.isEmpty()) {
+            return;
+        }
+        for (SearchDocumentUpdate update : updates) {
+            SearchDocument document = requireDocument(update.getPid());
+            document.setPidPaths(update.getPidPaths());
+            document.setCollections(update.getInCollections(), update.getInCollectionsDirect());
+        }
     }
 
     private SearchDocument requireDocument(String pid) {

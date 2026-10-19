@@ -136,6 +136,7 @@ public class CDKCollectionSynchronizer {
     }
 
     private void removePathPrefix(String staleRootPath, SearchDocument root, List<ReferencePath> validReferences) {
+        List<SearchDocumentUpdate> updates = new ArrayList<>();
         String rootSuffix = "/" + root.getPid();
         if (!staleRootPath.endsWith(rootSuffix)) {
             throw new IllegalArgumentException("Stale root path does not end with root own PID path: " + staleRootPath);
@@ -181,8 +182,14 @@ public class CDKCollectionSynchronizer {
                                 iterator.remove();
                             }
                         }
-                        searchIndex.updatePidPaths(document.getPid(), remainingPaths);
-                        searchIndex.updateCollectionsFields(document.getPid(), new ArrayList<>(inCollections), direct);
+                        updates.add(new SearchDocumentUpdate(
+                                document.getPid(),
+                                remainingPaths,
+                                new ArrayList<>(inCollections),
+                                direct));
+                    }
+                    if (!updates.isEmpty()) {
+                        searchIndex.updateDocumentFieldsBatch(updates);
                     }
                 });
 
@@ -191,10 +198,42 @@ public class CDKCollectionSynchronizer {
     private void synchronizeReference(ReferencePath reference) {
         searchIndex.findUnlinkedSubtree(reference.referencedPid, reference.cdkPath,
                 page -> {
+                    List<SearchDocumentUpdate> updates = new ArrayList<>();
                     for (SearchDocument document : page) {
-                        updateDocument(document, reference);
+                        SearchDocumentUpdate update = createDocumentUpdate(document, reference);
+                        if (update != null) {
+                            updates.add(update);
+                        }
+                    }
+                    if (!updates.isEmpty()) {
+                        searchIndex.updateDocumentFieldsBatch(updates);
                     }
                 });
+    }
+
+    private SearchDocumentUpdate createDocumentUpdate(SearchDocument document, ReferencePath reference) {
+        Set<String> inCollections = new LinkedHashSet<>(document.getInCollections());
+        inCollections.addAll(reference.cdkPath);
+        List<String> direct = new ArrayList<>(document.getInCollectionsDirect());
+        if (document.getPid().equals(reference.referencedPid) && !direct.contains(reference.collectionPid)) {
+            direct.add(reference.collectionPid);
+        }
+        List<String> pidPaths = document.getPidPaths();
+        Set<String> allPaths = new LinkedHashSet<>(pidPaths);
+        String ownPidPath = document.getOwnPidPath();
+        if (ownPidPath != null && !ownPidPath.isEmpty()) {
+            int index = ownPidPath.indexOf(reference.referencedPid);
+            if (index >= 0) {
+                String lastPath = ownPidPath.substring(index);
+                String fullPath = String.join("/", reference.cdkPath) + "/" + lastPath;
+                allPaths.add(fullPath);
+            }
+        }
+        return new SearchDocumentUpdate(
+                document.getPid(),
+                new ArrayList<>(allPaths),
+                new ArrayList<>(inCollections),
+                direct);
     }
 
     private List<String> getCDKPathFromRoot(String collectionPid) {
@@ -209,25 +248,6 @@ public class CDKCollectionSynchronizer {
             currentPid = processingIndex.getParentCollection(currentPid);
         }
         return new ArrayList<>(path);
-    }
-
-    private void updateDocument(SearchDocument document, ReferencePath reference) {
-        Set<String> inCollections = new LinkedHashSet<>(document.getInCollections());
-        inCollections.addAll(reference.cdkPath);
-        List<String> direct = new ArrayList<>(document.getInCollectionsDirect());
-        if (document.getPid().equals(reference.referencedPid) && !direct.contains(reference.collectionPid)) {
-            direct.add(reference.collectionPid);
-        }
-        searchIndex.updateCollectionsFields(document.getPid(), new ArrayList<>(inCollections), direct);
-        String ownPidPath = document.getOwnPidPath();
-        if (ownPidPath != null && !ownPidPath.isEmpty()) {
-            int index = ownPidPath.indexOf(reference.referencedPid);
-            String lastPath = ownPidPath.substring(index);
-            String fullPath = String.join("/", reference.cdkPath) + "/" + lastPath;
-            Set<String> allPaths = new LinkedHashSet<>(document.getPidPaths());
-            allPaths.add(fullPath);
-            searchIndex.updatePidPaths(document.getPid(), new ArrayList<>(allPaths));
-        }
     }
 
     private static class ReferencePath {
