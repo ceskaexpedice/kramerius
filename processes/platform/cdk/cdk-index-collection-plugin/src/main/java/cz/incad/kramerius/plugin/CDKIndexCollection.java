@@ -1,9 +1,15 @@
 package cz.incad.kramerius.plugin;
 
-import cz.incad.kramerius.cdkcollection.CDKCollectionSynchronizer;
-import cz.incad.kramerius.cdkcollection.ProcessingIndexService;
-import cz.incad.kramerius.cdkcollection.SearchIndexService;
-import cz.incad.kramerius.cdkcollection.SolrSearchService;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import cz.incad.kramerius.cdkcollection.*;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.solr.SolrModule;
+import cz.incad.kramerius.statistics.NullStatisticsModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 
 import java.util.logging.Logger;
@@ -16,9 +22,17 @@ public class CDKIndexCollection {
 
     @ProcessMethod
     public static void indexCollectionMain() {
-        SearchIndexService searchIndexService = new SolrSearchService();
-        ProcessingIndexService processingIndexService = null; // TODO
-        new CDKCollectionSynchronizer(searchIndexService, processingIndexService);
+        SearchIndexService searchIndexService = new SolrSearchIndexService(createClient());
+        Injector injector = Guice.createInjector(new RepoModule());
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+        ProcessingIndexService processingIndexService = new SolrProcessingIndexService(akubraRepository);
+        CDKCollectionSynchronizer cdkCollectionSynchronizer = new CDKCollectionSynchronizer(searchIndexService, processingIndexService);
+        cdkCollectionSynchronizer.synchronize();
     }
 
+    private static HttpSolrClient createClient() {
+        KConfiguration config = KConfiguration.getInstance();
+        String solrSearchHost = config.getSolrSearchHost();
+        return new HttpSolrClient.Builder(solrSearchHost).build();
+    }
 }

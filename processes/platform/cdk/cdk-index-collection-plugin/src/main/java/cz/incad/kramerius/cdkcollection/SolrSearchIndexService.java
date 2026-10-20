@@ -2,7 +2,6 @@
 package cz.incad.kramerius.cdkcollection;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -22,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SolrSearchService implements SearchIndexService {
+public class SolrSearchIndexService implements SearchIndexService {
 
     private static final int PAGE_SIZE = 500;
 
@@ -33,23 +32,12 @@ public class SolrSearchService implements SearchIndexService {
     private static final String FIELD_PID_PATHS_CHILDREN = "pid_paths.children";
     private static final String FIELD_IN_COLLECTION = "in_collections";
     private static final String FIELD_IN_COLLECTION_DIRECT = "in_collections.direct";
+    private static final String FIELD_CDK_COLLECTION = "cdk.collection";
 
     private final HttpSolrClient solrClient;
 
-    public SolrSearchService() {
-        solrClient = createSearchQueryClient();
-    }
-
-    private static HttpSolrClient createSearchQueryClient() {
-        KConfiguration config = KConfiguration.getInstance();
-        String solrSearchHost = config.getSolrSearchHost();
-        return new HttpSolrClient.Builder(solrSearchHost).build();
-    }
-
-    private static SolrClient createProcessingUpdateClient() {
-        //TODO String processingSolrHost = configuration.getProcessingIndexHost();
-        //return new ConcurrentUpdateSolrClient.Builder(processingSolrHost).withQueueSize(100).build();
-        return null;
+    public SolrSearchIndexService(HttpSolrClient httpSolrClient) {
+        this.solrClient = httpSolrClient;
     }
 
     @Override
@@ -211,13 +199,14 @@ public class SolrSearchService implements SearchIndexService {
     }
 
     private SearchDocument toSearchDocument(SolrDocument document) {
+        List<String> cdkCollections = asStringList(document.getFieldValue(FIELD_CDK_COLLECTION));
         return new SearchDocument(
                 asString(document.getFieldValue(FIELD_PID)),
                 asString(document.getFieldValue(FIELD_OWN_PID_PATH)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
                 asStringList(document.getFieldValue(FIELD_PID_PATHS)),
-                false); // TODO tady se musi testovat pole cdk collection jestli neni empty
+                cdkCollections.isEmpty());
     }
 
     private String asString(Object value) {

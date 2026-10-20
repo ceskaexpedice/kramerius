@@ -31,16 +31,17 @@ public class CDKCollectionSynchronizer {
 
     private List<ReferencePath> buildValidReferences() {
         List<ReferencePath> result = new ArrayList<>();
-        List<String> cdkCollections = processingIndex.getCDKCollections();
+        List<String> cdkCollections = processingIndex.getCollections();
         for (String collectionPid : cdkCollections) {
             List<String> cdkPath = getCDKPathFromRoot(collectionPid);
-            List<String> cdkReferences = processingIndex.getCDKReferences(collectionPid);
+            List<String> cdkReferences = processingIndex.getReferences(collectionPid);
             for (String referencedPid : cdkReferences) {
-                SearchDocument root = searchIndex.get(referencedPid);
+                String sourcePid = removeCdkPrefix(referencedPid);
+                SearchDocument root = searchIndex.get(sourcePid);
                 if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
                     continue;
                 }
-                result.add(new ReferencePath(collectionPid, referencedPid, cdkPath,
+                result.add(new ReferencePath(collectionPid, sourcePid, cdkPath,
                         String.join("/", cdkPath) + "/" + referencedPid));
             }
         }
@@ -123,7 +124,7 @@ public class CDKCollectionSynchronizer {
                 if (lastPathSegment.equals(removedCollection)) {
                     obsolete.add(path);
                 }
-            } else if (processingIndex.isCDKCollection(lastPathSegment)) {
+            } else if (processingIndex.isCollection(lastPathSegment)) {
                 obsolete.add(path);
             }
         }
@@ -177,8 +178,8 @@ public class CDKCollectionSynchronizer {
                         Iterator<String> iterator = direct.iterator();
                         while (iterator.hasNext()) {
                             String collectionPid = iterator.next();
-                            if (!processingIndex.isCDKCollection(collectionPid) ||
-                                    !processingIndex.getCDKReferences(collectionPid).contains(document.getPid())) {
+                            if (!processingIndex.isCollection(collectionPid) ||
+                                    !processingIndex.getReferences(collectionPid).contains(ProcessingIndexService.CDK_PREFIX + document.getPid())) {
                                 iterator.remove();
                             }
                         }
@@ -273,4 +274,12 @@ public class CDKCollectionSynchronizer {
                     '}';
         }
     }
+
+    private String removeCdkPrefix(String pid) {
+        if (!pid.startsWith(ProcessingIndexService.CDK_PREFIX)) {
+            throw new IllegalArgumentException("Not a CDK reference: " + pid);
+        }
+        return pid.substring(ProcessingIndexService.CDK_PREFIX.length());
+    }
+
 }

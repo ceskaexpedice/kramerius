@@ -13,17 +13,13 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
     private final Map<String, String> parents = new LinkedHashMap<>();
     private final Map<String, List<String>> references = new LinkedHashMap<>();
 
-    public void addCDKCollection(String pid) {
-        cdkCollections.add(pid);
-    }
-
     public void addCollection(String parentPid, String childPid) {
         cdkCollections.add(parentPid);
         cdkCollections.add(childPid);
         parents.put(childPid, parentPid);
     }
 
-    public void addCDKReference(String collectionPid, String referencedPid) {
+    public void addReference(String collectionPid, String referencedPid) {
         cdkCollections.add(collectionPid);
         List<String> refs = references.computeIfAbsent(collectionPid, key -> new ArrayList<>());
         if (!refs.contains(referencedPid)) {
@@ -32,12 +28,12 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
     }
 
     @Override
-    public List<String> getCDKCollections() {
+    public List<String> getCollections() {
         return new ArrayList<>(cdkCollections);
     }
 
     @Override
-    public List<String> getCDKReferences(String collectionPid) {
+    public List<String> getReferences(String collectionPid) {
         List<String> refs = references.get(collectionPid);
         return refs == null ? new ArrayList<>() : new ArrayList<>(refs);
     }
@@ -48,11 +44,11 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
     }
 
     @Override
-    public boolean isCDKCollection(String collectionPid) {
+    public boolean isCollection(String collectionPid) {
         return cdkCollections.contains(collectionPid);
     }
 
-    public void removeCDKReference(String collectionPid, String referencedPid) {
+    public void removeReference(String collectionPid, String referencedPid) {
         List<String> refs = references.get(collectionPid);
         if (refs != null) {
             refs.remove(referencedPid);

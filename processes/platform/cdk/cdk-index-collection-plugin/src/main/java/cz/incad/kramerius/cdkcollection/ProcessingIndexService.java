@@ -3,11 +3,13 @@ package cz.incad.kramerius.cdkcollection;
 import java.util.List;
 
 public interface ProcessingIndexService {
-    List<String> getCDKCollections();
+    String CDK_PREFIX = "cdk/";
 
-    List<String> getCDKReferences(String collectionPid);
+    List<String> getCollections();
+
+    List<String> getReferences(String collectionPid);
 
     String getParentCollection(String collectionPid);
 
-    boolean isCDKCollection(String collectionPid);
+    boolean isCollection(String collectionPid);
 }

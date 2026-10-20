@@ -69,9 +69,8 @@ public class CDKCollectionSynchronizerTest {
         search.setParent("st2", "cis1");
 
         // CDK collections before sync
-        processing.addCDKCollection("cdk-sb1");
         processing.addCollection("cdk-sb1", "cdk-sb11");
-        processing.addCDKReference("cdk-sb11", "cis1");
+        processing.addReference("cdk-sb11", ProcessingIndexService.CDK_PREFIX + "cis1");
         search.addDocument(
                 new SearchDocument("cdk-sb1", "cdk-sb1",
                         Collections.emptyList(), Collections.emptyList(),
@@ -147,7 +146,7 @@ public class CDKCollectionSynchronizerTest {
     public void shouldRemoveReferenceAndItsPaths() {
         synchronizer.synchronize();
 
-        processing.removeCDKReference("cdk-sb11", "cis1");
+        processing.removeReference("cdk-sb11", ProcessingIndexService.CDK_PREFIX + "cis1");
 
         synchronizer.synchronize();
 
@@ -170,8 +169,7 @@ public class CDKCollectionSynchronizerTest {
 
         SearchDocument cis1 = search.get("cis1");
         cis1.setCollections(cis1.getInCollections(), Arrays.asList("cdk-sb11", "cdk-other"));
-        processing.addCDKCollection("cdk-other");
-        processing.addCDKReference("cdk-other", "cis1");
+        processing.addReference("cdk-other", ProcessingIndexService.CDK_PREFIX + "cis1");
 
         synchronizer.synchronize();
 
