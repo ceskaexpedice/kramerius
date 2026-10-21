@@ -1,4 +1,3 @@
-
 package cz.incad.kramerius.cdkcollection;
 
 import cz.incad.kramerius.plugin.CDKIndexCollection;
@@ -21,7 +20,7 @@ public class CDKCollectionSynchronizer {
         LOGGER.info("CDK Collection Synchronizer starts");
         List<ReferencePath> validReferences = buildValidReferences();
         // First remove obsolete paths and memberships.
-        removeObsoleteReferences(validReferences);
+        //removeObsoleteReferences(validReferences);
         // Then preserve the existing addition algorithm.
         for (ReferencePath reference : validReferences) {
             synchronizeReference(reference);

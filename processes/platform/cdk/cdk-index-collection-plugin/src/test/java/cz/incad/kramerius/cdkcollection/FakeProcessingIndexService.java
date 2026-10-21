@@ -15,8 +15,10 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
 
     public void addCollection(String parentPid, String childPid) {
         cdkCollections.add(parentPid);
-        cdkCollections.add(childPid);
-        parents.put(childPid, parentPid);
+        if(childPid != null) {
+            cdkCollections.add(childPid);
+            parents.put(childPid, parentPid);
+        }
     }
 
     public void addReference(String collectionPid, String referencedPid) {
