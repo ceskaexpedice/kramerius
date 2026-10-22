@@ -247,7 +247,7 @@ public class PdfTextUnderImage {
 			}
 		}
 		if (e.hasAttribute(rotation)) {
-			r = Float.parseFloat(e.getAttribute("rotation"));
+			r = Float.parseFloat(e.getAttribute(rotation));
 			//r = (new Float(e.getAttribute(rotation))).floatValue();
 		}
 		return r;
