@@ -32,11 +32,11 @@ public class CDKCollectionSynchronizerTest {
          *
          * CDK:
          *
+         * cdk-sb11
+         *     └── cdk/cis1
          * cdk-sb1
          * └── cdk/cis1
          * └── cdk-sb11
-         * cdk-sb11
-         *     └── cdk/cis1
          * cdk-sb2
          * └── cdk/cis1
          * └── cdk/roc1
@@ -53,7 +53,7 @@ public class CDKCollectionSynchronizerTest {
         search.addDocument(
                 new SearchDocument("per1", "per1",
                         Collections.singletonList("sb1"), Collections.singletonList("sb1"),
-                        Collections.singletonList("sb1/p1"), false));
+                        Collections.singletonList("sb1/per1"), false));
         search.addDocument(
                 new SearchDocument("roc1", "per1/roc1",
                         Collections.singletonList("sb1"), Collections.emptyList(),
@@ -105,12 +105,29 @@ public class CDKCollectionSynchronizerTest {
                 new SearchDocument("cdk-sb3", "cdk-sb3",
                         Collections.emptyList(), Collections.emptyList(),
                         Collections.singletonList("cdk-sb3"), true));
+        search.addDocument(
+                new SearchDocument("cdk-sb4", "cdk-sb4",
+                        Collections.emptyList(), Collections.emptyList(),
+                        Collections.singletonList("cdk-sb4"), true));
+        search.setParent("cdk-sb11", "cdk-sb4");
 
         synchronizer = new CDKCollectionSynchronizer(search, processing);
     }
 
     @Test
     public void testSynchronizeReferencedSubtree() {
+        // sb1 before
+        SearchDocument sb1 = search.get("sb1");
+        assertTrue(sb1.getInCollections().isEmpty());
+        assertTrue(sb1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1"), sb1.getPidPaths());
+
+        // per1 before
+        SearchDocument per1 = search.get("per1");
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
         // roc1 before
         SearchDocument roc1 = search.get("roc1");
         assertEquals(Arrays.asList("sb1"), roc1.getInCollections());
@@ -137,6 +154,16 @@ public class CDKCollectionSynchronizerTest {
 
         synchronizer.synchronize();
 
+        // sb1
+        assertTrue(sb1.getInCollections().isEmpty());
+        assertTrue(sb1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1"), sb1.getPidPaths());
+
+        // per1
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
         // roc1
         assertEquals(
                 new HashSet<>(Arrays.asList("sb1", "cdk-sb2")),
@@ -150,7 +177,7 @@ public class CDKCollectionSynchronizerTest {
 
         // cis1
         assertEquals(
-                new HashSet<>(Arrays.asList("sb1", "cdk-sb1", "cdk-sb11", "cdk-sb2")),
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb11", "cdk-sb1", "cdk-sb2", "cdk-sb4")),
                 new HashSet<>(cis1.getInCollections())
         );
         assertEquals(
@@ -158,60 +185,162 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(cis1.getInCollectionsDirect())
         );
         assertEquals(
-                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1", "cdk-sb1/cdk-sb11/cis1", "cdk-sb2/cis1",
-                        "cdk-sb1/cis1", "cdk-sb2/roc1/cis1")),
+                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1",
+                        "cdk-sb11/cis1",
+                        "cdk-sb1/cis1", "cdk-sb1/cdk-sb11/cis1",
+                        "cdk-sb2/cis1","cdk-sb2/roc1/cis1",
+                        "cdk-sb4/cdk-sb11/cis1"
+                        )),
                 new HashSet<>(cis1.getPidPaths())
         );
 
         // st1
         assertEquals(
-                new HashSet<>(Arrays.asList("sb1", "cdk-sb1", "cdk-sb11", "cdk-sb2")),
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb11", "cdk-sb1", "cdk-sb2", "cdk-sb4")),
                 new HashSet<>(st1.getInCollections())
         );
         assertTrue(st1.getInCollectionsDirect().isEmpty());
         assertEquals(
-                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st1", "cdk-sb1/cdk-sb11/cis1/st1", "cdk-sb2/cis1/st1",
-                        "cdk-sb2/roc1/cis1/st1", "cdk-sb1/cis1/st1")),
+                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st1",
+                        "cdk-sb11/cis1/st1",
+                        "cdk-sb1/cis1/st1", "cdk-sb1/cdk-sb11/cis1/st1",
+                        "cdk-sb2/cis1/st1","cdk-sb2/roc1/cis1/st1",
+                        "cdk-sb4/cdk-sb11/cis1/st1"
+                )),
                 new HashSet<>(st1.getPidPaths())
         );
 
         // st2
         assertEquals(
-                new HashSet<>(Arrays.asList("sb1", "cdk-sb1", "cdk-sb11", "cdk-sb2")),
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb11", "cdk-sb1", "cdk-sb2", "cdk-sb4")),
                 new HashSet<>(st2.getInCollections())
         );
         assertTrue(st2.getInCollectionsDirect().isEmpty());
         assertEquals(
-                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st2", "cdk-sb1/cdk-sb11/cis1/st2", "cdk-sb2/cis1/st2",
-                        "cdk-sb2/roc1/cis1/st2", "cdk-sb1/cis1/st2")),
+                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st2",
+                        "cdk-sb11/cis1/st2",
+                        "cdk-sb1/cis1/st2", "cdk-sb1/cdk-sb11/cis1/st2",
+                        "cdk-sb2/cis1/st2","cdk-sb2/roc1/cis1/st2",
+                        "cdk-sb4/cdk-sb11/cis1/st2"
+                )),
                 new HashSet<>(st2.getPidPaths())
         );
     }
 
     @Test
     public void testRepeatedSynchronization() {
+        // sb1 before
+        SearchDocument sb1 = search.get("sb1");
+        assertTrue(sb1.getInCollections().isEmpty());
+        assertTrue(sb1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1"), sb1.getPidPaths());
+
+        // per1 before
+        SearchDocument per1 = search.get("per1");
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
+        // roc1 before
+        SearchDocument roc1 = search.get("roc1");
+        assertEquals(Arrays.asList("sb1"), roc1.getInCollections());
+        assertTrue(roc1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1"), roc1.getPidPaths());
+
+        // cis1 before
         SearchDocument cis1 = search.get("cis1");
+        assertEquals(Arrays.asList("sb1"), cis1.getInCollections());
+        assertTrue(cis1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1/cis1"), cis1.getPidPaths());
+
+        // st1 before
         SearchDocument st1 = search.get("st1");
-        SearchDocument st2 = search.get("st2");
-
-        synchronizer.synchronize();
-
-        assertEquals(2, cis1.getPidPaths().size());
-        assertEquals(2, st1.getPidPaths().size());
-        assertEquals(2, st2.getPidPaths().size());
-
-        synchronizer.synchronize();
-
-        assertEquals(2, cis1.getPidPaths().size());
-        assertEquals(2, st1.getPidPaths().size());
-        assertEquals(2, st2.getPidPaths().size());
-
-        assertEquals(Arrays.asList("sb1", "cdk-sb1", "cdk-sb11"), cis1.getInCollections());
-        assertEquals(Arrays.asList("sb1", "cdk-sb1", "cdk-sb11"), st1.getInCollections());
-        assertEquals(Arrays.asList("sb1", "cdk-sb1", "cdk-sb11"), st2.getInCollections());
-        assertEquals(Collections.singletonList("cdk-sb11"), cis1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1"), st1.getInCollections());
         assertTrue(st1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1/cis1/st1"), st1.getPidPaths());
+
+        // st2 before
+        SearchDocument st2 = search.get("st2");
+        assertEquals(Arrays.asList("sb1"), st2.getInCollections());
         assertTrue(st2.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1/cis1/st2"), st2.getPidPaths());
+
+        // Synchronize
+        synchronizer.synchronize();
+        // Synchronize again
+        synchronizer.synchronize();
+
+        // sb1
+        assertTrue(sb1.getInCollections().isEmpty());
+        assertTrue(sb1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1"), sb1.getPidPaths());
+
+        // per1
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
+        // roc1
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb2")),
+                new HashSet<>(roc1.getInCollections())
+        );
+        assertEquals(Arrays.asList("cdk-sb2"), roc1.getInCollectionsDirect());
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1/per1/roc1", "cdk-sb2/roc1")),
+                new HashSet<>(roc1.getPidPaths())
+        );
+
+        // cis1
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb11", "cdk-sb1", "cdk-sb2", "cdk-sb4")),
+                new HashSet<>(cis1.getInCollections())
+        );
+        assertEquals(
+                new HashSet<>(Arrays.asList("cdk-sb11", "cdk-sb1", "cdk-sb2")),
+                new HashSet<>(cis1.getInCollectionsDirect())
+        );
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1",
+                        "cdk-sb11/cis1",
+                        "cdk-sb1/cis1", "cdk-sb1/cdk-sb11/cis1",
+                        "cdk-sb2/cis1","cdk-sb2/roc1/cis1",
+                        "cdk-sb4/cdk-sb11/cis1"
+                )),
+                new HashSet<>(cis1.getPidPaths())
+        );
+
+        // st1
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb11", "cdk-sb1", "cdk-sb2", "cdk-sb4")),
+                new HashSet<>(st1.getInCollections())
+        );
+        assertTrue(st1.getInCollectionsDirect().isEmpty());
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st1",
+                        "cdk-sb11/cis1/st1",
+                        "cdk-sb1/cis1/st1", "cdk-sb1/cdk-sb11/cis1/st1",
+                        "cdk-sb2/cis1/st1","cdk-sb2/roc1/cis1/st1",
+                        "cdk-sb4/cdk-sb11/cis1/st1"
+                )),
+                new HashSet<>(st1.getPidPaths())
+        );
+
+        // st2
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb11", "cdk-sb1", "cdk-sb2", "cdk-sb4")),
+                new HashSet<>(st2.getInCollections())
+        );
+        assertTrue(st2.getInCollectionsDirect().isEmpty());
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st2",
+                        "cdk-sb11/cis1/st2",
+                        "cdk-sb1/cis1/st2", "cdk-sb1/cdk-sb11/cis1/st2",
+                        "cdk-sb2/cis1/st2","cdk-sb2/roc1/cis1/st2",
+                        "cdk-sb4/cdk-sb11/cis1/st2"
+                )),
+                new HashSet<>(st2.getPidPaths())
+        );
     }
 
     @Test

@@ -9,7 +9,7 @@ public interface ProcessingIndexService {
 
     List<String> getReferences(String collectionPid);
 
-    String getParentCollection(String collectionPid);
+    List<String> getParentCollections(String collectionPid);
 
     boolean isCollection(String collectionPid);
 }

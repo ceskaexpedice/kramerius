@@ -20,7 +20,7 @@ public class CDKCollectionSynchronizer {
         LOGGER.info("CDK Collection Synchronizer starts");
         List<ReferencePath> validReferences = buildValidReferences();
         // First remove obsolete paths and memberships.
-        //removeObsoleteReferences(validReferences);
+        removeObsoleteReferences(validReferences);
         // Then preserve the existing addition algorithm.
         for (ReferencePath reference : validReferences) {
             synchronizeReference(reference);
@@ -30,9 +30,8 @@ public class CDKCollectionSynchronizer {
 
     private List<ReferencePath> buildValidReferences() {
         List<ReferencePath> result = new ArrayList<>();
-        List<String> cdkCollections = processingIndex.getCollections();
-        for (String collectionPid : cdkCollections) {
-            List<String> cdkPath = getCDKPathFromRoot(collectionPid);
+        for (String collectionPid : processingIndex.getCollections()) {
+            List<List<String>> cdkPaths = getCDKPathsFromRoots(collectionPid);
             List<String> cdkReferences = processingIndex.getReferences(collectionPid);
             for (String referencedPid : cdkReferences) {
                 String sourcePid = removeCdkPrefix(referencedPid);
@@ -40,8 +39,20 @@ public class CDKCollectionSynchronizer {
                 if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
                     continue;
                 }
-                result.add(new ReferencePath(collectionPid, sourcePid, cdkPath,
-                        String.join("/", cdkPath) + "/" + referencedPid));
+                String ownPidPath = root.getOwnPidPath();
+                int index = ownPidPath.indexOf(sourcePid);
+                if (index < 0) {
+                    continue;
+                }
+                String referencedPath = ownPidPath.substring(index);
+                for (List<String> cdkPath : cdkPaths) {
+                    String fullPath = String.join("/", cdkPath) + "/" + referencedPath;
+                    result.add(new ReferencePath(
+                            collectionPid,
+                            sourcePid,
+                            cdkPath,
+                            fullPath));
+                }
             }
         }
         return result;
@@ -236,18 +247,46 @@ public class CDKCollectionSynchronizer {
                 direct);
     }
 
-    private List<String> getCDKPathFromRoot(String collectionPid) {
-        Deque<String> path = new ArrayDeque<>();
-        Set<String> visited = new LinkedHashSet<>();
-        String currentPid = collectionPid;
-        while (currentPid != null) {
-            if (!visited.add(currentPid)) {
-                throw new IllegalStateException("Cycle in CDK collection hierarchy at " + currentPid);
-            }
-            path.addFirst(currentPid);
-            currentPid = processingIndex.getParentCollection(currentPid);
+    private List<List<String>> getCDKPathsFromRoots(String collectionPid) {
+        List<List<String>> result = new ArrayList<>();
+        // Cesta začínající přímo danou sbírkou.
+        result.add(Collections.singletonList(collectionPid));
+        // Všechny cesty přes rodiče.
+        result.addAll(buildCDKPaths(collectionPid, new LinkedHashSet<>()));
+        return deduplicatePaths(result);
+    }
+
+    private List<List<String>> deduplicatePaths(List<List<String>> paths) {
+        Map<String, List<String>> unique = new LinkedHashMap<>();
+        for (List<String> path : paths) {
+            unique.putIfAbsent(String.join("/", path), path);
         }
-        return new ArrayList<>(path);
+        return new ArrayList<>(unique.values());
+    }
+
+    private List<List<String>> buildCDKPaths(String collectionPid, Set<String> visited) {
+        if (!visited.add(collectionPid)) {
+            throw new IllegalStateException("Cycle in CDK collection hierarchy at " + collectionPid);
+        }
+        List<String> parents = processingIndex.getParentCollections(collectionPid);
+        if (parents == null || parents.isEmpty()) {
+            List<String> rootPath = new ArrayList<>();
+            rootPath.add(collectionPid);
+            List<List<String>> result = new ArrayList<>();
+            result.add(rootPath);
+            return result;
+        }
+        List<List<String>> result = new ArrayList<>();
+        for (String parentPid : parents) {
+            // Každá větev dostane vlastní množinu navštívených sbírek.
+            List<List<String>> parentPaths = buildCDKPaths(parentPid, new LinkedHashSet<>(visited));
+            for (List<String> parentPath : parentPaths) {
+                List<String> path = new ArrayList<>(parentPath);
+                path.add(collectionPid);
+                result.add(path);
+            }
+        }
+        return result;
     }
 
     private static class ReferencePath {

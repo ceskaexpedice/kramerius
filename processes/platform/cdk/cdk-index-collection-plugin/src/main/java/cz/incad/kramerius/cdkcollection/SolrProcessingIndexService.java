@@ -42,13 +42,13 @@ public class SolrProcessingIndexService implements ProcessingIndexService {
     }
 
     @Override
-    public String getParentCollection(String collectionPid) {
+    public List<String> getParentCollections(String collectionPid) {
         List<String> parentsSt = new ArrayList<>();
         List<ProcessingIndexItem> parents = akubraRepository.pi().getParents(KnownRelations.CONTAINS.toString(), collectionPid);
         for (ProcessingIndexItem parent : parents) {
             parentsSt.add(parent.source());
         }
-        return parentsSt.size() == 1 ? parentsSt.get(0) : null; // TODO more parents ?
+        return parentsSt;
     }
 
     @Override

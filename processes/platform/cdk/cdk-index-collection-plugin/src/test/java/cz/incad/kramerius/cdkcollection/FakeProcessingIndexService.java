@@ -10,14 +10,14 @@ import java.util.Set;
 public class FakeProcessingIndexService implements ProcessingIndexService {
 
     private final Set<String> cdkCollections = new LinkedHashSet<>();
-    private final Map<String, String> parents = new LinkedHashMap<>();
+    private final Map<String, Set<String>> parents = new LinkedHashMap<>();
     private final Map<String, List<String>> references = new LinkedHashMap<>();
 
     public void addCollection(String parentPid, String childPid) {
         cdkCollections.add(parentPid);
-        if(childPid != null) {
+        if (childPid != null) {
             cdkCollections.add(childPid);
-            parents.put(childPid, parentPid);
+            parents.computeIfAbsent(childPid, key -> new LinkedHashSet<>()).add(parentPid);
         }
     }
 
@@ -41,8 +41,9 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
     }
 
     @Override
-    public String getParentCollection(String collectionPid) {
-        return parents.get(collectionPid);
+    public List<String> getParentCollections(String collectionPid) {
+        Set<String> collectionParents = parents.get(collectionPid);
+        return collectionParents == null ? new ArrayList<>() : new ArrayList<>(collectionParents);
     }
 
     @Override

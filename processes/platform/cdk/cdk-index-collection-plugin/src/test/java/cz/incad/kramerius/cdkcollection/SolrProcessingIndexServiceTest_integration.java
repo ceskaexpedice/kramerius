@@ -42,8 +42,8 @@ public class SolrProcessingIndexServiceTest_integration {
     @Test
     public void testGetParent() {
         SolrProcessingIndexService solrProcessingIndexService = new SolrProcessingIndexService(akubraRepository);
-        String parent = solrProcessingIndexService.getParentCollection("uuid:3b358ab4-33a6-4234-bf12-4161df3e0147");
-        System.out.println(parent);
+        List<String> parentCollections = solrProcessingIndexService.getParentCollections("uuid:3b358ab4-33a6-4234-bf12-4161df3e0147");
+        System.out.println(parentCollections);
     }
 
     @Test
