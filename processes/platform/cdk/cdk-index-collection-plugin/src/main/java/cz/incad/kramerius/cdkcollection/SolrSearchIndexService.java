@@ -173,6 +173,15 @@ public class SolrSearchIndexService implements SearchIndexService {
         }
     }
 
+    @Override
+    public void commit() {
+        try {
+            solrClient.commit();
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void executeCursorPagedQuery(SolrQuery query, String errorMessage, Consumer<List<SearchDocument>> pageConsumer) {
         String cursorMark = CursorMarkParams.CURSOR_MARK_START;
         try {

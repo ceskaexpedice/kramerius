@@ -35,4 +35,6 @@ public interface SearchIndexService {
     List<String> getDirectCollectionValues();
 
     void updateDocumentFieldsBatch(List<SearchDocumentUpdate> updates);
+
+    void commit();
 }

@@ -126,6 +126,11 @@ public class FakeSearchIndexService implements SearchIndexService {
         }
     }
 
+    @Override
+    public void commit() {
+        // nothing
+    }
+
     private SearchDocument requireDocument(String pid) {
         SearchDocument document = documents.get(pid);
         if (document == null) {

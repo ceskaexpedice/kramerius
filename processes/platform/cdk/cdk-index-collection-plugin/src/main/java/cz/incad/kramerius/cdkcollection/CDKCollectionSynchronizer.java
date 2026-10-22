@@ -25,6 +25,7 @@ public class CDKCollectionSynchronizer {
         for (ReferencePath reference : validReferences) {
             synchronizeReference(reference);
         }
+        searchIndex.commit();
         LOGGER.info("CDK Collection Synchronizer finishes successfully");
     }
 
@@ -203,7 +204,7 @@ public class CDKCollectionSynchronizer {
                         searchIndex.updateDocumentFieldsBatch(updates);
                     }
                 });
-
+        searchIndex.commit();
     }
 
     private void synchronizeReference(ReferencePath reference) {
