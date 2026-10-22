@@ -107,10 +107,6 @@ public class CDKCollectionSynchronizer {
 
     private Set<String> findObsoletePrefixes(SearchDocument root, String removedCollection, List<ReferencePath> expectedReferences) {
         Set<String> obsolete = new LinkedHashSet<>();
-        String ownPath = root.getOwnPidPath();
-        if (ownPath == null || ownPath.isEmpty()) {
-            return obsolete;
-        }
         String suffix = "/" + root.getPid();
         for (String path : root.getPidPaths()) {
             if (path == null || !path.endsWith(suffix)) {
@@ -120,22 +116,18 @@ public class CDKCollectionSynchronizer {
             if (prefix.isEmpty()) {
                 continue;
             }
-            boolean valid = false;
-            for (ReferencePath reference : expectedReferences) {
-                if (reference.fullPath.equals(path)) {
-                    valid = true;
-                    break;
-                }
-            }
-            if (valid) {
-                continue;
-            }
             String lastPathSegment = lastPathSegment(prefix);
             if (removedCollection != null) {
                 if (lastPathSegment.equals(removedCollection)) {
                     obsolete.add(path);
                 }
-            } else if (processingIndex.isCollection(lastPathSegment)) {
+                continue;
+            }
+            if (!processingIndex.isCollection(lastPathSegment)) {
+                continue;
+            }
+            boolean valid = expectedReferences.stream().anyMatch(reference -> reference.fullPath.equals(path));
+            if (!valid) {
                 obsolete.add(path);
             }
         }
