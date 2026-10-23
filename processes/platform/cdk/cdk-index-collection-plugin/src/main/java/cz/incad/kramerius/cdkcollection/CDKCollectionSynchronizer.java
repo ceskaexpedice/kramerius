@@ -20,9 +20,9 @@ public class CDKCollectionSynchronizer {
     public void synchronize() {
         LOGGER.info("CDK Collection Synchronizer starts");
         List<ReferencePath> validReferences = buildValidReferences();
-        if(validReferences.isEmpty()){
+        if (validReferences.isEmpty()) {
             LOGGER.warning("No CDK collections references found");
-        }else{
+        } else {
             LOGGER.info(String.format("CDK collections references:\n%s",
                     validReferences.stream()
                             .map(ReferencePath::toString)
@@ -132,7 +132,8 @@ public class CDKCollectionSynchronizer {
                 }
                 continue;
             }
-            if (!processingIndex.isCollection(lastPathSegment)) {
+            SearchDocument searchDocument = searchIndex.get(lastPathSegment);
+            if (!searchDocument.isCdkCollection()) {
                 continue;
             }
             boolean valid = expectedReferences.stream().anyMatch(reference -> reference.fullPath.equals(path));
@@ -190,8 +191,11 @@ public class CDKCollectionSynchronizer {
                         Iterator<String> iterator = direct.iterator();
                         while (iterator.hasNext()) {
                             String collectionPid = iterator.next();
-                            if (!processingIndex.isCollection(collectionPid) ||
-                                    !processingIndex.getReferences(collectionPid).contains(ProcessingIndexService.CDK_PREFIX + document.getPid())) {
+                            SearchDocument searchDocument = searchIndex.get(collectionPid);
+                            if (!searchDocument.isCdkCollection()) {
+                                continue;
+                            }
+                            if (!processingIndex.getReferences(collectionPid).contains(ProcessingIndexService.CDK_PREFIX + document.getPid())) {
                                 iterator.remove();
                             }
                         }
@@ -206,7 +210,7 @@ public class CDKCollectionSynchronizer {
                         searchIndex.updateDocumentFieldsBatch(updates);
                     }
                 });
-        if(updatesCounter[0] > 0){
+        if (updatesCounter[0] > 0) {
             LOGGER.info(String.format("Remove CDK collection reference %s from the %s subtree. Number of updates: %d",
                     staleRootPath, root.getPid(), updatesCounter[0]));
         }
@@ -229,7 +233,7 @@ public class CDKCollectionSynchronizer {
                         searchIndex.updateDocumentFieldsBatch(updates);
                     }
                 });
-        if(updatesCounter[0] > 0){
+        if (updatesCounter[0] > 0) {
             LOGGER.info(String.format("Add CDK collection reference %s to documents in the %s subtree. Number of updates: %d",
                     reference.fullPath, reference.referencedPid, updatesCounter[0]));
         }

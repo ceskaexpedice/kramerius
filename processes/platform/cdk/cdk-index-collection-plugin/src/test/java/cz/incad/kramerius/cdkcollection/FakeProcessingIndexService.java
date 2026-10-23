@@ -46,11 +46,6 @@ class FakeProcessingIndexService implements ProcessingIndexService {
         return collectionParents == null ? new ArrayList<>() : new ArrayList<>(collectionParents);
     }
 
-    @Override
-    public boolean isCollection(String collectionPid) {
-        return cdkCollections.contains(collectionPid);
-    }
-
     void removeReference(String collectionPid, String referencedPid) {
         List<String> refs = references.get(collectionPid);
         if (refs != null) {

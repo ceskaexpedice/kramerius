@@ -51,8 +51,4 @@ public class SolrProcessingIndexService implements ProcessingIndexService {
         return parentsSt;
     }
 
-    @Override
-    public boolean isCollection(String collectionPid) {
-        return getCollections().contains(collectionPid);
-    }
 }

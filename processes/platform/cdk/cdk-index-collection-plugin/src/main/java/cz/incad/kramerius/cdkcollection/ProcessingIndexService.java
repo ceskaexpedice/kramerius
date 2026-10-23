@@ -11,5 +11,4 @@ public interface ProcessingIndexService {
 
     List<String> getParentCollections(String collectionPid);
 
-    boolean isCollection(String collectionPid);
 }

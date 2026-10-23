@@ -46,11 +46,4 @@ public class SolrProcessingIndexServiceTest_integration {
         System.out.println(parentCollections);
     }
 
-    @Test
-    public void testIsCollection() {
-        SolrProcessingIndexService solrProcessingIndexService = new SolrProcessingIndexService(akubraRepository);
-        boolean isCollection = solrProcessingIndexService.isCollection("uuid:5035a48a-5e2e-486c-8127-2fa650842e46");
-        System.out.println(isCollection);
-    }
-
 }

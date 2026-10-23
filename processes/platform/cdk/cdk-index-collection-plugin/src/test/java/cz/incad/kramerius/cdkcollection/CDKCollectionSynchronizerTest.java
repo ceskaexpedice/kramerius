@@ -188,9 +188,9 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1",
                         "cdk-sb11/cis1",
                         "cdk-sb1/cis1", "cdk-sb1/cdk-sb11/cis1",
-                        "cdk-sb2/cis1","cdk-sb2/roc1/cis1",
+                        "cdk-sb2/cis1", "cdk-sb2/roc1/cis1",
                         "cdk-sb4/cdk-sb11/cis1"
-                        )),
+                )),
                 new HashSet<>(cis1.getPidPaths())
         );
 
@@ -204,7 +204,7 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st1",
                         "cdk-sb11/cis1/st1",
                         "cdk-sb1/cis1/st1", "cdk-sb1/cdk-sb11/cis1/st1",
-                        "cdk-sb2/cis1/st1","cdk-sb2/roc1/cis1/st1",
+                        "cdk-sb2/cis1/st1", "cdk-sb2/roc1/cis1/st1",
                         "cdk-sb4/cdk-sb11/cis1/st1"
                 )),
                 new HashSet<>(st1.getPidPaths())
@@ -220,7 +220,7 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st2",
                         "cdk-sb11/cis1/st2",
                         "cdk-sb1/cis1/st2", "cdk-sb1/cdk-sb11/cis1/st2",
-                        "cdk-sb2/cis1/st2","cdk-sb2/roc1/cis1/st2",
+                        "cdk-sb2/cis1/st2", "cdk-sb2/roc1/cis1/st2",
                         "cdk-sb4/cdk-sb11/cis1/st2"
                 )),
                 new HashSet<>(st2.getPidPaths())
@@ -304,7 +304,7 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1",
                         "cdk-sb11/cis1",
                         "cdk-sb1/cis1", "cdk-sb1/cdk-sb11/cis1",
-                        "cdk-sb2/cis1","cdk-sb2/roc1/cis1",
+                        "cdk-sb2/cis1", "cdk-sb2/roc1/cis1",
                         "cdk-sb4/cdk-sb11/cis1"
                 )),
                 new HashSet<>(cis1.getPidPaths())
@@ -320,7 +320,7 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st1",
                         "cdk-sb11/cis1/st1",
                         "cdk-sb1/cis1/st1", "cdk-sb1/cdk-sb11/cis1/st1",
-                        "cdk-sb2/cis1/st1","cdk-sb2/roc1/cis1/st1",
+                        "cdk-sb2/cis1/st1", "cdk-sb2/roc1/cis1/st1",
                         "cdk-sb4/cdk-sb11/cis1/st1"
                 )),
                 new HashSet<>(st1.getPidPaths())
@@ -336,7 +336,7 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st2",
                         "cdk-sb11/cis1/st2",
                         "cdk-sb1/cis1/st2", "cdk-sb1/cdk-sb11/cis1/st2",
-                        "cdk-sb2/cis1/st2","cdk-sb2/roc1/cis1/st2",
+                        "cdk-sb2/cis1/st2", "cdk-sb2/roc1/cis1/st2",
                         "cdk-sb4/cdk-sb11/cis1/st2"
                 )),
                 new HashSet<>(st2.getPidPaths())
@@ -410,7 +410,7 @@ public class CDKCollectionSynchronizerTest {
         assertEquals(
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1",
                         "cdk-sb1/cis1",
-                        "cdk-sb2/cis1","cdk-sb2/roc1/cis1"
+                        "cdk-sb2/cis1", "cdk-sb2/roc1/cis1"
                 )),
                 new HashSet<>(cis1.getPidPaths())
         );
@@ -425,7 +425,7 @@ public class CDKCollectionSynchronizerTest {
         assertEquals(
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st1",
                         "cdk-sb1/cis1/st1",
-                        "cdk-sb2/cis1/st1","cdk-sb2/roc1/cis1/st1"
+                        "cdk-sb2/cis1/st1", "cdk-sb2/roc1/cis1/st1"
                 )),
                 new HashSet<>(st1.getPidPaths())
         );
@@ -440,7 +440,7 @@ public class CDKCollectionSynchronizerTest {
         assertEquals(
                 new HashSet<>(Arrays.asList("sb1/per1/roc1/cis1/st2",
                         "cdk-sb1/cis1/st2",
-                        "cdk-sb2/cis1/st2","cdk-sb2/roc1/cis1/st2"
+                        "cdk-sb2/cis1/st2", "cdk-sb2/roc1/cis1/st2"
                 )),
                 new HashSet<>(st2.getPidPaths())
         );
@@ -533,4 +533,47 @@ public class CDKCollectionSynchronizerTest {
         assertTrue(cis1.getInCollectionsDirect().contains("cdk-sb11"));
         assertTrue(cis1.getInCollectionsDirect().contains("cdk-other"));
     }
+
+    @Test
+    public void testAddAndRemoveMemberOfNonCDKCollection() {
+        // per1 before
+        SearchDocument per1 = search.get("per1");
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
+        synchronizer.synchronize();
+
+        // per1
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
+        processing.addReference("cdk-sb3", ProcessingIndexService.CDK_PREFIX + "per1");
+        synchronizer.synchronize();
+
+        // per1
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb3")),
+                new HashSet<>(per1.getInCollections())
+        );
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1", "cdk-sb3")),
+                new HashSet<>(per1.getInCollectionsDirect())
+        );
+        assertEquals(
+                new HashSet<>(Arrays.asList("sb1/per1", "cdk-sb3/per1")),
+                new HashSet<>(per1.getPidPaths())
+        );
+
+        processing.removeReference("cdk-sb3", ProcessingIndexService.CDK_PREFIX + "per1");
+        synchronizer.synchronize();
+
+        // per1
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
+    }
+
 }
