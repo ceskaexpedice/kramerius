@@ -21,7 +21,7 @@ import org.ceskaexpedice.processplatform.api.AbstractPluginSpi;
 import java.util.Set;
 
 /**
- * CDKMigrationSPI
+ * CDKIndexCollectionSPI
  * @author ppodsednik
  */
 public class CDKIndexCollectionSPI extends AbstractPluginSpi {

@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import cz.incad.kramerius.cdkcollection.*;
 import cz.incad.kramerius.fedora.RepoModule;
-import cz.incad.kramerius.solr.SolrModule;
-import cz.incad.kramerius.statistics.NullStatisticsModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.ceskaexpedice.akubra.AkubraRepository;
