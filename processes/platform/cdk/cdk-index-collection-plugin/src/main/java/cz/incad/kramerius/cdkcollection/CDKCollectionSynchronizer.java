@@ -4,6 +4,7 @@ import cz.incad.kramerius.plugin.CDKIndexCollection;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class CDKCollectionSynchronizer {
     private static final Logger LOGGER = Logger.getLogger(CDKIndexCollection.class.getName());
@@ -19,14 +20,22 @@ public class CDKCollectionSynchronizer {
     public void synchronize() {
         LOGGER.info("CDK Collection Synchronizer starts");
         List<ReferencePath> validReferences = buildValidReferences();
+        if(validReferences.isEmpty()){
+            LOGGER.warning("No CDK collections references found");
+        }else{
+            LOGGER.info(String.format("CDK collections references:\n%s",
+                    validReferences.stream()
+                            .map(ReferencePath::toString)
+                            .collect(Collectors.joining("\n"))));
+        }
         // First remove obsolete paths and memberships.
         removeObsoleteReferences(validReferences);
         // Then preserve the existing addition algorithm.
         for (ReferencePath reference : validReferences) {
-            synchronizeReference(reference);
+            addCDKCollectionReference(reference);
         }
         searchIndex.commit();
-        LOGGER.info("CDK Collection Synchronizer finishes successfully");
+        LOGGER.info("CDK Collection Synchronizer finished successfully");
     }
 
     private List<ReferencePath> buildValidReferences() {
@@ -101,7 +110,7 @@ public class CDKCollectionSynchronizer {
             });
         }
         for (Map.Entry<String, SearchDocument> entry : staleRoots.entrySet()) {
-            removePathPrefix(entry.getKey(), entry.getValue(), validReferences);
+            removeCDKCollectionReference(entry.getKey(), entry.getValue(), validReferences);
         }
     }
 
@@ -139,18 +148,18 @@ public class CDKCollectionSynchronizer {
         return slash < 0 ? path : path.substring(slash + 1);
     }
 
-    private void removePathPrefix(String staleRootPath, SearchDocument root, List<ReferencePath> validReferences) {
+    private void removeCDKCollectionReference(String staleRootPath, SearchDocument root, List<ReferencePath> validReferences) {
         List<SearchDocumentUpdate> updates = new ArrayList<>();
         String rootSuffix = "/" + root.getPid();
         if (!staleRootPath.endsWith(rootSuffix)) {
             throw new IllegalArgumentException("Stale root path does not end with root own PID path: " + staleRootPath);
         }
         String removedCdkPrefix = staleRootPath.substring(0, staleRootPath.length() - rootSuffix.length());
+        final int[] updatesCounter = {0};
         searchIndex.findByPidPathPrefix(
                 staleRootPath,
                 page -> {
                     for (SearchDocument document : page) {
-                        LOGGER.info(String.format("Removing obsolete reference \"%s\" in pid \"%s\"", staleRootPath, document.getPid()));
                         List<String> currentPaths = document.getPidPaths();
                         List<String> remainingPaths = new ArrayList<>();
                         for (String path : currentPaths) {
@@ -191,15 +200,21 @@ public class CDKCollectionSynchronizer {
                                 remainingPaths,
                                 new ArrayList<>(inCollections),
                                 direct));
+                        updatesCounter[0]++;
                     }
                     if (!updates.isEmpty()) {
                         searchIndex.updateDocumentFieldsBatch(updates);
                     }
                 });
+        if(updatesCounter[0] > 0){
+            LOGGER.info(String.format("Remove CDK collection reference %s from the %s subtree. Number of updates: %d",
+                    staleRootPath, root.getPid(), updatesCounter[0]));
+        }
         searchIndex.commit();
     }
 
-    private void synchronizeReference(ReferencePath reference) {
+    private void addCDKCollectionReference(ReferencePath reference) {
+        final int[] updatesCounter = {0};
         searchIndex.findUnlinkedSubtree(reference.referencedPid, reference.cdkPath,
                 page -> {
                     List<SearchDocumentUpdate> updates = new ArrayList<>();
@@ -207,12 +222,17 @@ public class CDKCollectionSynchronizer {
                         SearchDocumentUpdate update = createDocumentUpdate(document, reference);
                         if (update != null) {
                             updates.add(update);
+                            updatesCounter[0]++;
                         }
                     }
                     if (!updates.isEmpty()) {
                         searchIndex.updateDocumentFieldsBatch(updates);
                     }
                 });
+        if(updatesCounter[0] > 0){
+            LOGGER.info(String.format("Add CDK collection reference %s to documents in the %s subtree. Number of updates: %d",
+                    reference.fullPath, reference.referencedPid, updatesCounter[0]));
+        }
     }
 
     private SearchDocumentUpdate createDocumentUpdate(SearchDocument document, ReferencePath reference) {

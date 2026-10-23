@@ -447,6 +447,80 @@ public class CDKCollectionSynchronizerTest {
     }
 
     @Test
+    public void testBackToInitialState() {
+        synchronizer.synchronize();
+        /*
+         * MZK:
+         *
+         * sb1
+         * └── per1
+         *     └── roc1
+         *         └── cis1
+         *             └── st1
+         *             └── st2
+         *
+         * CDK:
+         *
+         * cdk-sb11 <------ REMOVE
+         *     └── cdk/cis1
+         * cdk-sb1
+         * └── cdk/cis1 <------ REMOVE
+         * └── cdk-sb11 <------ REMOVE
+         * cdk-sb2      <------ REMOVE
+         * └── cdk/cis1
+         * └── cdk/roc1
+         * cdk-sb3
+         * cdk-sb4
+         *     └── cdk-sb11 <------ REMOVE
+         */
+        processing.removeReference("cdk-sb11", ProcessingIndexService.CDK_PREFIX + "cis1");
+        processing.removeCollection("cdk-sb11");
+        processing.removeReference("cdk-sb1", ProcessingIndexService.CDK_PREFIX + "cis1");
+        processing.removeReference("cdk-sb2", ProcessingIndexService.CDK_PREFIX + "cis1");
+        processing.removeReference("cdk-sb2", ProcessingIndexService.CDK_PREFIX + "roc1");
+        processing.removeCollection("cdk-sb2");
+        processing.getParents().clear();
+
+        synchronizer.synchronize();
+
+        // sb1 before
+        SearchDocument sb1 = search.get("sb1");
+        assertTrue(sb1.getInCollections().isEmpty());
+        assertTrue(sb1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1"), sb1.getPidPaths());
+
+        // per1 before
+        SearchDocument per1 = search.get("per1");
+        assertEquals(Arrays.asList("sb1"), per1.getInCollections());
+        assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
+        assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
+
+        // roc1 before
+        SearchDocument roc1 = search.get("roc1");
+        assertEquals(Arrays.asList("sb1"), roc1.getInCollections());
+        assertTrue(roc1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1"), roc1.getPidPaths());
+
+        // cis1 before
+        SearchDocument cis1 = search.get("cis1");
+        assertEquals(Arrays.asList("sb1"), cis1.getInCollections());
+        assertTrue(cis1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1/cis1"), cis1.getPidPaths());
+
+        // st1 before
+        SearchDocument st1 = search.get("st1");
+        assertEquals(Arrays.asList("sb1"), st1.getInCollections());
+        assertTrue(st1.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1/cis1/st1"), st1.getPidPaths());
+
+        // st2 before
+        SearchDocument st2 = search.get("st2");
+        assertEquals(Arrays.asList("sb1"), st2.getInCollections());
+        assertTrue(st2.getInCollectionsDirect().isEmpty());
+        assertEquals(Arrays.asList("sb1/per1/roc1/cis1/st2"), st2.getPidPaths());
+    }
+
+    @Test
     public void testPreserveOtherDirectMemberships() {
         synchronizer.synchronize();
 

@@ -40,17 +40,8 @@ public class FakeSearchIndexService implements SearchIndexService {
 
     @Override
     public void findUnlinkedSubtree(String rootPid, List<String> cdkPath, Consumer<List<SearchDocument>> pageConsumer) {
-        if (pageConsumer == null) {
-            throw new IllegalArgumentException("Page consumer must not be null");
-        }
         SearchDocument root = documents.get(rootPid);
-        if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
-            return;
-        }
-        if (cdkPath == null || cdkPath.isEmpty()) {
-            throw new IllegalArgumentException("CDK path must not be empty");
-        }
-        String targetPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
+        String targetPath = String.join("/", cdkPath) + "/" + root.getPid();
         List<SearchDocument> result = new ArrayList<>();
         Deque<String> pending = new ArrayDeque<>();
         Set<String> visited = new LinkedHashSet<>();

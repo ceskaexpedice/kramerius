@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FakeProcessingIndexService implements ProcessingIndexService {
+class FakeProcessingIndexService implements ProcessingIndexService {
 
     private final Set<String> cdkCollections = new LinkedHashSet<>();
     private final Map<String, Set<String>> parents = new LinkedHashMap<>();
     private final Map<String, List<String>> references = new LinkedHashMap<>();
 
-    public void addCollection(String parentPid, String childPid) {
+    void addCollection(String parentPid, String childPid) {
         cdkCollections.add(parentPid);
         if (childPid != null) {
             cdkCollections.add(childPid);
@@ -21,7 +21,7 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
         }
     }
 
-    public void addReference(String collectionPid, String referencedPid) {
+    void addReference(String collectionPid, String referencedPid) {
         cdkCollections.add(collectionPid);
         List<String> refs = references.computeIfAbsent(collectionPid, key -> new ArrayList<>());
         if (!refs.contains(referencedPid)) {
@@ -51,11 +51,18 @@ public class FakeProcessingIndexService implements ProcessingIndexService {
         return cdkCollections.contains(collectionPid);
     }
 
-    public void removeReference(String collectionPid, String referencedPid) {
+    void removeReference(String collectionPid, String referencedPid) {
         List<String> refs = references.get(collectionPid);
         if (refs != null) {
             refs.remove(referencedPid);
         }
     }
 
+    void removeCollection(String collectionPid) {
+        cdkCollections.remove(collectionPid);
+    }
+
+    public Map<String, Set<String>> getParents() {
+        return parents;
+    }
 }
