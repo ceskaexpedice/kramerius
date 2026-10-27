@@ -102,12 +102,6 @@ public class NewIndexerProcessIndexObject {
         try {
             for (int i = 0; i < pids.size(); i++) {
                 String pid = pids.get(i);
-
-                // TODO pepo
-                if(pid.startsWith("cdk")){
-                    continue;
-                }
-
                 LOGGER.info(String.format("Processing pid '%s'; %d of %d ", pid, i, pids.size()));
                 indexer.indexByObjectPid(pid, IndexationType.valueOf(type), counters, false, new ProgressListener() {
                     @Override

@@ -1,6 +1,7 @@
 
 package cz.incad.kramerius.cdkcollection;
 
+import org.ceskaexpedice.akubra.reference.CDKReference;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,10 +83,10 @@ public class CDKCollectionSynchronizerTest {
         processing.addCollection("cdk-sb3", null);
         processing.addCollection("cdk-sb4", "cdk-sb11");
 
-        processing.addReference("cdk-sb1", ProcessingIndexService.CDK_PREFIX + "cis1");
-        processing.addReference("cdk-sb11", ProcessingIndexService.CDK_PREFIX + "cis1");
-        processing.addReference("cdk-sb2", ProcessingIndexService.CDK_PREFIX + "cis1");
-        processing.addReference("cdk-sb2", ProcessingIndexService.CDK_PREFIX + "roc1");
+        processing.addReference("cdk-sb1", new CDKReference("cis1").getPrefixedPid());
+        processing.addReference("cdk-sb11", new CDKReference("cis1").getPrefixedPid());
+        processing.addReference("cdk-sb2", new CDKReference("cis1").getPrefixedPid());
+        processing.addReference("cdk-sb2", new CDKReference("roc1").getPrefixedPid());
 
         // search index after CDK indexing = MZK documents + CDK collections
         search.addDocument(
@@ -370,7 +371,7 @@ public class CDKCollectionSynchronizerTest {
          * cdk-sb4
          *     └── cdk-sb11
          */
-        processing.removeReference("cdk-sb11", ProcessingIndexService.CDK_PREFIX + "cis1");
+        processing.removeReference("cdk-sb11", new CDKReference("cis1").getPrefixedPid());
         synchronizer.synchronize();
 
         // sb1
@@ -473,11 +474,11 @@ public class CDKCollectionSynchronizerTest {
          * cdk-sb4
          *     └── cdk-sb11 <------ REMOVE
          */
-        processing.removeReference("cdk-sb11", ProcessingIndexService.CDK_PREFIX + "cis1");
+        processing.removeReference("cdk-sb11", new CDKReference("cis1").getPrefixedPid());
         processing.removeCollection("cdk-sb11");
-        processing.removeReference("cdk-sb1", ProcessingIndexService.CDK_PREFIX + "cis1");
-        processing.removeReference("cdk-sb2", ProcessingIndexService.CDK_PREFIX + "cis1");
-        processing.removeReference("cdk-sb2", ProcessingIndexService.CDK_PREFIX + "roc1");
+        processing.removeReference("cdk-sb1", new CDKReference("cis1").getPrefixedPid());
+        processing.removeReference("cdk-sb2", new CDKReference("cis1").getPrefixedPid());
+        processing.removeReference("cdk-sb2", new CDKReference("roc1").getPrefixedPid());
         processing.removeCollection("cdk-sb2");
         processing.getParents().clear();
 
@@ -526,7 +527,7 @@ public class CDKCollectionSynchronizerTest {
 
         SearchDocument cis1 = search.get("cis1");
         cis1.setCollections(cis1.getInCollections(), Arrays.asList("cdk-sb11", "cdk-sb1", "cdk-sb2", "cdk-other"));
-        processing.addReference("cdk-other", ProcessingIndexService.CDK_PREFIX + "cis1");
+        processing.addReference("cdk-other", new CDKReference("cis1").getPrefixedPid());
 
         synchronizer.synchronize();
 
@@ -549,7 +550,7 @@ public class CDKCollectionSynchronizerTest {
         assertEquals(Arrays.asList("sb1"), per1.getInCollectionsDirect());
         assertEquals(Arrays.asList("sb1/per1"), per1.getPidPaths());
 
-        processing.addReference("cdk-sb3", ProcessingIndexService.CDK_PREFIX + "per1");
+        processing.addReference("cdk-sb3", new CDKReference("per1").getPrefixedPid());
         synchronizer.synchronize();
 
         // per1
@@ -566,7 +567,7 @@ public class CDKCollectionSynchronizerTest {
                 new HashSet<>(per1.getPidPaths())
         );
 
-        processing.removeReference("cdk-sb3", ProcessingIndexService.CDK_PREFIX + "per1");
+        processing.removeReference("cdk-sb3", new CDKReference("per1").getPrefixedPid());
         synchronizer.synchronize();
 
         // per1

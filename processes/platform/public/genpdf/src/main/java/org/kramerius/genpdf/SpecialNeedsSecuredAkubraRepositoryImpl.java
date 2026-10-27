@@ -7,6 +7,7 @@ import cz.incad.kramerius.security.SecuredAkubraRepository;
 import org.ceskaexpedice.akubra.*;
 import org.ceskaexpedice.akubra.misc.MiscHelper;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
+import org.ceskaexpedice.akubra.reference.ReferenceFactory;
 import org.ceskaexpedice.akubra.relsext.RelsExtHelper;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 
@@ -26,6 +27,11 @@ public class SpecialNeedsSecuredAkubraRepositoryImpl implements SecuredAkubraRep
     ) {
         this.akubraRepository = akubraRepository;
         this.solrAccess = solrAccess;
+    }
+
+    @Override
+    public ReferenceFactory getReferenceFactory() {
+        return akubraRepository.getReferenceFactory();
     }
 
     @Override

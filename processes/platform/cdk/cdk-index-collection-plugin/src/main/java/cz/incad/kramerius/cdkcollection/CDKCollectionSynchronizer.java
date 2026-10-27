@@ -1,6 +1,7 @@
 package cz.incad.kramerius.cdkcollection;
 
 import cz.incad.kramerius.plugin.CDKIndexCollection;
+import org.ceskaexpedice.akubra.reference.CDKReference;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -195,7 +196,7 @@ public class CDKCollectionSynchronizer {
                             if (!searchDocument.isCdkCollection()) {
                                 continue;
                             }
-                            if (!processingIndex.getReferences(collectionPid).contains(ProcessingIndexService.CDK_PREFIX + document.getPid())) {
+                            if (!processingIndex.getReferences(collectionPid).contains(new CDKReference(document.getPid()).getPrefixedPid())) {
                                 iterator.remove();
                             }
                         }
@@ -331,10 +332,8 @@ public class CDKCollectionSynchronizer {
     }
 
     private String removeCdkPrefix(String pid) {
-        if (!pid.startsWith(ProcessingIndexService.CDK_PREFIX)) {
-            throw new IllegalArgumentException("Not a CDK reference: " + pid);
-        }
-        return pid.substring(ProcessingIndexService.CDK_PREFIX.length());
+        String pidStripped = new CDKReference(pid).getPid();
+        return pidStripped;
     }
 
 }

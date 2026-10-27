@@ -27,6 +27,7 @@ import org.ceskaexpedice.akubra.*;
 import org.ceskaexpedice.akubra.misc.MiscHelper;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndex;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexQueryParameters;
+import org.ceskaexpedice.akubra.reference.ReferenceFactory;
 import org.ceskaexpedice.akubra.relsext.RelsExtHelper;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 
@@ -47,6 +48,11 @@ public class SecuredAkubraRepositoryImpl implements SecuredAkubraRepository {
         this.akubraRepository = akubraRepository;
         this.solrAccess = solrAccess;
         this.rightsResolver = rightsResolver;
+    }
+
+    @Override
+    public ReferenceFactory getReferenceFactory() {
+        return akubraRepository.getReferenceFactory();
     }
 
     @Override

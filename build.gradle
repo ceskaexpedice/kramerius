@@ -103,7 +103,7 @@ allprojects {
     ext.keycloakversion = '20.0.2' 
 
     ext.hazelcastversion='2.0'
-    ext.akubraversion='1.7'
+    ext.akubraversion='1.8'
     ext.processapiversion='1.5.2'
 
     ext.generatedSources = "generated-sources"
