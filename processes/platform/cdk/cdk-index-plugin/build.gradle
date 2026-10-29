@@ -19,6 +19,7 @@ processPlugin {
 
 dependencies{
     implementation project(':processes:search-index')
+    implementation project(':processes:platform:cdk:cdk-index-collection-plugin')
     implementation "org.ceskaexpedice:process-api:${processapiversion}"
 }
 

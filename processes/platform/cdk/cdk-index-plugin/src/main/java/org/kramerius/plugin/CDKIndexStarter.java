@@ -1,5 +1,6 @@
 package org.kramerius.plugin;
 
+import cz.incad.kramerius.plugin.CDKIndexCollection;
 import cz.kramerius.searchIndex.NewIndexerProcessIndexObject;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
@@ -35,12 +36,14 @@ public class CDKIndexStarter {
         LOGGER.info("-----------------------------------");
 
         NewIndexerProcessIndexObject.indexerMain(type.toUpperCase(), pidsP, ignoreInconsistentObjects, title);
-
-        // TODO
+        CDKIndexCollection.indexCollectionMain();
+/*
         Map<String, String> payload = new HashMap<>();
         ScheduleSubProcess subProcess = new ScheduleSubProcess("cdk-index-collection", payload);
         PluginContext pluginContext = PluginContextHolder.getContext();
         pluginContext.scheduleSubProcess(subProcess);
+
+ */
 
     }
 }
