@@ -18,6 +18,8 @@ import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.akubra.KnownDatastreams;
+import org.ceskaexpedice.akubra.reference.FedoraReference;
+import org.ceskaexpedice.akubra.reference.Reference;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
@@ -505,6 +507,10 @@ public class Indexer {
                     }
                     for (String childPid : parentNode.getPidsOfFosterChildren()) {
                         RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
+                        Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                        if(!(reference instanceof FedoraReference)){
+                            continue;
+                        }
                         indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index foster child
                     }
                 }
@@ -513,6 +519,10 @@ public class Indexer {
             case TREE: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
+                    Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                    if(!(reference instanceof FedoraReference)){
+                        continue;
+                    }
                     indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                 }
@@ -520,6 +530,10 @@ public class Indexer {
             break;
             case TREE_INDEX_ONLY_NEWER: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
+                    Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                    if(!(reference instanceof FedoraReference)){
+                        continue;
+                    }
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isNewer = true; //TODO: detect
                     if (isNewer) {
@@ -531,6 +545,10 @@ public class Indexer {
             break;
             case TREE_PROCESS_ONLY_NEWER: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
+                    Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                    if(!(reference instanceof FedoraReference)){
+                        continue;
+                    }
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isNewer = true; //TODO: detect
                     if (isNewer) {
@@ -542,6 +560,10 @@ public class Indexer {
             break;
             case TREE_INDEX_ONLY_PAGES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
+                    Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                    if(!(reference instanceof FedoraReference)){
+                        continue;
+                    }
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isPage = true; //TODO: detect
                     if (isPage) {
@@ -554,6 +576,10 @@ public class Indexer {
             break;
             case TREE_INDEX_ONLY_NONPAGES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) { //index own children
+                    Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                    if(!(reference instanceof FedoraReference)){
+                        continue;
+                    }
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     boolean isPage = false; //TODO: detect
                     if (!isPage) {
@@ -565,11 +591,19 @@ public class Indexer {
             break;
             case TREE_AND_FOSTER_TREES: {
                 for (String childPid : parentNode.getPidsOfOwnChildren()) {
+                    Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                    if(!(reference instanceof FedoraReference)){
+                        continue;
+                    }
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index own child
                     processChildren(childPid, childNode, counters, type, false, progressListener); //process own child's tree
                 }
                 for (String childPid : parentNode.getPidsOfFosterChildren()) {
+                    Reference reference = akubraRepository.getReferenceFactory().create(childPid);
+                    if(!(reference instanceof FedoraReference)){
+                        continue;
+                    }
                     RepositoryNode childNode = nodeManager.getKrameriusNode(childPid);
                     indexObjectWithCounters(childPid, childNode, counters, false, progressListener); //index foster child
                     processChildren(childPid, childNode, counters, type, false, progressListener); //process foster child's tree

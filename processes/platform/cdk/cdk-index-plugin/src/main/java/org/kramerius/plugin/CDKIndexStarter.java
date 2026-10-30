@@ -36,6 +36,9 @@ public class CDKIndexStarter {
         LOGGER.info("-----------------------------------");
 
         NewIndexerProcessIndexObject.indexerMain(type.toUpperCase(), pidsP, ignoreInconsistentObjects, title);
+
+        LOGGER.info("--- Starting method: indexCollectionMain ---");
+
         CDKIndexCollection.indexCollectionMain();
 /*
         Map<String, String> payload = new HashMap<>();

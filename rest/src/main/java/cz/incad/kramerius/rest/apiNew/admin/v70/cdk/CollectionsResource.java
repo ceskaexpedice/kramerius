@@ -126,45 +126,44 @@ public class CollectionsResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createCollection(JSONObject collectionDefinition) {
-//        try {
-//            checkReadOnlyWorkMode();
-//            User user1 = this.userProvider.get();
-//            if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
-//                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
-//            }
-//
-//            cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection collection = extractCollectionFromJson(collectionDefinition);
-//            if (collection.names.isEmpty()) {
-//                throw new BadRequestException("name can't be empty");
-//            }
-//            collection.pid = "uuid:" + UUID.randomUUID().toString();
-//            Document foxml = foxmlBuilder.buildFoxml(collection, null);
-//            akubraRepository.ingest(Dom4jUtils.foxmlDocToDigitalObject(foxml, akubraRepository));
-//            //schedule reindexation - new collection (only object)
-//            // schedule
-//
-//            JSONObject scheduleReindexationPar = getScheduleReindexationPar(collection.pid, user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
-//            JSONObject scheduled = APIProcessScheduler.scheduleMainProcess(this.apacheClient,scheduleReindexationPar);
-//
-//            JSONObject result = new JSONObject();
-//            result.put("collection", collection.toJson());
-//
-//            //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
-//            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduled);
-//
-//            return Response.status(Status.CREATED).entity(result.toString()).build();
-//
-//        } catch (WebApplicationException e) {
-//            throw e;
-//        } catch (DistributedLocksException e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//            handleWorkMode(e);
-//            throw e;
-//        } catch (Throwable e) {
-//            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-//            throw new InternalErrorException(e.getMessage());
-//        }
-        return null;
+        try {
+            checkReadOnlyWorkMode();
+            User user1 = this.userProvider.get();
+            if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
+                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
+            }
+
+            cz.incad.kramerius.rest.apiNew.admin.v70.collections.Collection collection = extractCollectionFromJson(collectionDefinition);
+            if (collection.names.isEmpty()) {
+                throw new BadRequestException("name can't be empty");
+            }
+            collection.pid = "uuid:" + UUID.randomUUID().toString();
+            Document foxml = foxmlBuilder.buildFoxml(collection, null);
+            akubraRepository.ingest(Dom4jUtils.foxmlDocToDigitalObject(foxml, akubraRepository));
+            //schedule reindexation - new collection (only object)
+            // schedule
+
+            JSONObject scheduleReindexationPar = getScheduleReindexationPar(collection.pid, user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
+            JSONObject scheduled = APIProcessScheduler.scheduleMainProcess(this.apacheClient,scheduleReindexationPar);
+
+            JSONObject result = new JSONObject();
+            result.put("collection", collection.toJson());
+
+            //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleReindexationPar);
+            result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED, scheduled);
+
+            return Response.status(Status.CREATED).entity(result.toString()).build();
+
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
     }
 
     /**
