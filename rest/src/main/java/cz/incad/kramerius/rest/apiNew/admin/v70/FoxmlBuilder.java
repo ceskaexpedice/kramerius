@@ -1,5 +1,6 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70;
 
+import org.ceskaexpedice.akubra.reference.ReferenceFactory;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.*;
@@ -56,12 +57,13 @@ public class FoxmlBuilder {
     /**
      * @return true if new relation has been added, false if it was already present
      */
-    public boolean appendRelationToRelsExt(String ownerPid, Document relsExt, String relation, String newItemPid) {
+    public boolean appendRelationToRelsExt(String ownerPid, Document relsExt, String relation, String newItemPid, ReferenceFactory referenceFactory) {
         Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
-        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='info:fedora/%s']", relation, newItemPid)).selectSingleNode(description);
+        String targetPid = referenceFactory.create(newItemPid).getPrefixedPid();
+        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='%s']", relation, targetPid)).selectSingleNode(description);
         if (relationEl == null) {
             Element element = description.addElement(new QName(relation.toString(), NS_REL));
-            element.addAttribute(new QName("resource", NS_RDF), "info:fedora/" + newItemPid);
+            element.addAttribute(new QName("resource", NS_RDF), targetPid);
             return true;
         } else {
             LOGGER.warning(String.format("Relation %s:%s already found in rels-ext of %s, ignoring", relation, newItemPid, ownerPid));

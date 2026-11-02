@@ -163,7 +163,7 @@ public final class Collection {
         }
     }
 
-    Collection withUpdatedDataModifiableByClient(Collection updateSource) {
+    public Collection withUpdatedDataModifiableByClient(Collection updateSource) {
         Collection updated = new Collection(this);
         updated.names = updateSource.names;
         updated.descriptions = updateSource.descriptions;
