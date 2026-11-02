@@ -27,7 +27,7 @@
             <endpoint>select</endpoint>
             <batchsize>$iteration.batch$</batchsize>
 
-            <id>pid</id>
+            <id>$comparing.identifier$</id>
 
             <composite.id>true</composite.id>
             <composite.root>root.pid</composite.root>
@@ -52,17 +52,12 @@
                 <remove.dest.field>
                     <field name="collection"></field>
                 </remove.dest.field>
-                <!-- append to batch document -->
-                <update.dest.field>
-                    <field name="cdk.collection">$iteration.dl$</field>
-                    <field name="cdk.leader">$iteration.dl$</field>
-                </update.dest.field>
             </onindex>
 
             <!-- on update -->
             <onupdate>
                <!--  updating fields  -->
-                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr</fieldlist>
+                <fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr count_* has_*</fieldlist>
                 <!--  operations on update  -->
                 <update.dest.field>
                     <field name="cdk.collection" update="add-distinct">$iteration.dl$</field>

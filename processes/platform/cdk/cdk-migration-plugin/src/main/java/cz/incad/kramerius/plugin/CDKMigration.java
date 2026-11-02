@@ -1,6 +1,7 @@
 package cz.incad.kramerius.plugin;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.services.workers.copy.cdk.CDKCopyFinisher;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
 import cz.inovatika.kramerius.services.Migration;
 import cz.inovatika.kramerius.services.config.EffectiveMigrationConfigRenderer;
@@ -16,6 +17,7 @@ import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
 import org.ceskaexpedice.processplatform.api.context.PluginContext;
 import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
+import org.ceskaexpedice.processplatform.common.WarningException;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -62,7 +65,7 @@ public class CDKMigration {
             @ParameterName("showEffectiveConfigurationOnly") Boolean showEffectiveConfigurationOnly
     ) throws MigrateSolrIndexException, IOException, ParserConfigurationException,
             ClassNotFoundException, IllegalAccessException, InstantiationException,
-            SAXException, NoSuchMethodException, TransformerException {
+            SAXException, NoSuchMethodException, TransformerException, WarningException {
 
         long startedAtMillis = System.currentTimeMillis();
         LOGGER.info(String.format(
@@ -139,8 +142,14 @@ public class CDKMigration {
             FileUtils.write(tmpFile, configuration, "UTF-8");
 
             if (!showConfigurationOnly && !Boolean.TRUE.equals(showEffectiveConfigurationOnly)) {
+                CDKCopyFinisher.clearReharvestWarnings();
                 Migration migr = createMigration();
                 migr.migrate(tmpFile);
+                List<String> reharvestWarnings = CDKCopyFinisher.drainReharvestWarnings();
+                if (!reharvestWarnings.isEmpty()) {
+                    throw new WarningException("CDK migration completed with reharvest warnings: "
+                            + String.join("; ", reharvestWarnings));
+                }
             }
             LOGGER.info(String.format("CDK migration finished in %s", formatElapsed(System.currentTimeMillis() - startedAtMillis)));
        } else {

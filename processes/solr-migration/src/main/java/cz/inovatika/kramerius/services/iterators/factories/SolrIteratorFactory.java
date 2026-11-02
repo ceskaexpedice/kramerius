@@ -38,16 +38,15 @@ public class SolrIteratorFactory extends MigrationIteratorFactory {
         String timestampField = StringUtils.isAnyString(config.getTimestampField()) ? config.getTimestampField() : DEFAULT_TIMESTAMP_FIELD;
         String url = config.getUrl();
         String filterQuery = config.getFilterQuery();
-        try {
-            if (StringUtils.isAnyString(config.getTimestampUrl())) {
-                JSONObject timestamp = timestamp(client, config.getTimestampUrl());
-                if (timestamp != null &&  timestamp.has("date")) {
-                    filterQuery = EffectiveMigrationConfigRenderer.appendTimestampFilter(
-                            filterQuery, timestampField, timestamp.getString("date"));
-                }
+        if (StringUtils.isAnyString(config.getTimestampUrl())) {
+            JSONObject timestamp = timestamp(client, config.getTimestampUrl());
+            if (timestamp == null || !timestamp.has("date") || timestamp.isNull("date")) {
+                throw new IllegalStateException("Timestamp response from " + config.getTimestampUrl() + " does not contain a date");
             }
-        } catch(Exception ex) {
-            LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+            LOGGER.info("Applying timestamp filter from " + config.getTimestampUrl() + ": "
+                    + timestampField + ":[" + timestamp.getString("date") + " TO NOW]");
+            filterQuery = EffectiveMigrationConfigRenderer.appendTimestampFilter(
+                    filterQuery, timestampField, timestamp.getString("date"));
         }
 
         String[] fieldList = config.getFieldList();
@@ -170,11 +169,9 @@ public class SolrIteratorFactory extends MigrationIteratorFactory {
                 if (status == 200) { // Status.OK
                     String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                     return new JSONObject(body);
-                } else if (status == 404) { // Status.NOT_FOUND
-                    return null;
                 } else {
                     String errorBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                    throw new RuntimeException(String.format("Unexpected response status: %d. Body: %s", status, errorBody));
+                    throw new RuntimeException(String.format("Timestamp request to %s failed with HTTP %d. Body: %s", timestampUrl, status, errorBody));
                 }
             });
         } catch (IOException e) {

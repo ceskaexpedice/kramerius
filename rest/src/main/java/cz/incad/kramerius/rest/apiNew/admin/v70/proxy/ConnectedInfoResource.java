@@ -2,8 +2,12 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.proxy;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,9 +24,15 @@ import javax.ws.rs.core.Response;
 
 import com.google.inject.Provider;
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.security.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -58,11 +68,19 @@ public class ConnectedInfoResource {
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
 
+    @javax.inject.Inject
+    @Named("forward-client")
+    private PoolingHttpClientConnectionManager apachePoolManager;
+
     @Inject
     private RightsResolver rightsResolver;
 
     @Inject
     private Provider<User> userProvider;
+
+    @Inject
+    @Named("new-index")
+    private SolrAccess solrAccess;
 
 
     public ConnectedInfoResource() {
@@ -83,6 +101,37 @@ public class ConnectedInfoResource {
         } else {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
+    }
+
+    @GET
+    @Path("pool")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response forwardPool() {
+        if (!this.permit()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        org.apache.hc.core5.pool.PoolStats total = apachePoolManager.getTotalStats();
+        JSONObject result = poolStats(total);
+        JSONArray routes = new JSONArray();
+        apachePoolManager.getRoutes().forEach(route -> {
+            org.apache.hc.core5.pool.PoolStats stats = apachePoolManager.getStats(route);
+            JSONObject entry = poolStats(stats);
+            entry.put("route", route.toString());
+            routes.put(entry);
+        });
+        result.put("routes", routes);
+        result.put("sampledAt", System.currentTimeMillis());
+        return Response.ok(result.toString()).build();
+    }
+
+    private JSONObject poolStats(org.apache.hc.core5.pool.PoolStats stats) {
+        JSONObject result = new JSONObject();
+        result.put("leased", stats.getLeased());
+        result.put("available", stats.getAvailable());
+        result.put("pending", stats.getPending());
+        result.put("max", stats.getMax());
+        return result;
     }
 
     private JSONObject libraryJSON(OneInstance found) {
@@ -253,11 +302,144 @@ public class ConnectedInfoResource {
         }
     }
 
+    @GET
+    @Path("{library}/config/index/health")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getIndexHealth(@PathParam("library") String library) {
+        if (!this.permit()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        JSONObject result = new JSONObject();
+        result.put("sampledAt", System.currentTimeMillis());
+        result.put("cdk", queryCdkIndex(library));
+        result.put("remote", queryRemoteIndex(library));
+        return Response.ok(result.toString()).build();
+    }
+
+    private JSONObject queryCdkIndex(String library) {
+        try {
+            String response = solrAccess.requestWithSelectReturningString(
+                    indexFacetQuery(String.format("cdk.collection:%s", library), "cdk.licenses"), "json", null);
+            return parseIndexFacetResponse(response, "cdk.licenses", library);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "CDK index health query failed", e);
+            return indexError(e);
+        }
+    }
+
+    private JSONObject queryRemoteIndex(String library) {
+        OneInstance instance = libraries.find(library);
+        if (instance == null) {
+            return indexError("Unknown library: " + library);
+        }
+
+        String channel = KConfiguration.getInstance().getConfiguration()
+                .getString("cdk.collections.sources." + library + ".forwardurl");
+        if (!StringUtils.isAnyString(channel)) {
+            return indexError("Remote index channel is not configured");
+        }
+
+        try {
+            String solrUrl = ChannelUtils.solrChannelUrl(instance.getInstanceType().name(), channel);
+            HttpGet get = new HttpGet(solrUrl + "/select?" + indexFacetQuery("*", "licenses"));
+            get.setHeader("User-Agent", "CDK/1.0");
+            String apiKey = KConfiguration.getInstance().getConfiguration()
+                    .getString("cdk.collections.sources." + library + ".apikey");
+            if (StringUtils.isAnyString(apiKey)) {
+                get.addHeader("X-API-KEY", apiKey);
+            }
+
+            try (CloseableHttpResponse response = apacheClient.execute(get)) {
+                HttpEntity entity = response.getEntity();
+                if (response.getCode() != 200 || entity == null) {
+                    return indexError("Remote Solr returned HTTP " + response.getCode());
+                }
+                return parseIndexFacetResponse(IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8), "licenses", null);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Remote index health query failed for " + library, e);
+            return indexError(e);
+        }
+    }
+
+    private String indexFacetQuery(String fquery, String licensesField) {
+        try {
+            return "q=" + URLEncoder.encode(fquery, StandardCharsets.UTF_8.name())
+                    + "&rows=0&facet=true&facet.mincount=1"
+                    + "&facet.field=" + URLEncoder.encode("model", StandardCharsets.UTF_8.name())
+                    + "&facet.field=" + URLEncoder.encode(licensesField, StandardCharsets.UTF_8.name())
+                    + "&wt=json";
+        } catch (UnsupportedEncodingException e) {
+            // UTF-8 is required by every Java implementation.
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private JSONObject parseIndexFacetResponse(String response, String licensesField, String licensePrefix) {
+        JSONObject solrResponse = new JSONObject(response);
+        JSONObject result = new JSONObject();
+        result.put("status", "ok");
+        JSONObject responseHeader = solrResponse.optJSONObject("response");
+        result.put("numFound", responseHeader == null ? 0 : responseHeader.optLong("numFound", 0));
+
+        JSONObject facetCounts = solrResponse.optJSONObject("facet_counts");
+        JSONObject facetFields = facetCounts == null ? null : facetCounts.optJSONObject("facet_fields");
+        result.put("models", facetValues(facetFields, "model"));
+        result.put("licenses", facetValues(facetFields, licensesField, licensePrefix));
+        return result;
+    }
+
+    private JSONArray facetValues(JSONObject facetFields, String field) {
+        return facetValues(facetFields, field, null);
+    }
+
+    private JSONArray facetValues(JSONObject facetFields, String field, String licensePrefix) {
+        JSONArray values = new JSONArray();
+        JSONArray flatFacet = facetFields == null ? null : facetFields.optJSONArray(field);
+        if (flatFacet == null) {
+            return values;
+        }
+        Map<String, Long> counts = new LinkedHashMap<>();
+        for (int i = 0; i + 1 < flatFacet.length(); i += 2) {
+            String facetValue = flatFacet.optString(i);
+            if (licensePrefix != null) {
+                String prefix = licensePrefix + "_";
+                if (!facetValue.startsWith(prefix)) {
+                    continue;
+                }
+                if (facetValue.startsWith(prefix)) {
+                    facetValue = facetValue.substring(prefix.length());
+                }
+            }
+            counts.merge(facetValue, flatFacet.optLong(i + 1), Long::sum);
+        }
+        counts.forEach((facetValue, count) -> {
+            JSONObject value = new JSONObject();
+            value.put("value", facetValue);
+            value.put("count", count);
+            values.put(value);
+        });
+        return values;
+    }
+
+    private JSONObject indexError(Exception e) {
+        return indexError(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+    }
+
+    private JSONObject indexError(String message) {
+        JSONObject error = new JSONObject();
+        error.put("status", "error");
+        error.put("message", message);
+        return error;
+    }
+
 
     @GET
     @Path("introspect/{pid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response introspectPid(@PathParam("pid") String pid) {
+        //TODO: Delete
         if (this.permit()) {
 
         try {
@@ -269,6 +451,18 @@ public class ConnectedInfoResource {
             intropsected.getRight().forEach(libsArr::put);
             retval.put("models", modelsArr);
             retval.put("libraries", libsArr);
+            JSONObject clientUrls = new JSONObject();
+            for (String library : intropsected.getRight()) {
+                String clientUrl = KConfiguration.getInstance().getConfiguration()
+                        .getString("cdk.collections.sources." + library + ".client");
+                if (StringUtils.isAnyString(clientUrl)) {
+                    String normalizedClientUrl = clientUrl.endsWith("/")
+                            ? clientUrl.substring(0, clientUrl.length() - 1)
+                            : clientUrl;
+                    clientUrls.put(library, normalizedClientUrl + "/uuid/" + pid);
+                }
+            }
+            retval.put("clientUrls", clientUrls);
             return Response.ok(retval.toString()).build();
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

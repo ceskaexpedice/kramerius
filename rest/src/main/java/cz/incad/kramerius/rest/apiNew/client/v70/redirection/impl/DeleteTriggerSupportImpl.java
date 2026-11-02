@@ -229,13 +229,11 @@ public class DeleteTriggerSupportImpl implements DeleteTriggerSupport {
                             ReharvestItem reharvest = new ReharvestItem(
                                     UUID.randomUUID().toString(),
                                     "Delete trigger|404 ",
-                                    "open",
+                                    "waiting_for_approve",
                                     pivotItem.pid(),
                                     pivotItem.getFirtsPidPath()
                             );
                             reharvest.setRootPid(pivotItem.rootPid());
-                            // chybel stav - musim pridat
-                            reharvest.setState("waiting_for_approve");
                             reharvest.setLibraries(new ArrayList<>(liveResponse.getKeys("_cdk_")));
                             reharvest.setTypeOfReharvest(pivotItem.isTopLevelModel() ? ReharvestItem.TypeOfReharvset.root : ReharvestItem.TypeOfReharvset.children);
                             reharvestManager.register(reharvest);
@@ -256,7 +254,7 @@ public class DeleteTriggerSupportImpl implements DeleteTriggerSupport {
                                 ReharvestItem reharvest = new ReharvestItem(
                                         UUID.randomUUID().toString(),
                                         "Delete trigger|404 ",
-                                        "open",
+                                        "waiting_for_approve",
                                         parentPid,
                                         ownPidPath(doc)
                                 );
@@ -273,7 +271,7 @@ public class DeleteTriggerSupportImpl implements DeleteTriggerSupport {
                                 ReharvestItem reharvest = new ReharvestItem(
                                         UUID.randomUUID().toString(),
                                         "Delete trigger|404 ",
-                                        "open",
+                                        "waiting_for_approve",
                                         parentPid,
                                         ownPidPath(doc)
                                 );

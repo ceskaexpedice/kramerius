@@ -8,6 +8,7 @@ dependencies {
     api project(":processes:platform:cdk:cdk-migration-plugin")
     api project(":processes:platform:cdk:cdk-update-migration-plugin")
     api project(":processes:platform:cdk:cdk-delete-library")
+    api project(":processes:platform:cdk:cdk-compare-library-plugin")
     api project(":processes:platform:cdk:cdk-reharvest-plugin")
 }
 
@@ -19,9 +20,10 @@ processWorker {
     autoShareLibraries = true
 
     plugins = [
+            project(":processes:platform:cdk:cdk-delete-library"),
         project(":processes:platform:cdk:cdk-migration-plugin"),
         project(":processes:platform:cdk:cdk-update-migration-plugin"),
-        project(":processes:platform:cdk:cdk-delete-library"),
+        project(":processes:platform:cdk:cdk-compare-library-plugin"),
         project(":processes:platform:cdk:cdk-reharvest-plugin")
     ]
 }
