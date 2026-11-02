@@ -24,7 +24,8 @@ public class CDKIndexStarter {
             @ParameterName("pidlist")  String pidsList,
             @ParameterName("pidlist_file")  String pidListFile,
             @ParameterName("ignoreInconsistentObjects") Boolean ignoreInconsistentObjects,
-            @ParameterName("title") String title
+            @ParameterName("title") String title,
+            @ParameterName("forceSync") Boolean forceSync
     ) {
 
         LOGGER.info("--- Starting method: indexerMain ---");
@@ -37,16 +38,10 @@ public class CDKIndexStarter {
 
         NewIndexerProcessIndexObject.indexerMain(type.toUpperCase(), pidsP, ignoreInconsistentObjects, title);
 
-        LOGGER.info("--- Starting method: indexCollectionMain ---");
-
-        CDKIndexCollection.indexCollectionMain();
-/*
-        Map<String, String> payload = new HashMap<>();
-        ScheduleSubProcess subProcess = new ScheduleSubProcess("cdk-index-collection", payload);
-        PluginContext pluginContext = PluginContextHolder.getContext();
-        pluginContext.scheduleSubProcess(subProcess);
-
- */
+        if (forceSync != null && forceSync) {
+            LOGGER.info("--- Starting method: indexCollectionMain ---");
+            CDKIndexCollection.indexCollectionMain();
+        }
 
     }
 }

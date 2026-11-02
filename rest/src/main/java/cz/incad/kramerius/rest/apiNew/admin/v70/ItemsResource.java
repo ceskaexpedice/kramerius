@@ -22,6 +22,7 @@ import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.ceskaexpedice.akubra.LockOperation;
 import org.ceskaexpedice.akubra.processingindex.CursorItemsPair;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
+import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.ceskaexpedice.fedoramodel.DigitalObject;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -419,7 +420,8 @@ public class ItemsResource extends AdminApiResource {
                         node.detach();
                     }
                     for (String childPid : newChildrenOrderPids) {
-                        foxmlBuilder.appendRelationToRelsExt(pid, relsExt, foxmlChildrenPidToRelationName.get(childPid), childPid);
+                        String s = foxmlChildrenPidToRelationName.get(childPid);
+                        foxmlBuilder.appendRelationToRelsExt(pid, relsExt, KnownRelations.valueOf(s), childPid);
                     }
                     ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.re().update(pid, bis);

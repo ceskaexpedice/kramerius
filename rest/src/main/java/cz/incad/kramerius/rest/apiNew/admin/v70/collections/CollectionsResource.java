@@ -512,7 +512,7 @@ public class CollectionsResource extends AdminApiResource {
             //extract relsExt and update by adding new relation
             akubraRepository.doWithLock(collectionPid, () -> {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
-                boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
+                boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid, akubraRepository.getReferenceFactory());
                 if (!addedNow) {
                     throw new BadRequestException("item %s is already present in collection %s", itemPid, collectionPid);
                 }
@@ -616,7 +616,7 @@ public class CollectionsResource extends AdminApiResource {
                     Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                     boolean atLeastOneAdded = false;
                     for (String itemPid : pidsToBeAdded) {
-                        boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid);
+                        boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(), itemPid, akubraRepository.getReferenceFactory());
                         if (addedNow) {
                             pidsAdded.add(itemPid);
                             atLeastOneAdded = true;

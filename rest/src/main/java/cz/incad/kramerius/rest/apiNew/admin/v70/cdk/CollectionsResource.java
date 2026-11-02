@@ -37,6 +37,9 @@ import org.ceskaexpedice.akubra.*;
 import org.ceskaexpedice.akubra.processingindex.OwnedAndFosteredChildren;
 import org.ceskaexpedice.akubra.processingindex.ProcessingIndexItem;
 import org.ceskaexpedice.akubra.processingindex.SizeItemsPair;
+import org.ceskaexpedice.akubra.reference.CDKReference;
+import org.ceskaexpedice.akubra.reference.FedoraReference;
+import org.ceskaexpedice.akubra.reference.Reference;
 import org.ceskaexpedice.akubra.relsext.KnownRelations;
 import org.ceskaexpedice.akubra.utils.Dom4jUtils;
 import org.dom4j.*;
@@ -136,7 +139,6 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkReadOnlyWorkMode();
             User user1 = this.userProvider.get();
-            // TODO pepo prava cdk?
             if (!permitCollectionEdit(this.rightsResolver, user1, SpecialObjects.REPOSITORY.getPid())) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
@@ -151,8 +153,8 @@ public class CollectionsResource extends AdminApiResource {
             //schedule reindexation - new collection (only object)
             // schedule
 
-            // TODO pepo - jaky proces?
-            JSONObject scheduleReindexationPar = getScheduleReindexationPar(collection.pid, user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid);
+
+            JSONObject scheduleReindexationPar = getCDKScheduleReindexationPar(collection.pid, user1.getLoginname(), "OBJECT", false, "sbírka " + collection.pid, false);
             JSONObject scheduled = APIProcessScheduler.scheduleMainProcess(this.apacheClient,scheduleReindexationPar);
 
             JSONObject result = new JSONObject();
@@ -174,6 +176,22 @@ public class CollectionsResource extends AdminApiResource {
             throw new InternalErrorException(e.getMessage());
         }
     }
+
+
+    protected JSONObject getCDKScheduleReindexationPar(String objectPid, String userid, String indexationType, boolean ignoreInconsistentObjects, String title, boolean forceSync) {
+        String processName = title != null
+                ? String.format("Reindexace %s (%s, typ %s)", title, objectPid, indexationType)
+                : String.format("Reindexace %s (typ %s)", objectPid, indexationType);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("pid", objectPid);
+        payload.put("title", processName);
+        payload.put("type", indexationType);
+        payload.put("forceSync", forceSync ? "true" : "false");
+        payload.put("ignoreInconsistentObjects", Boolean.toString(ignoreInconsistentObjects));
+        JSONObject scheduleMainProcess = APIProcessScheduler.createScheduleProcess("cdk-index", payload, userid);
+        return scheduleMainProcess;
+    }
+
 
     /**
      * Returs a collection identified by pid.
@@ -373,7 +391,6 @@ public class CollectionsResource extends AdminApiResource {
             User user1 = this.userProvider.get();
             List<String> roles = Arrays.stream(user1.getGroups()).map(Role::getName).collect(Collectors.toList());
 
-            // TODO: check if it is necessary
             if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
@@ -406,7 +423,8 @@ public class CollectionsResource extends AdminApiResource {
                     bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.re().update(pid, bis);
                     //schedule reindexation - (only collection object)
-                    scheduleReindexationPar[0] = getScheduleReindexationPar(pid, user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+                    // must be cdk indexation
+                    scheduleReindexationPar[0] = getCDKScheduleReindexationPar(pid, user1.getLoginname(), "OBJECT", false, "sbírka " + pid, false);
                 }
                 return null;
             });
@@ -431,46 +449,6 @@ public class CollectionsResource extends AdminApiResource {
     }
 
 
-    /**
-     * Sets items that the collection directly contains. I.e. removes all existing items and adds all items from method's data.
-     *
-     * @param pid
-     * @param pidsOfItems array of pids to be added to the collection
-     * @return
-     */
-    @PUT
-    @Path("{pid}/items")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response setItemsInCollection(@PathParam("pid") String pid, JSONArray pidsOfItems) {
-        try {
-            checkReadOnlyWorkMode();
-            User user1 = this.userProvider.get();
-            if (!permitCollectionEdit(this.rightsResolver, user1, pid)) {
-                throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
-            }
-
-            for (int i = 0; i < pidsOfItems.length(); i++) {
-                String p = pidsOfItems.getString(i);
-                if (!permitAbleToAdd(this.rightsResolver, user1, p)) {
-                    throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), p, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
-                }
-            }
-
-            checkSupportedObjectPid(pid);
-            //TODO: implement
-            throw new RuntimeException("not implemented yet");
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (DistributedLocksException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            handleWorkMode(e);
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
 
     /**
      * Adds single item to collection.
@@ -486,23 +464,28 @@ public class CollectionsResource extends AdminApiResource {
         try {
             checkReadOnlyWorkMode();
             checkSupportedObjectPid(collectionPid);
-            // TODO pepo
-            checkSupportedObjectPid(itemPid);
+            Reference reference = akubraRepository.getReferenceFactory().create(itemPid);
+            if ((reference instanceof CDKReference) || (reference instanceof FedoraReference)) {
+                checkSupportedObjectPid(reference.getPid());
+            } else {
+                throw new BadRequestException("unsupported reference type: " + reference.getClass().getName());
+            }
+
             User user = this.userProvider.get();
 
             if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
                 throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
+
+            /*
             if (!permitAbleToAdd(this.rightsResolver, user, itemPid)) {
                 throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
-            }
+            }*/
+
             checkObjectExists(collectionPid);
-            // TODO pepo checkObjectExists(itemPid);
-            // TODO pepo checkCanAddItemToCollection(itemPid, collectionPid);
             //extract relsExt and update by adding new relation
             akubraRepository.doWithLock(collectionPid, () -> {
                 Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
-                // TODO pepo check ReferenceFactory
                 boolean addedNow = foxmlBuilder.appendRelationToRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS.toString(),
                         itemPid, akubraRepository.getReferenceFactory());
                 if (!addedNow) {
@@ -519,8 +502,7 @@ public class CollectionsResource extends AdminApiResource {
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                // TODO pepo schedule process cdk-index
-                JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                JSONObject scheduleItemReindexationPar = getCDKScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
                 updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.singleton(itemPid), Collections.emptyList());
             }
@@ -581,20 +563,16 @@ public class CollectionsResource extends AdminApiResource {
             List<String> pidsToBeAdded = new ArrayList<>();
             Map<String, String> errorsByPid = new HashedMap<>();
             for (int i = 0; i < itemsPid.length(); i++) {
-                System.out.println(itemsPid);
                 String itemPid = itemsPid.getString(i);
                 if (!isSupporetdObjectPid(itemPid)) {
                     errorsByPid.put(itemPid, "not supported PID format");
-                } else if (!objectExists(itemPid)) {
-                    // TODO pepo
-                    errorsByPid.put(itemPid, "object not found in repository");
+//                } else if (!objectExists(itemPid)) {
+//                    errorsByPid.put(itemPid, "object not found in repository");
                 } else if (collectionPid.equals(itemPid)) {
                     errorsByPid.put(itemPid, "cannot add collection into itself");
-                } else if (!permitAbleToAdd(this.rightsResolver, user, itemPid)) {
-                    // TODO pepo
-                    errorsByPid.put(itemPid, String.format("user '%s' is not allowed to add item %s to collection (missing action '%s')", user.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION));
+//                } else if (!permitAbleToAdd(this.rightsResolver, user, itemPid)) {
+//                    errorsByPid.put(itemPid, String.format("user '%s' is not allowed to add item %s to collection (missing action '%s')", user.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION));
                 } else {
-                    // TODO pepo
                     String cyclicPath = findCyclicPath(itemPid, collectionPid, String.format("%s --contains--> %s", collectionPid, itemPid));
                     if (cyclicPath != null) {
                         errorsByPid.put(itemPid, "adding item to collection would create cycle: " + cyclicPath);
@@ -638,8 +616,7 @@ public class CollectionsResource extends AdminApiResource {
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             if (!(StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false"))) {
                 for (String itemPid : pidsAdded) {
-                    // TODO pepo
-                    JSONObject scheduleItemReindexationPar = getScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                    JSONObject scheduleItemReindexationPar = getCDKScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
                     scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
                 }
                 if (!pidsAdded.isEmpty()) {
@@ -885,17 +862,8 @@ public class CollectionsResource extends AdminApiResource {
                                     user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); // 403
                         }
 
-                        if (!permitAbleToAdd(rightsResolver, user1, itemPid)) {
-                            throw new ForbiddenException(
-                                    "user '%s' is not allowed to add item %s to collection (missing action '%s')",
-                                    user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); // 403
-                        }
                         checkObjectExists(collectionPid);
-                        // TODO pepo
-                        checkObjectExists(itemPid);
-                        // TODO pepo
-                        checkCanRemoveItemFromCollection(itemPid, collectionPid);
-                    } catch (IOException | SolrServerException e) {
+                    } catch (IOException  e) {
                         throw new RuntimeException(e);
                     }
                     // extract relsExt and update by removing relation
@@ -914,8 +882,7 @@ public class CollectionsResource extends AdminApiResource {
             });
             reindexCollection.forEach(itemPid -> {
                 // schedule reindexation - item that was removed (whole tree and foster trees)
-                // TODO pepo
-                JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+                JSONObject scheduleReindexationPar = getCDKScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
                 scheduleMainProcesses.put(scheduleReindexationPar);
                 scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
             });
@@ -965,19 +932,10 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
 
-            if (!permitAbleToAdd(this.rightsResolver, user1, itemPid)) {
-                throw new ForbiddenException("user '%s' is not allowed to add item %s to collection (missing action '%s')", user1.getLoginname(), itemPid, SecuredActions.A_ABLE_TOBE_PART_OF_COLLECTION); //403
-            }
             checkObjectExists(collectionPid);
-            // TODO pepo checkObjectExists(itemPid);
             akubraRepository.doWithLock(collectionPid, new LockOperation<Object>() {
                 @Override
                 public Object execute() {
-                    try {
-                        checkCanRemoveItemFromCollection(itemPid, collectionPid);
-                    } catch (IOException | SolrServerException e) {
-                        throw new RuntimeException(e);
-                    }
                     //extract relsExt and update by removing relation
                     Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
                     boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
@@ -991,8 +949,7 @@ public class CollectionsResource extends AdminApiResource {
                 }
             });
             //schedule reindexation - item that was removed (whole tree and foster trees)
-            // TODO pepo
-            JSONObject scheduleReindexationPar = getScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid);
+            JSONObject scheduleReindexationPar = getCDKScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
             JSONObject result = new JSONObject();
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
@@ -1064,16 +1021,17 @@ public class CollectionsResource extends AdminApiResource {
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
 
             //schedule reindexations - 1. deleted collection (only object) , 2. all children (both own and foster, their wholes tree and foster trees), 3. no need to reindex collections owning this one
-            // TODO pepo
-            JSONObject scheduleReindexationPar = getScheduleReindexationPar(pid, user1.getLoginname(), "OBJECT", false, "sbírka " + pid);
+            JSONObject scheduleReindexationPar = getCDKScheduleReindexationPar(pid, user1.getLoginname(), "OBJECT", false, "sbírka " + pid, true);
             scheduleMainProcesses.put(scheduleReindexationPar);
             scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
 
-            // TODO pepo
             for (String childPid : childrenPids) {
-                JSONObject scheduleReindexationPar1 = getScheduleReindexationPar(childPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, childPid);
-                scheduleMainProcesses.put(scheduleReindexationPar1);
-                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar1));
+                Reference reference = this.akubraRepository.getReferenceFactory().create(childPid);
+                if (reference instanceof  FedoraReference) {
+                    JSONObject scheduleReindexationPar1 = getCDKScheduleReindexationPar(childPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, childPid, false);
+                    scheduleMainProcesses.put(scheduleReindexationPar1);
+                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar1));
+                }
             }
             JSONObject result = new JSONObject();
             //result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS, scheduleMainProcesses);
@@ -1099,7 +1057,6 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeClipItem(@PathParam("pid") String collectionPid, String itemJsonObj) {
         try {
-            // TODO pepo clip?
             JSONObject json = new JSONObject(itemJsonObj);
             CutItem clipItem = CutItem.fromJSONObject(json);
             if (clipItem == null) {
@@ -1177,7 +1134,6 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeClipItemsBatch(@PathParam("collectionPid") String collectionPid, String stringBatch) {
         try {
-            // TODO pepo clip?
             checkReadOnlyWorkMode();
             JSONObject batch = new JSONObject(stringBatch);
             JSONArray batchArray = batch.optJSONArray("clipitems");
@@ -1266,7 +1222,6 @@ public class CollectionsResource extends AdminApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addClipItem(@PathParam("pid") String collectionPid, String itemJsonObj) {
         try {
-            // TODO pepo clip?
             checkReadOnlyWorkMode();
             JSONObject json = new JSONObject(itemJsonObj);
             CutItem clipItem = CutItem.fromJSONObject(json);
