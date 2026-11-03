@@ -3,7 +3,7 @@ package cz.incad.kramerius.plugin;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import cz.incad.kramerius.cdkcollection.*;
+import cz.incad.kramerius.cdkcollections.*;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;

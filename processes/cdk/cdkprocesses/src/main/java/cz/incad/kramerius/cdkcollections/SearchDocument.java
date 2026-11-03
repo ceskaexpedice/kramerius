@@ -1,5 +1,5 @@
 
-package cz.incad.kramerius.cdkcollection;
+package cz.incad.kramerius.cdkcollections;
 
 import java.util.ArrayList;
 import java.util.List;

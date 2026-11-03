@@ -1,5 +1,5 @@
 
-package cz.incad.kramerius.cdkcollection;
+package cz.incad.kramerius.cdkcollections;
 
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;

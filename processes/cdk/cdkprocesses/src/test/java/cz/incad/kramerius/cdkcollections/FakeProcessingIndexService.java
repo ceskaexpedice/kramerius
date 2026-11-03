@@ -1,8 +1,4 @@
-package cz.incad.kramerius.cdkcollection;
-
-import org.ceskaexpedice.akubra.reference.CDKReferenceType;
-import org.ceskaexpedice.akubra.reference.FedoraReferenceType;
-import org.ceskaexpedice.akubra.reference.ReferenceFactory;
+package cz.incad.kramerius.cdkcollections;
 
 import java.util.*;
 

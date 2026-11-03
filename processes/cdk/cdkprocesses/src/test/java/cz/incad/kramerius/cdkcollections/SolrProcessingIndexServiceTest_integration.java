@@ -1,5 +1,5 @@
 
-package cz.incad.kramerius.cdkcollection;
+package cz.incad.kramerius.cdkcollections;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Ignore

@@ -1,5 +1,5 @@
 
-package cz.incad.kramerius.cdkcollection;
+package cz.incad.kramerius.cdkcollections;
 
 import org.ceskaexpedice.akubra.reference.CDKReference;
 import org.junit.Before;

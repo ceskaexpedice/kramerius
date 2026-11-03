@@ -1,16 +1,18 @@
 package org.kramerius.plugin;
 
-import cz.incad.kramerius.plugin.CDKIndexCollection;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import cz.incad.kramerius.cdkcollections.*;
+import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.kramerius.searchIndex.NewIndexerProcessIndexObject;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.ceskaexpedice.akubra.AkubraRepository;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
-import org.ceskaexpedice.processplatform.api.context.PluginContext;
-import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
-import org.ceskaexpedice.processplatform.common.model.ScheduleSubProcess;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class CDKIndexStarter {
@@ -40,8 +42,23 @@ public class CDKIndexStarter {
 
         if (forceSync != null && forceSync) {
             LOGGER.info("--- Starting method: indexCollectionMain ---");
-            CDKIndexCollection.indexCollectionMain();
+            indexCollectionMain();
         }
 
+    }
+
+    private static void indexCollectionMain() {
+        SearchIndexService searchIndexService = new SolrSearchIndexService(createClient());
+        Injector injector = Guice.createInjector(new RepoModule());
+        AkubraRepository akubraRepository = injector.getInstance(Key.get(AkubraRepository.class));
+        ProcessingIndexService processingIndexService = new SolrProcessingIndexService(akubraRepository);
+        CDKCollectionSynchronizer cdkCollectionSynchronizer = new CDKCollectionSynchronizer(searchIndexService, processingIndexService);
+        cdkCollectionSynchronizer.synchronize();
+    }
+
+    private static HttpSolrClient createClient() {
+        KConfiguration config = KConfiguration.getInstance();
+        String solrSearchHost = config.getSolrSearchHost();
+        return new HttpSolrClient.Builder(solrSearchHost).build();
     }
 }

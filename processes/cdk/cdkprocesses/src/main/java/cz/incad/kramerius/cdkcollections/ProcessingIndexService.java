@@ -1,4 +1,4 @@
-package cz.incad.kramerius.cdkcollection;
+package cz.incad.kramerius.cdkcollections;
 
 import java.util.List;
 

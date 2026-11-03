@@ -1,6 +1,5 @@
-package cz.incad.kramerius.cdkcollection;
+package cz.incad.kramerius.cdkcollections;
 
-import cz.incad.kramerius.plugin.CDKIndexCollection;
 import org.ceskaexpedice.akubra.reference.CDKReference;
 
 import java.util.*;
@@ -8,7 +7,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class CDKCollectionSynchronizer {
-    private static final Logger LOGGER = Logger.getLogger(CDKIndexCollection.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CDKCollectionSynchronizer.class.getName());
 
     private final SearchIndexService searchIndex;
     private final ProcessingIndexService processingIndex;
