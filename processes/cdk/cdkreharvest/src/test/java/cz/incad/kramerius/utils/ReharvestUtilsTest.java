@@ -251,35 +251,34 @@ public class ReharvestUtilsTest {
     }
 
     @Test
-    public void testReharvestV7ConfigurationShowsSolrAddFields() throws IOException {
+    public void testReharvestV7ConfigurationUsesK7MigrationTemplate() throws IOException {
         Map<String, String> iteration = new HashMap<>();
         iteration.put("dl", "vkol");
         iteration.put("url", "http://source.example/solr/search");
         iteration.put("id", "compositeId");
         iteration.put("batch", "45");
         iteration.put("fquery", "cdk.collection:vkol");
+        iteration.put("apikey", "unit-test-api-key");
 
         Map<String, String> destination = new HashMap<>();
         destination.put("url", "http://destination.example/solr/search");
 
         String configuration = compact(ReharvestUtils.renderTemplate("v7", iteration, destination));
-
+        Assert.assertTrue(configuration.contains("<source-name>vkol</source-name>"));
+        Assert.assertTrue(configuration.contains("<name>vkol-full</name>"));
+        Assert.assertTrue(configuration.contains("<type>full</type>"));
         Assert.assertTrue(configuration.contains(
+                "<feederFactory class=\"cz.incad.kramerius.services.workers.copy.cdk.CDKCopySolrMigrationIndexFeederFactory\"></feederFactory>"));
+        Assert.assertTrue(configuration.contains("<id>compositeId</id><rows>4000</rows>"));
+        Assert.assertTrue(configuration.contains("<batchsize>45</batchsize>"));
+        Assert.assertTrue(configuration.contains("<batchsize>45</batchsize><id>pid</id>"));
+        Assert.assertTrue(configuration.contains("<apikey>unit-test-api-key</apikey>"));
+        Assert.assertTrue(configuration.trim().contains(
                 "<onindex>"
                         + "<remove.dest.field><field name=\"collection\"></field></remove.dest.field>"
-                        + "<update.dest.field>"
-                        + "<field name=\"cdk.collection\">vkol</field>"
-                        + "<field name=\"cdk.leader\">vkol</field>"
-                        + "</update.dest.field>"
                         + "</onindex>"));
-
         Assert.assertTrue(configuration.contains(
-                "<onupdate>"
-                        + "<fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr</fieldlist>"
-                        + "<update.dest.field>"
-                        + "<field name=\"cdk.collection\" update=\"add-distinct\">vkol</field>"
-                        + "</update.dest.field>"
-                        + "</onupdate>"));
+                "<onupdate><fieldlist>pid root.pid licenses contains_licenses licenses_of_ancestors titles.* collection.* in_collections in_collections.* title.* titles.* text_ocr count_* has_*</fieldlist></onupdate>"));
     }
 
     @Test

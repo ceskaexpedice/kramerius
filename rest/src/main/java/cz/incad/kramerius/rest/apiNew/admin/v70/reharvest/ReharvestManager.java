@@ -61,6 +61,12 @@ public interface ReharvestManager {
      */
     public String searchItems(int start, int rows, List<String> filters);
 
+    /** Searches conflict tasks grouped by conflict_id for the reharvest UI. */
+    public String searchConflictGroups(int start, int rows, List<String> filters);
+
+    /** Assigns each legacy item without conflict_id its own group key, using its id. */
+    public int backfillMissingConflictIds();
+
 
     /**
      * Retrieves the highest-priority reharvest item with a given status.

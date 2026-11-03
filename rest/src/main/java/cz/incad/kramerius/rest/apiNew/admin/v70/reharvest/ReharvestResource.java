@@ -19,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -28,7 +29,6 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.Instances;
 import cz.incad.kramerius.rest.apiNew.client.v70.libs.OneInstance;
-import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.item.ProxyItemHandler;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.utils.IntrospectUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
@@ -74,9 +74,6 @@ public class ReharvestResource {
     @Named("new-index")
     private SolrAccess solrAccess;
 
-    @Inject
-    DeleteTriggerSupport deleteTriggerSupport;
-
     @javax.inject.Inject
     @Named("forward-client")
     private CloseableHttpClient apacheClient;
@@ -110,6 +107,48 @@ public class ReharvestResource {
         String str = this.reharvestManager.searchItems(iPage * iRows, iRows, filters);
 
         return Response.ok(str).build();
+    }
+
+    @GET
+    @Path("groups")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConflictGroups(@QueryParam("page") String page,
+                                      @QueryParam("rows") String rows,
+                                      @QueryParam("filters") String filterString) {
+        if (!permit()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        List<String> filters = new ArrayList<>();
+        if (StringUtils.isAnyString(filterString)) {
+            filters.addAll(Arrays.asList(filterString.split(";")));
+        }
+        int iPage = StringUtils.isAnyString(page) ? Integer.parseInt(page) : 0;
+        int iRows = StringUtils.isAnyString(rows) ? Integer.parseInt(rows) : 20;
+        return Response.ok(this.reharvestManager.searchConflictGroups(iPage * iRows, iRows, filters)).build();
+    }
+
+    @GET
+    @Path("groups/{conflictId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConflictGroupItems(@PathParam("conflictId") String conflictId) {
+        if (!permit()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        JSONArray items = new JSONArray();
+        this.reharvestManager.getItemByConflictId(conflictId).forEach(item -> items.put(item.toJSON()));
+        return Response.ok(items.toString()).build();
+    }
+
+    @POST
+    @Path("backfill-conflict-ids")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response backfillConflictIds() {
+        if (!permit()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+        JSONObject result = new JSONObject();
+        result.put("updated", this.reharvestManager.backfillMissingConflictIds());
+        return Response.ok(result.toString()).build();
     }
 
     @GET
@@ -214,30 +253,41 @@ public class ReharvestResource {
 
                         ReharvestItem rItem = new ReharvestItem(UUID.randomUUID().toString());
                         String rPid = rootPids.iterator().next();
+                        List<String> sortedLibraries = new ArrayList<>(libs);
+                        Collections.sort(sortedLibraries);
+                        String librariesDescription = String.join(", ", sortedLibraries);
+                        String ownPidPath = pidPaths.iterator().next();
                         rItem.setRootPid(rPid);
-                        rItem.setLibraries(new ArrayList<>(libs));
-                        rItem.setTypeOfReharvest(topLevelModels.contains(model) ? TypeOfReharvset.root : TypeOfReharvset.children);
-                        rItem.setName(topLevelModels.contains(model) ? "Conflict - reharvest/root" : "Conflict - reharvest/children");
+                        rItem.setLibraries(sortedLibraries);
+                        boolean topLevel = topLevelModels.contains(model);
+                        rItem.setTypeOfReharvest(topLevel ? TypeOfReharvset.root : TypeOfReharvset.children);
+                        rItem.setName(topLevel
+                                ? String.format("Znovu sklidit celý titul %s z knihoven: %s", rPid, librariesDescription)
+                                : String.format("Znovu sklidit podstrom %s (root.pid %s) z knihoven: %s", ownPidPath, rPid, librariesDescription));
                         rItem.setConflictId(conflictId);
                         rItem.setState("waiting_for_approve");
                         rItem.setPid(rPid);
-                        rItem.setOwnPidPath(pidPaths.iterator().next());
+                        rItem.setOwnPidPath(ownPidPath);
 
-                        if (topLevelModels.contains(model)) {
+                        if (topLevel) {
                             rootItems.add(rItem);
                         } else {
                             childItems.add(rItem);
                         }
                     } else {
-                        String reason = String.format("models: %s, root PIDs: %s, pid paths: %s, libraries: %s",
-                                models, rootPids, pidPaths, libs);
+                        List<String> sortedLibraries = new ArrayList<>(libs);
+                        Collections.sort(sortedLibraries);
+                        String reason = String.format("Nelze automaticky určit jednoznačný zdroj (modely: %s; root PID: %s; cesty: %s)",
+                                models, rootPids, pidPaths);
                         LOGGER.log(Level.SEVERE, String.format("Ambiguous or incomplete source data for pid %s (%s)", pid, reason));
 
                         ReharvestItem liveConflict = new ReharvestItem(UUID.randomUUID().toString());
                         liveConflict.setTypeOfReharvest(TypeOfReharvset.live_conflict);
-                        liveConflict.setName(String.format("Conflict - live conflict %s, %s", pid, reason));
+                        liveConflict.setName(String.format("Nelze reharvestovat PID %s: konflikt mezi knihovnami %s. %s",
+                                pid, String.join(", ", sortedLibraries), reason));
                         liveConflict.setRootPid(pid);
                         liveConflict.setPid(pid);
+                        liveConflict.setLibraries(sortedLibraries);
                         liveConflict.setState("live_conflict");
                         liveConflict.setConflictId(conflictId);
                         try {
@@ -553,6 +603,7 @@ public class ReharvestResource {
         payload.put("type", item.getTypeOfReharvest().name());
         payload.put("libraries", item.getLibraries() == null ? "" : String.join(",", item.getLibraries()));
         payload.put("reharvestItemId", item.getId());
+        payload.put("successState", "closed");
 
         JSONObject schedule = new JSONObject();
         schedule.put(ProcessManagerMapper.PCP_PROFILE_ID, "cdk-reharvest");
@@ -602,12 +653,12 @@ public class ReharvestResource {
 
     @GET
     @Path("deleteTrigger")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response deleteTrigger(@QueryParam("pid") String pid) {
-        deleteTriggerSupport.executeDeleteTrigger(pid);
-        JSONObject retval = new JSONObject();
-        retval.put("message", "planned");
-        return Response.ok(retval.toString()).build();
+        return Response.status(Response.Status.GONE)
+                .entity("Delete-trigger reharvest scheduling is disabled; schedule reharvests explicitly.")
+                .type(MediaType.TEXT_PLAIN)
+                .build();
     }
 
 }

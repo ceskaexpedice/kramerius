@@ -1,6 +1,7 @@
 package cz.incad.kramerius.plugin;
 
 import cz.incad.kramerius.service.MigrateSolrIndexException;
+import cz.incad.kramerius.services.workers.copy.cdk.CDKCopyFinisher;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
 import cz.inovatika.kramerius.services.Migration;
 import cz.inovatika.kramerius.services.config.EffectiveMigrationConfigRenderer;
@@ -14,6 +15,9 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.ceskaexpedice.processplatform.api.annotations.IsRequired;
 import org.ceskaexpedice.processplatform.api.annotations.ParameterName;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.ceskaexpedice.processplatform.api.context.PluginContext;
+import org.ceskaexpedice.processplatform.api.context.PluginContextHolder;
+import org.ceskaexpedice.processplatform.common.WarningException;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -59,7 +64,7 @@ public class CDKUpdateMigration {
             @ParameterName("showEffectiveConfigurationOnly") Boolean showEffectiveConfigurationOnly
     ) throws MigrateSolrIndexException, IOException, ParserConfigurationException,
             ClassNotFoundException, IllegalAccessException, InstantiationException,
-            SAXException, NoSuchMethodException, TransformerException {
+            SAXException, NoSuchMethodException, TransformerException, WarningException {
 
         long startedAtMillis = System.currentTimeMillis();
         LOGGER.info(String.format(
@@ -118,12 +123,27 @@ public class CDKUpdateMigration {
                 }
                 LOGGER.info("Loading configuration " + configuration);
 
+                PluginContext pluginContext = PluginContextHolder.getContext();
+                String processName = String.format("CDK aktualizace – %s%s%s",
+                        iterationDl,
+                        Boolean.TRUE.equals(showConfigurationOnly) || Boolean.TRUE.equals(showEffectiveConfigurationOnly)
+                                ? " (pouze zobrazení konfigurace)"
+                                : "",
+                        StringUtils.isBlank(iterationFQuery) ? "" : " | fquery: " + iterationFQuery);
+                pluginContext.updateProcessName(processName);
+
                 File tmpFile = createTempFile();
                 FileUtils.write(tmpFile, configuration, "UTF-8");
 
                 if (!showConfigurationOnly && !Boolean.TRUE.equals(showEffectiveConfigurationOnly)) {
+                    CDKCopyFinisher.clearReharvestWarnings();
                     Migration migr = createMigration();
                     migr.migrate(tmpFile);
+                    List<String> reharvestWarnings = CDKCopyFinisher.drainReharvestWarnings();
+                    if (!reharvestWarnings.isEmpty()) {
+                        throw new WarningException("CDK update completed with reharvest warnings: "
+                                + String.join("; ", reharvestWarnings));
+                    }
                 }
                 LOGGER.info(String.format("CDK update migration finished in %s", formatElapsed(System.currentTimeMillis() - startedAtMillis)));
             } else {

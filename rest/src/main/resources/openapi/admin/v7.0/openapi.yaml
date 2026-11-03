@@ -50,6 +50,83 @@ tags:
 
 paths:
 
+  /reharvest/groups:
+    get:
+      tags:
+        - Procesy
+      summary: List reharvest conflict groups
+      description: Returns Solr grouped results for items that have a conflict_id. Pagination applies to groups; each group includes one representative reharvest item. Use /reharvest/groups/{conflictId} to load all items in a group.
+      operationId: getReharvestConflictGroups
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: rows
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: filters
+          description: Semicolon-separated Solr filter queries.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Solr grouped response, keyed by conflict_id.
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Forbidden
+
+  /reharvest/groups/{conflictId}:
+    get:
+      tags:
+        - Procesy
+      summary: Get reharvest items for a conflict group
+      operationId: getReharvestConflictGroupItems
+      parameters:
+        - in: path
+          name: conflictId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reharvest items belonging to the conflict group.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '403':
+          description: Forbidden
+
+  /reharvest/backfill-conflict-ids:
+    post:
+      tags:
+        - Procesy
+      summary: Backfill missing reharvest conflict IDs
+      description: Assigns each existing reharvest item without conflict_id its own group key, using its item id. Safe to run more than once.
+      operationId: backfillReharvestConflictIds
+      responses:
+        '200':
+          description: Number of updated reharvest items.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated:
+                    type: integer
+        '403':
+          description: Forbidden
+
   /collections:
     get:
       tags:

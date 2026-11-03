@@ -17,7 +17,8 @@ public class CDKDeleteLibraryProcess {
             @ParameterName("filterQuery") String filterQuery,
             @ParameterName("rows") String sRows,
             @ParameterName("reportEvery") String sReportEvery,
-            @ParameterName("onlyShowConfiguration") Boolean onlyShowConfiguration
+            @ParameterName("onlyShowConfiguration") Boolean onlyShowConfiguration,
+            @ParameterName("dryRun") Boolean dryRun
     ) throws Exception {
 
         LOGGER.info("--- Starting method: deleteLibraryMain ---");
@@ -31,7 +32,8 @@ public class CDKDeleteLibraryProcess {
                 filterQuery,
                 sRows != null ? Integer.valueOf(sRows) : 300,
                 sReportEvery != null ? Integer.valueOf(sReportEvery) : 5000,
-                Boolean.TRUE.equals(onlyShowConfiguration));
+                Boolean.TRUE.equals(onlyShowConfiguration),
+                Boolean.TRUE.equals(dryRun));
     }
 
 
@@ -48,6 +50,7 @@ public class CDKDeleteLibraryProcess {
         String rows = "20";
         String reportEvery = "5000";
         Boolean onlyShowConfiguration = false;
+        Boolean dryRun = false;
 
         CDKDeleteLibraryProcess.deleteLibraryMain(
                 destinationUrl,
@@ -55,7 +58,8 @@ public class CDKDeleteLibraryProcess {
                 filterQuery,
                 rows,
                 reportEvery,
-                onlyShowConfiguration);
+                onlyShowConfiguration,
+                dryRun);
     }
 
     private static void runDeleteLibraryKKV() throws Exception {
@@ -66,6 +70,7 @@ public class CDKDeleteLibraryProcess {
         String rows = "20";
         String reportEvery = "5000";
         Boolean onlyShowConfiguration = false;
+        Boolean dryRun = false;
 
         CDKDeleteLibraryProcess.deleteLibraryMain(
                 destinationUrl,
@@ -73,7 +78,8 @@ public class CDKDeleteLibraryProcess {
                 filterQuery,
                 rows,
                 reportEvery,
-                onlyShowConfiguration);
+                onlyShowConfiguration,
+                dryRun);
     }
 
 }

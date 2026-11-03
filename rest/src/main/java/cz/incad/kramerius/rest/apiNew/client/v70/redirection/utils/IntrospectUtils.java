@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cz.incad.kramerius.SolrAccess;
+import cz.incad.kramerius.utils.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.json.JSONArray;
@@ -23,6 +24,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 import static cz.incad.kramerius.utils.IterationUtils.getSortField;
 
 public class IntrospectUtils {
+
+    private static final int INTROSPECT_RESPONSE_TIMEOUT_SECONDS = 1;
     
     private IntrospectUtils() {}
 
@@ -38,7 +41,13 @@ public class IntrospectUtils {
                 String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
                 String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
                 InstanceType instType = inst.getInstanceType();
-                String solrPid = ChannelUtils.solrChannelPidExistence(client, channel, solrChannelUrl, instType.name(), pid);
+                String apiKey = KConfiguration.getInstance().getConfiguration()
+                        .getString("cdk.collections.sources." + library + ".apikey");
+                String solrPid = ChannelUtils.solrChannelPidExistence(client, solrChannelUrl, instType.name(), pid,
+                        apiKey, INTROSPECT_RESPONSE_TIMEOUT_SECONDS);
+                if (solrPid == null) {
+                    continue;
+                }
                 
                 JSONObject obj = new JSONObject(solrPid);
                 JSONObject responseObject = obj.getJSONObject("response");
@@ -83,7 +92,13 @@ public class IntrospectUtils {
                 String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
                 String solrChannelUrl = ChannelUtils.solrChannelUrl(inst.getInstanceType().name(), channel);
                 InstanceType instType = inst.getInstanceType();
-                String solrPid = ChannelUtils.solrChannelPidExistence(client, channel, solrChannelUrl, instType.name(), pid);
+                String clientUrl = KConfiguration.getInstance().getConfiguration()
+                        .getString("cdk.collections.sources." + library + ".client");
+
+                String apiKey = KConfiguration.getInstance().getConfiguration()
+                        .getString("cdk.collections.sources." + library + ".apikey");
+                String solrPid = ChannelUtils.solrChannelPidExistence(client, solrChannelUrl, instType.name(), pid,
+                        apiKey, INTROSPECT_RESPONSE_TIMEOUT_SECONDS);
                 if (solrPid != null) {
                     JSONObject responseObj = null;
                     switch(instType) {
@@ -121,6 +136,9 @@ public class IntrospectUtils {
                         default:
                             responseObj = new JSONObject(solrPid);
                             break;
+                    }
+                    if (StringUtils.isAnyString(clientUrl)) {
+                        responseObj.put("client", clientUrl);
                     }
                     obj.put(library, responseObj);
                 }

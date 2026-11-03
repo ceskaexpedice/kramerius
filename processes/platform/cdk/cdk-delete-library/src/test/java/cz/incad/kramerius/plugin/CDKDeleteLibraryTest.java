@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class CDKDeleteLibraryTest {
@@ -24,6 +26,55 @@ public class CDKDeleteLibraryTest {
         Assert.assertEquals(
                 "<delete><id>uuid:root!uuid:pid1</id><id>uuid:root!uuid:pid2</id></delete>",
                 compactXml(batch));
+    }
+
+    @Test
+    public void standaloneDocumentIsSelectedForDeletion() {
+        Assert.assertTrue(CDKDeleteLibrary.shouldDeleteDocument(Arrays.asList("vkol")));
+    }
+
+    @Test
+    public void sharedDocumentIsKeptAndLibraryMembershipIsRemoved() throws Exception {
+        Map<String, Object> doc = new HashMap<>();
+        doc.put("cdk.collection", Arrays.asList("vkol", "mzk"));
+        doc.put("cdk.leader", "vkol");
+
+        Assert.assertFalse(CDKDeleteLibrary.shouldDeleteDocument(Arrays.asList("vkol", "mzk")));
+        CDKDeleteLibrary.UpdateItem item = CDKDeleteLibrary.updateItem(
+                "vkol", "uuid:root!uuid:shared", doc, Arrays.asList("vkol", "mzk"), Collections.emptySet());
+        Document batch = CDKDeleteLibrary.updateBatch("vkol", Arrays.asList(item));
+
+
+        Assert.assertEquals(Arrays.asList("vkol"), fieldValues(batch, "cdk.collection"));
+        Assert.assertEquals(Arrays.asList("remove"), fieldUpdateModes(batch, "cdk.collection"));
+        Assert.assertEquals(Arrays.asList("mzk"), fieldValues(batch, "cdk.leader"));
+    }
+
+    @Test
+    public void sharedDocumentDropsReferencesToDeletedLibraryObjectsOnly() throws Exception {
+        String deletedCollectionPid = "uuid:deleted-collection";
+        Map<String, Object> doc = new HashMap<>();
+        doc.put("cdk.collection", Arrays.asList("vkol", "mzk"));
+        doc.put("in_collections", Arrays.asList(deletedCollectionPid, "uuid:kept-collection"));
+        doc.put("in_collections.direct", Arrays.asList(deletedCollectionPid, "uuid:kept-collection"));
+        doc.put("foster_parents.pids", Arrays.asList(deletedCollectionPid, "uuid:kept-parent"));
+        doc.put("pid_paths", Arrays.asList(
+                deletedCollectionPid + "/uuid:root/uuid:item",
+                "uuid:kept-root/uuid:item"));
+
+        System.out.println(doc);
+
+        CDKDeleteLibrary.UpdateItem item = CDKDeleteLibrary.updateItem(
+                "vkol", "uuid:root!uuid:shared", doc, Arrays.asList("vkol", "mzk"),
+                new HashSet<>(Collections.singletonList(deletedCollectionPid)));
+        Document batch = CDKDeleteLibrary.updateBatch("vkol", Arrays.asList(item));
+
+        XMLUtils.print(batch, System.out);
+
+        Assert.assertEquals(Arrays.asList("uuid:kept-collection"), fieldValues(batch, "in_collections"));
+        Assert.assertEquals(Arrays.asList("uuid:kept-collection"), fieldValues(batch, "in_collections.direct"));
+        Assert.assertEquals(Arrays.asList("uuid:kept-parent"), fieldValues(batch, "foster_parents.pids"));
+        Assert.assertEquals(Arrays.asList("uuid:kept-root/uuid:item"), fieldValues(batch, "pid_paths"));
     }
 
     @Test
@@ -42,7 +93,8 @@ public class CDKDeleteLibraryTest {
                 "vkol",
                 "uuid:root!uuid:pid",
                 doc,
-                Arrays.asList("vkol", "mzk"));
+                Arrays.asList("vkol", "mzk"),
+                Collections.emptySet());
 
         Document batch = CDKDeleteLibrary.updateBatch("vkol", Arrays.asList(item));
 
@@ -80,14 +132,15 @@ public class CDKDeleteLibraryTest {
     @Test
     public void updateBatchClearsLicenseFieldsWhenNoCdkValuesRemain() throws Exception {
         Map<String, Object> doc = new HashMap<>();
-        doc.put("cdk.collections", Arrays.asList("vkol", "mzk"));
+        doc.put("cdk.collection", Arrays.asList("vkol", "mzk"));
         doc.put("cdk.licenses", Arrays.asList("vkol_dnnto"));
 
         CDKDeleteLibrary.UpdateItem item = CDKDeleteLibrary.updateItem(
                 "vkol",
                 "uuid:root!uuid:pid",
                 doc,
-                Arrays.asList("vkol", "mzk"));
+                Arrays.asList("vkol", "mzk"),
+                Collections.emptySet());
 
         Document batch = CDKDeleteLibrary.updateBatch("vkol", Arrays.asList(item));
 
@@ -110,6 +163,14 @@ public class CDKDeleteLibraryTest {
         Assert.assertEquals(1, fields.size());
         Assert.assertEquals("set", fields.get(0).getAttribute("update"));
         Assert.assertEquals("true", fields.get(0).getAttribute("null"));
+    }
+
+    private static List<String> fieldUpdateModes(Document batch, String fieldName) {
+        return XMLUtils.getElementsRecursive(batch.getDocumentElement(), element ->
+                "field".equals(element.getNodeName()) && fieldName.equals(element.getAttribute("name")))
+                .stream()
+                .map(element -> element.getAttribute("update"))
+                .collect(Collectors.toList());
     }
 
     private static String compactXml(Document batch) throws Exception {

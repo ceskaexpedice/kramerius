@@ -7,6 +7,7 @@ import cz.incad.kramerius.document.guice.DocumentServiceModule;
 import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.pdf.OutOfRangeException;
 import cz.incad.kramerius.pdf.guice.PDFModule;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.notifications.GenerationNotification;
 import cz.incad.kramerius.processes.notifications.GenerationNotificationDispatcher;
 import cz.incad.kramerius.service.guice.I18NModule;
@@ -99,7 +100,7 @@ public class GenerateFullPDFProcess {
                             .filename(pid + ".pdf")
                             .downloadToken(token)
                             .downloadUrl(link)
-                            .title(pid)
+                            .title(getTitle(injector, pid))
                             .source(notificationSource != null ? notificationSource : "genpdf")
                             .build(),
                     notificationMode,
@@ -111,7 +112,7 @@ public class GenerateFullPDFProcess {
                             GENERATE_PDF_TEXT_KEY,
                             null,
                             "Download notification",
-                            "Download notification,\ndownload is accessible here $link$"
+                            "Download notification for title \"$title$\",\ndownload is accessible here $link$"
                     ),
                     serv::sendEmailNotification
             );
@@ -122,5 +123,17 @@ public class GenerateFullPDFProcess {
         } catch (OutOfRangeException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String getTitle(Injector injector, String pid) throws IOException {
+        org.json.JSONObject response = injector.getInstance(com.google.inject.Key.get(SolrAccess.class, com.google.inject.name.Names.named("new-index"))).getJSONSolrDataByPid(pid);
+        org.json.JSONArray docs = response.optJSONObject("response") != null ? response.getJSONObject("response").optJSONArray("docs") : null;
+        if (docs != null && docs.length() > 0) {
+            String title = docs.getJSONObject(0).optString("root.title", "");
+            if (!title.isEmpty()) return title;
+            Object titles = docs.getJSONObject(0).opt("titles.search");
+            if (titles instanceof org.json.JSONArray && ((org.json.JSONArray) titles).length() > 0) return ((org.json.JSONArray) titles).optString(0, pid);
+        }
+        return pid;
     }
 }

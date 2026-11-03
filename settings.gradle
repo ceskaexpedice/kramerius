@@ -103,6 +103,7 @@ include 'processes:platform:cdk:cdk-update-migration-plugin'
 include 'processes:platform:cdk:cdk-delete-library'
 include 'processes:platform:cdk:cdk-index-collection-plugin'
 include 'processes:platform:cdk:cdk-index-plugin'
+include 'processes:platform:cdk:cdk-compare-library-plugin'
 include 'processes:platform:cdk:cdk-reharvest-plugin'
 include 'processes:platform:cdk:worker'
 
