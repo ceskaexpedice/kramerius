@@ -1736,15 +1736,9 @@ public class ItemsResource extends ClientApiResource {
         return "HEAD".equalsIgnoreCase(this.requestProvider.get().getMethod());
     }
 
-    private void reportAudioAccess(String pid, KnownDatastreams audioStream) {
-        if (isRangeContinuation()) {
-            return;
-        }
-        try {
-            this.accessLog.reportAccess(pid, audioStream.toString(), ReportedAction.READ.name(),
-                    AccessLogFields.mime(akubraRepository.getDatastreamMetadata(pid, audioStream).getMimetype()));
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid + ", stream name: " + audioStream, e);
+    private void reportAudioAccess(String pid, KnownDatastreams audioStream) throws IOException {
+        if (!isRangeContinuation()) {
+            this.accessLog.reportAccess(pid, audioStream.toString(), ReportedAction.READ.name());
         }
     }
 
