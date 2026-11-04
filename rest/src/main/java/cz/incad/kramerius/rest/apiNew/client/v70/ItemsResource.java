@@ -24,6 +24,8 @@ import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.security.licenses.License;
 import cz.incad.kramerius.security.licenses.limits.LimitConfiguration;
 import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.AccessLogFields;
+import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.inovatika.dochub.UserContentSpace;
 import cz.inovatika.monitoring.APICallMonitor;
@@ -581,7 +583,9 @@ public class ItemsResource extends ClientApiResource {
             checkUserIsAllowedToReadDatastream(pid, dsId); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
             String mimeType = akubraRepository.getDatastreamMetadata(pid, KnownDatastreams.IMG_FULL).getMimetype();
 
-            this.accessLog.reportAccess(pid, KnownDatastreams.IMG_FULL.toString(), ReportedAction.READ.name());
+            // the stream may be an image, a pdf or an epub; the mime type tells them apart in the access log
+            this.accessLog.reportAccess(pid, KnownDatastreams.IMG_FULL.toString(), ReportedAction.READ.name(),
+                    AccessLogFields.image(ImageAccessKind.FULL, mimeType));
 
             if (ImageMimeType.JPEG2000.getValue().equals(mimeType)) {
                 StreamingOutput stream = output -> {
@@ -1247,7 +1251,8 @@ public class ItemsResource extends ClientApiResource {
             if (imgPreview == null) {
                 throw new NotFoundException("no image/preview available for object %s (and it's descendants)", pid);
             } else {
-                this.accessLog.reportAccess(pid, KnownDatastreams.IMG_PREVIEW.toString(), ReportedAction.READ.name());
+                this.accessLog.reportAccess(pid, KnownDatastreams.IMG_PREVIEW.toString(), ReportedAction.READ.name(),
+                        AccessLogFields.image(ImageAccessKind.PREVIEW, imgPreview.getSecond()));
                 StreamingOutput stream = output -> {
                     IOUtils.copy(imgPreview.getFirst(), output);
                     IOUtils.closeQuietly(imgPreview.getFirst());
@@ -1522,7 +1527,7 @@ public class ItemsResource extends ClientApiResource {
         try {
             pid = URLDecoder.decode(pid, "UTF-8");
             checkUserIsAllowedToReadObject(pid);
-            reportAccess(pid, null);
+            reportAccess(pid, KnownDatastreams.IMG_FULL.toString(), AccessLogFields.kind(ImageAccessKind.IIIF_INFO));
             String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
             if (u != null) {
                 if (!u.endsWith("/")) {
@@ -1700,12 +1705,10 @@ public class ItemsResource extends ClientApiResource {
         }
     }
 
-    private void reportAccess(String pid, String streamName) {
+    private void reportAccess(String pid, String streamName, Map<String, String> extraFields) {
         try {
             if (this.accessLog != null) {
-                this.accessLog.reportAccess(pid, streamName, ReportedAction.READ.name());
-            } else {
-                this.accessLog.reportAccess(pid, null, ReportedAction.READ.name());
+                this.accessLog.reportAccess(pid, streamName, ReportedAction.READ.name(), extraFields);
             }
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid + ", stream name: " + streamName, e);

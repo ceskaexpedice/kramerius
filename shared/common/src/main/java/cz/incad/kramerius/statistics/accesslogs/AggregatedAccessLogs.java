@@ -9,6 +9,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 public class AggregatedAccessLogs implements StatisticsAccessLog {
 
@@ -25,6 +26,16 @@ public class AggregatedAccessLogs implements StatisticsAccessLog {
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
         try {
             databaseAccessLog.reportAccess(pid, streamName, actionName);
+        } catch (Throwable e) {
+            //reporting failure should not break main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void reportAccess(String pid, String streamName, String actionName, Map<String, String> extraFields) throws IOException {
+        try {
+            databaseAccessLog.reportAccess(pid, streamName, actionName, extraFields);
         } catch (Throwable e) {
             //reporting failure should not break main flow (not even runtime exceptions like org.ceskaexpedice.akubra.RepositoryException)
             e.printStackTrace();

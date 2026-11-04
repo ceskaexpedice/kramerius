@@ -93,6 +93,16 @@
   <!-- http request headers -->
   <field name="hrh_referer" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
   <field name="hrh_kramerius_client" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+  <!-- client headers X-Kramerius-Client-Url, X-Kramerius-Client-App, X-Kramerius-Client-Version, X-Kramerius-Intent (comma separated list) -->
+  <field name="hrh_kramerius_client_url" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+  <field name="hrh_kramerius_client_app" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+  <field name="hrh_kramerius_client_version" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+  <field name="hrh_kramerius_intent" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
+  <!-- what was accessed and how: datastream (IMG_FULL, ALTO, TEXT_OCR, AUDIO_MP3, ...), its mime type, and for images the access kind (FULL, PREVIEW, THUMB, IIIF_INFO, IIIF_REGION, IIIF_MANIFEST, ZOOMIFY_DESCRIPTOR, DEEPZOOM_DESCRIPTOR) -->
+  <field name="stream_name" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+  <field name="stream_mime" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
+  <field name="image_kind" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
 
 
 </fields>

@@ -19,6 +19,8 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.AccessLogFields;
+import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
@@ -255,7 +257,8 @@ public class IiifServlet extends AbstractImageServlet {
 
     private void reportAccess(String pid) {
         try {
-            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name());
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name(),
+                    AccessLogFields.kind(ImageAccessKind.IIIF_INFO));
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }
