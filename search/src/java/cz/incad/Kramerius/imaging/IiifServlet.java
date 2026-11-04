@@ -21,6 +21,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.AccessLogFields;
 import cz.incad.kramerius.statistics.ImageAccessKind;
+import cz.incad.kramerius.statistics.ImageAccessLogPolicy;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
@@ -195,8 +196,10 @@ public class IiifServlet extends AbstractImageServlet {
                         String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                         if (u != null) {
                             StringBuilder url = new StringBuilder(u);
+                            List<String> imageTokens = new ArrayList<>();
                             while (tokenizer.hasMoreTokens()) {
                                 String nextToken = tokenizer.nextToken();
+                                imageTokens.add(nextToken);
                                 url.append("/").append(nextToken);
                                 if ("info.json".equals(nextToken)) {
                                     reportAccess(pid);
@@ -214,6 +217,7 @@ public class IiifServlet extends AbstractImageServlet {
                                     return;
                                 }
                             }
+                            reportRegionAccess(pid, imageTokens);
                             copyFromImageServer(url.toString(),resp);
                         } else {
                             LOGGER.severe(String.format("No iip url for %s", pid));
@@ -253,6 +257,27 @@ public class IiifServlet extends AbstractImageServlet {
     @Override
     public boolean turnOnIterateScaling() {
         return false;
+    }
+
+    /**
+     * Logs an IIIF image request (region/size/rotation/quality) unless it is a tile of a zoomable viewer:
+     * the viewers ask for info.json first (logged) and then load dozens of tiles per page.
+     */
+    private void reportRegionAccess(String pid, List<String> imageTokens) {
+        if (imageTokens.size() != 4) {
+            return;
+        }
+        try {
+            String region = URLDecoder.decode(imageTokens.get(0), "UTF-8");
+            String size = URLDecoder.decode(imageTokens.get(1), "UTF-8");
+            if (ImageAccessLogPolicy.isViewerTile(region, size, imageTokens.get(2), imageTokens.get(3))) {
+                return;
+            }
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name(),
+                    AccessLogFields.kind(ImageAccessKind.IIIF_REGION));
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
     }
 
     private void reportAccess(String pid) {

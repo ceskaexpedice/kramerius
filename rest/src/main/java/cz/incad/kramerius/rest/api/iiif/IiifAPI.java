@@ -50,6 +50,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import cz.incad.kramerius.statistics.AccessLogFields;
+import cz.incad.kramerius.statistics.ImageAccessKind;
+import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
+import cz.incad.kramerius.utils.FedoraUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +76,9 @@ public class IiifAPI {
 
     @Inject
     private SolrMemoization solrMemoization;
+
+    @Inject
+    private AggregatedAccessLogs accessLog;
 
     private AkubraRepository akubraRepository;
 
@@ -99,6 +107,17 @@ public class IiifAPI {
         }
     }
 
+    private void reportManifestAccess(String pid) {
+        try {
+            if (this.accessLog != null) {
+                this.accessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name(),
+                        AccessLogFields.kind(ImageAccessKind.IIIF_MANIFEST));
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
+        }
+    }
+
     @GET
     @Path("{pid}/manifest")
     @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
@@ -106,6 +125,7 @@ public class IiifAPI {
         checkPid(pid);
         try {
             DocumentDto document = getIiifDocument(pid);
+            reportManifestAccess(pid);
             PropertyValue titleLabel = new PropertyValueSimpleImpl(document.getTitle());
             Manifest manifest = new ManifestImpl(UriBuilder.fromUri(iiifUri).path(getClass(), "manifest").build(pid),
                     titleLabel);
