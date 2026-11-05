@@ -348,6 +348,7 @@ public class CDKProcessResource extends AdminApiResource {
         } else if (requestedModels != null && requestedModels != JSONObject.NULL) {
             payload.put("models", requestedModels.toString());
         }
+        payload.put("license", options.optString("license", ""));
         payload.put("deleteMissing", String.valueOf(options.optBoolean("deleteMissing", false)));
         payload.put("onlyModelsWithMoreInCdk",
                 String.valueOf(options.optBoolean("onlyModelsWithMoreInCdk", false)));

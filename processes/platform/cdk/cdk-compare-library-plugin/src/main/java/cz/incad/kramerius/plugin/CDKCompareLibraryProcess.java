@@ -85,6 +85,8 @@ public class CDKCompareLibraryProcess {
         }
         Map<String, Set<String>> cdkOnlyByModel = new TreeMap<>();
         Map<String, Set<String>> sourceOnlyByModel = new TreeMap<>();
+        Map<String, Integer> sourcePidCountsByModel = new TreeMap<>();
+        Map<String, Integer> cdkPidCountsByModel = new TreeMap<>();
         boolean compareLicense = StringUtils.isNotBlank(license);
         String selectedLicense = compareLicense ? license.trim() : null;
         for (String model : rootModels) {
@@ -108,6 +110,9 @@ public class CDKCompareLibraryProcess {
                         .iterate(client, items -> addPids(cdkPids, items), () -> { });
             }
 
+            sourcePidCountsByModel.put(model, sourcePids.size());
+            cdkPidCountsByModel.put(model, cdkPids.size());
+
             Set<String> cdkOnlyPids = new LinkedHashSet<>(cdkPids);
             cdkOnlyPids.removeAll(sourcePids);
             Set<String> sourceOnlyPids = new LinkedHashSet<>(sourcePids);
@@ -119,12 +124,15 @@ public class CDKCompareLibraryProcess {
             }
 
         }
-        logComparison(library, cdkOnlyByModel, sourceOnlyByModel, selectedLicense);
+        logComparison(library, cdkOnlyByModel, sourceOnlyByModel,
+                sourcePidCountsByModel, cdkPidCountsByModel, selectedLicense);
     }
 
     private static void logComparison(String library,
                                       Map<String, Set<String>> cdkOnlyByModel,
                                       Map<String, Set<String>> sourceOnlyByModel,
+                                      Map<String, Integer> sourcePidCountsByModel,
+                                      Map<String, Integer> cdkPidCountsByModel,
                                       String license) {
         StringBuilder report = new StringBuilder()
                 .append("\n========== CDK LIBRARY COMPARISON: ").append(library);
@@ -140,7 +148,11 @@ public class CDKCompareLibraryProcess {
         for (String model : cdkOnlyByModel.keySet()) {
             Set<String> cdkOnly = cdkOnlyByModel.get(model);
             Set<String> sourceOnly = sourceOnlyByModel.getOrDefault(model, Set.of());
-            report.append("\n[model: ").append(model).append("]\n");
+            report.append("\n[model: ").append(model).append("]\n")
+                    .append("  Matched PID counts: source=")
+                    .append(sourcePidCountsByModel.getOrDefault(model, 0))
+                    .append(", CDK=")
+                    .append(cdkPidCountsByModel.getOrDefault(model, 0)).append('\n');
             appendPidSection(report, "ONLY IN CDK - missing from source", cdkOnly);
             appendPidSection(report, "ONLY IN SOURCE - new in source, not in CDK", sourceOnly);
         }
