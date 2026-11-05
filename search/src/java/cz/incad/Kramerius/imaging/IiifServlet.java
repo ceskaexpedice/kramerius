@@ -62,6 +62,7 @@ public class IiifServlet extends AbstractImageServlet {
     private CDKDocumentSourceProvider documentProvider;
 
     @Inject
+    @Named("cachedRightsResolver")
     private RightsResolver rightsResolver;
 
     @Inject

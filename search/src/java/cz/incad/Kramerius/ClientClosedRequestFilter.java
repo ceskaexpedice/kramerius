@@ -1,5 +1,7 @@
 package cz.incad.Kramerius;
 
+import cz.incad.kramerius.security.impl.criteria.utils.CriteriaLicenseUtils;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -21,6 +23,7 @@ public class ClientClosedRequestFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+        CriteriaLicenseUtils.currentThreadReturnObject.remove();
         try {
             chain.doFilter(req, res);
         } catch (IOException e) {
@@ -35,6 +38,8 @@ public class ClientClosedRequestFilter implements Filter {
             } else {
                 throw e;
             }
+        } finally {
+            CriteriaLicenseUtils.currentThreadReturnObject.remove();
         }
     }
 

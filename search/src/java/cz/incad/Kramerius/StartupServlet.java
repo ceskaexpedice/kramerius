@@ -30,6 +30,7 @@ import cz.incad.Kramerius.backend.guice.GuiceServlet;
 import cz.incad.kramerius.database.MostDesirableDbInitializer;
 import cz.incad.kramerius.database.VersionDbInitializer;
 import cz.incad.kramerius.database.VersionService;
+import cz.incad.kramerius.database.provider.CDKCacheConnectionProvider;
 import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.rest.oai.db.OAIDBInitializer;
 import cz.incad.kramerius.security.database.ConfigDBInitializer;
@@ -135,6 +136,16 @@ public class StartupServlet extends GuiceServlet {
             // -- CDK cache initialization --
             if (cdkCacheConnection != null) {
                 CDKCacheInitializer.initDatabase(cdkCacheConnection);
+            }
+            for (String category : CDKCacheConnectionProvider.dedicatedCategories()) {
+                Connection dedicatedConnection = CDKCacheConnectionProvider.getDedicatedConnection(category);
+                if (dedicatedConnection != null) {
+                    try {
+                        CDKCacheInitializer.initDatabase(dedicatedConnection);
+                    } finally {
+                        DatabaseUtils.tryClose(dedicatedConnection);
+                    }
+                }
             }
             // -- End of CDK cache initialization --
 

@@ -26,6 +26,7 @@ import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.APIMonitorResource;
+import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.CacheMonitorResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.proxy.ConnectedInfoResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.processes.CDKProcessResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestManager;
@@ -126,6 +127,7 @@ public class ApiServletModule extends JerseyServletModule {
         bind(StatisticsResource.class);
         // api monitoring
         bind(APIMonitorResource.class);
+        bind(CacheMonitorResource.class);
 
         bind(LicensesResource.class);
 

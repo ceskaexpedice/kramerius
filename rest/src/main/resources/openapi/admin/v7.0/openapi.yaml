@@ -48,7 +48,125 @@ tags:
     description: >
       Vytvoreni, výpis, opravy klientske konfigurace
 
+  - name: Monitoring
+    description: Cache statistics for this application instance
+
 paths:
+
+  /monitor/cache:
+    get:
+      tags:
+        - Monitoring
+      summary: Get cache lookup statistics
+      description: Returns process-local hit, miss, expiry, and hit-ratio counters for the rights cache and, when CDK server mode is enabled, the CDK request caches. It does not expose cache keys or values.
+      operationId: getCacheStatistics
+      responses:
+        '200':
+          description: Cache statistics for the application instance serving the request.
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: The caller lacks the admin read permission.
+    delete:
+      tags:
+        - Monitoring
+      summary: Clear rights cache entries
+      description: Removes matching rights cache entries from the application process serving the request. Omitting all filters clears the full process-local rights cache. Requires the rights edit permission.
+      operationId: clearRightsCache
+      parameters:
+        - in: query
+          name: cache
+          required: true
+          schema:
+            type: string
+            enum: [rights]
+        - in: query
+          name: pid
+          schema:
+            type: string
+        - in: query
+          name: user
+          description: Exact cached user identity.
+          schema:
+            type: string
+        - in: query
+          name: ip
+          schema:
+            type: string
+        - in: query
+          name: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Number of removed process-local entries.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid cache name.
+        '403':
+          description: The caller lacks the rights edit permission.
+
+  /monitor/cache/keys:
+    get:
+      tags:
+        - Monitoring
+      summary: Inspect cache keys
+      description: Returns up to 100 matching key metadata records without cached payloads. CDK caches are available only when CDK server mode is enabled. Requires the rights edit permission because keys can contain user identifiers and IP addresses.
+      operationId: inspectCacheKeys
+      parameters:
+        - in: query
+          name: cache
+          required: true
+          schema:
+            type: string
+          enum: [rights, cdkItems, cdkUsers, cdkBibliomods, cdkThumbs]
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+            maximum: 100
+        - in: query
+          name: pid
+          schema:
+            type: string
+        - in: query
+          name: user
+          description: Exact user identity or user identification.
+          schema:
+            type: string
+        - in: query
+          name: ip
+          schema:
+            type: string
+        - in: query
+          name: path
+          schema:
+            type: string
+        - in: query
+          name: source
+          schema:
+            type: string
+        - in: query
+          name: url
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching cache key metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid cache name, limit, or filter combination.
+        '403':
+          description: The caller lacks the rights edit permission.
 
   /reharvest/groups:
     get:
