@@ -18,6 +18,7 @@ package cz.inovatika.cdk.cache;
 
 import java.sql.SQLException;
 import java.util.List;
+import org.json.JSONObject;
 
 
 /**
@@ -38,6 +39,9 @@ public interface CDKRequestCacheSupport {
      *         or an empty list if no matching items are found.
      */
     List<CDKRequestItem> find(String dlAcronym, String url, String pid, String userIdentification);
+
+    /** Returns matching key metadata only; cached payloads are never included. */
+    JSONObject inspect(String cacheType, String dlAcronym, String url, String pid, String userIdentification, int limit);
 
     /**
      * Saves a {@link CDKRequestItem} to the cache.

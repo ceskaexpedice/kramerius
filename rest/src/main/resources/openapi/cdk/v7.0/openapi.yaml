@@ -231,6 +231,7 @@ paths:
                   type: array
                   description: Modely k porovnání; pokud nejsou zadány, použije se fedora.topLevelModels.
                   items: { type: string }
+                license: { type: string, description: Optional license filter for comparison }
                 onlyModelsWithMoreInCdk: { type: boolean, default: false, description: Nejprve porovná facety modelů a detailně porovná jen modely s vyšším počtem v CDK }
               additionalProperties: false
       responses:

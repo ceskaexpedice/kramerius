@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
+}
+
+description = 'Compare a source library with its CDK collection'
+
+processPlugin {
+    spiImplementation = 'cz.incad.kramerius.plugin.CDKCompareLibrarySPI'
+    profiles = [
+            [profileId: 'cdk-compare-library',
+             description: 'Compare PIDs in both directions between a source library and its CDK collection',
+             jvmArgs: ['-Xms1g', '-Xmx32g']]
+    ]
+    excludeDependencies = ['com.sun.jersey', 'javax.ws.rs']
+}
+
+dependencies {
+    api "org.ceskaexpedice:process-api:${processapiversion}"
+    api project(':processes:solr-migration')
+    api project(':shared:common')
+}

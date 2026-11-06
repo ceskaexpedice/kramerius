@@ -1562,15 +1562,7 @@ public class ItemsResource extends ClientApiResource {
             /*,@Context HttpServletResponse response*/) throws IOException {
         try {
 
-            if (region.toLowerCase().trim().equals("full") || region.toLowerCase().trim().equals("square") || region.toLowerCase().trim().contains("pct:")) {
-                checkUserIsAllowedToReadObject(pid);
-            } else {
-                if (size.toLowerCase().trim().contains("max") || size.toLowerCase().trim().contains("pct:")) {
-                    checkUserIsAllowedToReadObject(pid);
-                } else {
-                    checkIIIFSize(pid, size);
-                }
-            }
+            checkUserByJsessionidIsAllowedToReadIIPTile(pid);
             String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
             if (u != null) {
                 // size can contain ^ or ! 

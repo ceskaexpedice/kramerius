@@ -41,6 +41,14 @@ public abstract class AbstractCDKRequestItem<T> implements CDKRequestItem<T> {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             String identifier = String.format("%s_%s_%s", this.dlAcronym, this.url, this.pid);
+            // User-level requests (currently stored with a null PID) are also
+            // partitioned by user_identification in cache lookups. Include that
+            // dimension in their primary key so saving one user's response does
+            // not overwrite another's. PID-based entries such as thumbnails keep
+            // their existing IDs and cache behavior.
+            if (this.pid == null && this.userIdentification != null) {
+                identifier = String.format("%s_%s", identifier, this.userIdentification);
+            }
             byte[] digest = md5.digest(identifier.getBytes("UTF-8"));
 
             StringBuilder hexString = new StringBuilder();

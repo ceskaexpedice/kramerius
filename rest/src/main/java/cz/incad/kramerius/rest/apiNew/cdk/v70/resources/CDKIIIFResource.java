@@ -33,16 +33,12 @@ import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
-import cz.incad.kramerius.iiif.IIIFRequestGuard;
 import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
-import cz.incad.kramerius.utils.conf.KConfiguration;
-
-import static cz.incad.kramerius.iiif.IIIFRequestGuard.requiresFullReadCheck;
 
 /**
  * Provides support for IIIF endpoints
@@ -57,6 +53,7 @@ public class CDKIIIFResource extends AbstractTileResource {
     private SolrAccess solrAccess;
 
     @Inject
+    @Named("cachedRightsResolver")
     private RightsResolver actionAllowed;
 
     @Inject
@@ -160,9 +157,7 @@ public class CDKIIIFResource extends AbstractTileResource {
     public Response iiifTile(String pid, String region, String size, String rotation,String qf, String format) throws IOException {
         pid = URLDecoder.decode(pid, "UTF-8");
 
-        int maxTileSize = KConfiguration.getInstance().getConfiguration()
-                .getInt("iiif.tile.maxsize", IIIFRequestGuard.DEFAULT_MAX_TILE_SIZE);
-        if (requiresFullReadCheck(region, size, maxTileSize) && !permitted(pid)) {
+        if (!permitted(pid)) {
             throw new ActionNotAllowed("not allowed");
         }
 
