@@ -51,6 +51,10 @@ tags:
   - name: Monitoring
     description: Cache statistics for this application instance
 
+  - name: Keycloak
+    description: >
+      Správa uživatelů a rolí v Keycloaku přes servisní účet jádra (krameriusCoreAdmin): výpis, vytváření a rušení rolí, uživatelů a přiřazení rolí.
+
 paths:
 
   /monitor/cache:
@@ -2623,6 +2627,291 @@ paths:
           description: Chyba při mazání role (např. pokud ji nelze smazat kvůli asociacím nebo SQL chybě).
         '403':
           description: Uživatel nemá oprávnění k požadované akci
+
+  /keycloak/roles:
+    get:
+      tags:
+        - Keycloak
+      summary: Výpis rolí v Keycloaku
+      operationId: keycloakListRoles
+      description: Vrátí názvy všech realmových rolí z Keycloaku (realm podle `keycloak.admin.realm`).
+      responses:
+        '200':
+          description: JSON pole s názvy rolí.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: ["k4_admins","kramerius_admin","public_users","common_users"]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu (zkontrolujte `keycloak.admin.*`).
+
+    post:
+      tags:
+        - Keycloak
+      summary: Vytvoření role v Keycloaku
+      operationId: keycloakCreateRole
+      description: Vytvoří novou realmovou roli v Keycloaku. Vestavěné role Keycloaku (`default-roles-*`, `offline_access`, `uma_authorization`) nelze vytvářet ani měnit.
+      requestBody:
+        description: JSON s názvem role a volitelným popisem.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+            example: {"name":"knav_users","description":"Uživatelé KNAV"}
+      responses:
+        '201':
+          description: Role byla vytvořena.
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {"name":"knav_users"}
+        '400':
+          description: Chybí název role nebo jde o vestavěnou roli Keycloaku.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '409':
+          description: Role s tímto názvem již v Keycloaku existuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+  /keycloak/roles/{name}:
+    delete:
+      tags:
+        - Keycloak
+      summary: Smazání role v Keycloaku
+      operationId: keycloakDeleteRole
+      description: Smaže realmovou roli v Keycloaku podle názvu. Vestavěné role Keycloaku smazat nelze.
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Název role.
+          schema:
+            type: string
+            example: knav_users
+      responses:
+        '204':
+          description: Role byla smazána.
+        '400':
+          description: Vestavěnou roli Keycloaku nelze smazat.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Role v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+  /keycloak/users:
+    get:
+      tags:
+        - Keycloak
+      summary: Vyhledání uživatele v Keycloaku
+      operationId: keycloakFindUser
+      description: Najde uživatele v Keycloaku podle přesného uživatelského jména a vrátí jeho Keycloak ID.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          description: Přesné uživatelské jméno.
+          schema:
+            type: string
+            example: jan.novak
+      responses:
+        '200':
+          description: Uživatel byl nalezen.
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {"id":"0ff993c7-98c7-41fb-9627-3519127ba360","username":"jan.novak"}
+        '400':
+          description: Chybí parametr `username`.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Uživatel v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+    post:
+      tags:
+        - Keycloak
+      summary: Vytvoření uživatele v Keycloaku
+      operationId: keycloakCreateUser
+      description: |
+        Vytvoří lokálního (aktivního) uživatele v Keycloaku. Povinné je pouze `username`.
+        Pozor: uživatele z federace (eduID) vytváří Keycloak sám při prvním přihlášení, tímto voláním je nezakládejte.
+      requestBody:
+        description: JSON s údaji uživatele.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+            example: {"username":"jan.novak","firstName":"Jan","lastName":"Novák","email":"jan.novak@example.cz"}
+      responses:
+        '201':
+          description: Uživatel byl vytvořen, vrací jeho Keycloak ID.
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {"id":"0ff993c7-98c7-41fb-9627-3519127ba360","username":"jan.novak"}
+        '400':
+          description: Chybí `username`.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '409':
+          description: Uživatel s tímto jménem již v Keycloaku existuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+  /keycloak/users/{id}:
+    delete:
+      tags:
+        - Keycloak
+      summary: Smazání uživatele v Keycloaku
+      operationId: keycloakDeleteUser
+      description: Smaže uživatele v Keycloaku podle jeho Keycloak ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Keycloak ID uživatele (viz `GET /keycloak/users?username=`).
+          schema:
+            type: string
+            example: 0ff993c7-98c7-41fb-9627-3519127ba360
+      responses:
+        '204':
+          description: Uživatel byl smazán.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Uživatel v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+  /keycloak/users/{id}/roles:
+    get:
+      tags:
+        - Keycloak
+      summary: Role uživatele v Keycloaku
+      operationId: keycloakUserRoles
+      description: Vrátí realmové role přiřazené přímo uživateli.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Keycloak ID uživatele.
+          schema:
+            type: string
+            example: 0ff993c7-98c7-41fb-9627-3519127ba360
+      responses:
+        '200':
+          description: JSON pole s názvy rolí.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: ["default-roles-kramerius","knav_users"]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Uživatel v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+  /keycloak/users/{id}/roles/{name}:
+    put:
+      tags:
+        - Keycloak
+      summary: Přiřazení role uživateli
+      operationId: keycloakAssignRole
+      description: Přiřadí uživateli realmovou roli. Vestavěné role Keycloaku přiřazovat nelze.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Keycloak ID uživatele.
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          description: Název role.
+          schema:
+            type: string
+            example: knav_users
+      responses:
+        '204':
+          description: Role byla přiřazena.
+        '400':
+          description: Vestavěnou roli Keycloaku nelze přiřadit.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Uživatel nebo role v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+    delete:
+      tags:
+        - Keycloak
+      summary: Odebrání role uživateli
+      operationId: keycloakRemoveRole
+      description: Odebere uživateli realmovou roli.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Keycloak ID uživatele.
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          description: Název role.
+          schema:
+            type: string
+            example: knav_users
+      responses:
+        '204':
+          description: Role byla odebrána.
+        '400':
+          description: Vestavěnou roli Keycloaku nelze odebrat.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Uživatel nebo role v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
 
   /rights:
     get:
