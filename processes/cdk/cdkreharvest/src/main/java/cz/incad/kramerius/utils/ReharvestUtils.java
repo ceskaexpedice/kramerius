@@ -9,10 +9,12 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.json.JSONObject;
+import org.json.JSONArray;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,12 +60,31 @@ import cz.inovatika.kramerius.services.iterators.utils.HTTPSolrUtils;
 public class ReharvestUtils {
     
     public static final String ITERATION_ROWS_STRING_VALUE = "300";
+    public static final long DEFAULT_COMMIT_WAIT_MILLIS = 1000L;
     public static final Logger LOGGER = Logger.getLogger(ReharvestUtils.class.getName());
     
     private ReharvestUtils() {}
 
+    public static long parseCommitWaitMillis(String value) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(value)) {
+            return DEFAULT_COMMIT_WAIT_MILLIS;
+        }
+        long parsed = Long.parseLong(value.trim());
+        if (parsed < 0) {
+            throw new IllegalArgumentException("commitWaitMillis must be zero or greater");
+        }
+        return parsed;
+    }
+
     /** Delete all given pids */
     public static String deleteAllGivenPids(CloseableHttpClient closeableHttpClient,Map<String, String> destinationMap, List<Pair<String,String>> allPidsList, boolean onlyDisplayCommand)
+            throws ParserConfigurationException {
+        return deleteAllGivenPids(closeableHttpClient, destinationMap, allPidsList, onlyDisplayCommand,
+                DEFAULT_COMMIT_WAIT_MILLIS);
+    }
+
+    public static String deleteAllGivenPids(CloseableHttpClient closeableHttpClient, Map<String, String> destinationMap,
+            List<Pair<String, String>> allPidsList, boolean onlyDisplayCommand, long commitWaitMillis)
             throws ParserConfigurationException {
         StringBuilder retBuilder = new StringBuilder();
         int batchSize = 1000;
@@ -83,8 +105,14 @@ public class ReharvestUtils {
             });
             try {
                 if (!onlyDisplayCommand) {
-                    LOGGER.info(String.format("Deleting identifiers (%d):%s", batchPids.size(), batchPids.toString()));
-                    String destinationUrl = destinationMap.get("url")+"/update?commit=true";
+                    StringBuilder identifiersLog = new StringBuilder(String.format(
+                            "Deleting identifiers: batch %d/%d (%d PIDs)", i + 1, batches, batchPids.size()));
+                    for (Pair<String, String> pid : batchPids) {
+                        identifiersLog.append("\n  PID: ").append(pid.getLeft())
+                                .append(" | compositeId: ").append(pid.getRight());
+                    }
+                    LOGGER.info(identifiersLog.toString());
+                    String destinationUrl = destinationMap.get("url")+"/update";
                     String s = HTTPSolrUtils.sendToDest(destinationUrl, closeableHttpClient, deleteBatch);
                     retBuilder.append(s).append("\n");
                 } else {
@@ -99,28 +127,81 @@ public class ReharvestUtils {
                 throw new IllegalStateException(String.format("Failed deleting reharvest batch %d/%d", i + 1, batches), e);
             }
         }
+        if (!onlyDisplayCommand) {
+            String destinationUrl = destinationMap.get("url").replaceAll("/+$", "") + "/update";
+            commitAndWait(closeableHttpClient, destinationUrl, "reharvest deletion", commitWaitMillis);
+        }
         return retBuilder.toString();
     }
 
     /** Mark a queue item closed when its Process Platform execution finishes. */
     public static void closeQueueItem(String itemId) {
+        updateQueueItemState(itemId, "closed");
+    }
+
+    public static void updateQueueItemState(String itemId, String state) {
         if (itemId == null || itemId.trim().isEmpty()) {
             return;
         }
+        String targetState = state == null || state.trim().isEmpty() ? "closed" : state.trim();
         try {
             String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
             JSONObject update = new JSONObject();
             update.put("id", itemId);
-            update.put("state", new JSONObject().put("set", "closed"));
+            update.put("state", new JSONObject().put("set", targetState));
             WebResource resource = Client.create().resource(reharvest + "/update/json/docs?commit=true");
             String response = resource.accept(MediaType.APPLICATION_JSON)
                     .type(MediaType.APPLICATION_JSON)
                     .entity(update.toString(), MediaType.APPLICATION_JSON)
                     .post(String.class);
-            LOGGER.info(String.format("Closed reharvest queue item %s: %s", itemId, response));
+            LOGGER.info(String.format("Updated reharvest queue item %s to state %s: %s", itemId, targetState, response));
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unable to close reharvest queue item " + itemId, e);
+            LOGGER.log(Level.SEVERE, "Unable to update reharvest queue item " + itemId + " to state " + targetState, e);
         }
+    }
+
+    /** Log and validate the association between a process payload and its queue item. */
+    public static void logQueueItemAssociation(String itemId, ReharvestItem processItem) {
+        if (itemId == null || itemId.trim().isEmpty()) {
+            LOGGER.info("CDK reharvest process is not linked to a queue item (no reharvestItemId supplied)");
+            return;
+        }
+
+        LOGGER.info(String.format("CDK reharvest process for PID %s is linked to queue item %s",
+                processItem.getPid(), itemId));
+        try {
+            String reharvest = KConfiguration.getInstance().getSolrReharvestHost();
+            String query = URLEncoder.encode("id:" + itemId, "UTF-8");
+            String response = Client.create().resource(reharvest + "/select?q=" + query + "&rows=1&wt=json")
+                    .accept(MediaType.APPLICATION_JSON).get(String.class);
+            JSONArray docs = new JSONObject(response).getJSONObject("response").getJSONArray("docs");
+            if (docs.length() == 0) {
+                LOGGER.warning("Linked reharvest queue item was not found: " + itemId);
+                return;
+            }
+
+            ReharvestItem queueItem = ReharvestItem.fromJSON(docs.getJSONObject(0));
+            boolean pidMatches = Objects.equals(processItem.getPid(), queueItem.getPid());
+            boolean rootPidMatches = Objects.equals(processItem.getRootPid(), queueItem.getRootPid());
+            boolean pathMatches = Objects.equals(processItem.getOwnPidPath(), queueItem.getOwnPidPath());
+            boolean typeMatches = processItem.getTypeOfReharvest() == queueItem.getTypeOfReharvest();
+            boolean librariesMatch = sortedLibraries(processItem.getLibraries()).equals(sortedLibraries(queueItem.getLibraries()));
+
+            LOGGER.info(String.format(
+                    "Queue item %s loaded: pid=%s, root.pid=%s, own_pid_path=%s, type=%s, libraries=%s; " +
+                            "matches process payload: pid=%s, root.pid=%s, own_pid_path=%s, type=%s, libraries=%s",
+                    itemId, queueItem.getPid(), queueItem.getRootPid(), queueItem.getOwnPidPath(),
+                    queueItem.getTypeOfReharvest(), queueItem.getLibraries(),
+                    pidMatches, rootPidMatches, pathMatches, typeMatches, librariesMatch));
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Unable to load or compare linked reharvest queue item " + itemId, e);
+        }
+    }
+
+    private static List<String> sortedLibraries(List<String> libraries) {
+        List<String> sorted = libraries == null ? new ArrayList<>() : new ArrayList<>(libraries);
+        Collections.sort(sorted);
+        return sorted;
     }
 
 
@@ -161,7 +242,8 @@ public class ReharvestUtils {
                     }
                 }
                 if (retvals.size()>maxItems) {
-                    throw new TooBigException("too_big",retvals.size());
+                    throw new TooBigException("Reharvest subtree exceeds the configured safety limit",
+                            retvals.size(), maxItems);
                 }
                 
             }, ()->{});
@@ -177,20 +259,29 @@ public class ReharvestUtils {
 
     /** Render template */
     public static String renderTemplate(String api, Map<String,String> iteration, Map<String,String> destination) throws IOException {
-        String templatePath = String.format("reharvest_%s.xml", api);
-        
+        String templatePath = "/cz/incad/kramerius/services/workers/replicate/configurations/default_k7_v2.xml";
         InputStream stream = KubernetesReharvestProcess.class.getResourceAsStream(templatePath);
-        
-        StringTemplate template = new StringTemplate(
-                org.apache.commons.io.IOUtils.toString(stream, "UTF-8"), DefaultTemplateLexer.class);
-    
-        template.setAttribute("iteration", iteration);
-        template.setAttribute("check", new HashMap<>());
-        template.setAttribute("destination", destination);
-        template.setAttribute("timestamp", new HashMap<>());
-    
-        String configuration = template.toString();
-        return configuration;
+        if (stream == null) {
+            throw new IOException("Cannot find configuration template " + templatePath);
+        }
+
+        try (InputStream templateStream = stream) {
+            StringTemplate template = new StringTemplate(
+                    IOUtils.toString(templateStream, "UTF-8"), DefaultTemplateLexer.class);
+
+            template.setAttribute("iteration", iteration);
+            template.setAttribute("check", new HashMap<>());
+            template.setAttribute("destination", destination);
+            template.setAttribute("timestamp", new HashMap<>());
+            template.setAttribute("feeder", Map.of("batchsize", iteration.getOrDefault("batch", "45")));
+            Map<String, String> comparing = new HashMap<>();
+            comparing.put("identifier", iteration.getOrDefault("comparingIdentifier", "pid"));
+            template.setAttribute("comparing", comparing);
+            template.setAttribute("proxy", new HashMap<>());
+            template.setAttribute("reharvest", new HashMap<>());
+
+            return template.toString();
+        }
     }
 
     public static String encode(String val, boolean enc) {
@@ -463,12 +554,20 @@ public class ReharvestUtils {
     }
     
     public static void reharvestPIDFromGivenCollections(String pid, Map<String,JSONObject> collectionConfigurations, String onlyShowConfiguration, Map<String, String> destinationMap, Map<String,String> iterationMap, ReharvestItem item) throws IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException, ParserConfigurationException, SAXException {
-        List<File> harvestFiles = new ArrayList<>();
+        reharvestPIDFromGivenCollections(pid, collectionConfigurations, onlyShowConfiguration, destinationMap,
+                iterationMap, item, DEFAULT_COMMIT_WAIT_MILLIS);
+    }
+
+    public static void reharvestPIDFromGivenCollections(String pid, Map<String,JSONObject> collectionConfigurations,
+            String onlyShowConfiguration, Map<String, String> destinationMap, Map<String,String> iterationMap,
+            ReharvestItem item, long commitWaitMillis) throws IllegalAccessException, InstantiationException,
+            ClassNotFoundException, NoSuchMethodException, MigrateSolrIndexException, IOException,
+            ParserConfigurationException, SAXException {
+        List<Pair<String, File>> harvestFiles = new ArrayList<>();
         for (String ac : collectionConfigurations.keySet()) {
             try {
                 JSONObject colObject = collectionConfigurations.get(ac);
 
-                String apiVersion = colObject.optString("api","v5");
                 if (!colObject.has("forwardurl")) {
                     LOGGER.severe(String.format("Skipping %s", ac));
                     continue;
@@ -476,28 +575,28 @@ public class ReharvestUtils {
                 Map<String,String> iteration = new HashMap<>(iterationMap);
                 String channel = colObject.optString("forwardurl");
 
-                String fullChannelUrl = ChannelUtils.solrChannelUrl(apiVersion, channel);
-                
-                iteration.put("url",  fullChannelUrl); 
-                boolean cloud = colObject.optBoolean("solrcloud", false);
-                if (cloud) {
-                    iteration.put("id", "compositeId");
-                } else {
-                    if (apiVersion.toLowerCase().equals("v5")) {
-                        iteration.put("id", "PID");
-                    } else {
-                        iteration.put("id", "pid");
-                    }
+                String apiKey = KConfiguration.getInstance().getConfiguration()
+                        .getString("cdk.collections.sources." + ac + ".apikey");
+                if (StringUtils.isAnyString(apiKey)) {
+                    iteration.put("apikey", apiKey);
                 }
 
+                String fullChannelUrl = ChannelUtils.solrChannelUrl("v7", channel);
+                
+                iteration.put("url",  fullChannelUrl); 
+                String sourcePrefix = "cdk.collections.sources." + ac + ".";
+                String iterationId = KConfiguration.getInstance().getConfiguration()
+                        .getString(sourcePrefix + "iterationId", "pid");
+                iteration.put("id", iterationId);
+
                 iteration.put("dl", ac);
-                iteration.put("fquery", fq(apiVersion, item, false));
+                iteration.put("fquery", fq("v7", item, false));
     
-                String configuration = renderTemplate( apiVersion, iteration, destinationMap);
+                String configuration = renderTemplate("v7", iteration, destinationMap);
                 File tmpFile = File.createTempFile(String.format("%s",  ac), "reharvest");
                 
                 Files.write(configuration.getBytes("UTF-8"), tmpFile);
-                harvestFiles.add(tmpFile);
+                harvestFiles.add(Pair.of(ac, tmpFile));
                 
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE,e.getMessage(),e);
@@ -505,7 +604,9 @@ public class ReharvestUtils {
             }
         }
         
-        for (File harvestFile : harvestFiles) {
+        for (Pair<String, File> harvestEntry : harvestFiles) {
+            String library = harvestEntry.getLeft();
+            File harvestFile = harvestEntry.getRight();
             if (ReharvestUtils.isOnlyShowConfiguration(onlyShowConfiguration)) {
                 String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
                 LOGGER.info(String.format("Configuration %s" ,config));
@@ -516,6 +617,8 @@ public class ReharvestUtils {
                     String config = org.apache.commons.io.IOUtils.toString(new FileInputStream(harvestFile), "UTF-8");
                     LOGGER.info(String.format("Configuration %s" ,config));
                     reharvest.migrate(harvestFile);
+                    LOGGER.info("Library harvest and its Solr commit completed for " + library);
+                    waitAfterCommit("library harvest " + library, commitWaitMillis);
                 } catch (IllegalAccessException | InstantiationException | ClassNotFoundException
                         | NoSuchMethodException | MigrateSolrIndexException | IOException | ParserConfigurationException
                         | SAXException e) {
@@ -531,6 +634,30 @@ public class ReharvestUtils {
             return true;
         }
         return false;
+    }
+
+    private static void commitAndWait(CloseableHttpClient client, String destinationUrl, String stage,
+            long commitWaitMillis) {
+        HTTPSolrUtils.commitApache(client, destinationUrl);
+        LOGGER.info("Explicit Solr commit completed after " + stage);
+        waitAfterCommit(stage, commitWaitMillis);
+    }
+
+    private static void waitAfterCommit(String stage, long commitWaitMillis) {
+        if (commitWaitMillis < 0) {
+            throw new IllegalArgumentException("commitWaitMillis must be zero or greater");
+        }
+        if (commitWaitMillis == 0) {
+            LOGGER.info("No wait after commit for " + stage);
+            return;
+        }
+        LOGGER.info(String.format("Waiting %d ms after commit for %s", commitWaitMillis, stage));
+        try {
+            Thread.sleep(commitWaitMillis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting after Solr commit for " + stage, e);
+        }
     }
     
     

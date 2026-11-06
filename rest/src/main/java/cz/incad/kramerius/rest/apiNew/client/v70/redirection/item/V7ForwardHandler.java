@@ -196,9 +196,16 @@ public class V7ForwardHandler extends V7RedirectHandler {
             String baseurl = this.forwardUrl();
             String url = baseurl + (baseurl.endsWith("/") ? "" : "/") + "api/cdk/v7.0/forward/item/" + this.pid
                     + "/streams/BIBLIO_MODS";
-            String modsString = super.cacheStringHit_PID_USER(url, this.pid, false, "mods", event);
+            boolean cacheEnabled = KConfiguration.getInstance().getConfiguration()
+                    .getBoolean("cdk.cache.bibliomods.enabled", false);
+            String modsString = cacheEnabled
+                    ? super.cacheStringHit_PID_USER(url, this.pid, false, "mods", event)
+                    : null;
             if (modsString == null) {
                 return buildForwardApacheResponseGET(url, apiKey(), null, this.pid, true, false, event, (data, mimeType) -> {
+                    if (!cacheEnabled) {
+                        return;
+                    }
                     CompletableFuture.runAsync(() -> {
                         try {
                             CDKRequestItem<String> cacheItem = (CDKRequestItem<String>) CDKRequestItemFactory.createCacheItem(

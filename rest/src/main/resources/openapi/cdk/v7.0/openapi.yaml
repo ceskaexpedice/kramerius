@@ -134,6 +134,16 @@ paths:
       responses:
         '200': { description: Stav kanálu a kontrola uživatelských endpointů, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
         '403': { description: Přístup zamítnut }
+  /admin/v7.0/connected/{library}/config/index/health:
+    get:
+      tags: [Připojené knihovny]
+      summary: Document counts by model and license in CDK and remote indexes
+      operationId: getLibraryIndexHealth
+      parameters:
+        - $ref: '#/components/parameters/library'
+      responses:
+        '200': { description: Index status and facets, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+        '403': { description: Access denied }
   /admin/v7.0/connected/introspect/{pid}:
     get:
       tags: [Připojené knihovny]
@@ -198,6 +208,68 @@ paths:
         '400': { description: Neplatná knihovna nebo volby }
         '403': { description: Nedostatečná oprávnění }
         '404': { description: Profil procesu nebyl nalezen }
+  /admin/v7.0/cdk/{library}/process/compare:
+    post:
+      tags: [CDK procesy]
+      summary: Porovná PIDy zdrojové knihovny s CDK a volitelně smaže chybějící PIDy
+      operationId: scheduleCdkLibraryCompare
+      parameters:
+        - $ref: '#/components/parameters/library'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deleteMissing: { type: boolean, default: false }
+                rows: { type: integer, default: 300 }
+                reportEvery: { type: integer, default: 5000 }
+                onlyShowConfiguration: { type: boolean, default: false }
+                iterationId: { type: string, description: Pole použité jako kurzorové ID při iteraci; výchozí hodnota je pid }
+                models:
+                  type: array
+                  description: Modely k porovnání; pokud nejsou zadány, použije se fedora.topLevelModels.
+                  items: { type: string }
+                license: { type: string, description: Optional license filter for comparison }
+                onlyModelsWithMoreInCdk: { type: boolean, default: false, description: Nejprve porovná facety modelů a detailně porovná jen modely s vyšším počtem v CDK }
+              additionalProperties: false
+      responses:
+        '202': { description: Proces porovnání byl naplánován, content: { application/json: { schema: { $ref: '#/components/schemas/ScheduledProcess' } } } }
+        '400': { description: Neplatná knihovna nebo volby }
+        '403': { description: Nedostatečná oprávnění }
+        '404': { description: Profil procesu nebyl nalezen }
+  /admin/v7.0/cdk/{library}/process/reharvest:
+    post:
+      tags: [CDK procesy]
+      summary: Schedule a CDK reharvest or deletion for a PID
+      operationId: scheduleCdkReharvest
+      parameters:
+        - $ref: '#/components/parameters/library'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pid]
+              properties:
+                pid: { type: string }
+                type: { type: string, default: children }
+                own_pid_path: { type: string }
+                rootPid: { type: string }
+                onlyShowConfiguration: { type: boolean, default: false }
+                maxItemsToDelete: { type: integer, minimum: 1, default: 10000 }
+                commitWaitMillis: { type: integer, minimum: 0, default: 1000, description: Milliseconds to wait after each Solr commit }
+                iterationUrl: { type: string }
+                iterationType: { type: string }
+                iterationRows: { type: integer }
+                iterationBatch: { type: integer }
+      responses:
+        '202': { description: Reharvest scheduled, content: { application/json: { schema: { $ref: '#/components/schemas/ScheduledProcess' } } } }
+        '400': { description: Invalid reharvest parameters }
+        '403': { description: Insufficient permissions }
+        '404': { description: Process profile not found }
 components:
   securitySchemes:
     BearerAuth:

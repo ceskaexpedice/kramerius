@@ -225,9 +225,8 @@ public abstract class ProxyHandlerSupport {
                 // event for reharvest
                 if (code == 404) {
                     LOGGER.log(Level.FINE, String.format(" NOT FOUND -> code %s,  %d", url, code));
-                    if (deleteTrigger && this.deleteTriggerSupport != null) {
-                        this.deleteTriggerSupport.executeDeleteTrigger(pid);
-                    }
+                    // A source-side 404 must not create a runnable reharvest item.
+                    // Reharvests are initiated explicitly by the curator.
                 }
                 return Response.status(code).build();
             }

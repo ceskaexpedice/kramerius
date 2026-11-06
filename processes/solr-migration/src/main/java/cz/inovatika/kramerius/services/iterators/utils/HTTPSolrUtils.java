@@ -138,20 +138,18 @@ public class HTTPSolrUtils {
 
 
     public static void commitApache(CloseableHttpClient closeableHttpClient, String destServer)  {
-        try {
-            String destSolr = destServer + "?commit=true";
-            HttpPost post = new HttpPost(destSolr);
-            Document document = XMLUtils.crateDocument("add");
-
-            StringWriter strWriter = new StringWriter();
-            XMLUtils.print(document, strWriter);
-            try(CloseableHttpResponse response = closeableHttpClient.execute(post)) {
-                InputStream is = response.getEntity().getContent();
-                String content = org.apache.commons.io.IOUtils.toString(is, "UTF-8");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        String destSolr = destServer + "?commit=true";
+        HttpPost post = new HttpPost(destSolr);
+        post.setHeader(HttpHeaders.ACCEPT, MediaType.TEXT_XML);
+        post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML);
+        post.setEntity(new StringEntity("<commit/>", StandardCharsets.UTF_8));
+        try (CloseableHttpResponse response = closeableHttpClient.execute(post)) {
+            int statusCode = response.getCode();
+            if (statusCode < HttpStatus.SC_OK || statusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
+                throw new IOException("Solr commit failed with HTTP " + statusCode + " for " + destSolr);
             }
-        } catch (ParserConfigurationException | TransformerException e) {
+            LOGGER.info("Solr commit completed for " + destServer);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

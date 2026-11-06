@@ -45,6 +45,11 @@ import java.util.concurrent.atomic.AtomicReference;
 @Ignore
 public class KubernetesReharvestProcessTest {
 
+    /**
+     * Exercises the process end to end with a recording HTTP client: the test checks
+     * the reharvest state transitions and the Solr delete request without contacting
+     * a live Kramerius, library, or Solr service.
+     */
     @Test
     public void testRunWithKubernetesReharvestConfigChangesStatePodAndDeletesFoundCompositeId() throws Exception {
         Map<String, String> env = new HashMap<>();

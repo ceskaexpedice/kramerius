@@ -16,9 +16,11 @@ import javax.ws.rs.core.MediaType;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.util.Timeout;
 import org.json.JSONObject;
 
 import com.sun.jersey.api.client.Client;
@@ -178,6 +180,39 @@ public class ChannelUtils {
             }
         } catch(IOException ex) {
             LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+        }
+        return null;
+    }
+
+    public static String solrChannelPidExistence(CloseableHttpClient apacheClient, String fullChannelUrl,
+                                                  String apiVersion, String pid, String apiKey,
+                                                  int responseTimeoutSeconds) throws UnsupportedEncodingException {
+        String query;
+        String url;
+        if (apiVersion.toLowerCase().equals("v5")) {
+            query = URLEncoder.encode("PID:\"" + pid + "\"", "UTF-8");
+            url = fullChannelUrl + "/select?q=" + query + "&rows=10&wt=json&fl=PID,fedora.model,pid_path,root_pid,own_model_path,own_pid_path";
+        } else {
+            query = URLEncoder.encode("pid:\"" + pid + "\"", "UTF-8");
+            url = fullChannelUrl + "/select?q=" + query + "&rows=10&wt=json&fl=pid,model,pid_paths,root.pid,own_model_path,own_pid_path";
+        }
+        HttpGet get = new HttpGet(url);
+        get.setHeader("User-Agent", "CDK/1.0");
+        if (StringUtils.isAnyString(apiKey)) {
+            get.addHeader("X-API-KEY", apiKey);
+        }
+        get.setConfig(RequestConfig.custom()
+                .setResponseTimeout(Timeout.ofSeconds(responseTimeoutSeconds))
+                .build());
+
+        try (CloseableHttpResponse response = apacheClient.execute(get)) {
+            if (response.getCode() == 200) {
+                HttpEntity entity = response.getEntity();
+                return IOUtils.toString(entity.getContent(), Charset.forName("UTF-8"));
+            }
+            LOGGER.log(Level.SEVERE, String.format("Bad response %d", response.getCode()));
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
         }
         return null;
     }

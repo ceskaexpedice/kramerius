@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +37,7 @@ import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem;
 import cz.incad.kramerius.rest.apiNew.admin.v70.reharvest.ReharvestItem.TypeOfReharvset;
 import cz.incad.kramerius.service.MigrateSolrIndexException;
 import cz.incad.kramerius.services.utils.kubernetes.KubernetesEnvSupport;
+import cz.incad.kramerius.utils.ProcessTokenSupport;
 import cz.incad.kramerius.utils.ReharvestUtils;
 
 public class KubernetesReharvestProcess {
@@ -49,6 +46,8 @@ public class KubernetesReharvestProcess {
     
     public static final String ONLY_SHOW_CONFIGURATION = "ONLY_SHOW_CONFIGURATION";
     public static final String MAX_ITEMS_TO_DELETE = "MAX_ITEMS_TO_DELETE";
+    public static final String COMMIT_WAIT_MILLIS = "COMMIT_WAIT_MILLIS";
+    public static final String SUCCESS_STATE = "SUCCESS_STATE";
 
     public static final Logger LOGGER = Logger.getLogger(KubernetesReharvestProcess.class.getName());
 
@@ -95,6 +94,8 @@ public class KubernetesReharvestProcess {
         Map<String, String> proxyMap = KubernetesEnvSupport.proxyMap(env);
         boolean onlyShowConfiguration = env.containsKey(ONLY_SHOW_CONFIGURATION);
         int maxItemsToDelete = env.containsKey(MAX_ITEMS_TO_DELETE) ? Integer.parseInt(env.get(MAX_ITEMS_TO_DELETE)) : DEFAULT_MAX_ITEMS_TO_DELETE;
+        long commitWaitMillis = ReharvestUtils.parseCommitWaitMillis(env.get(COMMIT_WAIT_MILLIS));
+        String successState = env.getOrDefault("successState", env.getOrDefault(SUCCESS_STATE, "closed"));
 
         if (reharvestMap.containsKey("url") && proxyMap.containsKey("url")) {
             String wurl = reharvestMap.get("url");
@@ -134,8 +135,9 @@ public class KubernetesReharvestProcess {
                             String proxyURl = proxyMap.get("url");
                             if (proxyURl != null) {
                                 ReharvestItem reharvestItem = ReharvestItem.fromJSON(itemObject);
-
+                                LOGGER.log(Level.INFO, String.format("Reharvest item before check %s", reharvestItem.toString()));
                                 Map<String, JSONObject> configurations = libraryConfigurations(closeableHttpClient, proxyURl,reharvestItem);
+                                LOGGER.info("Configurations:"+configurations);
                                 if (!reharvestItem.getTypeOfReharvest().isDeletingReharvest()) {
                                     validateLibraryConfigurations(reharvestItem, configurations);
                                     // check channels before delete
@@ -143,7 +145,8 @@ public class KubernetesReharvestProcess {
                                 }
 
                                 // delete all asociated pids from index
-                                String build = ReharvestUtils.deleteAllGivenPids(closeableHttpClient, destinationMap, allPidsList, onlyShowConfiguration);
+                                String build = ReharvestUtils.deleteAllGivenPids(closeableHttpClient, destinationMap,
+                                        allPidsList, onlyShowConfiguration, commitWaitMillis);
                                 LOGGER.info(String.format("Deleted pids results %s",build));
 
                                 // reindex pids
@@ -173,10 +176,12 @@ public class KubernetesReharvestProcess {
                                     }
 
 
-                                    ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations, ""+onlyShowConfiguration, destinationMap, iterationMap, reharvestItem);
+                                    ReharvestUtils.reharvestPIDFromGivenCollections(pid, configurations,
+                                            "" + onlyShowConfiguration, destinationMap, iterationMap,
+                                            reharvestItem, commitWaitMillis);
                                 }
                                 if (!onlyShowConfiguration) {
-                                    changeState(closeableHttpClient, wurl, id,"closed");
+                                    changeState(closeableHttpClient, wurl, id, successState);
                                 }
                             } else {
                                 LOGGER.severe("No proxy configuration");
@@ -189,8 +194,7 @@ public class KubernetesReharvestProcess {
 
                     } catch(TooBigException ex) {
                         changeState(closeableHttpClient, wurl, id,"too_big");
-                        String compare = String.format("delete.size()  %d >=  maxItemstoDelete %d", ex.getCounter(), maxItemsToDelete);
-                        LOGGER.severe(String.format( "Too big to reharvest (%s)  -> manual change ", compare));
+                        LOGGER.log(Level.SEVERE, "Too big to reharvest; queue item marked too_big: " + ex.getMessage(), ex);
                     }
                 } else {
                     LOGGER.info("No item to reharvest");
@@ -226,6 +230,12 @@ public class KubernetesReharvestProcess {
     public static Map<String, JSONObject> libraryConfigurations(CloseableHttpClient closeableHttpClient, String proxyURl, ReharvestItem reharvestItem) {
         Map<String, JSONObject> configurations = new HashMap<>();
         HttpGet get = new HttpGet(proxyURl);
+        LOGGER.info("Requesting :"+proxyURl);
+        try {
+            ProcessTokenSupport.setBearerToken(get, closeableHttpClient);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to obtain process token for library configurations", e);
+        }
         try(CloseableHttpResponse response = closeableHttpClient.execute(get)) {
             int code = response.getCode();
             if (code == 200) {
@@ -245,6 +255,7 @@ public class KubernetesReharvestProcess {
                         configURl += key + "/config";
 
                         HttpGet configGet = new HttpGet(configURl);
+                        ProcessTokenSupport.setBearerToken(configGet, closeableHttpClient);
                         try(CloseableHttpResponse configResult = closeableHttpClient.execute(configGet)) {
 
                             InputStream configStream = configResult.getEntity().getContent();
@@ -263,6 +274,8 @@ public class KubernetesReharvestProcess {
                         }
                     }
                 }
+            } else {
+                LOGGER.severe("Status code:"+code +" URL:"+get.toString());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

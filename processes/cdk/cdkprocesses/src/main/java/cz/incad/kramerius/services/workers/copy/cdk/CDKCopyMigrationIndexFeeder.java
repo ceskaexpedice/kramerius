@@ -149,7 +149,8 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
                             try {
                                 existingConflictRecord.reharvestConflict(client, reharvestApi);
                             } catch (Exception e) {
-                                LOGGER.log(Level.SEVERE, "Reharvest failed for " + existingConflictRecord.getPid(), e);
+                                CDKCopyFinisher.recordReharvestWarning(
+                                        "Could not schedule conflict reharvest for " + existingConflictRecord.getPid(), e);
                             }
                         });
                     }
@@ -160,7 +161,8 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
                             try {
                                 newConflictRecord.reharvestConflict(client, reharvestApi);
                             } catch (Exception e) {
-                                LOGGER.log(Level.SEVERE, "Reharvest failed for " + newConflictRecord.getPid(), e);
+                                CDKCopyFinisher.recordReharvestWarning(
+                                        "Could not schedule conflict reharvest for " + newConflictRecord.getPid(), e);
                             }
                         });
                     }

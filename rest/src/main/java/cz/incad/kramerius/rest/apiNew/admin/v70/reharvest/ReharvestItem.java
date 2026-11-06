@@ -149,6 +149,7 @@ public class ReharvestItem {
     public static final String TYPE_KEYWORD = "type";
     
     public static final String STATE_KEYWORD = "state";
+    public static final String STATE_WARNING = "warning";
     public static final String NAME_KEYWORD = "name";
     public static final String ID_KEYWORD = "id";
     public static final String POD_NAME_KEYWORD = "pod";

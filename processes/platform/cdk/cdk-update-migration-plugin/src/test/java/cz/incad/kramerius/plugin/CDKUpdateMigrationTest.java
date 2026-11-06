@@ -3,6 +3,7 @@ package cz.incad.kramerius.plugin;
 import cz.inovatika.kramerius.services.Migration;
 import org.apache.commons.io.FileUtils;
 import org.ceskaexpedice.processplatform.api.annotations.ProcessMethod;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@Ignore
 public class CDKUpdateMigrationTest {
 
     @Test

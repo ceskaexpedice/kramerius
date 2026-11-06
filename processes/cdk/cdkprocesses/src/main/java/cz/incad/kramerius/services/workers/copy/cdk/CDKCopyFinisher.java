@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +42,24 @@ public class CDKCopyFinisher extends MigrationIndexFeederFinisher {
     // uknown exception during crawl
     public static final int EXCEPTION_DURING_CRAWL_LIMIT = 10000;
     public static List<Exception> EXCEPTION_DURING_CRAWL = new ArrayList<>();
+
+    private static final List<String> REHARVEST_WARNINGS = new CopyOnWriteArrayList<>();
+
+    public static void clearReharvestWarnings() {
+        REHARVEST_WARNINGS.clear();
+    }
+
+    public static void recordReharvestWarning(String message, Exception ex) {
+        String warning = message + ": " + ex.getMessage();
+        REHARVEST_WARNINGS.add(warning);
+        LOGGER.log(Level.WARNING, warning, ex);
+    }
+
+    public static List<String> drainReharvestWarnings() {
+        List<String> warnings = new ArrayList<>(REHARVEST_WARNINGS);
+        REHARVEST_WARNINGS.clear();
+        return warnings;
+    }
     
     
     long start = System.currentTimeMillis();

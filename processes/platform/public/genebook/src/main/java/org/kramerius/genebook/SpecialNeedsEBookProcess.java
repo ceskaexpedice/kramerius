@@ -3,6 +3,7 @@ package org.kramerius.genebook;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import cz.incad.kramerius.fedora.RepoModule;
+import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.processes.notifications.GenerationNotification;
 import cz.incad.kramerius.processes.notifications.GenerationNotificationDispatcher;
 import cz.incad.kramerius.service.guice.I18NModule;
@@ -149,7 +150,7 @@ public class SpecialNeedsEBookProcess {
                         .filename(tmpFile.getName())
                         .downloadToken(downloadToken)
                         .downloadUrl(buildDownloadUrl(downloadToken))
-                        .title(tmpFile.getName())
+                        .title(getTitle(injector, pid))
                         .source(notificationSource != null ? notificationSource : "genebook")
                         .build(),
                 notificationMode,
@@ -195,5 +196,25 @@ public class SpecialNeedsEBookProcess {
         String link = String.format("%s/%s/%s/epub", k7BaseUrl, "userrequests/userspace", token);
         LOGGER.info("Download URL: " + link);
         return link;
+    }
+
+    private static String getTitle(Injector injector, String pid) {
+        try {
+            JSONObject response = injector.getInstance(com.google.inject.Key.get(SolrAccess.class, com.google.inject.name.Names.named("new-index"))).getJSONSolrDataByPid(pid);
+            JSONObject responseObject = response.optJSONObject("response");
+            org.json.JSONArray docs = responseObject != null ? responseObject.optJSONArray("docs") : null;
+            if (docs != null && docs.length() > 0) {
+                JSONObject doc = docs.getJSONObject(0);
+                String title = doc.optString("root.title", "");
+                if (!title.isEmpty()) return title;
+                Object titles = doc.opt("titles.search");
+                if (titles instanceof org.json.JSONArray && ((org.json.JSONArray) titles).length() > 0) {
+                    return ((org.json.JSONArray) titles).optString(0, pid);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warning("Could not read title from Solr for " + pid + ": " + e.getMessage());
+        }
+        return pid;
     }
 }

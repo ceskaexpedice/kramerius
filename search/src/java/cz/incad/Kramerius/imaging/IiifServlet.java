@@ -26,6 +26,9 @@ import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.pid.LexerException;
+import cz.inovatika.monitoring.APICallMonitor;
+import cz.inovatika.monitoring.ApiCallEvent;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -59,6 +62,7 @@ public class IiifServlet extends AbstractImageServlet {
     private CDKDocumentSourceProvider documentProvider;
 
     @Inject
+    @Named("cachedRightsResolver")
     private RightsResolver rightsResolver;
 
     @Inject
@@ -74,6 +78,9 @@ public class IiifServlet extends AbstractImageServlet {
     @Inject
     AggregatedAccessLogs aggregatedAccessLogs;
 
+    @Inject
+    APICallMonitor apiCallMonitor;
+
     // CDK injection
     @Inject
     Instances instances;
@@ -88,11 +95,13 @@ public class IiifServlet extends AbstractImageServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ApiCallEvent infoJsonEvent = null;
         try {
             boolean cdkServerMode = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.server.mode");
             if (cdkServerMode) {
                 String requestURL = req.getRequestURL().toString();
                 String zoomUrl = DeepZoomServlet.disectZoom(requestURL);
+                boolean monitorInfoJson = zoomUrl != null && zoomUrl.endsWith("/info.json");
                 StringTokenizer tokenizer = new StringTokenizer(zoomUrl, "/");
 
                 if (!tokenizer.hasMoreTokens()) {
@@ -116,13 +125,24 @@ public class IiifServlet extends AbstractImageServlet {
                     pid = firstToken;
                 }
 
+                if (monitorInfoJson) {
+                    infoJsonEvent = this.apiCallMonitor.start("/iiif", zoomUrl, req.getQueryString(), "GET", pid);
+                }
+
                 if (acronym == null) {
+                    long sourceLookupStart = System.currentTimeMillis();
                     acronym = this.documentProvider.getDocumentSource(pid);
+                    addSnapshot(infoJsonEvent, "source-resolution", sourceLookupStart, System.currentTimeMillis());
                     //acronym = defaultDocumentSource(pid);
+                }
+
+                if (infoJsonEvent != null && acronym != null) {
+                    infoJsonEvent.addLabel(acronym);
                 }
 
                 String forwardUrl = forwardUrl(acronym);
                 if (forwardUrl == null) {
+                    if (infoJsonEvent != null) infoJsonEvent.setStatusCode(HttpServletResponse.SC_NOT_FOUND);
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Source not found for PID: " + pid + (acronym != null ? " (acronym: " + acronym + ")" : ""));
                     return;
                 }
@@ -139,7 +159,7 @@ public class IiifServlet extends AbstractImageServlet {
                 }
 
                 if (isInfoRequest) {
-                    proxyInfoJson(acronym, iiifUrl.toString(), req, resp);
+                    proxyInfoJson(acronym, iiifUrl.toString(), req, resp, infoJsonEvent);
                 } else {
                     String region = iiifTokens.size() > 0 ? iiifTokens.get(0) : null;
                     String size = iiifTokens.size() > 1 ? iiifTokens.get(1) : null;
@@ -206,11 +226,20 @@ public class IiifServlet extends AbstractImageServlet {
                 }
             }
         } catch (IOException e) {
+            if (infoJsonEvent != null) infoJsonEvent.setStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
+            if (infoJsonEvent != null) infoJsonEvent.setStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             LOGGER.log(Level.SEVERE, e.getMessage(),e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } finally {
+            if (infoJsonEvent != null) {
+                if (infoJsonEvent.getStatusCode() == 0) {
+                    infoJsonEvent.setStatusCode(HttpServletResponse.SC_OK);
+                }
+                this.apiCallMonitor.stop(infoJsonEvent, monitoringUserId());
+            }
         }
     }
 
@@ -266,17 +295,22 @@ public class IiifServlet extends AbstractImageServlet {
     }
 
 
-    private void proxyInfoJson(String source, String url, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void proxyInfoJson(String source, String url, HttpServletRequest req, HttpServletResponse resp, ApiCallEvent event) throws IOException {
         org.apache.hc.client5.http.classic.methods.HttpGet get = new org.apache.hc.client5.http.classic.methods.HttpGet(url);
 
         CDKIIIFServletUtils.httpRequestAPIKey(source, get);
         String remoteAddress = IPAddressUtils.getRemoteAddress(req, KConfiguration.getInstance().getConfiguration());
         CDKIIIFServletUtils.httpRequestCDKPARAMETERS(source, this.userProvider.get(),remoteAddress, get);
 
+        long upstreamStart = System.currentTimeMillis();
+        boolean upstreamSnapshotRecorded = false;
         try (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse response = (org.apache.hc.client5.http.impl.classic.CloseableHttpResponse) apacheClient.get().execute(get)) {
             int code = response.getCode();
+            if (event != null) event.setStatusCode(code);
             if (code == 200) {
                 String json = org.apache.commons.io.IOUtils.toString(response.getEntity().getContent(), java.nio.charset.StandardCharsets.UTF_8);
+                addSnapshot(event, "http-info-json/" + source, upstreamStart, System.currentTimeMillis());
+                upstreamSnapshotRecorded = true;
                 JSONObject object = new JSONObject(json);
 
                 String urlRequest = req.getRequestURL().toString();
@@ -292,12 +326,37 @@ public class IiifServlet extends AbstractImageServlet {
                 out.print(object.toString());
                 out.flush();
             } else {
+                addSnapshot(event, "http-info-json/" + source, upstreamStart, System.currentTimeMillis());
+                upstreamSnapshotRecorded = true;
                 LOGGER.log(Level.WARNING, "Remote info.json failed with code: {0} for URL: {1}", new Object[]{code, url});
                 resp.sendError(code);
             }
         } catch (Exception e) {
+            if (event != null) event.setStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            addSnapshot(event, "http-info-json/" + source, upstreamStart, System.currentTimeMillis());
+            upstreamSnapshotRecorded = true;
             LOGGER.log(Level.SEVERE, "Error during proxying info.json from: " + url, e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } finally {
+            if (!upstreamSnapshotRecorded) {
+                addSnapshot(event, "http-info-json/" + source, upstreamStart, System.currentTimeMillis());
+            }
+        }
+    }
+
+    private void addSnapshot(ApiCallEvent event, String name, long start, long stop) {
+        if (event != null) {
+            event.getGranularTimeSnapshots().add(Triple.of(name, start, stop));
+        }
+    }
+
+    private String monitoringUserId() {
+        try {
+            User user = this.userProvider.get();
+            return user == null ? null : user.getLoginname();
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.FINE, "Cannot resolve user for IIIF monitoring event", e);
+            return null;
         }
     }
 
