@@ -6,7 +6,7 @@ plugins {
 description "CDK index"
 
 processPlugin {
-	spiImplementation='org.kramerius.plugin.SearchIndexObjectSPI'
+	spiImplementation='org.kramerius.plugin.CDKIndexSPI'
     profiles = [
             [profileId: "cdk-index", description: "CDK index", jvmArgs: ["-Xms1g","-Xmx32g"]]
     ]
@@ -18,9 +18,9 @@ processPlugin {
 }
 
 dependencies{
-    implementation project(':processes:search-index')
-    implementation project(':processes:cdk:cdkprocesses')
-    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+    api project(':processes:search-index')
+    api project(':processes:cdk:cdkprocesses')
+    api "org.ceskaexpedice:process-api:${processapiversion}"
 }
 
 

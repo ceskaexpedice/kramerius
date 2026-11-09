@@ -899,7 +899,7 @@ public class CollectionsResource extends AdminApiResource {
                         throw new RuntimeException(e);
                     }
                     // extract relsExt and update by removing relation
-                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
+                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid, akubraRepository.getReferenceFactory());
                     if (!removed) {
                         throw new BadRequestException("item %s is not present in collection %s", itemPid, collectionPid);
                     } else {
@@ -979,7 +979,7 @@ public class CollectionsResource extends AdminApiResource {
                     }
                     //extract relsExt and update by removing relation
                     Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
-                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
+                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid, akubraRepository.getReferenceFactory());
                     if (!removed) {
                         throw new BadRequestException("item %s is not present in collection %s", itemPid, collectionPid);
                     }

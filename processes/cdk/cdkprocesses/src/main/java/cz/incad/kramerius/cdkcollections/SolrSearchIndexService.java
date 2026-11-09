@@ -9,7 +9,6 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.params.CursorMarkParams;
 
@@ -19,6 +18,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
+import cz.incad.kramerius.utils.IterationUtils;
 
 public class SolrSearchIndexService implements SearchIndexService {
 
@@ -32,6 +33,10 @@ public class SolrSearchIndexService implements SearchIndexService {
     private static final String FIELD_IN_COLLECTION = "in_collections";
     private static final String FIELD_IN_COLLECTION_DIRECT = "in_collections.direct";
     private static final String FIELD_CDK_COLLECTION = "cdk.collection";
+    //private static final String FIELD_CDK_COLLECTIONS = "cdk.collections";
+    private static final String FIELD_MODEL = "model";
+    private static final String FIELD_COMPOSITE_ID = "compositeId";
+
 
     private final HttpSolrClient solrClient;
 
@@ -45,11 +50,12 @@ public class SolrSearchIndexService implements SearchIndexService {
         query.setQuery(FIELD_PID + ":" + ClientUtils.escapeQueryChars(pid));
         query.setRows(1);
         query.setFields(
+                FIELD_COMPOSITE_ID,
                 FIELD_PID,
                 FIELD_OWN_PID_PATH,
                 FIELD_IN_COLLECTION,
                 FIELD_IN_COLLECTION_DIRECT,
-                FIELD_PID_PATHS);
+                FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
         try {
             QueryResponse response = solrClient.query(query);
             SolrDocumentList results = response.getResults();
@@ -60,6 +66,18 @@ public class SolrSearchIndexService implements SearchIndexService {
         } catch (SolrServerException | IOException e) {
             throw new IllegalStateException("Cannot load search document with PID " + pid, e);
         }
+    }
+
+    @Override
+    public void findCollectionMembers(String collectionPid, String libraryAcronym, Consumer<List<SearchDocument>> pageConsumer) {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(FIELD_IN_COLLECTION_DIRECT + ":" + ClientUtils.escapeQueryChars(collectionPid)
+                + " AND " + FIELD_CDK_COLLECTION + ":" + ClientUtils.escapeQueryChars(libraryAcronym));
+        query.setFields(FIELD_COMPOSITE_ID, FIELD_PID, FIELD_OWN_PID_PATH, FIELD_IN_COLLECTION,
+                FIELD_IN_COLLECTION_DIRECT, FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
+        query.setRows(PAGE_SIZE);
+        query.setSort(IterationUtils.getSortField(), SolrQuery.ORDER.asc);
+        executeCursorPagedQuery(query, "Cannot find members of collection " + collectionPid, pageConsumer);
     }
 
     @Override
@@ -86,13 +104,14 @@ public class SolrSearchIndexService implements SearchIndexService {
         SolrQuery query = new SolrQuery();
         query.setQuery(sourcePathQuery + " AND " + missingCdkPathQuery);
         query.setFields(
+                FIELD_COMPOSITE_ID,
                 FIELD_PID,
                 FIELD_OWN_PID_PATH,
                 FIELD_IN_COLLECTION,
                 FIELD_IN_COLLECTION_DIRECT,
-                FIELD_PID_PATHS);
+                FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
         query.setRows(PAGE_SIZE);
-        query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
+        query.setSort(IterationUtils.getSortField(), SolrQuery.ORDER.asc);
         executeCursorPagedQuery(query,
                 "Cannot find unlinked subtree for PID " + rootPid + ", target CDK path " + targetCdkPath, pageConsumer);
     }
@@ -107,13 +126,15 @@ public class SolrSearchIndexService implements SearchIndexService {
         query.setQuery(FIELD_IN_COLLECTION_DIRECT + ":"
                 + ClientUtils.escapeQueryChars(collectionPid));
         query.setFields(
+                FIELD_COMPOSITE_ID,
                 FIELD_PID,
                 FIELD_OWN_PID_PATH,
                 FIELD_IN_COLLECTION,
                 FIELD_IN_COLLECTION_DIRECT,
-                FIELD_PID_PATHS);
+                FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
         query.setRows(PAGE_SIZE);
-        query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
+        // useCursor
+        query.setSort(IterationUtils.getSortField(), SolrQuery.ORDER.asc);
         executeCursorPagedQuery(
                 query,
                 "Cannot find documents directly assigned to CDK collection "
@@ -129,13 +150,14 @@ public class SolrSearchIndexService implements SearchIndexService {
                         + ClientUtils.escapeQueryChars(pidPathPrefix)
                         + "\"");
         query.setFields(
+                FIELD_COMPOSITE_ID,
                 FIELD_PID,
                 FIELD_OWN_PID_PATH,
                 FIELD_IN_COLLECTION,
                 FIELD_IN_COLLECTION_DIRECT,
-                FIELD_PID_PATHS);
+                FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
         query.setRows(PAGE_SIZE);
-        query.setSort(FIELD_PID, SolrQuery.ORDER.asc);
+        query.setSort(IterationUtils.getSortField(), SolrQuery.ORDER.asc);
         executeCursorPagedQuery(
                 query,
                 "Cannot find documents with PID path prefix " + pidPathPrefix,
@@ -151,6 +173,9 @@ public class SolrSearchIndexService implements SearchIndexService {
         for (SearchDocumentUpdate update : updates) {
             SolrInputDocument document = new SolrInputDocument();
             document.setField(FIELD_PID, update.getPid());
+            if (IterationUtils.useCompositeId()) {
+                document.setField(FIELD_COMPOSITE_ID, update.getCompositeId());
+            }
             document.setField(
                     FIELD_PID_PATHS,
                     Collections.singletonMap("set",
@@ -209,12 +234,15 @@ public class SolrSearchIndexService implements SearchIndexService {
     private SearchDocument toSearchDocument(SolrDocument document) {
         List<String> cdkCollections = asStringList(document.getFieldValue(FIELD_CDK_COLLECTION));
         return new SearchDocument(
+                asString(document.getFieldValue(FIELD_COMPOSITE_ID)),
                 asString(document.getFieldValue(FIELD_PID)),
                 asString(document.getFieldValue(FIELD_OWN_PID_PATH)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
                 asStringList(document.getFieldValue(FIELD_PID_PATHS)),
-                cdkCollections.isEmpty());
+                cdkCollections.isEmpty(),
+                asString(document.getFieldValue(FIELD_MODEL)),
+                asStringList(document.getFieldValue(FIELD_CDK_COLLECTION)));
     }
 
     private String asString(Object value) {

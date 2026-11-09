@@ -193,6 +193,12 @@ public class CollectionsResource extends AdminApiResource {
     }
 
 
+    protected JSONObject getCDKSyncPar(String userid) {
+        Map<String, String> payload = new HashMap<>();
+        JSONObject scheduleMainProcess = APIProcessScheduler.createScheduleProcess("cdk-index-collection", payload, userid);
+        return scheduleMainProcess;
+    }
+
     /**
      * Returs a collection identified by pid.
      *
@@ -502,9 +508,7 @@ public class CollectionsResource extends AdminApiResource {
             if (StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false")) {
                 LOGGER.info("Ommiting indexation");
             } else {
-                JSONObject scheduleItemReindexationPar = getCDKScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
-                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
-                updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.singleton(itemPid), Collections.emptyList());
+                schedulePidIndexation(collectionPid, itemPid, reference, user, scheduleMainProcessesPlanned);
             }
             JSONObject result = new JSONObject();
             if (scheduleMainProcessesPlanned.length() > 0) {
@@ -521,6 +525,20 @@ public class CollectionsResource extends AdminApiResource {
         } catch (Throwable e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    private JSONObject schedulePidIndexation(String collectionPid, String itemPid, Reference reference, User user, JSONArray scheduleMainProcessesPlanned) throws IOException {
+        if (reference instanceof CDKReference) {
+            JSONObject scheduleItemReindexationPar = getCDKSyncPar(user.getLoginname());
+            scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+            updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.singleton(itemPid), Collections.emptyList());
+            return scheduleItemReindexationPar;
+        } else {
+            JSONObject scheduleItemReindexationPar = getCDKScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
+            scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+            updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.singleton(itemPid), Collections.emptyList());
+            return scheduleItemReindexationPar;
         }
     }
 
@@ -616,8 +634,9 @@ public class CollectionsResource extends AdminApiResource {
             JSONArray scheduleMainProcessesPlanned = new JSONArray();
             if (!(StringUtils.isAnyString(indexation) && indexation.trim().toLowerCase().equals("false"))) {
                 for (String itemPid : pidsAdded) {
-                    JSONObject scheduleItemReindexationPar = getCDKScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
-                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
+                    schedulePidIndexation(collectionPid, itemPid, akubraRepository.getReferenceFactory().create(itemPid), user, scheduleMainProcessesPlanned);
+//                    JSONObject scheduleItemReindexationPar = getCDKScheduleReindexationPar(itemPid, user.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
+//                    scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleItemReindexationPar));
                 }
                 if (!pidsAdded.isEmpty()) {
                     updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, pidsAdded, Collections.emptyList());
@@ -842,7 +861,7 @@ public class CollectionsResource extends AdminApiResource {
     public Response removeItemFromCollection(@PathParam("collectionPid") String collectionPid, JSONObject batch) {
         List<String> reindexCollection = new ArrayList<>();
         checkSupportedObjectPid(collectionPid);
-        JSONArray scheduleMainProcesses = new JSONArray();
+        //JSONArray scheduleMainProcesses = new JSONArray();
         JSONArray scheduleMainProcessesPlanned = new JSONArray();
 
         try {
@@ -854,7 +873,12 @@ public class CollectionsResource extends AdminApiResource {
                 for (int i = 0; i < batch.getJSONArray("pids").length(); i++) {
                     String itemPid = batch.getJSONArray("pids").getString(i);
 
-                    checkSupportedObjectPid(itemPid);
+                    Reference reference =  akubraRepository.getReferenceFactory().create(itemPid);
+                    if ((reference instanceof CDKReference) || (reference instanceof FedoraReference)) {
+                        checkSupportedObjectPid(reference.getPid());
+                    } else {
+                        throw new BadRequestException("unsupported reference type: " + reference.getClass().getName());
+                    }
                     try {
                         if (!permitCollectionEdit(rightsResolver, user1, collectionPid)) {
                             throw new ForbiddenException(
@@ -867,7 +891,7 @@ public class CollectionsResource extends AdminApiResource {
                         throw new RuntimeException(e);
                     }
                     // extract relsExt and update by removing relation
-                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
+                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid, akubraRepository.getReferenceFactory());
                     if (!removed) {
                         throw new BadRequestException("item %s is not present in collection %s", itemPid, collectionPid);
                     } else {
@@ -882,9 +906,12 @@ public class CollectionsResource extends AdminApiResource {
             });
             reindexCollection.forEach(itemPid -> {
                 // schedule reindexation - item that was removed (whole tree and foster trees)
-                JSONObject scheduleReindexationPar = getCDKScheduleReindexationPar(itemPid, user1.getLoginname(), "TREE_AND_FOSTER_TREES", true, itemPid, true);
-                scheduleMainProcesses.put(scheduleReindexationPar);
-                scheduleMainProcessesPlanned.put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, scheduleReindexationPar));
+                try {
+                    Reference reference = akubraRepository.getReferenceFactory().create(itemPid);
+                    schedulePidIndexation(collectionPid, itemPid, reference, user1, scheduleMainProcessesPlanned);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             });
             if (!reindexCollection.isEmpty()) {
                 updateCollectionContainsLicensesInRepositoryAndSearchIndex(collectionPid, true, Collections.emptyList(), reindexCollection);
@@ -938,7 +965,7 @@ public class CollectionsResource extends AdminApiResource {
                 public Object execute() {
                     //extract relsExt and update by removing relation
                     Document relsExt = akubraRepository.re().get(collectionPid).asDom4j(true);
-                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid);
+                    boolean removed = foxmlBuilder.removeRelationFromRelsExt(collectionPid, relsExt, KnownRelations.CONTAINS, itemPid, akubraRepository.getReferenceFactory());
                     if (!removed) {
                         throw new BadRequestException("item %s is not present in collection %s", itemPid, collectionPid);
                     }

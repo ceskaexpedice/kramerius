@@ -74,9 +74,12 @@ public class FoxmlBuilder {
     /**
      * @return true if relation has been removed, false if it was not there
      */
-    public boolean removeRelationFromRelsExt(String ownerPid, Document relsExt, KnownRelations relation, String itemPid) {
-        String relationXpath = String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), itemPid);
-        Element relationEl = (Element) Dom4jUtils.buildXpath(relationXpath).selectSingleNode(relsExt.getRootElement());
+    public boolean removeRelationFromRelsExt(String ownerPid, Document relsExt, KnownRelations relation, String itemPid,  ReferenceFactory referenceFactory) {
+        Element description = (Element) Dom4jUtils.buildXpath("/rdf:RDF/rdf:Description").selectSingleNode(relsExt.getRootElement());
+        String targetPid = referenceFactory.create(itemPid).getPrefixedPid();
+        Element relationEl = (Element) Dom4jUtils.buildXpath(String.format("rel:%s[@rdf:resource='%s']", relation, targetPid)).selectSingleNode(description);
+        //String relationXpath = String.format("/rdf:RDF/rdf:Description/rel:%s[@rdf:resource='info:fedora/%s']", relation.toString(), itemPid);
+        //Element relationEl = (Element) Dom4jUtils.buildXpath(relationXpath).selectSingleNode(relsExt.getRootElement());
         if (relationEl != null) {
             relationEl.detach();
             return true;

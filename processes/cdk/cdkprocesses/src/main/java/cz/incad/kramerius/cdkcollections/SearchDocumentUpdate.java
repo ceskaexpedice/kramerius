@@ -4,6 +4,7 @@ import java.util.List;
 
 public class SearchDocumentUpdate {
 
+    private final String compositeId;
     private final String pid;
     // TODO foster_parent
     private final List<String> pidPaths;
@@ -11,10 +12,12 @@ public class SearchDocumentUpdate {
     private final List<String> inCollectionsDirect;
 
     public SearchDocumentUpdate(
+            String compositeId,
             String pid,
             List<String> pidPaths,
             List<String> inCollections,
             List<String> inCollectionsDirect) {
+        this.compositeId = compositeId;
         this.pid = pid;
         this.pidPaths = pidPaths;
         this.inCollections = inCollections;
@@ -23,6 +26,10 @@ public class SearchDocumentUpdate {
 
     public String getPid() {
         return pid;
+    }
+
+    public String getCompositeId() {
+        return compositeId;
     }
 
     public List<String> getPidPaths() {

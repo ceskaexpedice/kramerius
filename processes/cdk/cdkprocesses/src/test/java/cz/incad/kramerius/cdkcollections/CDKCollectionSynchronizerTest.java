@@ -48,27 +48,27 @@ public class CDKCollectionSynchronizerTest {
 
         // search index after MZK migration
         search.addDocument(
-                new SearchDocument("sb1", "sb1",
+                new SearchDocument("sb1!sb1", "sb1", "sb1",
                         Collections.emptyList(), Collections.emptyList(),
                         Collections.singletonList("sb1"), false));
         search.addDocument(
-                new SearchDocument("per1", "per1",
+                new SearchDocument("sb1!per1", "per1", "per1",
                         Collections.singletonList("sb1"), Collections.singletonList("sb1"),
                         Collections.singletonList("sb1/per1"), false));
         search.addDocument(
-                new SearchDocument("roc1", "per1/roc1",
+                new SearchDocument("sb1!roc1", "roc1", "per1/roc1",
                         Collections.singletonList("sb1"), Collections.emptyList(),
                         Collections.singletonList("sb1/per1/roc1"), false));
         search.addDocument(
-                new SearchDocument("cis1", "per1/roc1/cis1",
+                new SearchDocument("sb1!cis1", "cis1", "per1/roc1/cis1",
                         Collections.singletonList("sb1"), Collections.emptyList(),
                         Collections.singletonList("sb1/per1/roc1/cis1"), false));
         search.addDocument(
-                new SearchDocument("st1", "per1/roc1/cis1/st1",
+                new SearchDocument("sb1!st1", "st1", "per1/roc1/cis1/st1",
                         Collections.singletonList("sb1"), Collections.emptyList(),
                         Collections.singletonList("sb1/per1/roc1/cis1/st1"), false));
         search.addDocument(
-                new SearchDocument("st2", "per1/roc1/cis1/st2",
+                new SearchDocument("sb1!st2", "st2", "per1/roc1/cis1/st2",
                         Collections.singletonList("sb1"), Collections.emptyList(),
                         Collections.singletonList("sb1/per1/roc1/cis1/st2"), false));
 
@@ -90,24 +90,24 @@ public class CDKCollectionSynchronizerTest {
 
         // search index after CDK indexing = MZK documents + CDK collections
         search.addDocument(
-                new SearchDocument("cdk-sb1", "cdk-sb1",
+                new SearchDocument("cdk-sb1!cdk-sb1", "cdk-sb1", "cdk-sb1",
                         Collections.emptyList(), Collections.emptyList(),
                         Collections.singletonList("cdk-sb1"), true));
         search.addDocument(
-                new SearchDocument("cdk-sb11", "cdk-sb1/cdk-sb11",
+                new SearchDocument("cdk-sb1!cdk-sb11", "cdk-sb11", "cdk-sb1/cdk-sb11",
                         Collections.singletonList("cdk-sb1"), Collections.singletonList("cdk-sb1"),
                         Collections.singletonList("cdk-sb1/cdk-sb11"), true));
         search.setParent("cdk-sb11", "cdk-sb1");
         search.addDocument(
-                new SearchDocument("cdk-sb2", "cdk-sb2",
+                new SearchDocument("cdk-sb2!cdk-sb2", "cdk-sb2", "cdk-sb2",
                         Collections.emptyList(), Collections.emptyList(),
                         Collections.singletonList("cdk-sb2"), true));
         search.addDocument(
-                new SearchDocument("cdk-sb3", "cdk-sb3",
+                new SearchDocument("cdk-sb3!cdk-sb3", "cdk-sb3", "cdk-sb3",
                         Collections.emptyList(), Collections.emptyList(),
                         Collections.singletonList("cdk-sb3"), true));
         search.addDocument(
-                new SearchDocument("cdk-sb4", "cdk-sb4",
+                new SearchDocument("cdk-sb4!cdk-sb4", "cdk-sb4", "cdk-sb4",
                         Collections.emptyList(), Collections.emptyList(),
                         Collections.singletonList("cdk-sb4"), true));
         search.setParent("cdk-sb11", "cdk-sb4");

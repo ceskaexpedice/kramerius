@@ -49,7 +49,7 @@ import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
-import cz.incad.kramerius.rest.apiNew.client.v70.ClientApiResource;
+import cz.incad.kramerius.rest.apiNew.client.v70.AbstractItemsResource;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -61,7 +61,7 @@ import org.json.JSONObject;
 /**
  */
 @Path("/client/v7.0/items")
-public class ItemsResource extends ClientApiResource {
+public class ItemsResource extends AbstractItemsResource {
 
     //TODO: uklid
     //(ne-admin) client je neautentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
@@ -180,6 +180,13 @@ public class ItemsResource extends ClientApiResource {
     }
 
     @GET
+    @Path("{pid}/foxml")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getFoxml(@PathParam("pid") String pid) {
+        return localFoxml(pid);
+    }
+
+    @GET
     @Path("{pid}/info")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response getInfo(@PathParam("pid") String pid) {
@@ -190,7 +197,7 @@ public class ItemsResource extends ClientApiResource {
                 event.addLabel(redirectHandler.getSource());
                 return redirectHandler.info(event);
             } else {
-                return Response.ok().build();
+                return localInfo(pid);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -239,7 +246,7 @@ public class ItemsResource extends ClientApiResource {
                 event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoData(event);
             } else {
-                return Response.ok().build();
+                return localInfoData(pid);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -293,7 +300,7 @@ public class ItemsResource extends ClientApiResource {
                 event.addLabel(redirectHandler.getSource());
                 return redirectHandler.providedByLicenses(event);
             } else {
-                return Response.ok().build();
+                return localInfoProvidedByLicenses(pid);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -350,15 +357,7 @@ public class ItemsResource extends ClientApiResource {
                 event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoStructure(event);
             } else {
-                //-------------------------------------
-                checkSupportedObjectPid(pid);
-                checkObjectExists(pid);
-                JSONObject jsonObject = akubraRepository.pi().extractStructureInfo(pid);
-                return Response.ok(jsonObject).build();
-                //--------------------------------------------------------------------
-
-
-                //return Response.ok().build();
+                return localInfoStructure(pid);
             }
         } catch (WebApplicationException e) {
             throw e;
@@ -378,7 +377,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getInfoStructure(@PathParam("pid") String pid, @PathParam("source") String source) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/%s/info/structure",pid,source), "", "GET", pid);
         try {
-            ProxyItemHandler redirectHandler = findRedirectHandler(pid,null);
+            ProxyItemHandler redirectHandler = findRedirectHandler(pid,source);
             if (redirectHandler != null) {
                 event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoStructure(event);
@@ -412,7 +411,7 @@ public class ItemsResource extends ClientApiResource {
                 event.addLabel(redirectHandler.getSource());
                 return redirectHandler.infoImage(event);
             } else {
-                return Response.ok().build();
+                return localInfoImage(pid);
             }
         } catch (WebApplicationException e) {
             throw e;

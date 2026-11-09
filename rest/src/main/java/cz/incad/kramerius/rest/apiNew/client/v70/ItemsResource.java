@@ -82,7 +82,7 @@ import java.util.zip.ZipInputStream;
  * ItemsResource
  */
 @Path("/client/v7.0/items")
-public class ItemsResource extends ClientApiResource {
+public class ItemsResource extends AbstractItemsResource {
 
     //TODO: uklid
     //(ne-admin) client je neautentizovany, jenom cte data a mela by pred nim byt do urcite miry skryta implementece, takze:
@@ -233,15 +233,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getInfo(@PathParam("pid") String pid) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info", pid), "", "GET", pid);
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            JSONObject json = new JSONObject();
-            json.put("data", ExtractDataInfoUtils.extractAvailableDataInfo(akubraRepository, pid));
-            json.put("image", ExtractDataInfoUtils.extractImageSourceInfo(akubraRepository, pid));
-            RuntimeInformation extracrtedInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, pid);
-            json.put(RightRuntimeInformations.PROVIDED_BY_LICENSES, extracrtedInformation.getProvidingLicensesAsJSONArray());
-            json.put(RightRuntimeInformations.ACCESSIBLE_LOCSK, extracrtedInformation.getLockAsJSONArray());
-            return Response.ok(json).build();
+            return localInfo(pid);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -260,9 +252,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getInfoData(@PathParam("pid") String pid) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/data", pid), "", "GET", pid);
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            return Response.ok(ExtractDataInfoUtils.extractAvailableDataInfo(akubraRepository,pid)).build();
+            return localInfoData(pid);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -281,12 +271,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getProvidingLicenses(@PathParam("pid") String pid) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/providedByLicenses", pid), "", "GET", pid);
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            JSONObject responseJson = new JSONObject();
-            RuntimeInformation extracrtedInformation = RightRuntimeInformations.extractInformations(this.rightsResolver, this.solrAccess, pid);
-            responseJson.put("licenses", extracrtedInformation.getLockAsJSONArray());
-            return Response.ok(responseJson).build();
+            return localInfoProvidedByLicenses(pid);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -310,9 +295,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getInfoStructure(@PathParam("pid") String pid) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/structure", pid), "", "GET", pid);
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            return Response.ok(akubraRepository.pi().extractStructureInfo(pid)).build();
+            return localInfoStructure(pid);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -335,9 +318,7 @@ public class ItemsResource extends ClientApiResource {
     public Response getInfoImage(@PathParam("pid") String pid) {
         ApiCallEvent event = this.apiCallMonitor.start("/client/v7.0/items", String.format("/client/v7.0/items/%s/info/image", pid), "", "GET", pid);
         try {
-            checkSupportedObjectPid(pid);
-            checkObjectExists(pid);
-            return Response.ok(ExtractDataInfoUtils.extractImageSourceInfo(akubraRepository,pid)).build();
+            return localInfoImage(pid);
         } catch (WebApplicationException e) {
             throw e;
         } catch (Throwable e) {
@@ -1030,121 +1011,7 @@ public class ItemsResource extends ClientApiResource {
     @Path("{pid}/foxml")
     @Produces(MediaType.APPLICATION_XML)
     public Response getFoxml(@PathParam("pid") String pid) {
-        try {
-            checkSupportedObjectPid(pid);
-            //checkUserIsAllowedToReadObject(pid); //autorizace podle zdroje přístupu, POLICY apod. (by JSESSIONID)
-            checkObjectExists(pid);
-            Document foxml = akubraRepository.get(pid).asDom4j(true);
-            // remove streams
-            Document modifiedFoxml = removeSecuredDatastreams(foxml);
-            if (modifiedFoxml != null) {
-                String model = model(modifiedFoxml);
-                if (StringUtils.isAnyString(model) && model.equals("info:fedora/model:collection")) {
-                    String streamName = "COLLECTION_CLIPS";
-                    String collectionClipsContent = null;
-                    // clipping_items
-                    if (akubraRepository.datastreamExists(pid, streamName)) {
-                        try (InputStream cutters = akubraRepository.getDatastreamContent(pid, streamName).asInputStream()) {
-                            if (cutters != null) {
-                                byte[] content = replaceLocationByBinaryContent(modifiedFoxml, cutters, streamName);
-                                collectionClipsContent = new String(content, "UTF-8");
-                            }
-                        }
-                    }
-                    // thumbs from cutters
-                    if (collectionClipsContent != null) {
-                        org.json.JSONArray jsonArray = new org.json.JSONArray(collectionClipsContent);
-
-                        List<CutItem> cutItems = CutItem.fromJSONArray(jsonArray);
-                        for (CutItem cutItem : cutItems) {
-                            try {
-                                cutItem.initGeneratedThumbnail(akubraRepository, pid);
-                            } catch (NoSuchAlgorithmException | IOException e) {
-                                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                            }
-
-                            if (cutItem.containsGeneratedThumbnail()) {
-                                String clipThumbName = cutItem.getThumbnailmd5();
-                                // clipThumbName
-                                try (InputStream cutters = akubraRepository.getDatastreamContent(pid, clipThumbName).asInputStream()) {
-                                    if (cutters != null) {
-                                        replaceLocationByBinaryContent(modifiedFoxml, cutters, clipThumbName);
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-                    // thumb
-                    if (this.akubraRepository.datastreamExists(pid, KnownDatastreams.IMG_THUMB)) {
-                        try (InputStream imgThumb = akubraRepository.getDatastreamContent(pid, KnownDatastreams.IMG_THUMB).asInputStream()) {
-                            if (imgThumb != null) {
-                                String streamThumbName = "IMG_THUMB";
-                                replaceLocationByBinaryContent(modifiedFoxml, imgThumb, streamThumbName);
-                            }
-                        }
-                    }
-                }
-                return Response.ok().entity(modifiedFoxml.asXML()).build();
-            } else {
-                throw new InternalErrorException("I cannot return the foxml object => Not all protected datastreams could be removed.");
-            }
-
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (Throwable e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new InternalErrorException(e.getMessage());
-        }
-    }
-
-    private byte[] replaceLocationByBinaryContent(Document modifiedFoxml, InputStream imgThumb, String streamName)
-            throws IOException {
-        String datastreamXPath = String.format("/foxml:digitalObject/foxml:datastream[@ID='%s']/foxml:datastreamVersion", streamName);
-        Node thumbNode = Dom4jUtils.buildXpath(datastreamXPath).selectSingleNode(modifiedFoxml.getRootElement());
-
-        byte[] bytes = IOUtils.toByteArray(imgThumb);
-        if (thumbNode != null) {
-            List<Node> contentLocation = Dom4jUtils.buildXpath("//foxml:contentLocation").selectNodes(thumbNode);
-            for (Node node : contentLocation) {
-                node.detach();
-            }
-            Element thumbElement = (Element) thumbNode;
-            Element binaryContent = thumbElement.addElement("binaryContent", thumbElement.getNamespaceURI());
-            binaryContent.setText(new String(Base64.encodeBase64(bytes)));
-        }
-        return bytes;
-    }
-
-    private String model(Document modifiedFoxml) {
-        Element modelNode = (Element) Dom4jUtils.buildXpath("//model:hasModel").selectSingleNode(modifiedFoxml.getRootElement());
-        if (modelNode != null) {
-            Namespace ns = new Namespace("rdf", Dom4jUtils.NAMESPACE_URIS.get("rdf"));
-            QName qname = new QName("resource", ns);
-            Attribute attribute = modelNode.attribute(qname);
-            if (attribute != null) {
-                return attribute.getStringValue();
-            }
-        }
-        return null;
-    }
-
-    private static Document removeSecuredDatastreams(Document foxmlDoc) {
-        synchronized (foxmlDoc) {
-            List<String> allSecuredStreams = FedoraUtils.getSecuredStreams();
-            List<Node> toRemove = new ArrayList<>();
-            for (String dsId : allSecuredStreams) {
-                String xpath = String.format("//foxml:datastream[@ID='%s']", dsId);
-                //String xpath = String.format("//foxml:datastream");
-                List<Node> streamsEls = Dom4jUtils.buildXpath(xpath).selectNodes(foxmlDoc);
-                toRemove.addAll(streamsEls);
-            }
-            toRemove.stream().forEach(it -> {
-                Node detach = it.detach();
-
-            });
-            return foxmlDoc;
-        }
+        return localFoxml(pid);
     }
 
     /***

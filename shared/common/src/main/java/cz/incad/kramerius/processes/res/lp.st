@@ -181,4 +181,20 @@
         <securedaction>a_akubra_edit</securedaction>
     </process>
 
+
+    <!-- CDK process -->
+    <process>
+        <id>cdk-index-collection</id>
+        <description>CDK index collections</description>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
+        <securedaction>a_collections_edit</securedaction>
+    </process>
+
+    <process>
+        <id>cdk-index</id>
+        <description>CDK collection indexation</description>
+        <javaProcessParameters>-Xmx4g -Xms1g</javaProcessParameters>
+        <securedaction>a_collections_edit</securedaction>
+    </process>
+
 </processes>
