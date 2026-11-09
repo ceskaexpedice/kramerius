@@ -240,9 +240,7 @@ public class SolrSearchIndexService implements SearchIndexService {
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
                 asStringList(document.getFieldValue(FIELD_PID_PATHS)),
-                cdkCollections.isEmpty(),
-                asString(document.getFieldValue(FIELD_MODEL)),
-                asStringList(document.getFieldValue(FIELD_CDK_COLLECTION)));
+                cdkCollections.isEmpty());
     }
 
     private String asString(Object value) {

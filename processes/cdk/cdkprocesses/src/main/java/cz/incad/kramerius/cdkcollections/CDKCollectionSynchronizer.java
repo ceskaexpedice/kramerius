@@ -49,22 +49,6 @@ public class CDKCollectionSynchronizer {
                 if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
                     continue;
                 }
-                if ("collection".equals(root.getModel()) && !root.getCdkLibraries().isEmpty()) {
-                    for (List<String> cdkPath : cdkPaths) {
-                        searchIndex.findCollectionMembers(sourcePid, root.getCdkLibraries().get(0), members -> {
-                            for (SearchDocument member : members) {
-                                if (member.getOwnPidPath() == null || member.getOwnPidPath().isEmpty()) continue;
-                                String memberPath = member.getOwnPidPath();
-                                int memberIndex = memberPath.indexOf(member.getPid());
-                                if (memberIndex < 0) continue;
-                                String suffix = memberPath.substring(memberIndex);
-                                String fullPath = String.join("/", cdkPath) + "/" + sourcePid + "/" + suffix;
-                                result.add(new ReferencePath(collectionPid, member.getPid(), cdkPath, fullPath, sourcePid));
-                            }
-                        });
-                    }
-                    continue;
-                }
                 String ownPidPath = root.getOwnPidPath();
                 int index = ownPidPath.indexOf(sourcePid);
                 if (index < 0) {
@@ -270,8 +254,7 @@ public class CDKCollectionSynchronizer {
             int index = ownPidPath.indexOf(reference.referencedPid);
             if (index >= 0) {
                 String lastPath = ownPidPath.substring(index);
-                String collectionPrefix = reference.sourceCollectionPid == null ? "" : reference.sourceCollectionPid + "/";
-                String fullPath = String.join("/", reference.cdkPath) + "/" + collectionPrefix + lastPath;
+                String fullPath = String.join("/", reference.cdkPath) + "/" + lastPath;
                 allPaths.add(fullPath);
             }
         }
@@ -330,18 +313,12 @@ public class CDKCollectionSynchronizer {
         private final String referencedPid;
         private final List<String> cdkPath;
         private final String fullPath;
-        private final String sourceCollectionPid;
 
         private ReferencePath(String collectionPid, String referencedPid, List<String> cdkPath, String fullPath) {
-            this(collectionPid, referencedPid, cdkPath, fullPath, null);
-        }
-
-        private ReferencePath(String collectionPid, String referencedPid, List<String> cdkPath, String fullPath, String sourceCollectionPid) {
             this.collectionPid = collectionPid;
             this.referencedPid = referencedPid;
             this.cdkPath = new ArrayList<>(cdkPath);
             this.fullPath = fullPath;
-            this.sourceCollectionPid = sourceCollectionPid;
         }
 
         @Override

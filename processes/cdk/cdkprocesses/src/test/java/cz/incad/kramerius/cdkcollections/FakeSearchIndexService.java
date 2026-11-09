@@ -35,12 +35,15 @@ public class FakeSearchIndexService implements SearchIndexService {
 
     @Override
     public void findCollectionMembers(String collectionPid, String libraryAcronym, Consumer<List<SearchDocument>> pageConsumer) {
+        /*
         List<SearchDocument> result = new ArrayList<>();
         for (SearchDocument document : documents.values()) {
             if (document.getInCollectionsDirect().contains(collectionPid)
                     && document.getCdkLibraries().contains(libraryAcronym)) result.add(document);
         }
         if (!result.isEmpty()) pageConsumer.accept(result);
+
+         */
     }
 
     public List<String> getChildren(String pid) {

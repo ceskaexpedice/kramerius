@@ -13,17 +13,9 @@ public class SearchDocument {
     private List<String> inCollectionsDirect;
     private List<String> pidPaths;
     private boolean cdkCollection;
-    private final String model;
-    private final List<String> cdkLibraries;
 
     public SearchDocument(String compositeId, String pid, String ownPidPath, List<String> inCollections,
                           List<String> inCollectionsDirect, List<String> pidPaths, boolean cdkCollection) {
-        this(compositeId, pid, ownPidPath, inCollections, inCollectionsDirect, pidPaths, cdkCollection, null, null);
-    }
-
-    public SearchDocument(String compositeId, String pid, String ownPidPath, List<String> inCollections,
-                          List<String> inCollectionsDirect, List<String> pidPaths, boolean cdkCollection,
-                          String model, List<String> cdkLibraries) {
         this.compositeId = compositeId;
         this.pid = pid;
         this.ownPidPath = ownPidPath;
@@ -31,8 +23,6 @@ public class SearchDocument {
         this.inCollectionsDirect = copy(inCollectionsDirect);
         this.pidPaths = copy(pidPaths);
         this.cdkCollection = cdkCollection;
-        this.model = model;
-        this.cdkLibraries = copy(cdkLibraries);
     }
 
     private static List<String> copy(List<String> values) {
@@ -76,14 +66,11 @@ public class SearchDocument {
         return cdkCollection;
     }
 
-    public String getModel() { return model; }
-
-    public List<String> getCdkLibraries() { return copy(cdkLibraries); }
-
     @Override
     public String toString() {
         return "SearchDocument{" +
                 "pid='" + pid + '\'' +
+                ", compositeId='" + compositeId + '\'' +
                 ", ownPidPath='" + ownPidPath + '\'' +
                 ", inCollections=" + inCollections +
                 ", inCollectionsDirect=" + inCollectionsDirect +
