@@ -1550,9 +1550,7 @@ public class ItemsResource extends ClientApiResource {
                 }
                 u = u + "info.json";
 
-                HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(u, "", "");
-                InputStream inputStream = con.getInputStream();
-                String json = IOUtils.toString(inputStream, Charset.defaultCharset());
+                String json = IIIFUtils.fetchInfoJson(u);
                 JSONObject object = new JSONObject(json);
                 HttpServletRequest req = this.requestProvider.get();
                 String urlRequest = req.getRequestURL().toString();

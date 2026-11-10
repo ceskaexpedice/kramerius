@@ -206,9 +206,7 @@ public class IiifServlet extends AbstractImageServlet {
                                     reportAccess(pid);
                                     resp.setContentType("application/ld+json");
                                     resp.setCharacterEncoding("UTF-8");
-                                    HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(url.toString(), "", "");
-                                    InputStream inputStream = con.getInputStream();
-                                    String json = IOUtils.toString(inputStream, Charset.defaultCharset());
+                                    String json = IIIFUtils.fetchInfoJson(url.toString());
                                     JSONObject object = new JSONObject(json);
                                     String urlRequest = req.getRequestURL().toString();
                                     object.put("@id", urlRequest.substring(0, urlRequest.lastIndexOf('/')));
