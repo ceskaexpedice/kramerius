@@ -757,7 +757,7 @@ public class ItemsResource extends ClientApiResource {
         Response response = requests(pid, reqid, lang, locale, parseRequestDefinition(pid, reqid, reqDefinition));
         if ("generate_pdf".equals(reqid) && response.getStatus() < 300) {
             // the whole document as a pdf, generated later and sent by e-mail: one record per accepted request
-            reportAccess(pid, KnownDatastreams.IMG_FULL.toString(), ReportedAction.PDF.name(), null);
+            reportAccess(pid, KnownDatastreams.IMG_FULL.toString(), ReportedAction.PDF.name(), AccessLogFields.kind(ImageAccessKind.PDF_DOCUMENT));
         }
         return response;
     }
