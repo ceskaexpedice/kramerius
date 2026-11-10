@@ -349,14 +349,12 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
         if (referer != null) {
             results.put("Referer", Collections.singletonList(referer));
         }
-        // legacy header "client" (old web client, hostname of the frontend); the new client url header fills the same field
+        // legacy header "client" (old web client, hostname of the frontend); kept in its own field only
         String headerKrameriusClient = request.getHeader("client");
-        String clientUrl = request.getHeader(HEADER_CLIENT_URL);
         if (headerKrameriusClient != null) {
             results.put("Kramerius-client", Collections.singletonList(headerKrameriusClient));
-        } else if (clientUrl != null) {
-            results.put("Kramerius-client", Collections.singletonList(clientUrl));
         }
+        String clientUrl = request.getHeader(HEADER_CLIENT_URL);
         if (clientUrl != null) {
             results.put("Kramerius-client-url", Collections.singletonList(clientUrl));
         }
