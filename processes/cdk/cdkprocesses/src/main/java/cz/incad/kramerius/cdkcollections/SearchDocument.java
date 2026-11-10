@@ -13,9 +13,11 @@ public class SearchDocument {
     private List<String> inCollectionsDirect;
     private List<String> pidPaths;
     private boolean cdkCollection;
+    private final String model;
+
 
     public SearchDocument(String compositeId, String pid, String ownPidPath, List<String> inCollections,
-                          List<String> inCollectionsDirect, List<String> pidPaths, boolean cdkCollection) {
+                          List<String> inCollectionsDirect, List<String> pidPaths, String model, boolean cdkCollection) {
         this.compositeId = compositeId;
         this.pid = pid;
         this.ownPidPath = ownPidPath;
@@ -23,6 +25,7 @@ public class SearchDocument {
         this.inCollectionsDirect = copy(inCollectionsDirect);
         this.pidPaths = copy(pidPaths);
         this.cdkCollection = cdkCollection;
+        this.model = model;
     }
 
     private static List<String> copy(List<String> values) {
@@ -64,6 +67,10 @@ public class SearchDocument {
 
     public boolean isCdkCollection() {
         return cdkCollection;
+    }
+
+    public String getModel() {
+        return model;
     }
 
     @Override

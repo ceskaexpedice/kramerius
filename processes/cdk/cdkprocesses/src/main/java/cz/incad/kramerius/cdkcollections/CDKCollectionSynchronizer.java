@@ -33,6 +33,7 @@ public class CDKCollectionSynchronizer {
         // Then preserve the existing addition algorithm.
         for (ReferencePath reference : validReferences) {
             addCDKCollectionReference(reference);
+            searchIndex.commit();
         }
         searchIndex.commit();
         LOGGER.info("CDK Collection Synchronizer finished successfully");
@@ -71,7 +72,7 @@ public class CDKCollectionSynchronizer {
     private void removeObsoleteReferences(List<ReferencePath> validReferences) {
         Map<String, List<ReferencePath>> referencesByRoot = new LinkedHashMap<>();
         for (ReferencePath reference : validReferences) {
-            referencesByRoot.computeIfAbsent(reference.referencedPid, key -> new ArrayList<>()).add(reference);
+            referencesByRoot.computeIfAbsent(reference.getReferencedPid(), key -> new ArrayList<>()).add(reference);
         }
         Map<String, SearchDocument> staleRoots = new LinkedHashMap<>();
         List<String> directCollectionValues = searchIndex.getDirectCollectionValues();
@@ -89,7 +90,7 @@ public class CDKCollectionSynchronizer {
                     List<ReferencePath> expectedReferences = referencesByRoot.getOrDefault(root.getPid(), Collections.emptyList());
                     boolean directMembershipIsValid = false;
                     for (ReferencePath reference : expectedReferences) {
-                        if (reference.collectionPid.equals(directCollection)) {
+                        if (reference.getCollectionPid().equals(directCollection)) {
                             directMembershipIsValid = true;
                             break;
                         }
@@ -136,7 +137,7 @@ public class CDKCollectionSynchronizer {
             if (!searchDocument.isCdkCollection()) {
                 continue;
             }
-            boolean valid = expectedReferences.stream().anyMatch(reference -> reference.fullPath.equals(path));
+            boolean valid = expectedReferences.stream().anyMatch(reference -> reference.getFullPath().equals(path));
             if (!valid) {
                 obsolete.add(path);
             }
@@ -173,10 +174,10 @@ public class CDKCollectionSynchronizer {
                         }
                         Set<String> validMemberships = new LinkedHashSet<>();
                         for (ReferencePath reference : validReferences) {
-                            String prefix = String.join("/", reference.cdkPath) + "/";
+                            String prefix = String.join("/", reference.getCdkPath()) + "/";
                             for (String path : remainingPaths) {
                                 if (path != null && path.startsWith(prefix)) {
-                                    validMemberships.addAll(reference.cdkPath);
+                                    validMemberships.addAll(reference.getCdkPath());
                                     break;
                                 }
                             }
@@ -220,7 +221,7 @@ public class CDKCollectionSynchronizer {
 
     private void addCDKCollectionReference(ReferencePath reference) {
         final int[] updatesCounter = {0};
-        searchIndex.findUnlinkedSubtree(reference.referencedPid, reference.cdkPath,
+        searchIndex.findUnlinkedSubtree(reference/*reference.referencedPid, reference.cdkPath*/,
                 page -> {
                     List<SearchDocumentUpdate> updates = new ArrayList<>();
                     for (SearchDocument document : page) {
@@ -236,26 +237,37 @@ public class CDKCollectionSynchronizer {
                 });
         if (updatesCounter[0] > 0) {
             LOGGER.info(String.format("Add CDK collection reference %s to documents in the %s subtree. Number of updates: %d",
-                    reference.fullPath, reference.referencedPid, updatesCounter[0]));
+                    reference.getFullPath(), reference.getReferencedPid(), updatesCounter[0]));
         }
     }
 
     private SearchDocumentUpdate createDocumentUpdate(SearchDocument document, ReferencePath reference) {
         Set<String> inCollections = new LinkedHashSet<>(document.getInCollections());
-        inCollections.addAll(reference.cdkPath);
+        inCollections.addAll(reference.getCdkPath());
         List<String> direct = new ArrayList<>(document.getInCollectionsDirect());
-        if (document.getPid().equals(reference.referencedPid) && !direct.contains(reference.collectionPid)) {
-            direct.add(reference.collectionPid);
+        if (document.getPid().equals(reference.getReferencedPid()) && !direct.contains(reference.getCollectionPid())) {
+            direct.add(reference.getCollectionPid());
         }
         List<String> pidPaths = document.getPidPaths();
         Set<String> allPaths = new LinkedHashSet<>(pidPaths);
+        // pokud je to nevlastni dite, pak se nemuze resit own pid path ale to jak je zarazeny ve sbirce ?
+        // reference pid na urci cestu v pid_paths, kterou mame urcit
+        // own_pid_path nam urci, jak hluboko jsme nyni zanoreni ... vytisk, stranka atd..
+        // nebude stacit pid_paths dane sbirky?  Najit pid_path ktere se to tyka a pak pouzivat stejny orez ?
         String ownPidPath = document.getOwnPidPath();
+
         if (ownPidPath != null && !ownPidPath.isEmpty()) {
-            int index = ownPidPath.indexOf(reference.referencedPid);
+            int index = ownPidPath.indexOf(reference.getReferencedPid());
             if (index >= 0) {
                 String lastPath = ownPidPath.substring(index);
-                String fullPath = String.join("/", reference.cdkPath) + "/" + lastPath;
+                String fullPath = String.join("/", reference.getCdkPath()) + "/" + lastPath;
                 allPaths.add(fullPath);
+            } else {
+                Optional<String> any = document.getPidPaths().stream().filter(path -> path.startsWith(reference.getReferencedPid())).findAny();
+                if (any.isPresent()) {
+                    String fullPath = String.join("/", reference.getCdkPath()) + "/" + any.get();
+                    allPaths.add(fullPath);
+                }
             }
         }
         return new SearchDocumentUpdate(
@@ -308,29 +320,6 @@ public class CDKCollectionSynchronizer {
         return result;
     }
 
-    private static class ReferencePath {
-        private final String collectionPid;
-        private final String referencedPid;
-        private final List<String> cdkPath;
-        private final String fullPath;
-
-        private ReferencePath(String collectionPid, String referencedPid, List<String> cdkPath, String fullPath) {
-            this.collectionPid = collectionPid;
-            this.referencedPid = referencedPid;
-            this.cdkPath = new ArrayList<>(cdkPath);
-            this.fullPath = fullPath;
-        }
-
-        @Override
-        public String toString() {
-            return "ReferencePath{" +
-                    "collectionPid='" + collectionPid + '\'' +
-                    ", referencedPid='" + referencedPid + '\'' +
-                    ", cdkPath=" + cdkPath +
-                    ", fullPath='" + fullPath + '\'' +
-                    '}';
-        }
-    }
 
     private String removeCdkPrefix(String pid) {
         String pidStripped = new CDKReference(pid).getPid();

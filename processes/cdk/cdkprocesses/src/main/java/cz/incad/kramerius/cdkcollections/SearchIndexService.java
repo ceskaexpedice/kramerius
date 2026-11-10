@@ -12,7 +12,7 @@ public interface SearchIndexService {
      * Finds documents in the source subtree that do not yet
      * contain the target CDK path.
      */
-    void findUnlinkedSubtree(String rootPid, List<String> cdkPath, Consumer<List<SearchDocument>> pageConsumer);
+    void findUnlinkedSubtree( ReferencePath referencePath, Consumer<List<SearchDocument>> pageConsumer);
 
     /** Finds direct collection members belonging to the specified source library. */
     void findCollectionMembers(String collectionPid, String libraryAcronym, Consumer<List<SearchDocument>> pageConsumer);

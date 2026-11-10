@@ -50,27 +50,27 @@ public class CDKCollectionSynchronizerTest {
         search.addDocument(
                 new SearchDocument("sb1!sb1", "sb1", "sb1",
                         Collections.emptyList(), Collections.emptyList(),
-                        Collections.singletonList("sb1"), false));
+                        Collections.singletonList("sb1"),"monograph", false));
         search.addDocument(
                 new SearchDocument("sb1!per1", "per1", "per1",
                         Collections.singletonList("sb1"), Collections.singletonList("sb1"),
-                        Collections.singletonList("sb1/per1"), false));
+                        Collections.singletonList("sb1/per1"),"monograph", false));
         search.addDocument(
                 new SearchDocument("sb1!roc1", "roc1", "per1/roc1",
                         Collections.singletonList("sb1"), Collections.emptyList(),
-                        Collections.singletonList("sb1/per1/roc1"), false));
+                        Collections.singletonList("sb1/per1/roc1"), "monograph",false));
         search.addDocument(
                 new SearchDocument("sb1!cis1", "cis1", "per1/roc1/cis1",
                         Collections.singletonList("sb1"), Collections.emptyList(),
-                        Collections.singletonList("sb1/per1/roc1/cis1"), false));
+                        Collections.singletonList("sb1/per1/roc1/cis1"),"monograph", false));
         search.addDocument(
                 new SearchDocument("sb1!st1", "st1", "per1/roc1/cis1/st1",
                         Collections.singletonList("sb1"), Collections.emptyList(),
-                        Collections.singletonList("sb1/per1/roc1/cis1/st1"), false));
+                        Collections.singletonList("sb1/per1/roc1/cis1/st1"),"monograph", false));
         search.addDocument(
                 new SearchDocument("sb1!st2", "st2", "per1/roc1/cis1/st2",
                         Collections.singletonList("sb1"), Collections.emptyList(),
-                        Collections.singletonList("sb1/per1/roc1/cis1/st2"), false));
+                        Collections.singletonList("sb1/per1/roc1/cis1/st2"),"monograph", false));
 
         search.setParent("per1", "sb1");
         search.setParent("roc1", "per1");
@@ -92,24 +92,24 @@ public class CDKCollectionSynchronizerTest {
         search.addDocument(
                 new SearchDocument("cdk-sb1!cdk-sb1", "cdk-sb1", "cdk-sb1",
                         Collections.emptyList(), Collections.emptyList(),
-                        Collections.singletonList("cdk-sb1"), true));
+                        Collections.singletonList("cdk-sb1"),"monograph", true));
         search.addDocument(
                 new SearchDocument("cdk-sb1!cdk-sb11", "cdk-sb11", "cdk-sb1/cdk-sb11",
                         Collections.singletonList("cdk-sb1"), Collections.singletonList("cdk-sb1"),
-                        Collections.singletonList("cdk-sb1/cdk-sb11"), true));
+                        Collections.singletonList("cdk-sb1/cdk-sb11"),"monograph", true));
         search.setParent("cdk-sb11", "cdk-sb1");
         search.addDocument(
                 new SearchDocument("cdk-sb2!cdk-sb2", "cdk-sb2", "cdk-sb2",
                         Collections.emptyList(), Collections.emptyList(),
-                        Collections.singletonList("cdk-sb2"), true));
+                        Collections.singletonList("cdk-sb2"),"monograph", true));
         search.addDocument(
                 new SearchDocument("cdk-sb3!cdk-sb3", "cdk-sb3", "cdk-sb3",
                         Collections.emptyList(), Collections.emptyList(),
-                        Collections.singletonList("cdk-sb3"), true));
+                        Collections.singletonList("cdk-sb3"),"monograph", true));
         search.addDocument(
                 new SearchDocument("cdk-sb4!cdk-sb4", "cdk-sb4", "cdk-sb4",
                         Collections.emptyList(), Collections.emptyList(),
-                        Collections.singletonList("cdk-sb4"), true));
+                        Collections.singletonList("cdk-sb4"), "monograph", true));
         search.setParent("cdk-sb11", "cdk-sb4");
 
         synchronizer = new CDKCollectionSynchronizer(search, processing);

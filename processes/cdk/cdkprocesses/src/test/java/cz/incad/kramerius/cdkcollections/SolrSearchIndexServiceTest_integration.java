@@ -33,17 +33,17 @@ public class SolrSearchIndexServiceTest_integration {
 
     @Test
     public void testFindUnlinkedSubtree() {
-        SolrSearchIndexService searchService = new SolrSearchIndexService(createClient());
-        List<SearchDocument> unlinkedSubtree = new ArrayList<>();
-        searchService.findUnlinkedSubtree(
-                "uuid:5035a48a-5e2e-486c-8127-2fa650842e46",
-                List.of(
-                        "uuid:82d015ad-8b5b-4d4d-8349-1f8e387e18ef",
-                        "uuid:3b358ab4-33a6-4234-bf12-4161df3e0147"
-                ),
-                unlinkedSubtree::addAll
-        );
-        System.out.println(unlinkedSubtree.size());
+//        SolrSearchIndexService searchService = new SolrSearchIndexService(createClient());
+//        List<SearchDocument> unlinkedSubtree = new ArrayList<>();
+//        searchService.findUnlinkedSubtree(
+//                "uuid:5035a48a-5e2e-486c-8127-2fa650842e46",
+//                List.of(
+//                        "uuid:82d015ad-8b5b-4d4d-8349-1f8e387e18ef",
+//                        "uuid:3b358ab4-33a6-4234-bf12-4161df3e0147"
+//                ),
+//                unlinkedSubtree::addAll
+//        );
+//        System.out.println(unlinkedSubtree.size());
     }
 
     @Test

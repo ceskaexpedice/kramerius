@@ -18,10 +18,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import cz.incad.kramerius.utils.IterationUtils;
 
 public class SolrSearchIndexService implements SearchIndexService {
+
+    public static final Logger LOGGER = Logger.getLogger(SolrSearchIndexService.class.getName());
 
     private static final int PAGE_SIZE = 500;
 
@@ -81,39 +84,74 @@ public class SolrSearchIndexService implements SearchIndexService {
     }
 
     @Override
-    public void findUnlinkedSubtree(String rootPid, List<String> cdkPath, Consumer<List<SearchDocument>> pageConsumer) {
+    public void findUnlinkedSubtree(ReferencePath referencePath, Consumer<List<SearchDocument>> pageConsumer) {
+        String rootPid = referencePath.getReferencedPid();
+        List<String> cdkPath = referencePath.getCdkPath();
+
         if (pageConsumer == null) {
             throw new IllegalArgumentException("Page consumer must not be null");
         }
         SearchDocument root = get(rootPid);
+
         if (root == null || root.getOwnPidPath() == null || root.getOwnPidPath().isEmpty()) {
             return;
         }
         if (cdkPath == null || cdkPath.isEmpty()) {
             throw new IllegalArgumentException("CDK path must not be empty");
         }
-        String targetCdkPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
-        String sourcePathQuery =
-                FIELD_OWN_PID_PATH_CHILDREN + ":\""
-                        + ClientUtils.escapeQueryChars(root.getOwnPidPath())
-                        + "\"";
-        String missingCdkPathQuery =
-                "-" + FIELD_PID_PATHS_CHILDREN + ":\""
-                        + ClientUtils.escapeQueryChars(targetCdkPath)
-                        + "\"";
-        SolrQuery query = new SolrQuery();
-        query.setQuery(sourcePathQuery + " AND " + missingCdkPathQuery);
-        query.setFields(
-                FIELD_COMPOSITE_ID,
-                FIELD_PID,
-                FIELD_OWN_PID_PATH,
-                FIELD_IN_COLLECTION,
-                FIELD_IN_COLLECTION_DIRECT,
-                FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
-        query.setRows(PAGE_SIZE);
-        query.setSort(IterationUtils.getSortField(), SolrQuery.ORDER.asc);
-        executeCursorPagedQuery(query,
-                "Cannot find unlinked subtree for PID " + rootPid + ", target CDK path " + targetCdkPath, pageConsumer);
+        if (root.getModel() != null && root.getModel().equals("collection")) {
+            String targetCdkPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
+
+            // vsichni co jsou zarazeni v cizi sbirce + danou sbirku
+            String sourcePathQuery =
+                    "("+FIELD_IN_COLLECTION + ":\""
+                            + ClientUtils.escapeQueryChars(root.getPid())
+                            + "\" OR pid:\""+ClientUtils.escapeQueryChars(root.getPid())+"\")";
+
+
+            String missingCdkPathQuery =
+                    "-" + FIELD_PID_PATHS_CHILDREN + ":\""
+                            + ClientUtils.escapeQueryChars(targetCdkPath)
+                            + "\"";
+
+
+            SolrQuery query = new SolrQuery();
+            query.setQuery(sourcePathQuery + " AND " + missingCdkPathQuery +" AND cdk.collection:*");
+            query.setFields(
+                    FIELD_COMPOSITE_ID,
+                    FIELD_PID,
+                    FIELD_OWN_PID_PATH,
+                    FIELD_IN_COLLECTION,
+                    FIELD_IN_COLLECTION_DIRECT,
+                    FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
+            query.setRows(PAGE_SIZE);
+            query.setSort(IterationUtils.getSortField(), SolrQuery.ORDER.asc);
+            executeCursorPagedQuery(query,
+                    "Cannot find unlinked subtree for PID " + rootPid + ", target CDK collection " + referencePath.getCollectionPid(), pageConsumer);
+        } else {
+            String targetCdkPath = String.join("/", cdkPath) + "/" + root.getOwnPidPath();
+            String sourcePathQuery =
+                    FIELD_OWN_PID_PATH_CHILDREN + ":\""
+                            + ClientUtils.escapeQueryChars(root.getOwnPidPath())
+                            + "\"";
+            String missingCdkPathQuery =
+                    "-" + FIELD_PID_PATHS_CHILDREN + ":\""
+                            + ClientUtils.escapeQueryChars(targetCdkPath)
+                            + "\"";
+            SolrQuery query = new SolrQuery();
+            query.setQuery(sourcePathQuery + " AND " + missingCdkPathQuery);
+            query.setFields(
+                    FIELD_COMPOSITE_ID,
+                    FIELD_PID,
+                    FIELD_OWN_PID_PATH,
+                    FIELD_IN_COLLECTION,
+                    FIELD_IN_COLLECTION_DIRECT,
+                    FIELD_PID_PATHS, FIELD_MODEL, FIELD_CDK_COLLECTION);
+            query.setRows(PAGE_SIZE);
+            query.setSort(IterationUtils.getSortField(), SolrQuery.ORDER.asc);
+            executeCursorPagedQuery(query,
+                    "Cannot find unlinked subtree for PID " + rootPid + ", target CDK path " + targetCdkPath, pageConsumer);
+        }
     }
 
     /**
@@ -240,6 +278,7 @@ public class SolrSearchIndexService implements SearchIndexService {
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION)),
                 asStringList(document.getFieldValue(FIELD_IN_COLLECTION_DIRECT)),
                 asStringList(document.getFieldValue(FIELD_PID_PATHS)),
+                asString(document.getFieldValue(FIELD_MODEL)),
                 cdkCollections.isEmpty());
     }
 
