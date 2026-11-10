@@ -22,6 +22,7 @@ import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.statistics.AccessLogFields;
 import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.statistics.ImageAccessLogPolicy;
+import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
@@ -217,7 +218,7 @@ public class IiifServlet extends AbstractImageServlet {
                                     return;
                                 }
                             }
-                            reportRegionAccess(pid, imageTokens);
+                            reportRegionAccess(pid, imageTokens, req);
                             copyFromImageServer(url.toString(),resp);
                         } else {
                             LOGGER.severe(String.format("No iip url for %s", pid));
@@ -263,7 +264,7 @@ public class IiifServlet extends AbstractImageServlet {
      * Logs an IIIF image request (region/size/rotation/quality) unless it is a tile of a zoomable viewer:
      * the viewers ask for info.json first (logged) and then load dozens of tiles per page.
      */
-    private void reportRegionAccess(String pid, List<String> imageTokens) {
+    private void reportRegionAccess(String pid, List<String> imageTokens, HttpServletRequest req) {
         if (imageTokens.size() != 4) {
             return;
         }
@@ -272,7 +273,10 @@ public class IiifServlet extends AbstractImageServlet {
             String size = URLDecoder.decode(imageTokens.get(1), "UTF-8");
             int maxTileSize = KConfiguration.getInstance().getConfiguration()
                     .getInt("iiif.tile.maxsize", ImageAccessLogPolicy.DEFAULT_MAX_TILE_SIZE);
-            if (ImageAccessLogPolicy.isViewerTile(region, size, imageTokens.get(2), imageTokens.get(3), maxTileSize)) {
+            boolean logTiles = KConfiguration.getInstance().getConfiguration()
+                    .getBoolean(ImageAccessLogPolicy.CONF_LOG_TILES, false);
+            if (!ImageAccessLogPolicy.shouldLog(region, size, imageTokens.get(2), imageTokens.get(3), maxTileSize,
+                    req.getHeader(SolrStatisticsAccessLogImpl.HEADER_INTENT), logTiles)) {
                 return;
             }
             this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name(),

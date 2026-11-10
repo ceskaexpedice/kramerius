@@ -70,6 +70,22 @@ public class ImageAccessLogPolicyTest {
     }
 
     @Test
+    public void tileIntentAndConfigurationDecideLogging() {
+        // crop, no intent: logged
+        Assert.assertTrue(ImageAccessLogPolicy.shouldLog("1000,1000,300,300", "300,300", "0", "default.jpg", 512, null, false));
+        // crop declared as a tile by the client: not logged by default
+        Assert.assertFalse(ImageAccessLogPolicy.shouldLog("1000,1000,300,300", "300,300", "0", "default.jpg", 512, "view, Tile", false));
+        // tile by shape: not logged by default
+        Assert.assertFalse(ImageAccessLogPolicy.shouldLog("4096,8192,4096,4096", "512,512", "0", "default.jpg", 512, null, false));
+        // tiles switched on: everything is logged
+        Assert.assertTrue(ImageAccessLogPolicy.shouldLog("4096,8192,4096,4096", "512,512", "0", "default.jpg", 512, "tile", true));
+        Assert.assertTrue(ImageAccessLogPolicy.hasTileIntent("tile"));
+        Assert.assertTrue(ImageAccessLogPolicy.hasTileIntent("view,tile"));
+        Assert.assertFalse(ImageAccessLogPolicy.hasTileIntent("view,tiles"));
+        Assert.assertFalse(ImageAccessLogPolicy.hasTileIntent(null));
+    }
+
+    @Test
     public void maximumTileSizeIsConfigurable() {
         Assert.assertTrue(ImageAccessLogPolicy.isViewerTile("0,0,1024,1024", "1024,1024", "0", "default.jpg", 1024));
         Assert.assertFalse(ImageAccessLogPolicy.isViewerTile("0,0,1024,1024", "1024,1024", "0", "default.jpg", 512));

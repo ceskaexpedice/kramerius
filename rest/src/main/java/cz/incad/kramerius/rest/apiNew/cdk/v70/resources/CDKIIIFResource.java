@@ -35,6 +35,7 @@ import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
 import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.statistics.ImageAccessLogPolicy;
+import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
@@ -165,7 +166,10 @@ public class CDKIIIFResource extends AbstractTileResource {
         }
         int maxTileSize = KConfiguration.getInstance().getConfiguration()
                 .getInt("iiif.tile.maxsize", ImageAccessLogPolicy.DEFAULT_MAX_TILE_SIZE);
-        if (!ImageAccessLogPolicy.isViewerTile(region, size, rotation, qf + "." + format, maxTileSize)) {
+        boolean logTiles = KConfiguration.getInstance().getConfiguration()
+                .getBoolean(ImageAccessLogPolicy.CONF_LOG_TILES, false);
+        if (ImageAccessLogPolicy.shouldLog(region, size, rotation, qf + "." + format, maxTileSize,
+                this.requestProvider.get().getHeader(SolrStatisticsAccessLogImpl.HEADER_INTENT), logTiles)) {
             reportAccess(aggregatedAccessLogs, pid, ImageAccessKind.IIIF_REGION);
         }
 

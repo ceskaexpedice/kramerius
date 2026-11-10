@@ -36,6 +36,16 @@ public final class ImageAccessLogPolicy {
     public static final int DEFAULT_MAX_TILE_SIZE = 512;
     private static final int MAX_SCALE_FACTOR = 1024;
 
+    /**
+     * Configuration key: log viewer tiles too (default false). With the default, a request recognized
+     * as a tile by {@link #isViewerTile} or declared as one by the client (X-Kramerius-Intent contains
+     * "tile") is not written to the access log; tiles come in dozens per page and would flood it.
+     * Set to true on an installation to inspect what the viewers really request.
+     */
+    public static final String CONF_LOG_TILES = "statistics.image.log_tiles";
+    /** value of the X-Kramerius-Intent header a viewer sends with its tiles */
+    public static final String INTENT_TILE = "tile";
+
     private static final Pattern REGION_XYWH = Pattern.compile("(\\d{1,9}),(\\d{1,9}),(\\d{1,9}),(\\d{1,9})");
     private static final Pattern SIZE_WH = Pattern.compile("(\\d{1,9}),(\\d{0,9})");
 
@@ -118,6 +128,35 @@ public final class ImageAccessLogPolicy {
 
     public static boolean isViewerTile(String region, String size, String rotation, String qualityFormat) {
         return isViewerTile(region, size, rotation, qualityFormat, DEFAULT_MAX_TILE_SIZE);
+    }
+
+    /** true when the X-Kramerius-Intent header (comma separated, case insensitive) declares the request a viewer tile */
+    public static boolean hasTileIntent(String intentHeader) {
+        if (intentHeader == null) {
+            return false;
+        }
+        for (String part : intentHeader.split(",")) {
+            if (INTENT_TILE.equals(part.trim().toLowerCase(Locale.ROOT))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether an IIIF image request should be written to the access log: not when tiles are off
+     * (configuration {@link #CONF_LOG_TILES}, default) and the request is a tile by its shape or by the
+     * client's declared intent.
+     */
+    public static boolean shouldLog(String region, String size, String rotation, String qualityFormat,
+                                    int maxTileSize, String intentHeader, boolean logTiles) {
+        if (logTiles) {
+            return true;
+        }
+        if (hasTileIntent(intentHeader)) {
+            return false;
+        }
+        return !isViewerTile(region, size, rotation, qualityFormat, maxTileSize);
     }
 
     private static long ceilDiv(long a, long b) {
