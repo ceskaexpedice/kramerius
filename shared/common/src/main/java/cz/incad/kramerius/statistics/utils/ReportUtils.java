@@ -44,15 +44,15 @@ public class ReportUtils {
     
     /**
      * Configuration key: when true (default), the built-in reports count only what they counted before
-     * the access log started to record OCR streams, IIIF regions, the manifest and viewer tiles
-     * (log_format 1), so their numbers stay comparable. Set to false to count every record.
+     * the access log started to record OCR streams, IIIF regions, the manifest, viewer tiles and
+     * whole-document pdf requests (log_format 1), so their numbers stay comparable. Set to false to count every record.
      */
     public static final String CONF_REPORTS_LEGACY_READS = "statistics.reports.legacy_reads";
 
     /** fq excluding the record kinds that older cores never logged; see CONF_REPORTS_LEGACY_READS */
     static final String[] LEGACY_READS_FQ = {
             "-stream_name:(ALTO OR TEXT_OCR)",
-            "-image_kind:(IIIF_REGION OR IIIF_MANIFEST OR IIIF_TILE)"
+            "-image_kind:(IIIF_REGION OR IIIF_MANIFEST OR IIIF_TILE OR PDF_DOCUMENT)"
     };
 
     /**
