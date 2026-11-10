@@ -143,6 +143,12 @@ public final class ImageAccessLogPolicy {
         return false;
     }
 
+    /** true when the request is a viewer tile by its shape or by the client's declared intent */
+    public static boolean isTile(String region, String size, String rotation, String qualityFormat,
+                                 int maxTileSize, String intentHeader) {
+        return hasTileIntent(intentHeader) || isViewerTile(region, size, rotation, qualityFormat, maxTileSize);
+    }
+
     /**
      * Whether an IIIF image request should be written to the access log: not when tiles are off
      * (configuration {@link #CONF_LOG_TILES}, default) and the request is a tile by its shape or by the
@@ -150,13 +156,17 @@ public final class ImageAccessLogPolicy {
      */
     public static boolean shouldLog(String region, String size, String rotation, String qualityFormat,
                                     int maxTileSize, String intentHeader, boolean logTiles) {
-        if (logTiles) {
-            return true;
-        }
-        if (hasTileIntent(intentHeader)) {
-            return false;
-        }
-        return !isViewerTile(region, size, rotation, qualityFormat, maxTileSize);
+        return logTiles || !isTile(region, size, rotation, qualityFormat, maxTileSize, intentHeader);
+    }
+
+    /**
+     * Kind to record for an IIIF image request that is being logged: {@link ImageAccessKind#IIIF_TILE}
+     * for a tile (only reachable with {@link #CONF_LOG_TILES} on), {@link ImageAccessKind#IIIF_REGION} otherwise.
+     */
+    public static ImageAccessKind kindOf(String region, String size, String rotation, String qualityFormat,
+                                         int maxTileSize, String intentHeader) {
+        return isTile(region, size, rotation, qualityFormat, maxTileSize, intentHeader)
+                ? ImageAccessKind.IIIF_TILE : ImageAccessKind.IIIF_REGION;
     }
 
     private static long ceilDiv(long a, long b) {

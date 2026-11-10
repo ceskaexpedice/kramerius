@@ -108,9 +108,10 @@ public class CDKItemResource {
                         String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
                         if (FedoraUtils.DEFAULT_SECURED_STREAM.contains(dsid)) {
                             try {
+                                ImageAccessKind kind = FedoraUtils.IMG_FULL_STREAM.equals(dsid) ? ImageAccessKind.FULL
+                                        : FedoraUtils.IMG_PREVIEW_STREAM.equals(dsid) ? ImageAccessKind.PREVIEW : null;
                                 this.accessLog.reportAccess(pid, dsid, ReportedAction.READ.name(),
-                                        FedoraUtils.IMG_FULL_STREAM.equals(dsid)
-                                                ? AccessLogFields.image(ImageAccessKind.FULL, mimeTypeForStream)
+                                        kind != null ? AccessLogFields.image(kind, mimeTypeForStream)
                                                 : AccessLogFields.mime(mimeTypeForStream));
                             } catch (IOException e) {
                                 LOGGER.log(Level.WARNING, "Cannot log access to " + pid + "/" + dsid, e);

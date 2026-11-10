@@ -275,12 +275,12 @@ public class IiifServlet extends AbstractImageServlet {
                     .getInt("iiif.tile.maxsize", ImageAccessLogPolicy.DEFAULT_MAX_TILE_SIZE);
             boolean logTiles = KConfiguration.getInstance().getConfiguration()
                     .getBoolean(ImageAccessLogPolicy.CONF_LOG_TILES, false);
-            if (!ImageAccessLogPolicy.shouldLog(region, size, imageTokens.get(2), imageTokens.get(3), maxTileSize,
-                    req.getHeader(SolrStatisticsAccessLogImpl.HEADER_INTENT), logTiles)) {
+            String intent = req.getHeader(SolrStatisticsAccessLogImpl.HEADER_INTENT);
+            if (!ImageAccessLogPolicy.shouldLog(region, size, imageTokens.get(2), imageTokens.get(3), maxTileSize, intent, logTiles)) {
                 return;
             }
             this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name(),
-                    AccessLogFields.kind(ImageAccessKind.IIIF_REGION));
+                    AccessLogFields.kind(ImageAccessLogPolicy.kindOf(region, size, imageTokens.get(2), imageTokens.get(3), maxTileSize, intent)));
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }

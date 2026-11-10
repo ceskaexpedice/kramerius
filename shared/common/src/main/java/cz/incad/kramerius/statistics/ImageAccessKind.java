@@ -13,6 +13,8 @@ public enum ImageAccessKind {
     IIIF_INFO,
     /** IIIF image region/size request that is not a viewer tile (crop, whole image, external client) */
     IIIF_REGION,
+    /** viewer tile; written only when statistics.image.log_tiles is on */
+    IIIF_TILE,
     /** IIIF presentation manifest */
     IIIF_MANIFEST,
     ZOOMIFY_DESCRIPTOR,

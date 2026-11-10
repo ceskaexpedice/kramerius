@@ -168,9 +168,10 @@ public class CDKIIIFResource extends AbstractTileResource {
                 .getInt("iiif.tile.maxsize", ImageAccessLogPolicy.DEFAULT_MAX_TILE_SIZE);
         boolean logTiles = KConfiguration.getInstance().getConfiguration()
                 .getBoolean(ImageAccessLogPolicy.CONF_LOG_TILES, false);
-        if (ImageAccessLogPolicy.shouldLog(region, size, rotation, qf + "." + format, maxTileSize,
-                this.requestProvider.get().getHeader(SolrStatisticsAccessLogImpl.HEADER_INTENT), logTiles)) {
-            reportAccess(aggregatedAccessLogs, pid, ImageAccessKind.IIIF_REGION);
+        String intent = this.requestProvider.get().getHeader(SolrStatisticsAccessLogImpl.HEADER_INTENT);
+        if (ImageAccessLogPolicy.shouldLog(region, size, rotation, qf + "." + format, maxTileSize, intent, logTiles)) {
+            reportAccess(aggregatedAccessLogs, pid,
+                    ImageAccessLogPolicy.kindOf(region, size, rotation, qf + "." + format, maxTileSize, intent));
         }
 
         String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);

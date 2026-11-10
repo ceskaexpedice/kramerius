@@ -79,6 +79,10 @@ public class ImageAccessLogPolicyTest {
         Assert.assertFalse(ImageAccessLogPolicy.shouldLog("4096,8192,4096,4096", "512,512", "0", "default.jpg", 512, null, false));
         // tiles switched on: everything is logged
         Assert.assertTrue(ImageAccessLogPolicy.shouldLog("4096,8192,4096,4096", "512,512", "0", "default.jpg", 512, "tile", true));
+        // with tiles switched on, tiles are marked IIIF_TILE and everything else IIIF_REGION
+        Assert.assertEquals(ImageAccessKind.IIIF_TILE, ImageAccessLogPolicy.kindOf("4096,8192,4096,4096", "512,512", "0", "default.jpg", 512, null));
+        Assert.assertEquals(ImageAccessKind.IIIF_TILE, ImageAccessLogPolicy.kindOf("1000,1000,300,300", "300,300", "0", "default.jpg", 512, "tile"));
+        Assert.assertEquals(ImageAccessKind.IIIF_REGION, ImageAccessLogPolicy.kindOf("1000,1000,300,300", "300,300", "0", "default.jpg", 512, null));
         Assert.assertTrue(ImageAccessLogPolicy.hasTileIntent("tile"));
         Assert.assertTrue(ImageAccessLogPolicy.hasTileIntent("view,tile"));
         Assert.assertFalse(ImageAccessLogPolicy.hasTileIntent("view,tiles"));
