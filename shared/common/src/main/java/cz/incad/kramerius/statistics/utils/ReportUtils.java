@@ -52,12 +52,12 @@ public class ReportUtils {
     /** fq excluding the record kinds that older cores never logged; see CONF_REPORTS_LEGACY_READS */
     static final String[] LEGACY_READS_FQ = {
             "-stream_name:(ALTO OR TEXT_OCR)",
-            "-image_kind:(IIIF_REGION OR IIIF_MANIFEST OR IIIF_TILE OR PDF_DOCUMENT)"
+            "-image_kind:(IIIF_REGION OR IIIF_TILE OR PDF_DOCUMENT)"
     };
 
     /**
      * Keeps the reports comparable with the records of older cores: records that did not exist
-     * before (OCR streams, IIIF regions, manifest, tiles) are left out unless
+     * before (OCR streams, IIIF regions, tiles, whole-document pdf) are left out unless
      * {@link #CONF_REPORTS_LEGACY_READS} is false. Records without the fields (older format) pass.
      */
     public static void enhanceLegacyReadsFilter(StringBuilder builder) {
