@@ -12,6 +12,21 @@ import java.util.*;
 
 
 public class LogRecord {
+
+    /**
+     * Version of the access log record format, stored as the field log_format. Records written by
+     * cores before this field existed have no value and count as format 0. Raise the number with
+     * every change that alters which fields a record carries or what they mean, and keep the
+     * description of each format (and the core versions it belongs to) in the project documentation,
+     * so the consumers of the log can tell the formats apart without guessing from the fields.
+     * <ul>
+     * <li>0: no log_format field; reported_action, requested_url, hrh_referer, hrh_kramerius_client, ...</li>
+     * <li>1: stream_name, stream_mime, image_kind, hrh_kramerius_intent (multi-valued),
+     *        hrh_kramerius_client_url/_app/_version; OCR streams, IIIF regions and the manifest logged,
+     *        viewer tiles and range continuations not</li>
+     * </ul>
+     */
+    public static final int LOG_FORMAT = 1;
     // flat structure
     private String id;
     private String pid;
@@ -679,6 +694,11 @@ public class LogRecord {
                 docElm.appendChild(pElm);
             }
         }
+
+        Element formatElm = doc.createElement("field");
+        formatElm.setAttribute("name", "log_format");
+        formatElm.setTextContent(String.valueOf(LOG_FORMAT));
+        docElm.appendChild(formatElm);
 
         if (StringUtils.isAnyString(this.streamName)) {
             Element pElm = doc.createElement("field");
