@@ -270,7 +270,9 @@ public class IiifServlet extends AbstractImageServlet {
         try {
             String region = URLDecoder.decode(imageTokens.get(0), "UTF-8");
             String size = URLDecoder.decode(imageTokens.get(1), "UTF-8");
-            if (ImageAccessLogPolicy.isViewerTile(region, size, imageTokens.get(2), imageTokens.get(3))) {
+            int maxTileSize = KConfiguration.getInstance().getConfiguration()
+                    .getInt("iiif.tile.maxsize", ImageAccessLogPolicy.DEFAULT_MAX_TILE_SIZE);
+            if (ImageAccessLogPolicy.isViewerTile(region, size, imageTokens.get(2), imageTokens.get(3), maxTileSize)) {
                 return;
             }
             this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name(),

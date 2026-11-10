@@ -41,6 +41,7 @@ import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Provides support for IIIF endpoints
@@ -162,7 +163,9 @@ public class CDKIIIFResource extends AbstractTileResource {
         if (!permitted(pid)) {
             throw new ActionNotAllowed("not allowed");
         }
-        if (!ImageAccessLogPolicy.isViewerTile(region, size, rotation, qf + "." + format)) {
+        int maxTileSize = KConfiguration.getInstance().getConfiguration()
+                .getInt("iiif.tile.maxsize", ImageAccessLogPolicy.DEFAULT_MAX_TILE_SIZE);
+        if (!ImageAccessLogPolicy.isViewerTile(region, size, rotation, qf + "." + format, maxTileSize)) {
             reportAccess(aggregatedAccessLogs, pid, ImageAccessKind.IIIF_REGION);
         }
 
