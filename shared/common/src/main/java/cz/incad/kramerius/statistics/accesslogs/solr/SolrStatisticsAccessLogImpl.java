@@ -25,6 +25,7 @@ import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.statistics.accesslogs.AccessLogFormat;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.apache.commons.configuration.Configuration;
@@ -318,11 +319,64 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
                 }
                 
-                SolrUpdateUtils.sendToDest(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
+                sendRecord(logRecord, loggerPoint, updateUrl);
             } catch (ParserConfigurationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
+    }
+
+    /** guard of the logs schema, created for the configured core on first use */
+    private SolrLogsSchemaGuard schemaGuard;
+
+    private synchronized SolrLogsSchemaGuard schemaGuard(String loggerPoint) {
+        if (this.schemaGuard == null) {
+            this.schemaGuard = new SolrLogsSchemaGuard(this.client, loggerPoint);
+        }
+        return this.schemaGuard;
+    }
+
+    /**
+     * Sends the record; when the core rejects it (its schema lacks the format
+     * {@link LogRecord#LOG_FORMAT} fields), tries to add the fields through the
+     * Schema API and sends the record again, and when that is not possible,
+     * sends it as a format 0 record so that no access goes unlogged.
+     */
+    private void sendRecord(LogRecord logRecord, String loggerPoint, String updateUrl) throws ParserConfigurationException {
+        SolrLogsSchemaGuard guard = schemaGuard(loggerPoint);
+        guard.ensureOnce();
+        if (guard.skipFullRecord()) {
+            // a full record was rejected a moment ago: do not knock on Solr with every record
+            sendFormat0(logRecord, guard, updateUrl);
+            return;
+        }
+        int status = SolrUpdateUtils.sendToDestWithStatus(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
+        if (status == 200) {
+            guard.markAccepted();
+            return;
+        }
+        if (status == -1) {
+            // Solr not reachable at all, nothing a schema change would fix
+            return;
+        }
+        if (guard.ensure()) {
+            status = SolrUpdateUtils.sendToDestWithStatus(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
+            if (status == 200) {
+                guard.markAccepted();
+                return;
+            }
+            if (status == -1) {
+                return;
+            }
+        }
+        guard.markRejected();
+        sendFormat0(logRecord, guard, updateUrl);
+    }
+
+    private void sendFormat0(LogRecord logRecord, SolrLogsSchemaGuard guard, String updateUrl) throws ParserConfigurationException {
+        guard.warnFallback();
+        Document legacy = AccessLogFormat.stripToFormat0(logRecord.toSolrBatch(this.documentBuilderFactory));
+        SolrUpdateUtils.sendToDestWithStatus(this.client, legacy, updateUrl);
     }
 
     /** header sent by clients; the value is a comma separated list of intents (why the request was made) */
