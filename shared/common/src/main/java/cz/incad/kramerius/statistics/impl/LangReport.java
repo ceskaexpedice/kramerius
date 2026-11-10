@@ -122,6 +122,7 @@ public class LangReport extends AbstractStatisticsReport implements StatisticRep
             StringBuilder builder = new StringBuilder("q=*");
             ReportUtils.enhanceLicense(builder, licFilter);
             ReportUtils.enhanceDateFilter(builder, dateFilter);
+            ReportUtils.enhanceLegacyReadsFilter(builder);
             ReportUtils.enhanceIdentifiers(builder, idFilter);
 
             String facetField = "langs";

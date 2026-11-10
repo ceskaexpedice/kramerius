@@ -104,6 +104,7 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 
                 StringBuilder builder = new StringBuilder("*");
                 ReportUtils.enhanceDateFilter(builder, dateFilter);
+                ReportUtils.enhanceLegacyReadsFilter(builder);
                 
                 String selectEndpoint = logsEndpoint();
                 Client client = Client.create();

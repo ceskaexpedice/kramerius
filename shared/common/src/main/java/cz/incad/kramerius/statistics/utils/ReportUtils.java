@@ -14,6 +14,7 @@ import cz.incad.kramerius.statistics.filters.DateFilter;
 import cz.incad.kramerius.statistics.filters.IdentifiersFilter;
 import cz.incad.kramerius.statistics.filters.LicenseFilter;
 import cz.incad.kramerius.statistics.filters.ModelFilter;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 public class ReportUtils {
 
@@ -41,6 +42,38 @@ public class ReportUtils {
         }
     }
     
+    /**
+     * Configuration key: when true (default), the built-in reports count only what they counted before
+     * the access log started to record OCR streams, IIIF regions, the manifest and viewer tiles
+     * (log_format 1), so their numbers stay comparable. Set to false to count every record.
+     */
+    public static final String CONF_REPORTS_LEGACY_READS = "statistics.reports.legacy_reads";
+
+    /** fq excluding the record kinds that older cores never logged; see CONF_REPORTS_LEGACY_READS */
+    static final String[] LEGACY_READS_FQ = {
+            "-stream_name:(ALTO OR TEXT_OCR)",
+            "-image_kind:(IIIF_REGION OR IIIF_MANIFEST OR IIIF_TILE)"
+    };
+
+    /**
+     * Keeps the reports comparable with the records of older cores: records that did not exist
+     * before (OCR streams, IIIF regions, manifest, tiles) are left out unless
+     * {@link #CONF_REPORTS_LEGACY_READS} is false. Records without the fields (older format) pass.
+     */
+    public static void enhanceLegacyReadsFilter(StringBuilder builder) {
+        boolean legacyReads = KConfiguration.getInstance().getConfiguration().getBoolean(CONF_REPORTS_LEGACY_READS, true);
+        if (!legacyReads) {
+            return;
+        }
+        try {
+            for (String fq : LEGACY_READS_FQ) {
+                builder.append("&fq=").append(URLEncoder.encode(fq, "UTF-8"));
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
     public static void enhanceDateFilter(StringBuilder builder, DateFilter dateFilter) {
         if (dateFilter != null && dateFilter.getFromDate() != null && dateFilter.getToDate() != null) {
             try {
