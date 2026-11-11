@@ -647,13 +647,13 @@
        <str name="echoParams">explicit</str>
        <str name="wt">json</str>
        <str name="indent">true</str>
-       <str name="df">text</str>
+       <str name="df">text_ocr</str>
      </lst>
   </requestHandler>
 
   <initParams path="/update/**,/query,/select,/tvrh,/elevate,/spell,update">
     <lst name="defaults">
-      <str name="df">text</str>
+      <str name="df">text_ocr</str>
     </lst>
   </initParams>
 
