@@ -44,7 +44,7 @@ public class ReportUtils {
     
     /**
      * Configuration key: when true (default), the built-in reports count only what they counted before
-     * the access log started to record OCR streams, IIIF regions, the manifest, viewer tiles and
+     * the access log started to record OCR streams, IIIF regions, viewer tiles and
      * whole-document pdf requests (log_format 1), so their numbers stay comparable. Set to false to count every record.
      */
     public static final String CONF_REPORTS_LEGACY_READS = "statistics.reports.legacy_reads";

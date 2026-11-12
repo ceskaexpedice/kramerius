@@ -22,8 +22,8 @@ public class LogRecord {
      * <ul>
      * <li>0: no log_format field; reported_action, requested_url, hrh_referer, hrh_kramerius_client, ...</li>
      * <li>1: stream_name, stream_mime, image_kind, hrh_kramerius_intent (multi-valued),
-     *        hrh_kramerius_client_url/_app/_version; OCR streams, IIIF regions and the manifest logged,
-     *        viewer tiles and range continuations not</li>
+     *        hrh_kramerius_client_url/_app/_version; OCR streams and IIIF regions logged,
+     *        the IIIF presentation manifest, viewer tiles and range continuations not</li>
      * </ul>
      */
     public static final int LOG_FORMAT = 1;
@@ -76,7 +76,7 @@ public class LogRecord {
     /** header key -> values; stored as hrh_<key lowercased, '-' replaced by '_'>, one Solr field per value */
     private Map<String, List<String>> fieldsFromHttpRequestHeaders = new LinkedHashMap<>();
 
-    /** datastream that was accessed (IMG_FULL, ALTO, TEXT_OCR, AUDIO_MP3, ...); stored as stream_name */
+    /** datastream that was accessed (IMG_FULL, ALTO, TEXT_OCR, MP3, ...); stored as stream_name */
     private String streamName;
     /** additional fields stored under their own names (e.g. stream_mime, image_kind) */
     private Map<String, String> extraFields = new LinkedHashMap<>();

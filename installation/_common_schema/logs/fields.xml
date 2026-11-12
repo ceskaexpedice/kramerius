@@ -101,7 +101,7 @@
 
   <!-- version of the record format (see LogRecord.LOG_FORMAT); records without it are format 0 -->
   <field name="log_format" type="int" indexed="true" stored="true" multiValued="false" docValues="true"/>
-  <!-- what was accessed and how: datastream (IMG_FULL, ALTO, TEXT_OCR, AUDIO_MP3, ...), its mime type, and for images the access kind (FULL, PREVIEW, IIIF_INFO, IIIF_REGION, IIIF_TILE, PDF_PAGE, PDF_DOCUMENT, ZOOMIFY_DESCRIPTOR, DEEPZOOM_DESCRIPTOR); the IIIF presentation manifest is not logged -->
+  <!-- what was accessed and how: datastream (IMG_FULL, ALTO, TEXT_OCR, MP3, ...), its mime type, and for images the access kind (FULL, PREVIEW, IIIF_INFO, IIIF_REGION, IIIF_TILE, PDF_PAGE, PDF_DOCUMENT, ZOOMIFY_DESCRIPTOR, DEEPZOOM_DESCRIPTOR); the IIIF presentation manifest is not logged -->
   <field name="stream_name" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
   <field name="stream_mime" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
   <field name="image_kind" type="string" indexed="true" stored="true" multiValued="false" docValues="true"/>
