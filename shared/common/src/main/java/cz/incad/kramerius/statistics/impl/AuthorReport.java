@@ -130,6 +130,7 @@ public class AuthorReport extends AbstractStatisticsReport implements StatisticR
 
             ReportUtils.enhanceLicense(builder, licFilter);
             ReportUtils.enhanceDateFilter(builder, dateFilter);
+            ReportUtils.enhanceLegacyReadsFilter(builder);
             ReportUtils.enhanceIdentifiers(builder, idFilter);
             
             String facetField = "authors";

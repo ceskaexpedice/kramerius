@@ -15,6 +15,8 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.rest.apiNew.utils.ExtractDataInfoUtils;
 import cz.incad.kramerius.security.SecuredAkubraRepository;
 import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.AccessLogFields;
+import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.inovatika.monitoring.ApiCallEvent;
 import org.ceskaexpedice.akubra.AkubraRepository;
@@ -103,16 +105,20 @@ public class CDKItemResource {
                     // audio streas is not suported
                     if (!FedoraUtils.AUDIO_STREAMS.contains(dsid) && akubraRepository.datastreamExists(pid, dsid)) {
 
+                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
                         if (FedoraUtils.DEFAULT_SECURED_STREAM.contains(dsid)) {
                             try {
-                                this.accessLog.reportAccess(pid, dsid, ReportedAction.READ.name());
+                                ImageAccessKind kind = FedoraUtils.IMG_FULL_STREAM.equals(dsid) ? ImageAccessKind.FULL
+                                        : FedoraUtils.IMG_PREVIEW_STREAM.equals(dsid) ? ImageAccessKind.PREVIEW : null;
+                                this.accessLog.reportAccess(pid, dsid, ReportedAction.READ.name(),
+                                        kind != null ? AccessLogFields.image(kind, mimeTypeForStream)
+                                                : AccessLogFields.mime(mimeTypeForStream));
                             } catch (IOException e) {
                                 LOGGER.log(Level.WARNING, "Cannot log access to " + pid + "/" + dsid, e);
                             }
                         }
 
                         final InputStream is = akubraRepository.getDatastreamContent(pid, dsid).asInputStream();
-                        String mimeTypeForStream = akubraRepository.getDatastreamMetadata(pid, dsid).getMimetype();
 
                         StreamingOutput stream = new StreamingOutput() {
                             public void write(OutputStream output) throws IOException, WebApplicationException {

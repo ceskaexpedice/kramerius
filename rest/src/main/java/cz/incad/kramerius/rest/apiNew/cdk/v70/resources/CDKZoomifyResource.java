@@ -22,6 +22,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
 import cz.incad.kramerius.ObjectPidsPath;
+import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
@@ -75,7 +76,7 @@ public class CDKZoomifyResource extends AbstractTileResource {
             boolean permited = permited(this.actionAllowed, this.solrAccess,  pid);
             if (permited) {
                 try {
-                    reportAccess(this.aggregatedAccessLogs, pid);
+                    reportAccess(this.aggregatedAccessLogs, pid, ImageAccessKind.ZOOMIFY_DESCRIPTOR);
                     stopAfterReportAccess = System.currentTimeMillis();
                     
                     return renderZoomifyXMLDescriptor(pid);

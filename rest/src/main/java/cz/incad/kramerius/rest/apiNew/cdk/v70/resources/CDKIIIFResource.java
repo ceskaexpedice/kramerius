@@ -33,12 +33,16 @@ import cz.incad.kramerius.rest.IIPImagesSupport;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.rest.api.exceptions.BadRequestException;
 import cz.incad.kramerius.rest.apiNew.client.v70.ItemsResource;
+import cz.incad.kramerius.statistics.ImageAccessKind;
+import cz.incad.kramerius.statistics.ImageAccessLogPolicy;
+import cz.incad.kramerius.statistics.accesslogs.solr.SolrStatisticsAccessLogImpl;
 import cz.incad.kramerius.iiif.IIIFUtils;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import cz.incad.kramerius.utils.RESTHelper;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 
 /**
  * Provides support for IIIF endpoints
@@ -84,15 +88,13 @@ public class CDKIIIFResource extends AbstractTileResource {
 
             if (permitted(pid)) {
                 try {
-                    reportAccess(aggregatedAccessLogs, pid);
+                    reportAccess(aggregatedAccessLogs, pid, ImageAccessKind.IIIF_INFO);
                     String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);
                     if (u != null) {
                         if (!u.endsWith("/")) { u = u+"/"; }
                         u = u +"info.json";
 
-                        HttpURLConnection con = (HttpURLConnection) RESTHelper.openConnection(u, "", "");
-                        InputStream inputStream = con.getInputStream();
-                        String json = IOUtils.toString(inputStream, Charset.defaultCharset());
+                        String json = IIIFUtils.fetchInfoJson(u);
                         JSONObject object = new JSONObject(json);
                         HttpServletRequest req = this.requestProvider.get();
                         String urlRequest = req.getRequestURL().toString();
@@ -159,6 +161,15 @@ public class CDKIIIFResource extends AbstractTileResource {
 
         if (!permitted(pid)) {
             throw new ActionNotAllowed("not allowed");
+        }
+        int maxTileSize = KConfiguration.getInstance().getConfiguration()
+                .getInt("iiif.tile.maxsize", ImageAccessLogPolicy.DEFAULT_MAX_TILE_SIZE);
+        boolean logTiles = KConfiguration.getInstance().getConfiguration()
+                .getBoolean(ImageAccessLogPolicy.CONF_LOG_TILES, false);
+        String intent = this.requestProvider.get().getHeader(SolrStatisticsAccessLogImpl.HEADER_INTENT);
+        if (ImageAccessLogPolicy.shouldLog(region, size, rotation, qf + "." + format, maxTileSize, intent, logTiles)) {
+            reportAccess(aggregatedAccessLogs, pid,
+                    ImageAccessLogPolicy.kindOf(region, size, rotation, qf + "." + format, maxTileSize, intent));
         }
 
         String u = IIIFUtils.iiifImageEndpoint(pid, akubraRepository);

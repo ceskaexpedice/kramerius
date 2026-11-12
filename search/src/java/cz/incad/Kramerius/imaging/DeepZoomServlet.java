@@ -21,6 +21,8 @@ import com.google.inject.name.Named;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import cz.incad.kramerius.security.RightsReturnObject;
 import cz.incad.kramerius.statistics.ReportedAction;
+import cz.incad.kramerius.statistics.AccessLogFields;
+import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
@@ -322,7 +324,8 @@ public class DeepZoomServlet extends AbstractImageServlet {
 
     private void reportAccess(String pid) {
         try {
-            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name());
+            this.aggregatedAccessLogs.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.READ.name(),
+                    AccessLogFields.kind(ImageAccessKind.DEEPZOOM_DESCRIPTOR));
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }

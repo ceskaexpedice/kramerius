@@ -14,6 +14,8 @@ import cz.incad.kramerius.rest.api.k5.client.pdf.PDFResourceNotReadyException;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.inovatika.monitoring.ApiCallEvent;
 import cz.incad.kramerius.security.SecurityException;
+import cz.incad.kramerius.statistics.AccessLogFields;
+import cz.incad.kramerius.statistics.ImageAccessKind;
 import cz.incad.kramerius.statistics.ReportedAction;
 import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.IOUtils;
@@ -515,7 +517,8 @@ public class PDFResource extends AbstractPDFResource {
     private void reportAccess(String pid) {
         try {
             this.mostDesirable.saveAccess(pid, new Date());
-            this.statisticsAccessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name());
+            this.statisticsAccessLog.reportAccess(pid, FedoraUtils.IMG_FULL_STREAM, ReportedAction.PDF.name(),
+                    AccessLogFields.kind(ImageAccessKind.PDF_PAGE));
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Can't write statistic records for " + pid, e);
         }

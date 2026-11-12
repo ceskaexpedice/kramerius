@@ -19,6 +19,7 @@ package cz.incad.kramerius.statistics;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,6 +37,19 @@ public interface StatisticsAccessLog {
      * @throws IOException
      */
     public void reportAccess(String pid, String streamName, String actionName) throws IOException;
+
+    /**
+     * Report one access with additional fields stored in the log record as they are
+     * (e.g. stream_mime, image_kind). Implementations that do not support extra fields ignore them.
+     * @param pid
+     * @param streamName
+     * @param actionName
+     * @param extraFields field name to value, may be null or empty
+     * @throws IOException
+     */
+    public default void reportAccess(String pid, String streamName, String actionName, Map<String, String> extraFields) throws IOException {
+        reportAccess(pid, streamName, actionName);
+    }
     
     /**
      * Process all log
