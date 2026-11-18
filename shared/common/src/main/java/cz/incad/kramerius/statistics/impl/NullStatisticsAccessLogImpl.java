@@ -7,6 +7,7 @@ import cz.incad.kramerius.statistics.StatisticsAccessLogSupport;
 import cz.incad.kramerius.statistics.accesslogs.AggregatedAccessLogs;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by pstastny on 10/19/2017.
@@ -19,6 +20,11 @@ public class NullStatisticsAccessLogImpl extends AggregatedAccessLogs {
     @Override
     public void reportAccess(String pid, String streamName, String actionName) throws IOException {
 
+    }
+
+    @Override
+    public void reportAccess(String pid, String streamName, String actionName, Map<String, String> extraFields) throws IOException {
+        // no-op: processes do not log accesses
     }
 
     @Override
