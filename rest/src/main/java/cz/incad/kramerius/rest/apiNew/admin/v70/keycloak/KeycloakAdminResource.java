@@ -3,6 +3,13 @@ package cz.incad.kramerius.rest.apiNew.admin.v70.keycloak;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.ws.rs.DefaultValue;
+
+import org.keycloak.representations.idm.FederatedIdentityRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -30,6 +37,7 @@ import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.keycloak.KeycloakUserFilter;
 
 @Path("/admin/v7.0/keycloak")
 public class KeycloakAdminResource {
@@ -160,6 +168,70 @@ public class KeycloakAdminResource {
         }
     }
 
+    @GET
+    @Path("users/search")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response searchUsers(@QueryParam("search") String search,
+                                @QueryParam("username") String username,
+                                @QueryParam("firstName") String firstName,
+                                @QueryParam("lastName") String lastName,
+                                @QueryParam("email") String email,
+                                @QueryParam("enabled") Boolean enabled,
+                                @QueryParam("idp") String idp,
+                                @QueryParam("attr") List<String> attrs,
+                                @QueryParam("exact") @DefaultValue("false") boolean exact,
+                                @QueryParam("first") @DefaultValue("0") int first,
+                                @QueryParam("max") @DefaultValue("20") int max) {
+        checkPermission();
+        if (first < 0 || max < 1 || max > 500) {
+            return error(400, "first must be >= 0 and max between 1 and 500");
+        }
+
+        KeycloakUserFilter filter = new KeycloakUserFilter();
+        filter.search = search;
+        filter.username = username;
+        filter.firstName = firstName;
+        filter.lastName = lastName;
+        filter.email = email;
+        filter.enabled = enabled;
+        filter.idpAlias = idp;
+        filter.exact = exact;
+        if (attrs != null) {
+            for (String attr : attrs) {
+                int colon = attr.indexOf(':');
+                String key = colon > 0 ? attr.substring(0, colon).trim() : "";
+                String value = colon > 0 ? attr.substring(colon + 1) : "";
+                if (key.isEmpty() || value.isEmpty() || key.matches(".*[\\s\"].*")) {
+                    return error(400, "attr must be key:value (key without spaces), got '" + attr + "'");
+                }
+                filter.attributes.put(key, value);
+            }
+        }
+
+        boolean otherFilters = notBlank(username) || notBlank(firstName) || notBlank(lastName)
+                || notBlank(email) || notBlank(idp) || !filter.attributes.isEmpty();
+        if (notBlank(search) && otherFilters) {
+            return error(400, "'search' cannot be combined with other filters (only with 'enabled')");
+        }
+
+        try {
+            // one extra record tells us whether there is a next page
+            List<UserRepresentation> found = this.keycloakAdminService.searchUsers(filter, first, max + 1);
+            boolean hasMore = found.size() > max;
+            JSONArray users = new JSONArray();
+            for (UserRepresentation u : found.subList(0, Math.min(found.size(), max))) {
+                users.put(userJson(u));
+            }
+            return Response.ok().entity(new JSONObject()
+                    .put("first", first)
+                    .put("max", max)
+                    .put("hasMore", hasMore)
+                    .put("users", users).toString()).build();
+        } catch (WebApplicationException e) {
+            return keycloakError(e, "search users");
+        }
+    }
+
     // ------------- user`s roles -------------
 
     @GET
@@ -209,6 +281,84 @@ public class KeycloakAdminResource {
         }
     }
 
+    // ------------- identity providers -------------
+
+    @GET
+    @Path("identity-providers")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response identityProviders(@QueryParam("search") String search) {
+        checkPermission();
+        String filter = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
+        try {
+            JSONArray result = new JSONArray();
+            for (Map<String, Object> idp : this.keycloakAdminService.listIdentityProviders()) {
+                String alias = String.valueOf(idp.get("alias"));
+                String displayName = idp.get("displayName") != null ? String.valueOf(idp.get("displayName")) : null;
+                if (!filter.isEmpty()
+                        && !alias.toLowerCase(Locale.ROOT).contains(filter)
+                        && (displayName == null || !displayName.toLowerCase(Locale.ROOT).contains(filter))) {
+                    continue;
+                }
+                Object entityId = null;
+                Object config = idp.get("config");
+                if (config instanceof Map) {
+                    entityId = ((Map<?, ?>) config).get("entityId");
+                }
+                result.put(new JSONObject()
+                        .put("alias", alias)
+                        .put("displayName", displayName)
+                        .put("providerId", idp.get("providerId"))
+                        .put("enabled", idp.get("enabled"))
+                        .put("entityId", entityId));
+            }
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            return keycloakError(e, "list identity providers");
+        }
+    }
+
+    @GET
+    @Path("identity-providers/{alias}/users")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response identityProviderUsers(@PathParam("alias") String alias,
+                                          @QueryParam("first") @DefaultValue("0") int first,
+                                          @QueryParam("max") @DefaultValue("20") int max) {
+        checkPermission();
+        if (first < 0 || max < 1 || max > 500) {
+            return error(400, "first must be >= 0 and max between 1 and 500");
+        }
+
+        try {
+            JSONArray users = new JSONArray();
+            for (UserRepresentation u : this.keycloakAdminService.identityProviderUsers(alias, first, max)) {
+                users.put(userJson(u));
+            }
+            return Response.ok().entity(users.toString()).build();
+        } catch (WebApplicationException e) {
+            return keycloakError(e, "list users of identity provider " + alias);
+        }
+    }
+
+    @GET
+    @Path("users/{id}/identities")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response usersIdentities(@PathParam("id") String id) {
+        checkPermission();
+        try {
+            JSONArray result = new JSONArray();
+            for (FederatedIdentityRepresentation fi : this.keycloakAdminService.userIdentities(id)) {
+                result.put(new JSONObject()
+                        .put("identityProvider", fi.getIdentityProvider())
+                        .put("userId", fi.getUserId())
+                        .put("userName", fi.getUserName()));
+            }
+            return Response.ok().entity(result.toString()).build();
+        } catch (WebApplicationException e) {
+            return keycloakError(e, "list identities of user " + id);
+        }
+    }
+
+
     // ------------- util -------------
 
     private void checkPermission() {
@@ -240,5 +390,20 @@ public class KeycloakAdminResource {
     private static Response error(int status, String message) {
         return Response.status(status).type(MediaType.APPLICATION_JSON)
                 .entity(new JSONObject().put("message", message).toString()).build();
+    }
+
+    private static JSONObject userJson(UserRepresentation u) {
+        return new JSONObject()
+                .put("id", u.getId())
+                .put("username", u.getUsername())
+                .put("firstName", u.getFirstName())
+                .put("lastName", u.getLastName())
+                .put("email", u.getEmail())
+                .put("enabled", u.isEnabled())
+                .put("createdTimestamp", u.getCreatedTimestamp());
+    }
+
+    private static boolean notBlank(String s) {
+        return s != null && !s.trim().isEmpty();
     }
 }

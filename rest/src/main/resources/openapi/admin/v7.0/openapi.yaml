@@ -2791,6 +2791,100 @@ paths:
         '502':
           description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
 
+  /keycloak/users/search:
+    get:
+      tags:
+        - Keycloak
+      summary: Hledání uživatelů v Keycloaku
+      operationId: keycloakSearchUsers
+      description: |
+        Vyhledá uživatele v Keycloaku podle fulltextu nebo podle filtrů, se stránkováním.
+        `search` nelze kombinovat s ostatními filtry kromě `enabled` (vrací 400).
+        Při filtrování podle polí vrací Keycloak i servisní účty (`service-account-...`), bez filtrů a při `search` je skrývá.
+        Celkový počet se nevrací, protože ho Keycloak s filtry `idp` a `exact` neumí spočítat. Místo něj `hasMore` říká, jestli existuje další stránka.
+      parameters:
+        - name: search
+          in: query
+          description: Fulltext přes uživatelské jméno, e-mail, jméno a příjmení. `nov` = začíná na, `*nov*` = obsahuje, `"novak"` = přesná shoda.
+          schema:
+            type: string
+            example: nov
+        - name: username
+          in: query
+          description: Podřetězec uživatelského jména (s `exact=true` přesná shoda).
+          schema:
+            type: string
+        - name: firstName
+          in: query
+          description: Podřetězec křestního jména (s `exact=true` přesná shoda).
+          schema:
+            type: string
+        - name: lastName
+          in: query
+          description: Podřetězec příjmení (s `exact=true` přesná shoda).
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Podřetězec e-mailu (s `exact=true` přesná shoda).
+          schema:
+            type: string
+        - name: enabled
+          in: query
+          description: Jen aktivní (`true`) nebo zablokovaní (`false`) uživatelé.
+          schema:
+            type: boolean
+        - name: idp
+          in: query
+          description: Alias identity providera, ke kterému je uživatel připojen.
+          schema:
+            type: string
+        - name: attr
+          in: query
+          description: Uživatelský atribut ve tvaru `klíč:hodnota`, lze opakovat (musí platit všechny). Klíč nesmí obsahovat mezeru ani uvozovky.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["schacHomeOrganization:mzk.cz"]
+        - name: exact
+          in: query
+          description: Přesná shoda u uživatelského jména, jmen, e-mailu a hodnot atributů. Bez něj se hledá podřetězec.
+          schema:
+            type: boolean
+            default: false
+        - name: first
+          in: query
+          description: Pořadí prvního vráceného uživatele (od 0).
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: max
+          in: query
+          description: Počet uživatelů na stránku.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 20
+      responses:
+        '200':
+          description: Stránka nalezených uživatelů.
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {"first":0,"max":20,"hasMore":false,"users":[{"id":"0ff993c7-98c7-41fb-9627-3519127ba360","username":"jan.novak","firstName":"Jan","lastName":"Novák","email":"jan.novak@example.cz","enabled":true,"createdTimestamp":1730620000000}]}
+        '400':
+          description: Neplatné `first`/`max`, chybný `attr` nebo `search` kombinovaný s jinými filtry.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
   /keycloak/users/{id}:
     delete:
       tags:
@@ -2910,6 +3004,155 @@ paths:
           description: Uživatel nemá oprávnění k požadované akci
         '404':
           description: Uživatel nebo role v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+  /keycloak/users/{id}/identities:
+    get:
+      tags:
+        - Keycloak
+      summary: Identity uživatele u identity providerů
+      operationId: keycloakUserIdentities
+      description: Vrátí identity providery (např. instituce z federace eduID), ke kterým je uživatel v Keycloaku propojený. U lokálního účtu vrátí prázdné pole.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Keycloak ID uživatele.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: JSON pole identit uživatele.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    identityProvider:
+                      type: string
+                      description: Alias identity providera.
+                    userId:
+                      type: string
+                      description: ID uživatele u identity providera.
+                    userName:
+                      type: string
+                      description: Uživatelské jméno u identity providera.
+              example: [{"identityProvider":"9d1f19be161289b1239beaf23abbed6b302a4a22f5c27973e985db0e36be13fb","userId":"novak@cesnet.cz","userName":"novak@cesnet.cz"}]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Uživatel v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
+  /keycloak/identity-providers:
+    get:
+      tags:
+        - Keycloak
+      summary: Výpis identity providerů
+      operationId: keycloakListIdentityProviders
+      description: Vrátí všechny identity providery realmu, včetně IdP z federace eduID. Servisní účet jádra potřebuje roli `view-identity-providers` z klienta `realm-management`.
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Filtr podle aliasu nebo názvu (podřetězec, bez ohledu na velikost písmen).
+          schema:
+            type: string
+            example: cesnet
+      responses:
+        '200':
+          description: JSON pole identity providerů.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    alias:
+                      type: string
+                    displayName:
+                      type: string
+                    providerId:
+                      type: string
+                      description: Typ providera, např. `saml` nebo `oidc`.
+                    enabled:
+                      type: boolean
+                    entityId:
+                      type: string
+                      description: SAML entityId, pokud ho provider má.
+              example: [{"alias":"9d1f19be161289b1239beaf23abbed6b302a4a22f5c27973e985db0e36be13fb","displayName":"CESNET","providerId":"saml","enabled":true,"entityId":"https://whoami.cesnet.cz/idp/shibboleth"}]
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu (chybí role `view-identity-providers`?).
+
+  /keycloak/identity-providers/{alias}/users:
+    get:
+      tags:
+        - Keycloak
+      summary: Uživatelé identity providera
+      operationId: keycloakIdentityProviderUsers
+      description: Vrátí stránku uživatelů, kteří jsou propojení s daným identity providerem. Pro neexistující alias vrátí prázdné pole.
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          description: Alias identity providera.
+          schema:
+            type: string
+        - name: first
+          in: query
+          required: false
+          description: Posun stránkování.
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: max
+          in: query
+          required: false
+          description: Velikost stránky.
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 500
+      responses:
+        '200':
+          description: JSON pole uživatelů.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    username:
+                      type: string
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    email:
+                      type: string
+                    enabled:
+                      type: boolean
+                    createdTimestamp:
+                      type: integer
+                      format: int64
+                      description: Čas vytvoření účtu v milisekundách.
+              example: [{"id":"0b6c1f3e-7d2a-4c55-9a1e-2f4d8c9b7a10","username":"9d1f19be161289b1239beaf23abbed6b302a4a22f5c27973e985db0e36be13fb.a1b2c3","firstName":"Jan","lastName":"Novák","email":"novak@cesnet.cz","enabled":true,"createdTimestamp":1730620000000}]
+        '400':
+          description: Neplatné hodnoty `first` nebo `max`.
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
         '502':
           description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
 

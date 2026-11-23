@@ -1,6 +1,9 @@
 package cz.incad.kramerius.keycloak;
 
 import java.util.List;
+import java.util.Map;
+import org.keycloak.representations.idm.FederatedIdentityRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 
 public interface KeycloakAdminService {
 
@@ -20,4 +23,12 @@ public interface KeycloakAdminService {
     void assignRole(String userId, String roleName);
 
     void removeRole(String userId, String roleName);
+
+    List<Map<String, Object>> listIdentityProviders();
+
+    List<UserRepresentation> identityProviderUsers(String alias, int first, int max);
+
+    List<FederatedIdentityRepresentation> userIdentities(String userId);
+
+    List<UserRepresentation> searchUsers(KeycloakUserFilter filter, int first, int max);
 }
