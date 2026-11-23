@@ -134,7 +134,7 @@ public class CDKCollectionSynchronizer {
                 continue;
             }
             SearchDocument searchDocument = searchIndex.get(lastPathSegment);
-            if (!searchDocument.isCdkCollection()) {
+            if (searchDocument != null && !searchDocument.isCdkCollection()) {
                 continue;
             }
             boolean valid = expectedReferences.stream().anyMatch(reference -> reference.getFullPath().equals(path));

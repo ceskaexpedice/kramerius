@@ -51,6 +51,10 @@ public class FakeSearchIndexService implements SearchIndexService {
         return result == null ? new ArrayList<>() : new ArrayList<>(result);
     }
 
+    void removeDocument(String pid) {
+        documents.remove(pid);
+    }
+
     public void findUnlinkedSubtree(ReferencePath referencePath, Consumer<List<SearchDocument>> pageConsumer) {
         String rootPid = referencePath.getReferencedPid();
         List<String> cdkPath = referencePath.getCdkPath();
