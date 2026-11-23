@@ -675,6 +675,20 @@ public class SolrInputBuilder {
             }
         }
 
+        // Preserve CDK source-collection override across reindexing.
+        String localOverride = toStringOrNull(Dom4jUtils.buildXpath("Description/local_override").selectSingleNode(relsExtRootEl));
+        if (!StringUtils.isAnyString(localOverride)
+                && Dom4jUtils.buildXpath("/digitalObject/datastream[@ID='CDK_ADOPTION_PROVENANCE']").selectSingleNode(foxmlDoc) != null) {
+            Element provenance = getLatestDatastreamVersionXmlContent(foxmlDoc, "CDK_ADOPTION_PROVENANCE");
+            localOverride = provenance == null ? null
+                    : toStringOrNull(Dom4jUtils.buildXpath("sourceLibrary").selectSingleNode(provenance));
+        }
+        if (StringUtils.isAnyString(localOverride)) {
+            addSolrField(solrInput, "cdk.local_override", localOverride);
+        }
+
+
+
         //donator
         List<Node> hasDonatorEls = Dom4jUtils.buildXpath("Description/hasDonator").selectNodes(relsExtRootEl);
         for (Node hasDonatorEl : hasDonatorEls) {

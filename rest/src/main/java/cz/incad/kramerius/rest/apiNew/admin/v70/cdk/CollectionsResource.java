@@ -19,6 +19,7 @@ import cz.incad.kramerius.rest.apiNew.exceptions.InternalErrorException;
 import cz.incad.kramerius.security.*;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.XMLUtils;
+import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.kramerius.searchIndex.indexer.SolrConfig;
 import cz.kramerius.searchIndex.indexer.SolrIndexAccess;
@@ -74,6 +75,8 @@ public class CollectionsResource extends AdminApiResource {
 
     // Stream name 
     private static final String COLLECTION_CLIPS = "COLLECTION_CLIPS";
+    private static final String CDK_ADOPTION_PROVENANCE = "CDK_ADOPTION_PROVENANCE";
+    private static final String CDK_ADOPTION_NAMESPACE = "https://kramerius.cz/ns/cdk-adoption/1.0";
     private static final String CONTAINS_LICENSE_RELATION = "containsLicense";
     private static final List<String> CONTAINS_LICENSE_RELATIONS = Arrays.asList(
             "containsLicense",
@@ -232,6 +235,81 @@ public class CollectionsResource extends AdminApiResource {
     }
 
 
+    /**
+     * Returns indexed metadata for a CDK collection, including remote collections.
+     * This endpoint is read-only and does not access the local repository.
+     *
+     * @param pid collection PID
+     * @return collection metadata in the admin client collection format
+     */
+    @GET
+    @Path("{pid}/remote")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRemoteCollection(@PathParam("pid") String pid) {
+        try {
+            checkSupportedObjectPid(pid);
+
+            User user = this.userProvider.get();
+            if (!permitCollectionRead(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid()) &&
+                    !permitCollectionEdit(this.rightsResolver, user, SpecialObjects.REPOSITORY.getPid())) {
+                throw new ForbiddenException("user '%s' is not allowed to read collections (missing action '%s')",
+                        user.getLoginname(), SecuredActions.A_COLLECTIONS_READ);
+            }
+
+            org.w3c.dom.Document indexedDocument = this.solrAccess.getSolrDataByPid(pid);
+            org.w3c.dom.NodeList documents = indexedDocument == null ? null : indexedDocument.getElementsByTagName("doc");
+            if (documents == null || documents.getLength() == 0) {
+                throw new NotFoundException("collection not found in CDK index: " + pid);
+            }
+
+            JSONObject names = new JSONObject();
+            JSONObject descriptions = new JSONObject();
+            JSONObject collection = new JSONObject();
+            org.w3c.dom.NodeList fields = documents.item(0).getChildNodes();
+            for (int i = 0; i < fields.getLength(); i++) {
+                org.w3c.dom.Node node = fields.item(i);
+                if (node.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+                    continue;
+                }
+                org.w3c.dom.Element field = (org.w3c.dom.Element) node;
+                String fieldName = field.getAttribute("name");
+                String value = field.getTextContent().trim();
+                if (fieldName.startsWith("title.search_")) {
+                    names.put(fieldName.substring("title.search_".length()), value);
+                } else if (fieldName.startsWith("collection.desc_")) {
+                    descriptions.put(fieldName.substring("collection.desc_".length()), value);
+                } else if ("title.search".equals(fieldName)) {
+                    names.put("cze", value);
+                } else if ("collection.desc".equals(fieldName)) {
+                    descriptions.put("cze", value);
+                } else if ("collection.is_standalone".equals(fieldName)) {
+                    collection.put("standalone", Boolean.parseBoolean(value));
+                } else if ("collection.author".equals(fieldName) || "author".equals(fieldName)) {
+                    collection.put("author", value);
+                } else if ("created".equals(fieldName)) {
+                    collection.put("created", value);
+                } else if ("modified".equals(fieldName)) {
+                    collection.put("modified", value);
+                }
+            }
+
+            collection.put("pid", pid);
+            collection.put("names", names);
+            collection.put("descriptions", descriptions);
+            collection.put("contents", new JSONObject());
+            collection.put("keywords", new JSONObject());
+            if (!collection.has("standalone")) {
+                collection.put("standalone", false);
+            }
+            collection.put("clippingitems", new JSONArray());
+            return Response.ok(collection.toString()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
     @GET
     @Path("/prefix")
     @Produces(MediaType.APPLICATION_JSON)
@@ -292,8 +370,9 @@ public class CollectionsResource extends AdminApiResource {
             List<ProcessingIndexItem> pids = null;
             // TODO pepo budeme tohle podporovat?
             if (itemPid != null) {
-                checkSupportedObjectPid(itemPid);
-                checkObjectExists(itemPid);
+                // check standard or remote - remote with prefix cdk
+                //checkSupportedObjectPid(itemPid);
+                //checkObjectExists(itemPid);
                 //  not support rows and page
                 pids = akubraRepository.pi().getParents(KnownRelations.CONTAINS.toString(), itemPid);
             } else {
@@ -425,7 +504,18 @@ public class CollectionsResource extends AdminApiResource {
                     for (ProcessingIndexItem item : itemsInCollection) {
                         pids.add(item.targetPid());
                     }
+                    Document currentRelsExt = akubraRepository.re().get(pid).asDom4j(true);
                     document = foxmlBuilder.buildRelsExt(updated, pids);
+                    Element currentRelsDescription = findRelsDescription(currentRelsExt);
+                    Element rebuiltRelsDescription = findRelsDescription(document);
+                    if (currentRelsDescription != null && rebuiltRelsDescription != null) {
+                        for (Object relationNode : currentRelsDescription.elements()) {
+                            if (relationNode instanceof Element
+                                    && "local_override".equals(((Element) relationNode).getName())) {
+                                rebuiltRelsDescription.add(((Element) relationNode).createCopy());
+                            }
+                        }
+                    }
                     bis = new ByteArrayInputStream(document.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.re().update(pid, bis);
                     //schedule reindexation - (only collection object)
@@ -456,6 +546,15 @@ public class CollectionsResource extends AdminApiResource {
 
 
 
+    private Element findRelsDescription(Document relsExt) {
+        if (relsExt == null || relsExt.getRootElement() == null) return null;
+        for (Object child : relsExt.getRootElement().elements()) {
+            if (child instanceof Element && "Description".equals(((Element) child).getName())) {
+                return (Element) child;
+            }
+        }
+        return null;
+    }
     /**
      * Adds single item to collection.
      *
@@ -1027,6 +1126,22 @@ public class CollectionsResource extends AdminApiResource {
                 throw new ForbiddenException("user '%s' is not allowed to create collections (missing action '%s')", user1.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT); //403
             }
 
+            String adoptedSourceLibrary = getAdoptedSourceLibrary(pid);
+            if (adoptedSourceLibrary != null) {
+                Map<String, String> reharvestPayload = buildAdoptedCollectionReharvestPayload(pid, adoptedSourceLibrary);
+                akubraRepository.doWithLock(pid, () -> {
+                    akubraRepository.delete(pid, false, true);
+                    akubraRepository.pi().commit();
+                    return null;
+                });
+                JSONObject result = new JSONObject();
+                JSONObject reharvestProcess = APIProcessScheduler.createScheduleProcess(
+                        "cdk-reharvest", reharvestPayload, user1.getLoginname());
+                result.put(ProcessManagerMapper.PCP_SCHEDULE_MAIN_PROCESS_PLANNED,
+                        new JSONArray().put(APIProcessScheduler.scheduleMainProcess(this.apacheClient, reharvestProcess)));
+                return Response.status(Status.OK).entity(result.toString()).build();
+            }
+
             //extract children before deleting collection
             OwnedAndFosteredChildren childrenTpls = akubraRepository.pi().getOwnedAndFosteredChildren(pid);
             List<String> childrenPids = new ArrayList<>();
@@ -1075,6 +1190,62 @@ public class CollectionsResource extends AdminApiResource {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new InternalErrorException(e.getMessage());
         }
+    }
+
+    private String getAdoptedSourceLibrary(String pid) throws IOException {
+        if (!akubraRepository.exists(pid)
+                || !akubraRepository.getDatastreamNames(pid).contains(CDK_ADOPTION_PROVENANCE)) {
+            return null;
+        }
+        Document provenance = akubraRepository.getDatastreamContent(pid, CDK_ADOPTION_PROVENANCE).asDom4j(true);
+        Element root = provenance == null ? null : provenance.getRootElement();
+        if (root != null) {
+            for (Object child : root.elements()) {
+                Element element = (Element) child;
+                if ("sourceLibrary".equals(element.getName())
+                        && CDK_ADOPTION_NAMESPACE.equals(element.getNamespaceURI())) {
+                    String sourceLibrary = element.getTextTrim();
+                    if (!sourceLibrary.isEmpty()) return sourceLibrary;
+                }
+            }
+        }
+        throw new IllegalStateException("Adoption provenance is missing sourceLibrary for " + pid);
+    }
+
+    private Map<String, String> buildAdoptedCollectionReharvestPayload(String pid, String library) throws IOException {
+        org.w3c.dom.Document indexedDocument = solrAccess.getSolrDataByPid(pid, "own_pid_path");
+        org.w3c.dom.NodeList fields = indexedDocument == null ? null : indexedDocument.getElementsByTagName("*");
+        String ownPidPath = "";
+        if (fields != null) {
+            for (int i = 0; i < fields.getLength(); i++) {
+                org.w3c.dom.Node node = fields.item(i);
+                if (node instanceof org.w3c.dom.Element
+                        && "own_pid_path".equals(((org.w3c.dom.Element) node).getAttribute("name"))) {
+                    ownPidPath = node.getTextContent().trim();
+                    break;
+                }
+            }
+        }
+        if (ownPidPath.isEmpty()) {
+            throw new InternalErrorException("Could not find own_pid_path in CDK index for PID: " + pid);
+        }
+
+        String adminApi = KConfiguration.getInstance().getConfiguration().getString("api.admin.v7.point");
+        if (adminApi == null || adminApi.trim().isEmpty()) {
+            throw new InternalErrorException("Missing api.admin.v7.point configuration");
+        }
+        adminApi = adminApi.replaceAll("/+$", "");
+        Map<String, String> payload = new LinkedHashMap<>();
+        String solrUrl = KConfiguration.getInstance().getSolrSearchHost();
+        payload.put("destinationUrl", solrUrl);
+        payload.put("iterationUrl", solrUrl);
+        payload.put("proxyApiUrl", adminApi + "/connected");
+        payload.put("pid", pid);
+        payload.put("ownPidPath", ownPidPath);
+        payload.put("rootPid", ownPidPath.contains("/") ? ownPidPath.substring(0, ownPidPath.indexOf('/')) : ownPidPath);
+        payload.put("type", "children");
+        payload.put("libraries", library);
+        return payload;
     }
 
 

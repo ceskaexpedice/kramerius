@@ -75,6 +75,22 @@ public class CDKProcessResource extends AdminApiResource {
     private TimestampStore timestampStore;
 
     @POST
+    @Path("{library}/process/adopt-remote-collection")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response adoptRemoteCollection(@PathParam("library") String library, JSONObject options) {
+        validateLibrary(library);
+        JSONObject requestOptions = options == null ? new JSONObject() : options;
+        String sourcePid = requestOptions.optString("sourcePid", "").trim();
+        if (sourcePid.isEmpty()) throw new BadRequestException("Adoption requires sourcePid");
+        Map<String, String> payload = new LinkedHashMap<>();
+        payload.put("sourceLibrary", library);
+        payload.put("sourcePid", sourcePid);
+        String title = requestOptions.optString("title", "").trim();
+        if (!title.isEmpty()) payload.put("title", title);
+        return schedule(library, Action.ADOPT_REMOTE_COLLECTION, requestOptions, payload);
+    }
+    @POST
     @Path("{library}/process/harvest")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -87,6 +103,7 @@ public class CDKProcessResource extends AdminApiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response update(@PathParam("library") String library, JSONObject options) {
+        ForbiddenCheck.checkGeneral(cdkUserProvider.get(), cdkRightsResolver);
         checkReadOnlyWorkMode();
         validateLibrary(library);
         JSONObject requestOptions = options == null ? new JSONObject() : options;
@@ -155,6 +172,7 @@ public class CDKProcessResource extends AdminApiResource {
     }
 
     private Response schedule(String library, Action action, JSONObject options, Map<String, String> payload, long updates) {
+        ForbiddenCheck.checkGeneral(cdkUserProvider.get(), cdkRightsResolver);
         checkReadOnlyWorkMode();
         if (action == Action.REHARVEST) {
             if (!library.isEmpty()) {
@@ -490,7 +508,8 @@ public class CDKProcessResource extends AdminApiResource {
         UPDATE("update", "cdk-update-migration"),
         DELETE("delete", "cdk-delete-library"),
         COMPARE("compare", "cdk-compare-library"),
-        REHARVEST("reharvest", "cdk-reharvest");
+        REHARVEST("reharvest", "cdk-reharvest"),
+        ADOPT_REMOTE_COLLECTION("adopt-remote-collection", "cdk-adopt-remote-collection");
 
         private final String path;
         private final String profileId;

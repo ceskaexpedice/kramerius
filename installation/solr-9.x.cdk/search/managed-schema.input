@@ -14,6 +14,7 @@ see https://docs.google.com/spreadsheets/d/1DoDnSIGPqPnYbb0U2RSNLKm9eAY2FQNimJyT
         <field name="cdk.collection" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
 		<!-- cdk fields; leader where original data came from --> 
         <field name="cdk.leader" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
+		<field name="cdk.local_override" type="string" indexed="true" stored="true" docValues="true" multiValued="true"/>
 		
 		<!--
 		<field name="cdk.contains_licenses" type="string" docValues="true" multiValued="true" stored="true"/>

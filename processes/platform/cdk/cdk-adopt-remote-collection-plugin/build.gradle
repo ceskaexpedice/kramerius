@@ -1,0 +1,21 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
+}
+
+description = 'Adopts a remote CDK collection as a local collection'
+
+processPlugin {
+    spiImplementation = 'cz.incad.kramerius.plugin.CDKAdoptRemoteCollectionSPI'
+    profiles = [[profileId: 'cdk-adopt-remote-collection', description: 'Adopt a remote CDK collection locally', jvmArgs: ['-Xms256m', '-Xmx2g']]]
+    excludeDependencies = ['com.sun.jersey', 'javax.ws.rs']
+}
+
+dependencies {
+    api "org.ceskaexpedice:process-api:$processapiversion"
+    api project(':shared:common')
+    api project(':processes:search-index')
+    api 'org.apache.solr:solr-solrj:8.8.1'
+    api 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
+    api 'org.dom4j:dom4j:2.1.1'
+}

@@ -12,6 +12,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.inject.Named;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -50,6 +55,7 @@ import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.pid.LexerException;
 import cz.incad.kramerius.rest.apiNew.client.v70.AbstractItemsResource;
+import cz.incad.kramerius.service.impl.MailerImpl;
 import cz.incad.kramerius.rest.apiNew.client.v70.ZoomifyHelper;
 import org.ceskaexpedice.akubra.KnownDatastreams;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -1688,7 +1694,9 @@ public class ItemsResource extends AbstractItemsResource {
                         .getBoolean("cdk.collections.sources." + redirectHandler.getSource() + ".requests_enabled", false);
                 if (req) {
                     LOGGER.fine(String.format("Redirecting requests to %s", redirectHandler.getSource()));
-                    return redirectHandler.requests(reqid, lang, safeReqDefinition);
+                    Response response = redirectHandler.requests(reqid, lang, safeReqDefinition);
+                    sendQueuedExportEmail(reqid, pid, safeReqDefinition, response);
+                    return response;
                 } else {
                     LOGGER.fine(String.format("Requests to %s are disabled", redirectHandler.getSource()));
                     List<String> sources = documentSourceProvider.getDocumentSources(pid);
@@ -1700,7 +1708,9 @@ public class ItemsResource extends AbstractItemsResource {
                                         .getBoolean("cdk.collections.sources." + sourceHandler.getSource() + ".requests_enabled", false);
                                 if (sourceReqEnabled) {
                                     LOGGER.fine(String.format("Redirecting requests to %s", sourceHandler.getSource()));
-                                    return sourceHandler.requests(reqid, lang, safeReqDefinition);
+                                    Response response = sourceHandler.requests(reqid, lang, safeReqDefinition);
+                                    sendQueuedExportEmail(reqid, pid, safeReqDefinition, response);
+                                    return response;
                                 }
                             }
                         }
@@ -1732,7 +1742,9 @@ public class ItemsResource extends AbstractItemsResource {
             checkSupportedObjectPid(pid);
             ProxyItemHandler redirectHandler = findRedirectHandler(pid, source);
             if (redirectHandler != null) {
-                return redirectHandler.requests(reqid, lang, safeReqDefinition);
+                Response response = redirectHandler.requests(reqid, lang, safeReqDefinition);
+                sendQueuedExportEmail(reqid, pid, safeReqDefinition, response);
+                return response;
             } else {
                 return Response.status(Response.Status.FORBIDDEN).entity("Requests are not enabled for given source").build();
             }
@@ -1794,6 +1806,70 @@ public class ItemsResource extends AbstractItemsResource {
             ), e);
             throw new BadRequestException("Invalid JSON request definition");
         }
+    }
+
+    private void sendQueuedExportEmail(String profileId, String pid, JSONObject request, Response response) {
+        if (!isPublicWorkerExport(profileId) || response == null || response.getStatus() < 200
+                || response.getStatus() >= 300) return;
+        Object entity = response.getEntity();
+        if (!(entity instanceof String)) return;
+
+        JSONObject accepted;
+        try {
+            accepted = new JSONObject((String) entity);
+        } catch (JSONException e) {
+            LOGGER.log(Level.WARNING, "CDK export was accepted but its process ID could not be read for confirmation email", e);
+            return;
+        }
+        String processId = accepted.optString(ProcessManagerMapper.PCP_PROCESS_ID, null);
+        if (!StringUtils.isAnyString(processId)) return;
+
+        String email = request.optString("email", null);
+        if (!StringUtils.isAnyString(email)) {
+            User user = userProvider.get();
+            email = user != null ? user.getEmail() : null;
+        }
+        if (!StringUtils.isAnyString(email)) return;
+
+        org.apache.commons.configuration.Configuration config = KConfiguration.getInstance().getConfiguration();
+        String sender = config.getString("generate.notification.queued.email.sender",
+                config.getString("administrator.email", null));
+        if (!StringUtils.isAnyString(sender)) {
+            LOGGER.warning("CDK queued export email skipped: no sender configured");
+            return;
+        }
+        String apiBase = config.getString("api.client.point", "");
+        while (apiBase.endsWith("/")) apiBase = apiBase.substring(0, apiBase.length() - 1);
+        String statusUrl = apiBase + "/userrequests/status/" + processId;
+        String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client", "");
+        while (clientUrl.endsWith("/")) clientUrl = clientUrl.substring(0, clientUrl.length() - 1);
+        String documentUrl = StringUtils.isAnyString(clientUrl) ? clientUrl + "/uuid/" + pid : "";
+        String subject = config.getString("generate.notification.queued.email.subject", "Potvrzení zařazení exportu");
+        String body = config.getString("generate.notification.queued.email.body",
+                "Dobrý den,\n\nVáš požadavek na export díla " + pid
+                        + (StringUtils.isAnyString(documentUrl) ? "\nDílo: " + documentUrl : "")
+                        + " byl zařazen do fronty. Stav požadavku můžete sledovat zde:\n" + statusUrl
+                        + "\n\nPo dokončení exportu Vám zašleme další zprávu.")
+                .replace("$pid$", pid).replace("$statusUrl$", statusUrl)
+                .replace("$clientUrl$", documentUrl)
+                + "\n\n---\nOznámení o zařazení do fronty · verze 2";
+        try {
+            Session session = new MailerImpl().getSession(null, null);
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(sender));
+            message.setRecipient(Message.RecipientType.TO, new InternetAddress(email.trim(), true));
+            message.setSubject(subject, "UTF-8");
+            message.setText(body, "UTF-8");
+            Transport.send(message);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "CDK queued export email could not be sent for process " + processId, e);
+        }
+    }
+
+    private static boolean isPublicWorkerExport(String profileId) {
+        return "generate_pdf".equals(profileId)
+                || "special_needs_ebook".equals(profileId)
+                || "special_needs_text".equals(profileId);
     }
 
     private boolean isRequestAvailable(String source, String reqid) {

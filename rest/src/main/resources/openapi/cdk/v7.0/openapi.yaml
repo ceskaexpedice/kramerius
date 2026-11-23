@@ -312,6 +312,7 @@ components:
       type: object
       properties:
         baseurl: { type: string, nullable: true }
+        client: { type: string, nullable: true, description: Client UI base URL; defaults to baseurl when omitted }
         api: { type: string, nullable: true }
         licenses: { type: boolean }
         forwardurl: { type: string, nullable: true }

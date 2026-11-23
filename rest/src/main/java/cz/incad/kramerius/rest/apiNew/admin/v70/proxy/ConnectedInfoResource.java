@@ -266,12 +266,14 @@ public class ConnectedInfoResource {
         if (this.permit()) {
           JSONObject config = new JSONObject();
           String baseurl = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".baseurl");
+          String client = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".client", baseurl);
           String api = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".api");
           boolean channelAccess = KConfiguration.getInstance().getConfiguration().containsKey("cdk.collections.sources." + library + ".licenses") ?  KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".licenses") : false;
           String channel = KConfiguration.getInstance().getConfiguration().getString("cdk.collections.sources." + library + ".forwardurl");
           boolean solrCloud = KConfiguration.getInstance().getConfiguration().getBoolean("cdk.collections.sources." + library + ".cloud", false);
 
           config.put("baseurl", baseurl);
+          config.put("client", client);
           config.put("api", api);
           config.put("licenses", channelAccess);
           config.put("forwardurl", channel);

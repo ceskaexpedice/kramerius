@@ -211,7 +211,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
         boolean compositeId = this.config.getRequestConfig().isCompositeId();
 
         List<String> computedFields = Arrays.asList("cdk.licenses", "cdk.licenses_of_ancestors cdk.contains_licenses");
-        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection "+ String.join(" ", computedFields);
+        String fieldlist = "pid " + collectionField +" cdk.leader cdk.collection cdk.local_override "+ String.join(" ", computedFields);
         if (compositeId) {
             fieldlist = fieldlist + " root.pid compositeId model root.model own_model_path own_parent.pid";
         }
@@ -227,6 +227,18 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
         List<Element> docElms = XMLUtils.getElements(resultElem);
         List<Map<String, Object>>  docs = docElms.stream().map(ResultsUtils::doc).collect(Collectors.toList());
+
+        String sourceLibrary = subitems.stream().map(IterationItem::getSource).filter(StringUtils::isAnyString).findFirst().orElse(null);
+        Set<String> overriddenPids = new LinkedHashSet<>();
+        if (StringUtils.isAnyString(sourceLibrary)) {
+            docs.removeIf(doc -> {
+                if (markerContainsLibrary(doc.get("cdk.local_override"), sourceLibrary)) {
+                    overriddenPids.add(getString(doc, "pid"));
+                    return true;
+                }
+                return false;
+            });
+        }
 
 
         List<CDKWorkerIndexedItem> indexedRecordList = new ArrayList<>();
@@ -249,7 +261,7 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
             computedFields.forEach(it-> computedField(d, map,it));
 
             CDKWorkerIndexedItem record = new CDKWorkerIndexedItem((String)map.get("pid"), map);
-            if (!econflictPids.contains(record.getPid())) {
+            if (!econflictPids.contains(record.getPid()) && !overriddenPids.contains(record.getPid())) {
                 indexedRecordList.add(record);
             }
         });
@@ -258,13 +270,23 @@ public class CDKCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<CDKWor
 
         List<IterationItem> notindexed = new ArrayList<>();
         subitems.forEach(item -> {
-            if (!pidsFromLocalSolr.contains(item.getPid()) && !econflictPids.contains(item.getPid()))
+            if (!pidsFromLocalSolr.contains(item.getPid()) && !econflictPids.contains(item.getPid()) && !overriddenPids.contains(item.getPid()))
                 notindexed.add(item);
         });
 
         return new CDKCopyContext(subitems, indexedRecordList, econflicts, notindexed);
     }
 
+
+    private static boolean markerContainsLibrary(Object marker, String library) {
+        if (marker instanceof Iterable<?>) {
+            for (Object value : (Iterable<?>) marker) {
+                if (library.equals(value == null ? null : value.toString())) return true;
+            }
+            return false;
+        }
+        return library.equals(marker == null ? null : marker.toString());
+    }
 
     private static void removePids(List<CDKExistingConflictFeederItem> conflicts, List<Map<String, Object>> docs) {
         Set<String> pids = conflicts.stream()

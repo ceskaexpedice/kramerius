@@ -37,7 +37,8 @@ jib {
     container {
 	
         environment = [
-            'WORKER_ID': 'testworker'
+            'WORKER_ID': 'testworker',
+            'JAVA_TOOL_OPTIONS': '-XX:-UseBASE64Intrinsics'
         ]
 	
 		entrypoint = ["/usr/local/tomcat/bin/catalina.sh", "run"]
