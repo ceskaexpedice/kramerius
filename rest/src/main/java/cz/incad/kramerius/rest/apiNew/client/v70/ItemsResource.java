@@ -35,6 +35,7 @@ import cz.incad.kramerius.utils.FedoraUtils;
 import cz.incad.kramerius.utils.RESTHelper;
 import cz.incad.kramerius.utils.StringUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.service.impl.MailerImpl;
 import cz.incad.kramerius.utils.imgs.ImageMimeType;
 import cz.incad.kramerius.utils.imgs.KrameriusImageSupport;
 import cz.incad.kramerius.utils.java.Pair;
@@ -52,6 +53,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.inject.Named;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -810,6 +816,8 @@ public class ItemsResource extends AbstractItemsResource {
 
                         LOGGER.fine("Scheduler process -> " + process.toString());
                         String processId = processManagerClient.scheduleProcess(process);
+                        sendQueuedExportEmail(reqid, pid, requestedEmail(safeReqDefinition, user), processId,
+                                safeReqDefinition.optString("notificationMode", null));
                         JSONObject result = new JSONObject();
                         result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
                         String token = this.userContentSpace.getToken(pid, user.getLoginname());
@@ -896,6 +904,8 @@ public class ItemsResource extends AbstractItemsResource {
 
                         LOGGER.fine("Scheduler process -> " + process.toString());
                         String processId = processManagerClient.scheduleProcess(process);
+                        sendQueuedExportEmail(reqid, pid, requestedEmail(safeReqDefinition, user), processId,
+                                safeReqDefinition.optString("notificationMode", null));
                         JSONObject result = new JSONObject();
                         result.put(ProcessManagerMapper.PCP_PROCESS_ID, processId);
                         String token = this.userContentSpace.getToken(pid, user.getLoginname());
@@ -1820,6 +1830,63 @@ public class ItemsResource extends AbstractItemsResource {
 
     private String getPidOfFirstChild(String pid) {
         return akubraRepository.re().getPidOfFirstChild(pid);
+    }
+
+    private static String requestedEmail(JSONObject request, User user) {
+        String email = request.optString("email", null);
+        if (StringUtils.isAnyString(email)) return email.trim();
+        return user != null && StringUtils.isAnyString(user.getEmail()) ? user.getEmail().trim() : null;
+    }
+
+    private static void sendQueuedExportEmail(String profileId, String pid, String email, String processId,
+                                               String notificationMode) {
+        if (!isPublicWorkerExport(profileId) || !StringUtils.isAnyString(email)
+                || "cdk".equalsIgnoreCase(notificationMode)) return;
+
+        org.apache.commons.configuration.Configuration config = KConfiguration.getInstance().getConfiguration();
+        String sender = config.getString("generate.notification.queued.email.sender",
+                config.getString("administrator.email", null));
+        if (!StringUtils.isAnyString(sender)) {
+            LOGGER.warning("Queued export email skipped: no sender configured");
+            return;
+        }
+
+        String apiBase = config.getString("api.client.point", "");
+        while (apiBase.endsWith("/")) apiBase = apiBase.substring(0, apiBase.length() - 1);
+        String statusUrl = apiBase + "/userrequests/status/" + processId;
+        String clientUrl = KConfiguration.getInstance().getConfiguration().getString("client", "");
+        while (clientUrl.endsWith("/")) clientUrl = clientUrl.substring(0, clientUrl.length() - 1);
+        String documentUrl = StringUtils.isAnyString(clientUrl) ? clientUrl + "/uuid/" + pid : "";
+        String subject = config.getString("generate.notification.queued.email.subject",
+                "Potvrzení zařazení exportu");
+        String body = config.getString("generate.notification.queued.email.body",
+                "Dobrý den,\n\nVáš požadavek na export díla " + pid
+                        + (StringUtils.isAnyString(documentUrl) ? "\nDílo: " + documentUrl : "")
+                        + " byl zařazen do fronty. Stav požadavku můžete sledovat zde:\n" + statusUrl
+                        + "\n\nPo dokončení exportu Vám zašleme další zprávu.");
+        body = body.replace("$pid$", pid).replace("$statusUrl$", statusUrl)
+                .replace("$clientUrl$", documentUrl)
+                + "\n\n---\nOznámení o zařazení do fronty · verze 2";
+
+        try {
+            Session session = new MailerImpl().getSession(null, null);
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(sender));
+            message.setRecipient(Message.RecipientType.TO, new InternetAddress(email, true));
+            message.setSubject(subject, "UTF-8");
+            message.setText(body, "UTF-8");
+            Transport.send(message);
+        } catch (Exception e) {
+            // Scheduling succeeded already; a mail transport error must not
+            // make the API report that the process was not queued.
+            LOGGER.log(Level.WARNING, "Queued export email could not be sent for process " + processId, e);
+        }
+    }
+
+    private static boolean isPublicWorkerExport(String profileId) {
+        return GENERATE_PDF_PROCESS.equals(profileId)
+                || "special_needs_ebook".equals(profileId)
+                || "special_needs_text".equals(profileId);
     }
 
 }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CDK API – Swagger UI</title>
+    <link rel="stylesheet" href="../../admin/v7.0/swagger-ui.css">
+    <style>
+      .app-custom-auth-buttons { background: #f3f3f3; border-bottom: 1px solid #e0e0e0; }
+      .app-custom-auth-buttons .app-container { text-align: right; margin: 0 auto; max-width: 1460px; width: 100%; padding: 16px 0; }
+      .app-custom-auth-buttons button { margin-left: 5px; padding: 5px 10px; }
+      .swagger-ui .topbar { display: none; }
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="app-custom-auth-buttons">
+      <div class="app-container">
+        <button id="login-button" onclick="login(CDK_URL)">Login</button>
+        <button id="logout-button" onclick="logout(CDK_URL)" disabled>Logout</button>
+      </div>
+    </div>
+    <div id="swagger-ui"></div>
+    <script src="../../admin/v7.0/swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script src="../../admin/v7.0/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+    <script src="../../openapi-initializer.js" charset="UTF-8"></script>
+    <script>
+      window.onload = function () {
+        const ui = SwaggerUIBundle({
+          url: CDK_DEFINITION_URL,
+          dom_id: '#swagger-ui',
+          deepLinking: true,
+          defaultModelsExpandDepth: -1,
+          validatorUrl: null,
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+          plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+          requestInterceptor: (request) => {
+            if (TOKEN && TOKEN.access_token) request.headers.Authorization = `Bearer ${TOKEN.access_token}`;
+            return request;
+          },
+          layout: 'StandaloneLayout'
+        });
+        window.ui = ui;
+
+        setTimeout(function () {
+          const url = new URL(window.location.href);
+          const code = url.searchParams.get('code');
+          const tokenSet = url.searchParams.get('tokenSet');
+          if (code && !tokenSet) {
+            const redirectUri = window.location.origin + CDK_URL;
+            const tokenUrl = window.location.origin + `/search/api/client/v7.0/user/auth/token?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+            $.get(tokenUrl).done(function (response) {
+              if (response.error) {
+                logout(CDK_URL);
+              } else {
+                TOKEN = response;
+              }
+              if (TOKEN && TOKEN.access_token) {
+                $('#login-button').prop('disabled', true);
+                $('#logout-button').prop('disabled', false);
+              }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+              logout(CDK_URL);
+              console.error('Error fetching token:', textStatus, errorThrown);
+            });
+          }
+        }, 1000);
+      };
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </body>
+</html>

@@ -1732,6 +1732,87 @@ paths:
 
 
   # Uzivatelske pozadavky
+  /userrequests/status/{token}:
+    get:
+      tags:
+        - Uživatelské požadavky
+      summary: HTML stránka se stavem procesu
+      description: Veřejná stránka pro držitele UUID procesu v URL. Průběžně načítá stav z endpointu /data; samotná odpověď neobsahuje údaje o uživateli ani payload procesu.
+      operationId: getUserRequestStatusPage
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: UUID procesu; v CDK obsahuje také prefix zdroje ve tvaru zdroj:UUID. Token slouží jako přístupový odkaz.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: HTML stránka stavu procesu
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          description: Neexistující nebo neplatný token
+
+  /userrequests/status/{token}/data:
+    get:
+      tags:
+        - Uživatelské požadavky
+      summary: Stav procesu pro HTML stránku
+      description: Veřejná odpověď pro držitele UUID procesu. Vrací pouze stav a bezpečný popis; nevrací payload ani logy.
+      operationId: getUserRequestStatusData
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: UUID procesu; v CDK obsahuje také prefix zdroje ve tvaru zdroj:UUID. Token slouží jako přístupový odkaz.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Stav požadavku
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              example: no-cache, no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, label, terminal]
+                properties:
+                  status:
+                    type: string
+                    example: RUNNING
+                  label:
+                    type: string
+                    example: Export právě probíhá.
+                  pid:
+                    type: string
+                    description: PID původního díla, na které stavová stránka odkazuje.
+                    example: uuid:a3f2b431-c220-11f1-b97a-6ea7be0fde5b
+                  processTitle:
+                    type: string
+                    description: Titulek procesu vrácený Process Managerem.
+                    example: Generování PDF pro uživatele, PID uuid:a3f2b431-c220-11f1-b97a-6ea7be0fde5b
+                  terminal:
+                    type: boolean
+                    example: false
+                  updated:
+                    type: string
+                    description: Čas posledního známého přechodu stavu, pokud je dostupný.
+                  documentUrl:
+                    type: string
+                    format: uri
+                    description: Odkaz na původní dílo v rozhraní Krameria.
+        '404':
+          description: Neexistující nebo neplatný token
+
   /userrequests/requests/{reqid}:
     get:
       tags:

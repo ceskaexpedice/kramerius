@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CDK connection pool</title>
+  <style>
+    :root { color-scheme: light dark; font: 15px/1.45 system-ui, sans-serif; }
+    body { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { margin-bottom: .25rem; }
+    .muted { opacity: .7; }
+    .cards { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.25rem 0; }
+    .card { min-width: 125px; padding: .8rem 1rem; border: 1px solid #8886; border-radius: 8px; }
+    .card strong { display: block; font-size: 1.55rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .55rem .7rem; text-align: right; border-bottom: 1px solid #8885; }
+    th:first-child, td:first-child { text-align: left; }
+    #error { color: #d33; white-space: pre-wrap; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+    .auth button { margin-left: .4rem; padding: .4rem .8rem; }
+  </style>
+</head>
+<body>
+  <h1>CDK connection pool</h1>
+  <div class="toolbar">
+    <span class="muted">forward-client pool status</span>
+    <span class="auth"><button id="login-button" type="button">Login</button><button id="logout-button" type="button" disabled>Logout</button></span>
+  </div>
+  <p id="updated" class="muted">Loading...</p>
+  <p id="error" role="alert"></p>
+  <section id="totals" class="cards" aria-label="Pool summary"></section>
+  <h2>By target library</h2>
+  <table>
+    <thead><tr><th>Route</th><th>Leased</th><th>Available</th><th>Pending</th><th>Limit</th></tr></thead>
+    <tbody id="routes"></tbody>
+  </table>
+  <script src="/search/openapi/openapi-initializer.js"></script>
+  <script>
+    (() => {
+      const endpoint = new URL('../api/admin/v7.0/connected/pool', window.location.href);
+      const pagePath = window.location.pathname;
+      const totals = document.getElementById('totals');
+      const routes = document.getElementById('routes');
+      const updated = document.getElementById('updated');
+      const error = document.getElementById('error');
+      let token = null;
+      let refreshing = false;
+      const labels = [['leased', 'Leased'], ['available', 'Available'], ['pending', 'Pending'], ['max', 'Limit']];
+      function cell(tag, text) { const el = document.createElement(tag); el.textContent = text; return el; }
+      function updateAuthButtons() {
+        document.getElementById('login-button').disabled = Boolean(token && token.access_token);
+        document.getElementById('logout-button').disabled = !(token && token.access_token);
+      }
+      document.getElementById('login-button').addEventListener('click', () => login(pagePath));
+      document.getElementById('logout-button').addEventListener('click', () => logout(pagePath));
+
+      async function exchangeAuthorizationCode() {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (!code || params.has('tokenSet')) return;
+
+        const redirectUri = `${window.location.origin}${pagePath}`;
+        const tokenUrl = new URL('/search/api/client/v7.0/user/auth/token', window.location.origin);
+        tokenUrl.searchParams.set('code', code);
+        tokenUrl.searchParams.set('redirect_uri', redirectUri);
+        const response = await fetch(tokenUrl, { credentials: 'same-origin', cache: 'no-store' });
+        if (!response.ok) throw new Error(`Login failed (HTTP ${response.status})`);
+        token = await response.json();
+        if (!token.access_token) throw new Error(token.error || 'Login did not return an access token.');
+        window.history.replaceState({}, document.title, pagePath);
+        updateAuthButtons();
+      }
+
+      async function refresh() {
+        if (refreshing) return;
+        refreshing = true;
+        try {
+          const headers = token && token.access_token ? { Authorization: `Bearer ${token.access_token}` } : {};
+          const response = await fetch(endpoint, { headers, credentials: 'same-origin', cache: 'no-store' });
+          if (!response.ok) throw new Error(`HTTP ${response.status}${response.status === 403 ? ' - admin read permission required.' : ''}`);
+          const data = await response.json();
+          totals.replaceChildren(...labels.map(([key, label]) => {
+            const card = document.createElement('div'); card.className = 'card';
+            card.append(cell('span', label)); card.append(cell('strong', data[key])); return card;
+          }));
+          routes.replaceChildren(...data.routes.map(route => {
+            const row = document.createElement('tr');
+            [route.route, route.leased, route.available, route.pending, route.max].forEach(value => row.append(cell('td', value)));
+            return row;
+          }));
+          if (!data.routes.length) {
+            const row = document.createElement('tr');
+            const empty = cell('td', 'No active routes'); empty.colSpan = 5; row.append(empty); routes.append(row);
+          }
+          updated.textContent = `Updated: ${new Date(data.sampledAt).toLocaleTimeString()}`;
+          error.textContent = '';
+        } catch (e) {
+          error.textContent = `Could not load pool status: ${e.message}`;
+          updated.textContent = `Last attempt: ${new Date().toLocaleTimeString()}`;
+        } finally {
+          refreshing = false;
+        }
+      }
+      exchangeAuthorizationCode().then(refresh).catch(e => {
+        error.textContent = e.message;
+        updateAuthButtons();
+      });
+      window.setInterval(refresh, 2000);
+    })();
+  </script>
+</body>
+</html>

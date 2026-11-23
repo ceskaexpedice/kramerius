@@ -218,6 +218,9 @@ jib {
         image = "ceskaexpedice/kramerius:${version}"
     }
     container {
+        environment = [
+            'JAVA_TOOL_OPTIONS': '-XX:-UseBASE64Intrinsics'
+        ]
         appRoot = '/usr/local/tomcat/webapps/search'
         //appRoot = '/opt/bitnami/tomcat/webapps/search'
         user = '0'
