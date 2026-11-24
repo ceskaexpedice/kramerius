@@ -36,6 +36,7 @@ public class CDKIndexStarter {
         // Non-required parameters check for null
         LOGGER.info("Parameter 'ignoreInconsistentObjects': " + (ignoreInconsistentObjects == null ? "N/A" : ignoreInconsistentObjects));
         LOGGER.info("Parameter 'title': " + (title == null ? "N/A" : title));
+        LOGGER.info("Parameter 'forceSync': " + forceSync);
         LOGGER.info("-----------------------------------");
 
         NewIndexerProcessIndexObject.indexerMain(type.toUpperCase(), pidsP, ignoreInconsistentObjects, title);
