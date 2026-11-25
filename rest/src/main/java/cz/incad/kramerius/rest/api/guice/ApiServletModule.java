@@ -209,6 +209,7 @@ public class ApiServletModule extends JerseyServletModule {
         // Kramerius folders
         bind(EndpointFolders.class);
         bind(FolderDatabase.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.folders.AdminEndpointFolders.class);
         
         bind(KeycloakProxy.class);
 
