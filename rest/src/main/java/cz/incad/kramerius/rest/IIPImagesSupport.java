@@ -151,7 +151,6 @@ public class IIPImagesSupport {
     /** Blocking copy from IIP server - jersey output */
     public static void blockingCopyFromImageServer(Client c, String urlString, ByteArrayOutputStream bos, ResponseBuilder builder,String mimetype)
             throws IOException {
-        c.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, true);
         WebResource r = c.resource(urlString);
         ClientResponse clientResponse = r.accept(MediaType.MEDIA_TYPE_WILDCARD).get(ClientResponse.class);
         final InputStream input = clientResponse.getEntityInputStream();

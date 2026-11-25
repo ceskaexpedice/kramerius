@@ -173,7 +173,7 @@ public class ApiServletModule extends JerseyServletModule {
         // cdk forward client
         bind(CloseableHttpClient.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardClientProvider.class).asEagerSingleton();
         bind(PoolingHttpClientConnectionManager.class).annotatedWith(Names.named("forward-client")).toProvider(ApacheCDKForwardPoolManagerProvider.class).asEagerSingleton();
-        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).asEagerSingleton();
+        bind(Client.class).annotatedWith(Names.named("forward-client")).toProvider(ClientProvider.class).in(Scopes.SINGLETON);
         // cdk source provider
         bind(CDKDocumentSourceProvider.class).to(CDKDocumentSourceProviderImpl.class).asEagerSingleton();
 
