@@ -122,6 +122,8 @@ public class ApiServletModule extends JerseyServletModule {
 		bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.keycloak.KeycloakAdminResource.class);
+        bind(cz.incad.kramerius.keycloak.KeycloakAdminService.class).to(cz.incad.kramerius.keycloak.KeycloakAdminServiceImpl.class);
 
         // statistics
         bind(StatisticsResource.class);
