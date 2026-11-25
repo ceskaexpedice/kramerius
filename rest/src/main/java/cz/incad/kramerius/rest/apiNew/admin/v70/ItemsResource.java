@@ -421,7 +421,13 @@ public class ItemsResource extends AdminApiResource {
                     }
                     for (String childPid : newChildrenOrderPids) {
                         String s = foxmlChildrenPidToRelationName.get(childPid);
-                        foxmlBuilder.appendRelationToRelsExt(pid, relsExt, KnownRelations.valueOf(s), childPid);
+                        // relation
+                        KnownRelations relation = Arrays.stream(KnownRelations.values())
+                                .filter(r -> r.toString().equals(s))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("Unknown relation: " + s));
+
+                        foxmlBuilder.appendRelationToRelsExt(pid, relsExt, relation, childPid);
                     }
                     ByteArrayInputStream bis = new ByteArrayInputStream(relsExt.asXML().getBytes(Charset.forName("UTF-8")));
                     akubraRepository.re().update(pid, bis);
