@@ -13,11 +13,9 @@ import java.util.logging.Level;
 
 import javax.servlet.ServletContextEvent;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
+import com.google.inject.*;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 
@@ -27,6 +25,8 @@ import cz.incad.kramerius.database.guice.DatabaseVersionGuiceModule;
 import cz.incad.kramerius.document.guice.DocumentServiceModule;
 import cz.incad.kramerius.fedora.RepoSecureModule;
 import cz.incad.kramerius.imaging.guice.ImageModule;
+import cz.incad.kramerius.statistics.accesslogs.AsyncStatisticsAccessLog;
+import cz.incad.kramerius.statistics.StatisticsAccessLog;
 import cz.incad.kramerius.workmode.guice.WorkModeModule;
 import cz.incad.kramerius.pdf.guice.PDFModule;
 import cz.incad.kramerius.printing.guice.PrintModule;
@@ -41,13 +41,12 @@ import cz.incad.kramerius.service.guice.ServicesModule;
 import cz.incad.kramerius.solr.SolrModule;
 import cz.incad.kramerius.users.guice.LoggedUsersModule;
 import cz.incad.kramerius.utils.IOUtils;
-import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.inovatika.dochub.guice.DocHubModule;
 
 public class GuiceConfigBean extends GuiceServletContextListener {
 
     static java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GuiceConfigBean.class.getName());
-    
+
     public GuiceConfigBean() {
         super();
     }
@@ -60,7 +59,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
     @Override
     protected Injector getInjector() {
 
-    	List<AbstractModule> modules = new ArrayList<AbstractModule>(Arrays.asList(
+        List<AbstractModule> modules = new ArrayList<AbstractModule>(Arrays.asList(
 
                 // Repo modules
                 new RepoModule(),
@@ -78,7 +77,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new DocHubModule(),
 
                 new DocumentServiceModule(),
-                new GuiceSecurityModule(), 
+                new GuiceSecurityModule(),
                 new GuiceSecurityHTTPModule(),
                 new ProcessModule(), // for long running processes
 
@@ -88,29 +87,33 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new IiifServletModule(),
 
                 servletModule()
-		)); 
-    	
+        ));
+
         try {
             // api extensions
             modules.addAll(extensionModule());
         } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE,"ignoring API extensions");
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, "ignoring API extensions");
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,"ignoring API extensions");
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, "ignoring API extensions");
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE,"ignoring API extensions");
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, "ignoring API extensions");
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE,"ignoring API extensions");
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, "ignoring API extensions");
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-        Injector injector = Guice.createInjector(modules);
-
-        return injector;
+        Injector injector;
+        try{
+            injector = Guice.createInjector(modules);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+       return injector;
     }
-    
+
     public static ServletModule servletModule() {
         try {
             Class<?> clz = Class.forName("cz.incad.kramerius.rest.api.guice.ApiServletModule");
@@ -118,33 +121,51 @@ public class GuiceConfigBean extends GuiceServletContextListener {
         } catch (ClassNotFoundException e) {
             // no problem
         } catch (InstantiationException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(),e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return new ServletModule();
     }
-    
+
     public static List<AbstractModule> extensionModule() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
         List<AbstractModule> list = new ArrayList<AbstractModule>();
         String resGuiceModule = "res/guice.module";
         Enumeration<URL> urlRes = GuiceConfigBean.class.getClassLoader().getResources(resGuiceModule);
-        while(urlRes.hasMoreElements()) {
+        while (urlRes.hasMoreElements()) {
             URL url = urlRes.nextElement();
             InputStream istream = url.openConnection().getInputStream();
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copyStreams(istream, bos);
             Class clz = Class.forName(new String(bos.toByteArray()));
-            list.add( (AbstractModule) clz.newInstance());
+            list.add((AbstractModule) clz.newInstance());
         }
         return list;
     }
-    
-    
+
+
     @Provides
     @Named("fontsDir")
     public File getWebAppsFontsFolder() {
         String dirName = Constants.WORKING_DIR + File.separator + "fonts";
         return new File(dirName);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent event) {
+        try {
+            Injector injector = (Injector) event.getServletContext().getAttribute(Injector.class.getName());
+            if (injector != null) {
+                StatisticsAccessLog statisticsAccessLog = injector.getInstance(
+                        Key.get(StatisticsAccessLog.class, Names.named("solr-statistics")));
+                if (statisticsAccessLog instanceof AsyncStatisticsAccessLog) {
+                    ((AsyncStatisticsAccessLog) statisticsAccessLog).shutdown();
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error shutting down asynchronous statistics access log.", e);
+        } finally {
+            super.contextDestroyed(event);
+        }
     }
 }

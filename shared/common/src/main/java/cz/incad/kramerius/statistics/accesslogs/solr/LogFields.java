@@ -78,7 +78,7 @@ class LogFields {
     String[] getDCCreators() {
         Document dc1 = getDC();
         if (dc1 == null) {
-            return null;
+            return new String[]{};
         }
         String[] creatorsFromDC = DCUtils.creatorsFromDC(dc);
         return creatorsFromDC;
@@ -87,7 +87,7 @@ class LogFields {
     String[] getDCPublishers() {
         Document dc1 = getDC();
         if (dc1 == null) {
-            return null;
+            return new String[]{};
         }
         String[] publishersFromDC = DCUtils.publishersFromDC(dc);
         return publishersFromDC;

@@ -24,11 +24,11 @@ import cz.incad.kramerius.rest.api.guice.HttpAsyncClientLifeCycleHook;
 import cz.incad.kramerius.rest.api.guice.HttpAsyncClientProvider;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.DeleteTriggerSupport;
 import cz.incad.kramerius.rest.apiNew.client.v70.redirection.impl.DeleteTriggerSupportImpl;
+import cz.incad.kramerius.statistics.accesslogs.AsyncStatisticsAccessLog;
 import cz.inovatika.monitoring.APICallMonitor;
 import cz.incad.kramerius.rest.apiNew.monitoring.impl.SolrAPICallMonitor;
 import cz.incad.kramerius.service.GoogleAnalytics;
 import cz.incad.kramerius.service.LifeCycleHook;
-import cz.incad.kramerius.service.METSService;
 import cz.incad.kramerius.service.impl.GoogleAnalyticsImpl;
 import cz.incad.kramerius.statistics.StatisticReport;
 import cz.incad.kramerius.statistics.StatisticsAccessLog;
@@ -54,7 +54,11 @@ public class BaseModule extends AbstractModule {
     protected void configure() {
 
         // logs statistics
-        bind(StatisticsAccessLog.class).annotatedWith(Names.named("solr-statistics")).to(SolrStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        bind(SolrStatisticsAccessLogImpl.class).in(Scopes.SINGLETON);
+        bind(StatisticsAccessLog.class)
+                .annotatedWith(Names.named("solr-statistics"))
+                .to(AsyncStatisticsAccessLog.class)
+                .asEagerSingleton();
 
         // api monitoring
         bind(APICallMonitor.class).to(SolrAPICallMonitor.class).asEagerSingleton();
