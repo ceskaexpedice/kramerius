@@ -26,7 +26,8 @@ public class CORSFilter implements Filter {
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with" +
                 ",content-type" + //for API HTTP POSTs
                 ",authorization" + //for basic access authentication (deprecated)
-                ",access-token, client, uid" //for authorization by account service
+                ",access-token, client, uid" + //for authorization by account service
+                ",x-kramerius-client-url,x-kramerius-client-app,x-kramerius-client-version,x-kramerius-intent" //client identification and intent for the access log
         );
         chain.doFilter(req, res);
     }

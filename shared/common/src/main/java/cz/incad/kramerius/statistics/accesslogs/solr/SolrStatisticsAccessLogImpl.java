@@ -25,6 +25,7 @@ import cz.incad.kramerius.utils.DCUtils;
 import cz.incad.kramerius.utils.IPAddressUtils;
 import cz.incad.kramerius.utils.XMLUtils;
 import cz.incad.kramerius.utils.conf.KConfiguration;
+import cz.incad.kramerius.statistics.accesslogs.AccessLogFormat;
 import cz.incad.kramerius.utils.solr.SolrUpdateUtils;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.apache.commons.configuration.Configuration;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -107,6 +109,11 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
 
     @Override
     public void reportAccess(final String pid, final String streamName, String actionName) throws IOException {
+        reportAccess(pid, streamName, actionName, null);
+    }
+
+    @Override
+    public void reportAccess(final String pid, final String streamName, String actionName, Map<String, String> extraFields) throws IOException {
         Document solrDoc = this.solrAccess.getSolrDataByPid(pid);
         
         ObjectPidsPath[] paths = this.solrAccess.getPidPaths(solrDoc);
@@ -210,6 +217,8 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
             else LOGGER.fine("No "+DATE_RANGE_START_YEAR_FIELD);
             
             logRecord.setFieldsFromHttpRequestHeaders(extractFieldsFromHttpRequestHeaders());
+            logRecord.setStreamName(streamName);
+            logRecord.setExtraFields(extraFields);
             
             Map<String, LogFields> logFieldsMap = new HashMap<>();
             for (int i = 0, ll = paths.length; i < ll; i++) {
@@ -310,24 +319,151 @@ public class SolrStatisticsAccessLogImpl extends AbstractStatisticsAccessLog {
                     LOGGER.log(Level.SEVERE,e1.getMessage(),e1);
                 }
                 
-                SolrUpdateUtils.sendToDest(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
+                sendRecord(logRecord, loggerPoint, updateUrl);
             } catch (ParserConfigurationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     }
 
-    private Map<String, String> extractFieldsFromHttpRequestHeaders() {
-        Map<String, String> results = new HashMap<>();
-        String referer = requestProvider.get().getHeader("Referer");
-        if (referer != null) {
-            results.put("Referer", referer);
+    /** guard of the logs schema, created for the configured core on first use */
+    private SolrLogsSchemaGuard schemaGuard;
+
+    private synchronized SolrLogsSchemaGuard schemaGuard(String loggerPoint) {
+        if (this.schemaGuard == null) {
+            this.schemaGuard = new SolrLogsSchemaGuard(this.client, loggerPoint);
         }
-        String headerKrameriusClient = requestProvider.get().getHeader("client");
+        return this.schemaGuard;
+    }
+
+    /**
+     * Sends the record; when the core rejects it (its schema lacks the format
+     * {@link LogRecord#LOG_FORMAT} fields), tries to add the fields through the
+     * Schema API and sends the record again, and when that is not possible,
+     * sends it as a format 0 record so that no access goes unlogged.
+     */
+    private void sendRecord(LogRecord logRecord, String loggerPoint, String updateUrl) throws ParserConfigurationException {
+        SolrLogsSchemaGuard guard = schemaGuard(loggerPoint);
+        guard.ensureOnce();
+        if (guard.skipFullRecord()) {
+            // a full record was rejected a moment ago: do not knock on Solr with every record
+            sendFormat0(logRecord, guard, updateUrl);
+            return;
+        }
+        int status = SolrUpdateUtils.sendToDestWithStatus(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
+        if (status == 200) {
+            guard.markAccepted();
+            return;
+        }
+        if (status == -1) {
+            // Solr not reachable at all, nothing a schema change would fix
+            return;
+        }
+        if (guard.ensure()) {
+            status = SolrUpdateUtils.sendToDestWithStatus(this.client, logRecord.toSolrBatch(this.documentBuilderFactory), updateUrl);
+            if (status == 200) {
+                guard.markAccepted();
+                return;
+            }
+            if (status == -1) {
+                return;
+            }
+        }
+        guard.markRejected();
+        sendFormat0(logRecord, guard, updateUrl);
+    }
+
+    private void sendFormat0(LogRecord logRecord, SolrLogsSchemaGuard guard, String updateUrl) throws ParserConfigurationException {
+        guard.warnFallback();
+        Document legacy = AccessLogFormat.stripToFormat0(logRecord.toSolrBatch(this.documentBuilderFactory));
+        SolrUpdateUtils.sendToDestWithStatus(this.client, legacy, updateUrl);
+    }
+
+    /** header sent by clients; the value is a comma separated list of intents (why the request was made) */
+    public static final String HEADER_INTENT = "X-Kramerius-Intent";
+    /** header sent by clients: hostname (url) of the frontend; successor of the legacy "client" header */
+    public static final String HEADER_CLIENT_URL = "X-Kramerius-Client-Url";
+    /** header sent by clients: application identifier (e.g. cdk-client) */
+    public static final String HEADER_CLIENT_APP = "X-Kramerius-Client-App";
+    /** header sent by clients: application version */
+    public static final String HEADER_CLIENT_VERSION = "X-Kramerius-Client-Version";
+
+    static final int INTENT_MAX_VALUES = 5;
+    static final int INTENT_MAX_LENGTH = 32;
+    private static final Pattern INTENT_VALUE = Pattern.compile("[a-z0-9][a-z0-9-]*");
+
+    /**
+     * Headers stored in the log record. The map key becomes the Solr field name
+     * ("hrh_" + key lowercased, '-' replaced by '_'), so the keys here must match the logs schema.
+     */
+    private Map<String, List<String>> extractFieldsFromHttpRequestHeaders() {
+        Map<String, List<String>> results = new LinkedHashMap<>();
+        HttpServletRequest request = requestProvider.get();
+        String referer = request.getHeader("Referer");
+        if (referer != null) {
+            results.put("Referer", Collections.singletonList(referer));
+        }
+        // legacy header "client" (old web client, hostname of the frontend); kept in its own field only
+        String headerKrameriusClient = request.getHeader("client");
         if (headerKrameriusClient != null) {
-            results.put("Kramerius-client", headerKrameriusClient);
+            results.put("Kramerius-client", Collections.singletonList(headerKrameriusClient));
+        }
+        String clientUrl = request.getHeader(HEADER_CLIENT_URL);
+        if (clientUrl != null) {
+            results.put("Kramerius-client-url", Collections.singletonList(clientUrl));
+        }
+        String clientApp = request.getHeader(HEADER_CLIENT_APP);
+        if (clientApp != null) {
+            results.put("Kramerius-client-app", Collections.singletonList(clientApp));
+        }
+        String clientVersion = request.getHeader(HEADER_CLIENT_VERSION);
+        if (clientVersion != null) {
+            results.put("Kramerius-client-version", Collections.singletonList(clientVersion));
+        }
+        List<String> intents = parseIntents(joinHeaderValues(request.getHeaders(HEADER_INTENT)));
+        if (!intents.isEmpty()) {
+            results.put("Kramerius-intent", intents);
         }
         return results;
+    }
+
+    private static String joinHeaderValues(Enumeration<String> values) {
+        if (values == null || !values.hasMoreElements()) {
+            return null;
+        }
+        StringBuilder joined = new StringBuilder();
+        while (values.hasMoreElements()) {
+            if (joined.length() > 0) {
+                joined.append(',');
+            }
+            joined.append(values.nextElement());
+        }
+        return joined.toString();
+    }
+
+    /**
+     * Normalizes the intent header: comma separated values, trimmed, lowercased, only [a-z0-9-],
+     * at most INTENT_MAX_LENGTH characters each, at most INTENT_MAX_VALUES values, duplicates removed.
+     * Anything else is dropped silently; the record is logged regardless of the intent.
+     */
+    static List<String> parseIntents(String header) {
+        List<String> intents = new ArrayList<>();
+        if (header == null) {
+            return intents;
+        }
+        for (String part : header.split(",")) {
+            String value = part.trim().toLowerCase(Locale.ROOT);
+            if (value.isEmpty() || value.length() > INTENT_MAX_LENGTH || !INTENT_VALUE.matcher(value).matches()) {
+                continue;
+            }
+            if (!intents.contains(value)) {
+                intents.add(value);
+            }
+            if (intents.size() >= INTENT_MAX_VALUES) {
+                break;
+            }
+        }
+        return intents;
     }
     
     @Override
