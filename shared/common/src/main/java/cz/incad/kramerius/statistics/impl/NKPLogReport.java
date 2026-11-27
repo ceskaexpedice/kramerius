@@ -104,6 +104,7 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
                 
                 StringBuilder builder = new StringBuilder("*");
                 ReportUtils.enhanceDateFilter(builder, dateFilter);
+                ReportUtils.enhanceLegacyReadsFilter(builder);
                 
                 String selectEndpoint = logsEndpoint();
                 Client client = Client.create();
@@ -347,15 +348,17 @@ public class NKPLogReport extends AbstractStatisticsReport implements StatisticR
             }
             map.put("hrh_referer", hrhReferer);
         }
-        if (obj.has("hrh_kramerius_client")) {
-            if (obj.has("hrh_kramerius_client")) {
-                //v SOLR: "hrh_kramerius_client":["kramerius.org"],
-                String hrhKrameriusClient = obj.optString("hrh_kramerius_client");
-                if (hrhKrameriusClient.startsWith("[\"") && hrhKrameriusClient.endsWith("\"]")) {
-                    hrhKrameriusClient = hrhKrameriusClient.substring(2, hrhKrameriusClient.length() - 2);
-                }
-                map.put("hrh_kramerius_client", hrhKrameriusClient);
+        // the old web client sends the "client" header (hrh_kramerius_client), the CDK client
+        // X-Kramerius-Client-Url (hrh_kramerius_client_url); both carry the hostname of the frontend
+        String clientField = obj.has("hrh_kramerius_client") ? "hrh_kramerius_client"
+                : obj.has("hrh_kramerius_client_url") ? "hrh_kramerius_client_url" : null;
+        if (clientField != null) {
+            //v SOLR: "hrh_kramerius_client":["kramerius.org"],
+            String hrhKrameriusClient = obj.optString(clientField);
+            if (hrhKrameriusClient.startsWith("[\"") && hrhKrameriusClient.endsWith("\"]")) {
+                hrhKrameriusClient = hrhKrameriusClient.substring(2, hrhKrameriusClient.length() - 2);
             }
+            map.put("hrh_kramerius_client", hrhKrameriusClient);
         }
         // TODO: Bad name; rename it
         List<String> licenses = licenses(obj);

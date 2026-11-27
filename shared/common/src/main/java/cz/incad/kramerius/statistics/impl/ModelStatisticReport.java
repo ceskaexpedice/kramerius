@@ -148,6 +148,7 @@ public class ModelStatisticReport extends AbstractStatisticsReport implements St
             StringBuilder builder = new StringBuilder("q=*");
             ReportUtils.enhanceLicense(builder, licFilter);
             ReportUtils.enhanceDateFilter(builder, dateFilter);
+            ReportUtils.enhanceLegacyReadsFilter(builder);
             ReportUtils.enhanceModelFilter(builder, modelFilter);
             ReportUtils.enhanceIdentifiers(builder, idFilter);
 

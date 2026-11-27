@@ -12,6 +12,21 @@ import java.util.*;
 
 
 public class LogRecord {
+
+    /**
+     * Version of the access log record format, stored as the field log_format. Records written by
+     * cores before this field existed have no value and count as format 0. Raise the number with
+     * every change that alters which fields a record carries or what they mean, and keep the
+     * description of each format (and the core versions it belongs to) in the project documentation,
+     * so the consumers of the log can tell the formats apart without guessing from the fields.
+     * <ul>
+     * <li>0: no log_format field; reported_action, requested_url, hrh_referer, hrh_kramerius_client, ...</li>
+     * <li>1: stream_name, stream_mime, image_kind, hrh_kramerius_intent (multi-valued),
+     *        hrh_kramerius_client_url/_app/_version; OCR streams and IIIF regions logged,
+     *        the IIIF presentation manifest, viewer tiles and range continuations not</li>
+     * </ul>
+     */
+    public static final int LOG_FORMAT = 1;
     // flat structure
     private String id;
     private String pid;
@@ -58,7 +73,13 @@ public class LogRecord {
     private Set<String> issns = new LinkedHashSet<>();
     private Set<String> ccnbs = new LinkedHashSet<>();
 
-    private Map<String, String> fieldsFromHttpRequestHeaders = new LinkedHashMap<>();
+    /** header key -> values; stored as hrh_<key lowercased, '-' replaced by '_'>, one Solr field per value */
+    private Map<String, List<String>> fieldsFromHttpRequestHeaders = new LinkedHashMap<>();
+
+    /** datastream that was accessed (IMG_FULL, ALTO, TEXT_OCR, MP3, ...); stored as stream_name */
+    private String streamName;
+    /** additional fields stored under their own names (e.g. stream_mime, image_kind) */
+    private Map<String, String> extraFields = new LinkedHashMap<>();
 
     private Set<LogRecordDetail> details = new LinkedHashSet<>();
 
@@ -395,8 +416,16 @@ public class LogRecord {
         this.rootPid = rootPid;
     }
 
-    public void setFieldsFromHttpRequestHeaders(Map<String, String> fieldsFromHttpRequestHeaders) {
+    public void setFieldsFromHttpRequestHeaders(Map<String, List<String>> fieldsFromHttpRequestHeaders) {
         this.fieldsFromHttpRequestHeaders = fieldsFromHttpRequestHeaders;
+    }
+
+    public void setStreamName(String streamName) {
+        this.streamName = streamName;
+    }
+
+    public void setExtraFields(Map<String, String> extraFields) {
+        this.extraFields = extraFields != null ? extraFields : new LinkedHashMap<>();
     }
 
     private LogRecord(String id, String pid, Date date) {
@@ -657,10 +686,34 @@ public class LogRecord {
         }
 
         for (String headerName : fieldsFromHttpRequestHeaders.keySet()) {
+            String fieldName = "hrh_" + headerName.toLowerCase().replaceAll("-", "_");
+            for (String value : fieldsFromHttpRequestHeaders.get(headerName)) {
+                Element pElm = doc.createElement("field");
+                pElm.setAttribute("name", fieldName);
+                pElm.setTextContent(value);
+                docElm.appendChild(pElm);
+            }
+        }
+
+        Element formatElm = doc.createElement("field");
+        formatElm.setAttribute("name", "log_format");
+        formatElm.setTextContent(String.valueOf(LOG_FORMAT));
+        docElm.appendChild(formatElm);
+
+        if (StringUtils.isAnyString(this.streamName)) {
             Element pElm = doc.createElement("field");
-            pElm.setAttribute("name", "hrh_" + headerName.toLowerCase().replaceAll("-", "_"));
-            pElm.setTextContent(fieldsFromHttpRequestHeaders.get(headerName));
+            pElm.setAttribute("name", "stream_name");
+            pElm.setTextContent(this.streamName);
             docElm.appendChild(pElm);
+        }
+
+        for (Map.Entry<String, String> extra : extraFields.entrySet()) {
+            if (StringUtils.isAnyString(extra.getValue())) {
+                Element pElm = doc.createElement("field");
+                pElm.setAttribute("name", extra.getKey());
+                pElm.setTextContent(extra.getValue());
+                docElm.appendChild(pElm);
+            }
         }
 
         return doc;
@@ -678,7 +731,8 @@ public class LogRecord {
                 + licenses + ", issueDates=" + issueDates + ", langs=" + langs + ", titles=" + titles + ", solrDates="
                 + solrDates + ", publishers=" + publishers + ", authors=" + authors + ", pidsPaths=" + pidsPaths
                 + ", modelsPaths=" + modelsPaths + ", isbns=" + isbns + ", issns=" + issns + ", ccnbs=" + ccnbs
-                + ", fieldsFromHttpRequestHeaders=" + fieldsFromHttpRequestHeaders + ", details=" + details + "]";
+                + ", fieldsFromHttpRequestHeaders=" + fieldsFromHttpRequestHeaders + ", streamName=" + streamName
+                + ", extraFields=" + extraFields + ", details=" + details + "]";
     }
 
     

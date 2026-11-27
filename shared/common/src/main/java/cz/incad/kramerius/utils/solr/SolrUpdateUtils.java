@@ -22,6 +22,15 @@ public class SolrUpdateUtils {
     }
 
     public static void sendToDest(Client client, Document batchDoc, String updateUrl) {
+        sendToDestWithStatus(client, batchDoc, updateUrl);
+    }
+
+    /**
+     * Same as {@link #sendToDest} but tells the caller how it went: the HTTP
+     * status Solr answered, or -1 when the request could not be made. Errors
+     * are logged as before.
+     */
+    public static int sendToDestWithStatus(Client client, Document batchDoc, String updateUrl) {
         try {
             StringWriter writer = new StringWriter();
             XMLUtils.print(batchDoc, writer);
@@ -34,8 +43,10 @@ public class SolrUpdateUtils {
                 IOUtils.copyStreams(entityInputStream, bos);
                 LOGGER.log(Level.SEVERE, new String(bos.toByteArray()));
             }
+            return resp.getStatus();
         } catch (UniformInterfaceException | ClientHandlerException | IOException | TransformerException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return -1;
         }
     }
 }
