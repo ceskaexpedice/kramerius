@@ -2,10 +2,12 @@ package cz.incad.kramerius.auth.thirdparty.impl;
 
 import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.Role;
 import cz.incad.kramerius.security.impl.UserImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import org.json.JSONObject;
 
@@ -26,6 +28,13 @@ public abstract class AbstractThirdPartyUser implements ThirdPartyUser {
         UserImpl user = new UserImpl(1, firsname, lastname, calculatedName, -1);
         if (email != null) {
             user.setEmail(email);
+        }
+        if (userManager != null && user instanceof UserImpl) {
+            List<String> associatedRoles = getRoles();
+            Role[] matchingRoles = Arrays.stream(userManager.findAllRoles(""))
+                    .filter(role -> associatedRoles.contains(role.getName()))
+                    .toArray(Role[]::new);
+            ((UserImpl) user).setGroups(matchingRoles);
         }
 
         return user;

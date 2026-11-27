@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import org.keycloak.representations.idm.FederatedIdentityRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.EventRepresentation;
 
 public interface KeycloakAdminService {
 
@@ -15,6 +16,10 @@ public interface KeycloakAdminService {
     String createUser(String username, String firstName, String lastName, String email);
 
     String findUserId(String username);
+
+    KeycloakUserDetails getUserDetails(String userId);
+
+    EventRepresentation getLastUserEvent(String userId);
 
     void deleteUser(String userId);
 
@@ -31,4 +36,6 @@ public interface KeycloakAdminService {
     List<FederatedIdentityRepresentation> userIdentities(String userId);
 
     List<UserRepresentation> searchUsers(KeycloakUserFilter filter, int first, int max);
+
+    List<KeycloakUserLoginActivity> usersLoggedInWithinMinutes(int minutes, int first, int max);
 }

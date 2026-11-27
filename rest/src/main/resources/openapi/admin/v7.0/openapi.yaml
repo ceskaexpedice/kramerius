@@ -55,7 +55,325 @@ tags:
     description: >
       Správa uživatelů a rolí v Keycloaku přes servisní účet jádra (krameriusCoreAdmin): výpis, vytváření a rušení rolí, uživatelů a přiřazení rolí.
 
+components:
+  schemas:
+    AuthenticationMappingRules:
+      type: object
+      required: [version, rules]
+      properties:
+        version:
+          type: integer
+          enum: [1]
+        rules:
+          type: array
+          items:
+            type: object
+            required: [when, then]
+            properties:
+              name:
+                type: string
+              enabled:
+                type: boolean
+                default: true
+              when:
+                type: object
+                properties:
+                  all:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuthenticationMappingCondition'
+                  any:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuthenticationMappingCondition'
+              then:
+                type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                  attributes:
+                    type: object
+                    additionalProperties:
+                      type: string
+    AuthenticationMappingCondition:
+      type: object
+      required: [attribute, operator]
+      properties:
+        attribute:
+          type: string
+          description: Název atributu nebo normalizovaná identita loginName, username či email. loginName odpovídá přihlašovacímu jménu Krameria; username je normalizovaný uživatelský identifikátor ze zdroje autentizace.
+        operator:
+          type: string
+          enum: [equals, contains, matches, exists]
+        value:
+          type: string
+
 paths:
+
+  /auth-mapping/rules:
+    get:
+      tags:
+        - Administrace
+      summary: Načíst pravidla pro přiřazení rolí a atributů
+      description: Vrátí společná pravidla aplikovaná na uživatele z Keycloaku, CDK a dalších podporovaných autentizačních zdrojů. Vyžaduje A_ADMIN_READ.
+      operationId: getAuthenticationMappingRules
+      responses:
+        '200':
+          description: Aktuální dokument pravidel.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationMappingRules'
+        '401':
+          description: Uživatel není přihlášen.
+        '403':
+          description: Uživatel nemá oprávnění A_ADMIN_READ.
+    put:
+      tags:
+        - Administrace
+      summary: Uložit pravidla pro přiřazení rolí a atributů
+      description: Uloží a validuje celý dokument pravidel. Změny se použijí při následující autentizaci uživatele. Vyžaduje A_ROLES_EDIT.
+      operationId: saveAuthenticationMappingRules
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationMappingRules'
+            example:
+              version: 1
+              rules:
+                - name: Institutional users
+                  enabled: true
+                  when:
+                    all:
+                      - attribute: eduPersonScopedAffiliation
+                        operator: matches
+                        value: '.*@example\.org'
+                    any:
+                      - attribute: affiliation
+                        operator: equals
+                        value: staff
+                      - attribute: affiliation
+                        operator: equals
+                        value: faculty
+                  then:
+                    roles: [institutional_users]
+                    attributes:
+                      institution: Example University
+                - name: Grant role by email
+                  enabled: true
+                  when:
+                    all:
+                      - attribute: email
+                        operator: matches
+                        value: '.*@example\.org'
+                  then:
+                    roles: [example_email_users]
+                - name: Grant role by login name
+                  enabled: true
+                  when:
+                    all:
+                      - attribute: loginName
+                        operator: equals
+                        value: jan.novak
+                  then:
+                    roles: [special_user]
+                - name: Grant role by source username
+                  enabled: true
+                  when:
+                    all:
+                      - attribute: username
+                        operator: equals
+                        value: jnovak
+                  then:
+                    roles: [source_username_users]
+      responses:
+        '200':
+          description: Pravidla byla uložena.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saved:
+                    type: boolean
+        '400':
+          description: Dokument pravidel je neplatný.
+        '401':
+          description: Uživatel není přihlášen.
+        '403':
+          description: Uživatel nemá oprávnění A_ROLES_EDIT.
+
+  /folders:
+    get:
+      tags:
+        - Uživatelské seznamy
+      summary: Vypsat uživatelské seznamy
+      description: Vrací základní informace o uživatelských seznamech včetně celkového počtu. Výsledky lze hledat podle názvu, UUID nebo uživatelského ID, filtrovat podle konkrétního uživatele a stránkovat. Vyžaduje oprávnění A_ADMIN_READ.
+      operationId: getAdminFolders
+      parameters:
+        - in: query
+          name: q
+          required: false
+          description: Text hledaný v názvu seznamu, UUID nebo ID přidruženého uživatele.
+          schema:
+            type: string
+        - in: query
+          name: userId
+          required: false
+          description: Vrátí pouze seznamy, ke kterým je uživatel přidružen jako vlastník nebo sledující.
+          schema:
+            type: string
+        - in: query
+          name: offset
+          required: false
+          description: Počet přeskočených výsledků.
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - in: query
+          name: limit
+          required: false
+          description: Maximální počet vrácených seznamů (server omezuje hodnotu na 200).
+          schema:
+            type: integer
+            minimum: 1
+            default: 50
+      responses:
+        '200':
+          description: Stránka uživatelských seznamů.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [totalCount, filteredCount, offset, limit, folders]
+                properties:
+                  totalCount:
+                    type: integer
+                    description: Celkový počet všech seznamů bez filtrování.
+                  filteredCount:
+                    type: integer
+                    description: Počet seznamů po aplikaci filtrů.
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+                    description: Efektivní limit použitý serverem, nejvýše 200.
+                  folders:
+                    type: array
+                    items:
+                      type: object
+                      required: [uuid, name, itemsCount, updatedAt, users]
+                      properties:
+                        uuid:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        itemsCount:
+                          type: integer
+                        updatedAt:
+                          type: string
+                          description: Čas poslední aktualizace seznamu.
+                        users:
+                          type: array
+                          items:
+                            type: object
+                            required: [userId, userRole, createdAt]
+                            properties:
+                              userId:
+                                type: string
+                              userRole:
+                                type: string
+                                enum: [owner, follower]
+                              createdAt:
+                                type: string
+                                description: Čas přidružení uživatele k seznamu.
+              example:
+                totalCount: 42
+                filteredCount: 2
+                offset: 0
+                limit: 50
+                folders:
+                  - uuid: 123e4567-e89b-12d3-a456-426614174000
+                    name: Výběr literatury
+                    itemsCount: 12
+                    updatedAt: '2026-11-24 14:30:00.0'
+                    users:
+                      - userId: jan.novak
+                        userRole: owner
+                        createdAt: '2026-11-20 09:00:00.0'
+        '400':
+          description: Neplatné stránkovací parametry.
+        '401':
+          description: Uživatel není přihlášen.
+        '403':
+          description: Uživatel nemá oprávnění A_ADMIN_READ.
+
+  /indexreflection/cores:
+    get:
+      tags:
+        - Index reflection
+      summary: Get Solr core configuration and health
+      description: Returns the configured source URL, expected identifier field, compositeId setting, and live schema health for the search, logs, and processing cores. The copy destination is supplied separately in each process payload. The request requires the index administration permission.
+      operationId: getSolrCoreConfigurationAndHealth
+      responses:
+        '200':
+          description: Configuration and health of the configured Solr cores.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cores]
+                properties:
+                  cores:
+                    type: object
+                    required: [search, logs, processing]
+                    properties:
+                      search:
+                        $ref: '#/components/schemas/SolrCoreConfigurationAndHealth'
+                      logs:
+                        $ref: '#/components/schemas/SolrCoreConfigurationAndHealth'
+                      processing:
+                        $ref: '#/components/schemas/SolrCoreConfigurationAndHealth'
+              example:
+                cores:
+                  search:
+                    url: http://localhost:8983/solr/search
+                    identifierField: pid
+                    usesCompositeId: false
+                    health:
+                      reachable: true
+                      exists: true
+                      identifierMatchesSchema: true
+                      schemaIdentifierField: pid
+                      status: up
+                  logs:
+                    url: http://localhost:8983/solr/logs
+                    identifierField: id
+                    usesCompositeId: false
+                    health:
+                      reachable: true
+                      exists: true
+                      identifierMatchesSchema: true
+                      schemaIdentifierField: id
+                      status: up
+                  processing:
+                    url: http://localhost:8983/solr/processing
+                    identifierField: pid
+                    usesCompositeId: false
+                    health:
+                      reachable: true
+                      exists: true
+                      identifierMatchesSchema: true
+                      schemaIdentifierField: pid
+                      status: up
+        '403':
+          description: The caller lacks the index administration permission.
 
   /monitor/cache:
     get:
@@ -914,6 +1232,49 @@ paths:
                       "uuid:b35833b3-7f7f-4cac-a434-484b6e096922"
                   ]
               }
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+
+  /collections/{colpid}/edit_clip_item:
+    post:
+      tags:
+        - Administrace sbírek
+      summary: Úprava výstřižku ve sbírce
+      description: Aktualizuje jméno a popis výstřižku nalezeného podle URL.
+      operationId: editClipItem
+      parameters:
+        - in: path
+          name: colpid
+          description: Identifikátor sbírky
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: JSON reprezentace výstřižku; URL identifikuje položku
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+            example: {"name":"Nové jméno","description":"Nový popis","url":"https://k7.inovatika.dev/uuid/uuid:488e8b24-3921-11ef-a7a7-001b63bd97ba?bb=2259,2567,903,861"}
+      responses:
+        '200':
+          description: Výstřižek byl upraven
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Neplatná žádost nebo výstřižek s danou URL neexistuje
         '403':
           description: Uživatel nemá oprávnění k požadované akci
 
@@ -2800,6 +3161,7 @@ paths:
       description: |
         Vyhledá uživatele v Keycloaku podle fulltextu nebo podle filtrů, se stránkováním.
         `search` nelze kombinovat s ostatními filtry kromě `enabled` (vrací 400).
+        `lastLoginWithinMinutes` vrátí uživatele s uloženou úspěšnou událostí `LOGIN` v klouzavém okně; lze jej použít samostatně, bez ostatních filtrů.
         Při filtrování podle polí vrací Keycloak i servisní účty (`service-account-...`), bez filtrů a při `search` je skrývá.
         Celkový počet se nevrací, protože ho Keycloak s filtry `idp` a `exact` neumí spočítat. Místo něj `hasMore` říká, jestli existuje další stránka.
       parameters:
@@ -2849,6 +3211,14 @@ paths:
             items:
               type: string
             example: ["schacHomeOrganization:mzk.cz"]
+        - name: lastLoginWithinMinutes
+          in: query
+          description: Vrátí uživatele s úspěšnou událostí `LOGIN` za posledních N minut. Rozsah 1–10080; nesmí se kombinovat s jinými uživatelskými filtry. Vyžaduje ukládání událostí LOGIN v Keycloaku a oprávnění service účtu `view-events`.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10080
+            example: 5
         - name: exact
           in: query
           description: Přesná shoda u uživatelského jména, jmen, e-mailu a hodnot atributů. Bez něj se hledá podřetězec.
@@ -2877,15 +3247,142 @@ paths:
             application/json:
               schema:
                 type: object
-              example: {"first":0,"max":20,"hasMore":false,"users":[{"id":"0ff993c7-98c7-41fb-9627-3519127ba360","username":"jan.novak","firstName":"Jan","lastName":"Novák","email":"jan.novak@example.cz","enabled":true,"createdTimestamp":1730620000000}]}
+                properties:
+                  first:
+                    type: integer
+                  max:
+                    type: integer
+                  hasMore:
+                    type: boolean
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        username:
+                          type: string
+                        firstName:
+                          type: string
+                        lastName:
+                          type: string
+                        email:
+                          type: string
+                        enabled:
+                          type: boolean
+                        createdTimestamp:
+                          type: integer
+                          format: int64
+                        lastLogin:
+                          type: integer
+                          format: int64
+                          description: Čas poslední události LOGIN v epoch milisekundách; vrací se při použití lastLoginWithinMinutes.
+                        loginCount:
+                          type: integer
+                          format: int64
+                          description: Počet událostí LOGIN uživatele v daném okně; vrací se při použití lastLoginWithinMinutes.
+              example: {"first":0,"max":20,"hasMore":false,"users":[{"id":"0ff993c7-98c7-41fb-9627-3519127ba360","username":"jan.novak","firstName":"Jan","lastName":"Novák","email":"jan.novak@example.cz","enabled":true,"createdTimestamp":1730620000000,"lastLogin":1730620000000,"loginCount":1}]}
         '400':
-          description: Neplatné `first`/`max`, chybný `attr` nebo `search` kombinovaný s jinými filtry.
+          description: Neplatné `first`/`max`, chybné `attr`, neplatný časový interval nebo kombinace `lastLoginWithinMinutes` s jiným filtrem.
         '403':
           description: Uživatel nemá oprávnění k požadované akci
         '502':
           description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
 
   /keycloak/users/{id}:
+    get:
+      tags:
+        - Keycloak
+      summary: Podrobnosti uživatele v Keycloaku
+      operationId: keycloakUserDetails
+      description: Vrátí základní údaje uživatele včetně atributů a realmových rolí. Seznam uživatelů zůstává dostupný přes samostatné stránkované vyhledávání.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Keycloak ID uživatele.
+          schema:
+            type: string
+            example: 0ff993c7-98c7-41fb-9627-3519127ba360
+      responses:
+        '200':
+          description: Podrobnosti uživatele
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  username:
+                    type: string
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  enabled:
+                    type: boolean
+                  createdTimestamp:
+                    type: integer
+                    format: int64
+                  attributes:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+                  realmRoles:
+                    type: array
+                    description: Keycloak realm roles together with roles derived from the configured Kramerius attribute mapping rules.
+                    items:
+                      type: string
+                  mappedRoles:
+                    type: array
+                    description: Roles assigned by Kramerius attribute mapping rules, with the name of the rule that assigned each role.
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: string
+                        ruleName:
+                          type: string
+                          nullable: true
+                  licenses:
+                    type: array
+                    description: Licence vyhodnocené podle IP adresy poslední události a skupin; pokud uživatel nemá lokální účet, skupiny se odvodí z jeho realmRoles v Keycloaku.
+                    items:
+                      type: string
+                  lastEvent:
+                    nullable: true
+                    description: Poslední zaznamenaná Keycloak událost uživatele.
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      time:
+                        type: integer
+                        format: int64
+                      userId:
+                        type: string
+                      clientId:
+                        type: string
+                      ipAddress:
+                        type: string
+                      details:
+                        type: object
+                        additionalProperties:
+                          type: string
+              example: {"id":"0ff993c7-98c7-41fb-9627-3519127ba360","username":"jan.novak","firstName":"Jan","lastName":"Novák","email":"jan.novak@example.cz","enabled":true,"createdTimestamp":1730620000000,"attributes":{"institution":["example"]},"realmRoles":["user","admin"]}
+        '403':
+          description: Uživatel nemá oprávnění k požadované akci
+        '404':
+          description: Uživatel v Keycloaku neexistuje.
+        '502':
+          description: Keycloak odmítl servisní účet jádra nebo vrátil chybu.
+
     delete:
       tags:
         - Keycloak
@@ -4193,6 +4690,16 @@ paths:
                             "iterationUrl":"http://secured_channel | api key",
                             "showConfigurationOnly":"yes | no"
                         }}
+
+              solr-search-index-copy:
+                summary: Copy the search Solr index
+                description: The optional batchSize parameter controls the number of documents fetched and verified in each batch. It defaults to 100. Set verifyAfterCopy to false to skip the post-copy verification (default true).
+                value: {"defid":"solr-search-index-copy","params":{"destinationUrl":"http://localhost:8983/solr/search_cdk_v2","batchSize":500,"verifyAfterCopy":true}}
+
+              search-index-processing:
+                summary: Rebuild a search collection from the processing index
+                description: Iterates unique repository PIDs from the processing index and indexes each object into destinationUrl.
+                value: {"defid":"search-index-processing","params":{"destinationUrl":"http://localhost:8983/solr/search_rebuilt","batchSize":1000,"ignoreInconsistentObjects":false}}
 
       responses:
         '200':

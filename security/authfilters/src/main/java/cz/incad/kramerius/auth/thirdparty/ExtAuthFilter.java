@@ -10,6 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.FilterConfig;
+import com.google.inject.Injector;
 
 
 /**
@@ -25,6 +27,11 @@ public abstract class ExtAuthFilter implements Filter {
      * Flag stored in session says, that user is already autheanticated
      */
     public static final String THIRD_PARTY_AUTHENTICATED_USER_KEY = "third_party_user";
+
+    protected final void injectSupport(FilterConfig config, Object support) {
+        Object injectorObject = config.getServletContext().getAttribute(Injector.class.getName());
+        if (injectorObject instanceof Injector) ((Injector) injectorObject).injectMembers(support);
+    }
 
     /**
      * Return AuthenticatedUser instance

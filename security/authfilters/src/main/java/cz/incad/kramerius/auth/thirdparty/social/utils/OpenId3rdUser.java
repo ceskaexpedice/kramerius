@@ -8,11 +8,14 @@ import cz.incad.kramerius.security.utils.UserUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 public class OpenId3rdUser extends AbstractThirdPartyUser {
 
     private Profile p;
     private String calcName;
+    private final Map<String, String> overrides = new HashMap<>();
 
     public OpenId3rdUser(String calcName, Profile p) {
         super();
@@ -27,16 +30,24 @@ public class OpenId3rdUser extends AbstractThirdPartyUser {
 
     @Override
     public Set<String> getPropertyKeys() {
-        return new HashSet<>(Arrays.asList(UserUtils.FIRST_NAME_KEY, UserUtils.LAST_NAME_KEY));
+        Set<String> keys = new HashSet<>(Arrays.asList(UserUtils.FIRST_NAME_KEY, UserUtils.LAST_NAME_KEY));
+        keys.addAll(overrides.keySet());
+        return keys;
     }
 
     @Override
     public String getProperty(String key) {
+        if (overrides.containsKey(key)) return overrides.get(key);
         if (key.equals(UserUtils.FIRST_NAME_KEY)) {
             return p.getFirstName();
         } else if (key.equals(UserUtils.LAST_NAME_KEY)) {
             return p.getLastName();
         } else
             return null;
+    }
+
+    @Override
+    public void setProperty(String key, String value) {
+        overrides.put(key, value);
     }
 }

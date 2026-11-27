@@ -32,6 +32,7 @@ public class SocialAuthFilter extends ExtAuthFilter {
     @Override
     public void init(FilterConfig arg0) throws ServletException {
         this.thirdPartyUsersSupport = new OpenIDThirdPartyUsersSupport();
+        injectSupport(arg0, this.thirdPartyUsersSupport);
     }
 
 

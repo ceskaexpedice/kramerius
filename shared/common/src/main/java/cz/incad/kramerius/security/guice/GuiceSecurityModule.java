@@ -33,6 +33,7 @@ import cz.incad.kramerius.security.licenses.LicensesManager;
 import cz.incad.kramerius.security.licenses.impl.DatabaseLicensesManagerImpl;
 import cz.incad.kramerius.security.licenses.impl.lock.ExclusiveLockMapsImpl;
 import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
+import cz.incad.kramerius.security.auth.AttributeRoleRulesService;
 
 /**
  * Base abstract module for security in K4
@@ -48,6 +49,7 @@ public class GuiceSecurityModule extends AbstractModule {
         bind(LicensesManager.class).to(DatabaseLicensesManagerImpl.class);
 
         bind(ExclusiveLockMaps.class).to(ExclusiveLockMapsImpl.class).asEagerSingleton();
+        bind(AttributeRoleRulesService.class).asEagerSingleton();
         
 
         // bind criterium loaders

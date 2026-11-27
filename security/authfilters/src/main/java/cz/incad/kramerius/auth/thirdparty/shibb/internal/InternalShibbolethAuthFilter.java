@@ -33,6 +33,7 @@ public class InternalShibbolethAuthFilter extends ShibbolethAuthFilter {
         Injector injector = getInjector(arg0);
         injector.injectMembers(this);
         InternalThirdPartyUsersSupportImpl internalAuthUsers = new InternalThirdPartyUsersSupportImpl();
+        injector.injectMembers(internalAuthUsers);
         internalAuthUsers.setUserManager(this.userManager);
 //        internalAuthUsers.setLoggedUsersSingleton(this.loggedUsersSingleton);
         this.authenticatedSources = internalAuthUsers;

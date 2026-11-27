@@ -7,9 +7,14 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -20,6 +25,8 @@ import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.EventRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.FederatedIdentityRepresentation;
@@ -33,6 +40,8 @@ import cz.incad.kramerius.utils.conf.KConfiguration;
 public class KeycloakAdminServiceImpl implements KeycloakAdminService {
 
     private static final int IDP_PAGE = 100;
+    private static final int EVENTS_PAGE_SIZE = 100;
+    private static final DateTimeFormatter EVENT_DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     public static final Logger LOGGER = Logger.getLogger(KeycloakAdminServiceImpl.class.getName());
 
@@ -133,6 +142,40 @@ public class KeycloakAdminServiceImpl implements KeycloakAdminService {
     }
 
     @Override
+    public KeycloakUserDetails getUserDetails(String userId) {
+        return withRealm(realm -> {
+            UserResource userResource = realm.users().get(userId);
+            UserRepresentation user = userResource.toRepresentation();
+            List<String> realmRoles = userResource.roles().realmLevel().listAll().stream()
+                    .map(RoleRepresentation::getName)
+                    .collect(Collectors.toList());
+            return new KeycloakUserDetails(user, realmRoles);
+        });
+    }
+
+    @Override
+    public EventRepresentation getLastUserEvent(String userId) {
+        return withKeycloak((keycloak, realmName) -> {
+            KeycloakUserEventsQuery eventsQuery = keycloak.proxy(KeycloakUserEventsQuery.class,
+                    URI.create(adminServerUrl() + "/admin/realms/" + realmName + "/events"));
+            EventRepresentation latest = null;
+            for (int offset = 0; ; offset += EVENTS_PAGE_SIZE) {
+                List<EventRepresentation> events = eventsQuery.search(null, userId, null, null,
+                        offset, EVENTS_PAGE_SIZE);
+                for (EventRepresentation event : events) {
+                    if (latest == null || event.getTime() > latest.getTime()) {
+                        latest = event;
+                    }
+                }
+                if (events.size() < EVENTS_PAGE_SIZE) {
+                    break;
+                }
+            }
+            return latest;
+        });
+    }
+
+    @Override
     public void deleteUser(String userId) {
         withRealm(realm -> {
             Response response = realm.users().delete(userId);
@@ -212,6 +255,87 @@ public class KeycloakAdminServiceImpl implements KeycloakAdminService {
                     filter.enabled, blankToNull(filter.idpAlias), q,
                     filter.exact ? Boolean.TRUE : null, first, max, true);
         }));
+    }
+
+    @Override
+    public List<KeycloakUserLoginActivity> usersLoggedInWithinMinutes(int minutes, int first, int max) {
+        if (minutes < 1) {
+            throw new IllegalArgumentException("minutes must be positive");
+        }
+
+        long now = System.currentTimeMillis();
+        long from = now - minutes * 60_000L;
+        // Keycloak 20 accepts yyyy-MM-dd here, not epoch milliseconds. Widen the
+        // date bounds by one day because Keycloak parses them in its own timezone;
+        // the exact minute window is applied to event timestamps below.
+        String dateFrom = Instant.ofEpochMilli(from).atZone(ZoneOffset.UTC).toLocalDate()
+                .minusDays(1).format(EVENT_DATE_FORMAT);
+        String dateTo = Instant.ofEpochMilli(now).atZone(ZoneOffset.UTC).toLocalDate()
+                .plusDays(1).format(EVENT_DATE_FORMAT);
+        return withKeycloak((keycloak, realmName) -> {
+            KeycloakUserEventsQuery eventsQuery = keycloak.proxy(KeycloakUserEventsQuery.class,
+                    URI.create(adminServerUrl() + "/admin/realms/" + realmName + "/events"));
+            Map<String, RecentLoginAggregate> byUser = new HashMap<>();
+            for (int eventOffset = 0; ; eventOffset += EVENTS_PAGE_SIZE) {
+                List<EventRepresentation> events = eventsQuery.search(Collections.singletonList("LOGIN"),
+                        null, dateFrom, dateTo, eventOffset, EVENTS_PAGE_SIZE);
+                for (EventRepresentation event : events) {
+                    String userId = event.getUserId();
+                    Long eventTime = event.getTime();
+                    if (userId == null || eventTime == null || eventTime < from || eventTime > now) {
+                        continue;
+                    }
+                    RecentLoginAggregate aggregate = byUser.get(userId);
+                    if (aggregate == null) {
+                        byUser.put(userId, new RecentLoginAggregate(eventTime));
+                    } else {
+                        aggregate.add(eventTime);
+                    }
+                }
+                if (events.size() < EVENTS_PAGE_SIZE) {
+                    break;
+                }
+            }
+
+            List<Map.Entry<String, RecentLoginAggregate>> sortedUsers = new ArrayList<>(byUser.entrySet());
+            sortedUsers.sort(Comparator
+                    .<Map.Entry<String, RecentLoginAggregate>>comparingLong(entry -> entry.getValue().lastLogin)
+                    .reversed()
+                    .thenComparing(Map.Entry::getKey));
+
+            List<KeycloakUserLoginActivity> result = new ArrayList<>();
+            int candidateIndex = Math.min(first, sortedUsers.size());
+            while (candidateIndex < sortedUsers.size() && result.size() < max) {
+                Map.Entry<String, RecentLoginAggregate> candidate = sortedUsers.get(candidateIndex++);
+                try {
+                    UserRepresentation user = keycloak.realm(realmName).users().get(candidate.getKey()).toRepresentation();
+                    if (user != null) {
+                        RecentLoginAggregate aggregate = candidate.getValue();
+                        result.add(new KeycloakUserLoginActivity(user, aggregate.lastLogin, aggregate.loginCount));
+                    }
+                } catch (WebApplicationException e) {
+                    if (e.getResponse() == null || e.getResponse().getStatus() != 404) {
+                        throw e;
+                    }
+                }
+            }
+            return result;
+        });
+    }
+
+    private static final class RecentLoginAggregate {
+        private long lastLogin;
+        private long loginCount;
+
+        private RecentLoginAggregate(long eventTime) {
+            this.lastLogin = eventTime;
+            this.loginCount = 1;
+        }
+
+        private void add(long eventTime) {
+            this.lastLogin = Math.max(this.lastLogin, eventTime);
+            this.loginCount++;
+        }
     }
 
     private static String attributeQuery(Map<String, String> attributes) {

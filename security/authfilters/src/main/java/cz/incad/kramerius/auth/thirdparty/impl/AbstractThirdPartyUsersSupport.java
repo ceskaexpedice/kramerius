@@ -17,12 +17,17 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.security.UserManager;
 import cz.incad.kramerius.security.utils.UserUtils;
 import cz.incad.kramerius.users.LoggedUsersSingleton;
+import cz.incad.kramerius.security.auth.AttributeRoleRulesService;
+import com.google.inject.Inject;
 
 public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> implements ThirdPartyUsersSupport {
 
     protected Map<String, String> credentials = new ConcurrentHashMap<String, String>();
     private final ConcurrentHashMap<String, ReentrantLock> userLocks = new ConcurrentHashMap<>();
+    @Inject
     protected UserManager usersManager;
+    @Inject
+    protected AttributeRoleRulesService attributeRoleRulesService;
     //protected LoggedUsersSingleton loggedUsersSingleton;
 
     public HttpServletRequest updateRequest(final HttpServletRequest req) {
@@ -83,6 +88,10 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
     public void setUserManager(UserManager uMan) {
         this.usersManager = uMan;
     }
+
+    public void setAttributeRoleRulesService(AttributeRoleRulesService service) {
+        this.attributeRoleRulesService = service;
+    }
     
     /*
     public LoggedUsersSingleton getLoggedUsersSingleton() {
@@ -108,6 +117,22 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
     public String storeUserPropertiesToSession(HttpServletRequest req, String userName) throws Exception {
         String password = null;
         T wrapper = createUserWrapper(req, userName);
+        if (attributeRoleRulesService != null) {
+            Map<String, String> attributes = new HashMap<>();
+            for (String key : wrapper.getPropertyKeys()) attributes.put(key, wrapper.getProperty(key));
+            attributes.put("loginName", wrapper.getCalculatedName());
+            String username = firstNonEmpty(attributes.get("username"), attributes.get("preferred_username"),
+                    attributes.get("preffered_user_name"), attributes.get("remote_user"), wrapper.getCalculatedName());
+            attributes.put("username", username);
+            String email = firstNonEmpty(attributes.get("email"), attributes.get("mail"));
+            if (email != null) attributes.put("email", email);
+            try {
+                attributeRoleRulesService.apply(attributes, wrapper.getRoles());
+                attributes.forEach(wrapper::setProperty);
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not apply configured authentication attribute rules", e);
+            }
+        }
 
         ReentrantLock lock = userLocks.computeIfAbsent(userName, k -> new ReentrantLock());
         
@@ -156,6 +181,13 @@ public abstract class AbstractThirdPartyUsersSupport<T extends ThirdPartyUser> i
         }
 
         return password;
+    }
+
+    private static String firstNonEmpty(String... values) {
+        for (String value : values) {
+            if (value != null && !value.trim().isEmpty()) return value;
+        }
+        return null;
     }
 
     

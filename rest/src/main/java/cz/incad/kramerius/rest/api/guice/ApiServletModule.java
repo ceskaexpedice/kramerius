@@ -24,6 +24,7 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import cz.incad.kramerius.SolrAccess;
 import cz.incad.kramerius.impl.CachedSolrAccessImpl;
 import cz.incad.kramerius.keycloak.KeycloakProxy;
+import cz.incad.kramerius.rest.apiNew.admin.v70.keycloak.KeycloakAdminResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.license.LicensesResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.APIMonitorResource;
 import cz.incad.kramerius.rest.apiNew.admin.v70.monitor.CacheMonitorResource;
@@ -122,8 +123,6 @@ public class ApiServletModule extends JerseyServletModule {
 		bind(RightsResource.class);
         bind(UsersResource.class);
         bind(RolesResource.class);
-        bind(cz.incad.kramerius.rest.apiNew.admin.v70.keycloak.KeycloakAdminResource.class);
-        bind(cz.incad.kramerius.keycloak.KeycloakAdminService.class).to(cz.incad.kramerius.keycloak.KeycloakAdminServiceImpl.class);
 
         // statistics
         bind(StatisticsResource.class);
@@ -212,7 +211,11 @@ public class ApiServletModule extends JerseyServletModule {
         bind(EndpointFolders.class);
         bind(FolderDatabase.class);
         bind(cz.incad.kramerius.rest.apiNew.admin.v70.folders.AdminEndpointFolders.class);
-        
+        bind(cz.incad.kramerius.rest.apiNew.admin.v70.AuthMappingRulesResource.class);
+
+
+        // keycloak admin resource
+        bind(KeycloakAdminResource.class);
         bind(KeycloakProxy.class);
 
         // debug resource

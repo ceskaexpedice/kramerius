@@ -54,6 +54,7 @@ public class CDKKeycloakFilter extends ExtAuthFilter {
         Injector injector = getInjector(filterConfig);
         injector.injectMembers(this);
         this.cdkUserSupport = new CDKUserSupport();
+        injector.injectMembers(this.cdkUserSupport);
         this.cdkUserSupport.setCache(this.groupCache);
         this.cdkUserSupport.setUserManager(this.userManager);
         //this.cdkUserSupport.setLoggedUsersSingleton(this.loggedUsersSingleton);

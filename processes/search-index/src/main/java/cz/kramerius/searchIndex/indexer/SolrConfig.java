@@ -18,8 +18,12 @@ public class SolrConfig {
     }
 
     public SolrConfig() {
+        this(KConfiguration.getInstance().getSolrSearchHost());
+    }
+
+    /** Builds a search index destination from a full Solr collection URL. */
+    public SolrConfig(String host) {
         KConfiguration config = KConfiguration.getInstance();
-        String host = config.getSolrSearchHost();
         if (host.startsWith("https://")) {
             useHttps = true;
             String[] baseUrlAndCollection = splitToBaseUrlAndCollection(host.substring("https://".length()));
@@ -42,8 +46,13 @@ public class SolrConfig {
      * @return
      */
     private String[] splitToBaseUrlAndCollection(String urlWithoutProtocol) {
-        urlWithoutProtocol = urlWithoutProtocol.endsWith("/") ? urlWithoutProtocol.substring(0, urlWithoutProtocol.length() - 1) : urlWithoutProtocol;
+        while (urlWithoutProtocol.endsWith("/")) {
+            urlWithoutProtocol = urlWithoutProtocol.substring(0, urlWithoutProtocol.length() - 1);
+        }
         int lastSlashPosition = urlWithoutProtocol.lastIndexOf("/");
+        if (lastSlashPosition < 1 || lastSlashPosition == urlWithoutProtocol.length() - 1) {
+            throw new IllegalArgumentException("invalid Solr collection URL: " + urlWithoutProtocol);
+        }
         return new String[]{urlWithoutProtocol.substring(0, lastSlashPosition), urlWithoutProtocol.substring(lastSlashPosition)};
     }
 

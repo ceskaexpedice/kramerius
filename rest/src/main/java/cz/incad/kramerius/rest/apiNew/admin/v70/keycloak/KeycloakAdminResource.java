@@ -1,15 +1,20 @@
 package cz.incad.kramerius.rest.apiNew.admin.v70.keycloak;
 
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.DefaultValue;
 
 import org.keycloak.representations.idm.FederatedIdentityRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.EventRepresentation;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -32,11 +37,31 @@ import com.google.inject.Provider;
 
 import cz.incad.kramerius.ObjectPidsPath;
 import cz.incad.kramerius.keycloak.KeycloakAdminService;
+import cz.incad.kramerius.keycloak.KeycloakUserLoginActivity;
+import cz.incad.kramerius.keycloak.KeycloakUserDetails;
 import cz.incad.kramerius.rest.api.exceptions.ActionNotAllowed;
 import cz.incad.kramerius.security.RightsResolver;
 import cz.incad.kramerius.security.SecuredActions;
 import cz.incad.kramerius.security.SpecialObjects;
 import cz.incad.kramerius.security.User;
+import cz.incad.kramerius.security.auth.AttributeRoleRulesService;
+import cz.incad.kramerius.security.UserManager;
+import cz.incad.kramerius.security.Role;
+import cz.incad.kramerius.security.Right;
+import cz.incad.kramerius.security.RightCriteriumContext;
+import cz.incad.kramerius.security.RightCriteriumContextFactory;
+import cz.incad.kramerius.security.EvaluatingResultState;
+import cz.incad.kramerius.security.DataMockExpectation;
+import cz.incad.kramerius.security.impl.DatabaseRightsManager;
+import cz.incad.kramerius.security.impl.RoleImpl;
+import cz.incad.kramerius.security.impl.UserImpl;
+import cz.incad.kramerius.security.licenses.License;
+import cz.incad.kramerius.security.licenses.LicensesManager;
+import cz.incad.kramerius.security.licenses.LicensesManagerException;
+import cz.incad.kramerius.security.licenses.lock.ExclusiveLockMaps;
+import cz.incad.kramerius.imaging.ImageStreams;
+import cz.incad.kramerius.security.utils.UserUtils;
+import cz.incad.kramerius.rest.apiNew.client.v70.ClientUserResource;
 import cz.incad.kramerius.keycloak.KeycloakUserFilter;
 
 @Path("/admin/v7.0/keycloak")
@@ -51,10 +76,28 @@ public class KeycloakAdminResource {
     KeycloakAdminService keycloakAdminService;
 
     @Inject
+    AttributeRoleRulesService attributeRoleRulesService;
+
+    @Inject
     Provider<User> userProvider;
 
     @Inject
     RightsResolver rightsResolver;
+
+    @Inject
+    UserManager userManager;
+
+    @Inject
+    DatabaseRightsManager databaseRightsManager;
+
+    @Inject
+    RightCriteriumContextFactory ctxFactory;
+
+    @Inject
+    LicensesManager licensesManager;
+
+    @Inject
+    ExclusiveLockMaps exclusiveMaps;
 
     // ------------- roles -------------
 
@@ -133,6 +176,57 @@ public class KeycloakAdminResource {
         }
     }
 
+    @GET
+    @Path("users/{id}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response userDetails(@PathParam("id") String id) {
+        checkPermission();
+        try {
+            KeycloakUserDetails details = this.keycloakAdminService.getUserDetails(id);
+            EventRepresentation lastEvent = this.keycloakAdminService.getLastUserEvent(id);
+            List<String> realmRoles = new ArrayList<>(details.getRealmRoles());
+            List<String> rolesForLicenseEvaluation = new ArrayList<>(realmRoles);
+            List<AttributeRoleRulesService.RoleMapping> mappedRoles = mappedRealmRoles(details.getUser(), rolesForLicenseEvaluation);
+            List<String> providedLicenses = findProvidedLicenses(details.getUser(), rolesForLicenseEvaluation,
+                    lastEvent == null ? null : blankToNull(lastEvent.getIpAddress()));
+            KeycloakUserDetails detailsWithMappedRoles = new KeycloakUserDetails(details.getUser(), realmRoles);
+            return Response.ok().entity(userDetailsJson(detailsWithMappedRoles, mappedRoles, lastEvent, providedLicenses).toString()).build();
+        } catch (WebApplicationException e) {
+            return keycloakError(e, "get details for user " + id);
+        }
+    }
+
+    /** Adds roles implied by Kramerius attribute rules to the roles shown for this Keycloak user. */
+    private List<AttributeRoleRulesService.RoleMapping> mappedRealmRoles(UserRepresentation keycloakUser, List<String> realmRoles) {
+        UserImpl mockUser = new UserImpl(0, keycloakUser.getFirstName(), keycloakUser.getLastName(),
+                keycloakUser.getUsername(), 0);
+        Map<String, String> attributes = new java.util.HashMap<>();
+        Map<String, List<String>> keycloakAttributes = keycloakUser.getAttributes();
+        if (keycloakAttributes != null) {
+            keycloakAttributes.forEach((key, values) -> {
+                if (values != null && !values.isEmpty()) attributes.put(key, String.join(",", values));
+            });
+        }
+        if (mockUser.getLoginname() != null) {
+            attributes.put("username", mockUser.getLoginname());
+            attributes.put("loginName", mockUser.getLoginname());
+        }
+        putIfNotNull(attributes, "firstName", mockUser.getFirstName());
+        putIfNotNull(attributes, "lastName", mockUser.getSurname());
+        putIfNotNull(attributes, "given_name", mockUser.getFirstName());
+        putIfNotNull(attributes, "family_name", mockUser.getSurname());
+        putIfNotNull(attributes, "email", keycloakUser.getEmail());
+        try {
+            return attributeRoleRulesService.applyAndGetRoleMappings(attributes, realmRoles);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not apply configured authentication attribute rules to Keycloak user details", e);
+        }
+    }
+
+    private static void putIfNotNull(Map<String, String> attributes, String key, String value) {
+        if (value != null && !value.isEmpty()) attributes.put(key, value);
+    }
+
     @POST
     @Path("users")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -179,6 +273,7 @@ public class KeycloakAdminResource {
                                 @QueryParam("enabled") Boolean enabled,
                                 @QueryParam("idp") String idp,
                                 @QueryParam("attr") List<String> attrs,
+                                @QueryParam("lastLoginWithinMinutes") Integer lastLoginWithinMinutes,
                                 @QueryParam("exact") @DefaultValue("false") boolean exact,
                                 @QueryParam("first") @DefaultValue("0") int first,
                                 @QueryParam("max") @DefaultValue("20") int max) {
@@ -208,19 +303,39 @@ public class KeycloakAdminResource {
             }
         }
 
+        if (lastLoginWithinMinutes != null
+                && (lastLoginWithinMinutes < 1 || lastLoginWithinMinutes > 10080)) {
+            return error(400, "lastLoginWithinMinutes must be between 1 and 10080");
+        }
+
         boolean otherFilters = notBlank(username) || notBlank(firstName) || notBlank(lastName)
                 || notBlank(email) || notBlank(idp) || !filter.attributes.isEmpty();
         if (notBlank(search) && otherFilters) {
             return error(400, "'search' cannot be combined with other filters (only with 'enabled')");
         }
+        if (lastLoginWithinMinutes != null && (notBlank(search) || enabled != null || otherFilters)) {
+            return error(400, "'lastLoginWithinMinutes' cannot be combined with other user filters");
+        }
 
         try {
             // one extra record tells us whether there is a next page
-            List<UserRepresentation> found = this.keycloakAdminService.searchUsers(filter, first, max + 1);
-            boolean hasMore = found.size() > max;
             JSONArray users = new JSONArray();
-            for (UserRepresentation u : found.subList(0, Math.min(found.size(), max))) {
-                users.put(userJson(u));
+            boolean hasMore;
+            if (lastLoginWithinMinutes != null) {
+                List<KeycloakUserLoginActivity> found = this.keycloakAdminService.usersLoggedInWithinMinutes(
+                        lastLoginWithinMinutes, first, max + 1);
+                hasMore = found.size() > max;
+                for (KeycloakUserLoginActivity activity : found.subList(0, Math.min(found.size(), max))) {
+                    users.put(userJson(activity.getUser())
+                            .put("lastLogin", activity.getLastLogin())
+                            .put("loginCount", activity.getLoginCount()));
+                }
+            } else {
+                List<UserRepresentation> found = this.keycloakAdminService.searchUsers(filter, first, max + 1);
+                hasMore = found.size() > max;
+                for (UserRepresentation user : found.subList(0, Math.min(found.size(), max))) {
+                    users.put(userJson(user));
+                }
             }
             return Response.ok().entity(new JSONObject()
                     .put("first", first)
@@ -228,7 +343,9 @@ public class KeycloakAdminResource {
                     .put("hasMore", hasMore)
                     .put("users", users).toString()).build();
         } catch (WebApplicationException e) {
-            return keycloakError(e, "search users");
+            return keycloakError(e, lastLoginWithinMinutes != null
+                    ? "search login events"
+                    : "search users");
         }
     }
 
@@ -403,7 +520,100 @@ public class KeycloakAdminResource {
                 .put("createdTimestamp", u.getCreatedTimestamp());
     }
 
+    private static JSONObject userDetailsJson(KeycloakUserDetails details,
+                                              List<AttributeRoleRulesService.RoleMapping> mappedRoles,
+                                              EventRepresentation lastEvent,
+                                              List<String> providedLicenses) {
+        UserRepresentation user = details.getUser();
+        JSONArray mappedRoleJson = new JSONArray();
+        for (AttributeRoleRulesService.RoleMapping mapping : mappedRoles) {
+            mappedRoleJson.put(new JSONObject()
+                    .put("role", mapping.getRole())
+                    .put("ruleName", mapping.getRuleName().isEmpty() ? JSONObject.NULL : mapping.getRuleName()));
+        }
+        JSONObject json = userJson(user)
+                .put("attributes", user.getAttributes() == null ? new JSONObject() : new JSONObject(user.getAttributes()))
+                .put("realmRoles", new JSONArray(details.getRealmRoles()))
+                .put("mappedRoles", mappedRoleJson)
+                .put("licenses", new JSONArray(providedLicenses));
+        if (lastEvent == null) {
+            json.put("lastEvent", JSONObject.NULL);
+        } else {
+            json.put("lastEvent", new JSONObject()
+                    .put("type", lastEvent.getType())
+                    .put("time", lastEvent.getTime())
+                    .put("userId", lastEvent.getUserId())
+                    .put("clientId", lastEvent.getClientId())
+                    .put("ipAddress", lastEvent.getIpAddress())
+                    .put("details", lastEvent.getDetails() == null ? new JSONObject() : new JSONObject(lastEvent.getDetails())));
+        }
+        return json;
+    }
+
+    private List<String> findProvidedLicenses(UserRepresentation keycloakUser, List<String> keycloakRealmRoles,
+                                              String eventIpAddress) {
+        User user = userManager.findUserByLoginName(keycloakUser.getUsername());
+        if (user == null) {
+            // Users supplied by an external Keycloak do not necessarily have a
+            // local user_entity record. Still evaluate group-based licenses
+            // using their Keycloak realm roles and the standard implicit groups.
+            UserImpl externalUser = new UserImpl(-1, keycloakUser.getFirstName(), keycloakUser.getLastName(),
+                    keycloakUser.getUsername(), -1);
+            externalUser.setEmail(keycloakUser.getEmail());
+            List<Role> groups = new ArrayList<>();
+            if (keycloakRealmRoles != null) {
+                for (String roleName : keycloakRealmRoles) {
+                    if (roleName != null && !roleName.trim().isEmpty()) {
+                        groups.add(new RoleImpl(roleName));
+                    }
+                }
+            }
+            externalUser.setGroups(groups.toArray(new Role[0]));
+            user = externalUser;
+        }
+        // The logged-in user provider adds these implicit groups before rights
+        // evaluation. Do the same so common-user licenses such as "public" apply.
+        UserUtils.associateCommonGroup(user, userManager);
+        UserUtils.associateAuthenticatedGroup(user, userManager);
+        Right[] rights = databaseRightsManager.findAllRightByCriteriumNames(
+                SecuredActions.A_READ.getFormalName(), ClientUserResource.LICENSES_CRITERIA, user);
+        RightCriteriumContext context = ctxFactory.create(SpecialObjects.REPOSITORY.getPid(),
+                ImageStreams.IMG_FULL.name(), user, eventIpAddress, eventIpAddress, null, exclusiveMaps);
+        Set<String> names = new LinkedHashSet<>();
+        for (Right right : rights) {
+            try {
+                if (right.mockEvaluate(context, databaseRightsManager, DataMockExpectation.EXPECT_DATA_VAUE_EXISTS)
+                        == EvaluatingResultState.TRUE) {
+                    String name = right.getCriteriumWrapper().getLicense().getName();
+                    if (name != null && !name.isEmpty() && Character.isAlphabetic(name.charAt(0))) {
+                        names.add(name);
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.warning("Could not evaluate provided license for user " + keycloakUser.getUsername() + ": " + e.getMessage());
+            }
+        }
+        try {
+            List<License> licenses = licensesManager.getLicenses();
+            licenses.sort(Comparator.comparingInt(License::getPriority));
+            List<String> ordered = new ArrayList<>();
+            for (License license : licenses) {
+                if (names.contains(license.getName())) {
+                    ordered.add(license.getName());
+                }
+            }
+            return ordered;
+        } catch (LicensesManagerException e) {
+            LOGGER.warning("Could not order provided licenses: " + e.getMessage());
+            return new ArrayList<>(names);
+        }
+    }
+
     private static boolean notBlank(String s) {
         return s != null && !s.trim().isEmpty();
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.trim().isEmpty() ? null : value;
     }
 }

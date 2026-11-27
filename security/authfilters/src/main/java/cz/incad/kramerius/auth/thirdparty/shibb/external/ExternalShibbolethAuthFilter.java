@@ -19,6 +19,7 @@ public class ExternalShibbolethAuthFilter extends ShibbolethAuthFilter {
     @Override
     public void init(FilterConfig fConfig) throws ServletException {
         this.authenticatedSources = new ExternalThirdPartyUsersSupportImpl();
+        injectSupport(fConfig, this.authenticatedSources);
         this.authenticatedSources.setUserManager(this.userManager);
 
     }

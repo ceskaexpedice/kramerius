@@ -5,6 +5,7 @@ import cz.incad.kramerius.security.UserManager;
 import org.json.JSONObject;
 
 import java.util.Set;
+import java.util.List;
 
 /**
  * Represents third party authenticated user
@@ -26,6 +27,10 @@ public interface ThirdPartyUser {
     public String getProperty(String key);
 
     public Set<String> getPropertyKeys();
+
+    public void setProperty(String key, String value);
+
+    public List<String> getRoles();
 
 
 

@@ -44,6 +44,7 @@ import cz.incad.kramerius.security.User;
 import cz.incad.kramerius.utils.conf.KConfiguration;
 import cz.incad.kramerius.utils.solr.SolrUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.json.JSONObject;
 
 //@Path("/admin/v7.0/items")
 //public class ItemsResource extends AdminApiResource {
@@ -99,6 +100,80 @@ public class IndexReflectionResource extends AdminApiResource {
         } else {
             throw new ActionNotAllowed("not allowed");
         }        
+    }
+
+    @GET
+    @Path("/cores")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCoreConfiguration() {
+        if (!permit(this.userProvider.get(), SecuredActions.A_INDEX)) {
+            throw new ActionNotAllowed("not allowed");
+        }
+
+        KConfiguration configuration = KConfiguration.getInstance();
+        boolean usesCompositeId = configuration.getConfiguration().getBoolean("solrSearch.useCompositeId", false);
+        JSONObject cores = new JSONObject();
+        addCore(cores, "search", configuration.getSolrSearchHost(),
+                usesCompositeId ? "compositeId" : "pid", usesCompositeId);
+        addCore(cores, "logs", configuration.getProperty("k7.log.solr.point", "http://localhost:8983/solr/logs"),
+                "id", false);
+        addCore(cores, "processing", configuration.getSolrProcessingHost(),
+                "pid", false);
+
+        JSONObject response = new JSONObject();
+        response.put("cores", cores);
+        return Response.ok(response.toString()).type(MediaType.APPLICATION_JSON).build();
+    }
+
+    private void addCore(JSONObject cores, String name, String url, String identifierField,
+                         boolean usesCompositeId) {
+        JSONObject core = new JSONObject();
+        core.put("url", jsonValue(url));
+        core.put("identifierField", identifierField);
+        core.put("usesCompositeId", usesCompositeId);
+        core.put("health", getCoreHealth(url, identifierField));
+        cores.put(name, core);
+    }
+
+    private JSONObject getCoreHealth(String url, String expectedIdentifierField) {
+        JSONObject health = new JSONObject();
+        health.put("reachable", false);
+        health.put("exists", false);
+        health.put("identifierMatchesSchema", false);
+
+        if (url == null || url.isBlank()) {
+            health.put("status", "not_configured");
+            return health;
+        }
+
+        try {
+            String schemaJson;
+            try (InputStream schema = SolrUtils.schema(this.provider.get(), url, null)) {
+                schemaJson = IOUtils.toString(schema, "UTF-8");
+            }
+            health.put("reachable", true);
+
+            JSONObject schema = new JSONObject(schemaJson).optJSONObject("schema");
+            if (schema == null) {
+                health.put("status", "schema_unavailable");
+                return health;
+            }
+
+            health.put("exists", true);
+            String schemaIdentifierField = schema.optString("uniqueKey", "");
+            health.put("schemaIdentifierField", schemaIdentifierField);
+            boolean identifierMatches = expectedIdentifierField.equals(schemaIdentifierField);
+            health.put("identifierMatchesSchema", identifierMatches);
+            health.put("status", identifierMatches ? "up" : "identifier_mismatch");
+        } catch (Exception e) {
+            health.put("status", "unavailable");
+            health.put("error", e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+        }
+        return health;
+    }
+
+    private static Object jsonValue(String value) {
+        return value == null ? JSONObject.NULL : value;
     }
     
     

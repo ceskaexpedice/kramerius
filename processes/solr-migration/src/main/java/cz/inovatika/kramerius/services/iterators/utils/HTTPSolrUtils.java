@@ -88,13 +88,12 @@ public class HTTPSolrUtils {
             }
 
             if (statusCode != HttpStatus.SC_OK) {
-                StringWriter stringWriter = new StringWriter();
-                //XMLUtils.print(batchDoc, stringWriter);
-                LOGGER.warning("Problematic batch, status code  "+statusCode);
-                //LOGGER.warning(stringWriter.toString());
-                return bos.toString();
+                String responseBody = bos.toString(StandardCharsets.UTF_8);
+                LOGGER.warning("Problematic batch, status code " + statusCode + ", Solr response: " + responseBody
+                        + "\nProblematic batch XML:\n" + writer);
+                return responseBody;
             } else {
-                return bos.toString();
+                return bos.toString(StandardCharsets.UTF_8);
             }
 
         } catch (IOException e) {

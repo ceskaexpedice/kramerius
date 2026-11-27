@@ -1330,6 +1330,77 @@ public class CollectionsResource extends AdminApiResource {
         }
     }
 
+    @POST
+    @Path("{pid}/edit_clip_item")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response editClipItem(@PathParam("pid") String collectionPid, String itemJsonObj) {
+        try {
+            checkReadOnlyWorkMode();
+            JSONObject json = new JSONObject(itemJsonObj);
+            CutItem clipItem = CutItem.fromJSONObject(json);
+            if (clipItem == null || clipItem.getUrl() == null) {
+                throw new BadRequestException("badREquest");
+            }
+
+            checkSupportedObjectPid(collectionPid);
+            if (!isModelCollection(collectionPid)) {
+                throw new ForbiddenException("not a collection: " + collectionPid);
+            }
+            User user = this.userProvider.get();
+            if (!permitCollectionEdit(this.rightsResolver, user, collectionPid)) {
+                throw new ForbiddenException("user '%s' is not allowed to modify collection (missing action '%s')", user.getLoginname(), SecuredActions.A_COLLECTIONS_EDIT);
+            }
+
+            boolean updated = akubraRepository.doWithLock(collectionPid, () -> {
+                try {
+                    JSONArray jsonArray = new JSONArray();
+                    if (akubraRepository.datastreamExists(collectionPid, COLLECTION_CLIPS)) {
+                        try (InputStream latestVersionOfDatastream = akubraRepository.getDatastreamContent(collectionPid, COLLECTION_CLIPS).asInputStream()) {
+                            jsonArray = new JSONArray(IOUtils.toString(latestVersionOfDatastream, "UTF-8"));
+                        }
+                    }
+
+                    if (updateClipItem(jsonArray, clipItem)) {
+                        ByteArrayInputStream bis = new ByteArrayInputStream(jsonArray.toString().getBytes(Charset.forName("UTF-8")));
+                        akubraRepository.updateManagedDatastream(collectionPid, COLLECTION_CLIPS, "application/json", bis);
+                        return true;
+                    }
+                    return false;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            if (!updated) {
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+            Collection collection = fetchCollectionFromRepository(collectionPid, true, true);
+            return Response.ok(collection.toJson()).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (DistributedLocksException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            handleWorkMode(e);
+            throw e;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new InternalErrorException(e.getMessage());
+        }
+    }
+
+    static boolean updateClipItem(JSONArray jsonArray, CutItem clipItem) {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject existing = jsonArray.getJSONObject(i);
+            if (clipItem.getUrl().equals(existing.optString("url", null))) {
+                existing.put("name", clipItem.getName());
+                existing.put("description", clipItem.getDescription());
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static LocalDateTime convertToLocalDateTime(Date date) {
         if (date == null) {
             return null;

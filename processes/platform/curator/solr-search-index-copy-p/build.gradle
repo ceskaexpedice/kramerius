@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+    id 'org.ceskaexpedice.processplatform.process' version '1.0.6'
+}
+
+description "Copy the search Solr index"
+
+processPlugin {
+    spiImplementation = 'org.kramerius.plugin.SolrSearchIndexCopySPI'
+    profiles = [
+            [profileId: "solr-search-index-copy", description: "Copy the search index", jvmArgs: ["-Xms512m", "-Xmx4g"]]
+    ]
+    excludeDependencies = ['com.sun.jersey', 'javax.ws.rs']
+}
+
+dependencies {
+    implementation "org.ceskaexpedice:process-api:${processapiversion}"
+    implementation project(':processes:solr-migration')
+}

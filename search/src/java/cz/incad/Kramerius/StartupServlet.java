@@ -35,6 +35,7 @@ import cz.incad.kramerius.pdf.GeneratePDFService;
 import cz.incad.kramerius.rest.oai.db.OAIDBInitializer;
 import cz.incad.kramerius.security.database.ConfigDBInitializer;
 import cz.incad.kramerius.security.database.SecurityDbInitializer;
+import cz.incad.kramerius.security.auth.AttributeRoleRulesService;
 import cz.incad.kramerius.service.LifeCycleHookRegistry;
 import cz.incad.kramerius.service.TextsService;
 import cz.incad.kramerius.statistics.database.StatisticDbInitializer;
@@ -72,6 +73,9 @@ public class StartupServlet extends GuiceServlet {
 
     @Inject
     VersionService versionService;
+
+    @Inject
+    AttributeRoleRulesService attributeRoleRulesService;
 
     @Inject
     LifeCycleHookRegistry lifecycleRegistry;
@@ -118,6 +122,7 @@ public class StartupServlet extends GuiceServlet {
 
             // init config table
             ConfigDBInitializer.initDatabase(k7dbConnection, versionService);
+            attributeRoleRulesService.initialize();
 
             // statistics tables
             StatisticDbInitializer.initDatabase(k7dbConnection, versionService);

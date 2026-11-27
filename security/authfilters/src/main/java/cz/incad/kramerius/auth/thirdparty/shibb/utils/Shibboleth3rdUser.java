@@ -40,6 +40,13 @@ public class Shibboleth3rdUser extends AbstractThirdPartyUser {
         this.sessionAttributes.put(key, value);
     }
 
+    @Override
+    public void setProperty(String key, String value) {
+        if (key.equals(UserUtils.FIRST_NAME_KEY)) this.firstName = value;
+        else if (key.equals(UserUtils.LAST_NAME_KEY)) this.lastName = value;
+        else this.sessionAttributes.put(key, value);
+    }
+
     public void removeSessionAttribute(String key) {
         this.sessionAttributes.remove(key);
     }

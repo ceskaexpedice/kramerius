@@ -35,6 +35,7 @@ import cz.incad.kramerius.fedora.RepoModule;
 import cz.incad.kramerius.rest.api.guice.IiifServletModule;
 import cz.incad.kramerius.security.guice.GuiceSecurityModule;
 import cz.incad.kramerius.security.impl.http.GuiceSecurityHTTPModule;
+import cz.incad.kramerius.keycloak.guice.KeycloakModule;
 import cz.incad.kramerius.service.guice.I18NModule;
 import cz.incad.kramerius.service.guice.MailModule;
 import cz.incad.kramerius.service.guice.ServicesModule;
@@ -80,6 +81,7 @@ public class GuiceConfigBean extends GuiceServletContextListener {
                 new DocumentServiceModule(),
                 new GuiceSecurityModule(), 
                 new GuiceSecurityHTTPModule(),
+                new KeycloakModule(),
                 new ProcessModule(), // for long running processes
 
                 new PrintModule(), // printing

@@ -75,7 +75,7 @@ public class AdminEndpointFolders extends AdminApiResource {
         return Response.ok(result.toString()).type(MediaType.APPLICATION_JSON + ";charset=utf-8").build();
     }
 
-    private boolean matches(FolderDatabase.Folder folder, String query, String userId) {
+    boolean matches(FolderDatabase.Folder folder, String query, String userId) {
         if (query != null && !query.trim().isEmpty()) {
             String needle = query.trim().toLowerCase(Locale.ROOT);
             boolean matchesText = contains(folder.name, needle) || contains(folder.uuid, needle)

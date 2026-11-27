@@ -18,10 +18,13 @@ import org.w3c.dom.Element;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<WorkerIndexedItem, SimpleCopyMigrationIndexFeederContext> {
+
+    private static final AtomicBoolean NO_UPDATE_WARNING_LOGGED = new AtomicBoolean(false);
 
     public SimpleCopyMigrationIndexFeeder(MigrationConfig migrationConfig, CloseableHttpClient client, ApacheHTTPRequestEnricher enricher, List<IterationItem> items, MigrationIndexFeederFinisher finisher) {
         super(migrationConfig, client, enricher, items, finisher);
@@ -117,8 +120,7 @@ public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<Wor
                         onIndexUpdateEvent(addDocument);
 
                         String destinationUrl = migrationConfig.getFeederConfig().getDestinationConfig().getDestinationUrl();
-                        String s = SolrUtils.sendToDest(destinationUrl, this.client, batch);
-                        LOGGER.info(s);
+                        SolrUtils.sendToDest(destinationUrl, this.client, batch);
                     }
 
                     if (!simpleCopyContext.getAlreadyIndexed().isEmpty()) {
@@ -143,10 +145,11 @@ public class SimpleCopyMigrationIndexFeeder extends CopyMigrationIndexFeeder<Wor
                         if (doUpdate) {
                             Element addDocument = destBatch.getDocumentElement();
                             onUpdateEvent(addDocument);
-                            String s = SolrUtils.sendToDest(this.config.getDestinationConfig().getDestinationUrl(), this.client, destBatch);
-                            LOGGER.info(s);
+                            SolrUtils.sendToDest(this.config.getDestinationConfig().getDestinationUrl(), this.client, destBatch);
                         } else {
-                            LOGGER.info("No update");
+                            if (NO_UPDATE_WARNING_LOGGED.compareAndSet(false, true)) {
+                                LOGGER.warning("No update elements are configured; already indexed documents will not be updated.");
+                            }
                         }
                     }
                 } catch (Exception e) {

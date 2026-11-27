@@ -195,16 +195,23 @@ public class Migration {
             lastReportedProcessed = processed;
             long elapsedMillis = System.currentTimeMillis() - startedAtMillis;
             if (totalDocuments > 0) {
-                double percent = (processed * 100.0d) / totalDocuments;
+                long remaining = Math.max(totalDocuments - processed, 0L);
+                double remainingPercent = (remaining * 100.0d) / totalDocuments;
                 LOGGER.info(String.format(
-                        "Migration progress: %s/%s | %.1f%% | %s",
+                        "Migration progress: processed %s/%s | remaining %s | remaining %.1f%% | elapsed %s",
                         formatCount(processed),
                         formatCount(totalDocuments),
-                        percent,
+                        formatCount(remaining),
+                        remainingPercent,
+                        formatElapsed(elapsedMillis)));
+            } else if (totalDocuments == 0) {
+                LOGGER.info(String.format(
+                        "Migration progress: processed %s/0 | remaining 0 | remaining 0.0%% | elapsed %s",
+                        formatCount(processed),
                         formatElapsed(elapsedMillis)));
             } else {
                 LOGGER.info(String.format(
-                        "Migration progress: %s | %s",
+                        "Migration progress: processed %s | remaining unknown | remaining percent unknown | elapsed %s",
                         formatCount(processed),
                         formatElapsed(elapsedMillis)));
             }
